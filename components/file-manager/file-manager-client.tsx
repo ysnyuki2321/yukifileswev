@@ -14,9 +14,10 @@ import { formatBytes } from "@/lib/utils"
 interface FileManagerClientProps {
   userData: any
   initialFiles: any[]
+  showHeader?: boolean
 }
 
-export default function FileManagerClient({ userData, initialFiles }: FileManagerClientProps) {
+export default function FileManagerClient({ userData, initialFiles, showHeader = true }: FileManagerClientProps) {
   const [files, setFiles] = useState(initialFiles)
   const [quotaUsed, setQuotaUsed] = useState(userData?.quota_used || 0)
 
@@ -44,30 +45,32 @@ export default function FileManagerClient({ userData, initialFiles }: FileManage
   return (
     <>
       {/* Header */}
-      <header className="border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" className="text-gray-300 hover:text-white">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Dashboard
-                </Button>
-              </Link>
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"></div>
-                <span className="text-2xl font-bold text-white">File Manager</span>
+      {showHeader && (
+        <header className="border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Link href="/dashboard">
+                  <Button variant="ghost" className="text-gray-300 hover:text-white">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Dashboard
+                  </Button>
+                </Link>
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"></div>
+                  <span className="text-2xl font-bold text-white">File Manager</span>
+                </div>
               </div>
+              <form action={signOut}>
+                <Button type="submit" variant="ghost" className="text-gray-300 hover:text-white">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </form>
             </div>
-            <form action={signOut}>
-              <Button type="submit" variant="ghost" className="text-gray-300 hover:text-white">
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
-            </form>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">

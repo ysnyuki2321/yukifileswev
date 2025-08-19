@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Download, ImageIcon, Video, Music, File } from "lucide-react"
 import { formatBytes, formatDate } from "@/lib/utils"
 import Link from "next/link"
+import ShareActions from "@/components/share/ShareActions"
 
 interface SharePageProps {
   params: { token: string }
@@ -114,17 +115,20 @@ export default async function SharePage({ params }: SharePageProps) {
                 </div>
               )}
 
-              {/* Download Button */}
-              <div className="text-center">
-                <a href={`/api/files/download/${token}`} download={fileData.original_name}>
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
-                  >
-                    <Download className="w-5 h-5 mr-2" />
-                    Download File
-                  </Button>
-                </a>
+              {/* Download + Share */}
+              <div className="flex flex-col items-center gap-4">
+                <div className="text-center">
+                  <a href={`/api/files/download/${token}`} download={fileData.original_name}>
+                    <Button
+                      size="lg"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                    >
+                      <Download className="w-5 h-5 mr-2" />
+                      Download File
+                    </Button>
+                  </a>
+                </div>
+                <ShareActions token={token} />
               </div>
 
               {/* Uploader Info */}
