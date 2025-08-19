@@ -24,11 +24,7 @@ export async function signIn(prevState: any, formData: FormData) {
   }
 
   try {
-    // Check duplicate email first in Supabase Auth and our users table
-    const { data: existing } = await supabase.from("users").select("id").eq("email", email.toString()).maybeSingle()
-    if (existing) {
-      return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
-    }
+    // No duplicate email check on login. We allow users with existing accounts to sign in.
 
     const headersList = headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
@@ -101,10 +97,14 @@ export async function signUp(prevState: any, formData: FormData) {
 
   const email = formData.get("email")
   const password = formData.get("password")
+  const password2 = formData.get("password2")
   const deviceFingerprint = formData.get("deviceFingerprint")
 
   if (!email || !password) {
     return { error: "Email and password are required" }
+  }
+  if (!password2 || password.toString() !== password2.toString()) {
+    return { error: "Passwords do not match" }
   }
 
   const supabase = createServerClient()
@@ -143,6 +143,12 @@ export async function signUp(prevState: any, formData: FormData) {
           error: `Registration denied: ${antiCloneResult.reason}. Please contact support if you believe this is an error.`,
         }
       }
+    }
+
+    // Prevent duplicate email in our users table for clearer UX code
+    const { data: existing } = await supabase.from("users").select("id").eq("email", email.toString()).maybeSingle()
+    if (existing) {
+      return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
     }
 
     const { error, data } = await supabase.auth.signUp({
