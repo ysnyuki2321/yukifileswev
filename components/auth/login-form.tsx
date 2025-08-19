@@ -106,6 +106,20 @@ export default function LoginForm() {
                   defaultValue={process.env.NEXT_PUBLIC_DEMO_PASSWORD || "yukifiledemo"}
                 />
               </div>
+              {/* Optional 2FA code */}
+              <div className="space-y-2">
+                <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-300">
+                  2FA Code (if enabled)
+                </label>
+                <Input
+                  id="twoFactorCode"
+                  name="twoFactorCode"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                />
+              </div>
             </div>
 
             <SubmitButton disabled={!fingerprint} />

@@ -16,7 +16,7 @@ Any changes you make to your deployed app will be automatically pushed to this r
 Copy `.env.example` to `.env.local` and fill Supabase keys. Set `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL` to `http://localhost:3000/auth/callback`.
 
 ### Database
-Run SQL in `scripts/01-create-database-schema.sql` then `scripts/02-auth-columns.sql` in your Supabase SQL editor.
+Run SQL in `scripts/01-create-database-schema.sql`, `scripts/02-auth-columns.sql`, `scripts/03-plans-and-flags.sql`, then `scripts/04-seed-demo-user.sql` in your Supabase SQL editor.
 
 ### Run
 pnpm install && pnpm dev
@@ -37,3 +37,4 @@ Continue building your app on:
 ## Auth flow
 - Registration uses Supabase Auth (email + password). Supabase sends a verification link to the user.
 - The link targets `/auth/callback` which exchanges the code for a session and marks the user as `is_verified=true` in our `users` table.
+- Dev admin: `ysnyuki2321@outlook.jp` with pass `Yuki@2321` (mark as dev-only; change in prod). Demo login prefilled: `demo@yukifile.shockbyte.me` / `yukifiledemo`.

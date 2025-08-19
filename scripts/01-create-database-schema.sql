@@ -16,6 +16,11 @@ CREATE TABLE IF NOT EXISTS users (
     subscription_expires_at TIMESTAMP WITH TIME ZONE,
     quota_used BIGINT DEFAULT 0, -- in bytes
     quota_limit BIGINT DEFAULT 2147483648, -- 2GB for free users
+    password_hash TEXT, -- optional app-managed hash if not using Supabase password directly
+    twofa_secret TEXT,
+    is_verified BOOLEAN DEFAULT FALSE,
+    supabase_id UUID,
+    auth_provider VARCHAR(32),
     
     -- Admin flag
     is_admin BOOLEAN DEFAULT FALSE,
