@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ArrowLeft } from "lucide-react"
+import { Loader2, ArrowLeft, Mail, Lock, KeyRound } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -83,40 +83,49 @@ export default function LoginForm() {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300">
                   Email
                 </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    className="pl-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                   Password
                 </label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    className="pl-9 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
               </div>
               {/* Optional 2FA code */}
               <div className="space-y-2">
                 <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-300">
                   2FA Code (if enabled)
                 </label>
-                <Input
-                  id="twoFactorCode"
-                  name="twoFactorCode"
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
-                />
+                <div className="relative">
+                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="twoFactorCode"
+                    name="twoFactorCode"
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    className="pl-9 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
               </div>
             </div>
 

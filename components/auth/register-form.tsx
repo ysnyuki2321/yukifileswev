@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ArrowLeft, Shield } from "lucide-react"
+import { Loader2, ArrowLeft, Shield, Mail, Lock } from "lucide-react"
 import Link from "next/link"
 import { signUp } from "@/lib/actions/auth"
 import { useDeviceFingerprint } from "@/components/device-fingerprint"
@@ -79,14 +79,17 @@ export default function RegisterForm() {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-300">
                   Email
                 </label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  required
-                  className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    required
+                    className="pl-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
                 {state?.code === "EMAIL_EXISTS" && (
                   <p className="text-xs text-red-400">This email is already registered. Try logging in instead.</p>
                 )}
@@ -95,14 +98,17 @@ export default function RegisterForm() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300">
                   Password
                 </label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  minLength={6}
-                  className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    minLength={6}
+                    className="pl-9 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                  />
+                </div>
                 <p className="text-xs text-gray-500">Minimum 6 characters</p>
               </div>
             </div>
