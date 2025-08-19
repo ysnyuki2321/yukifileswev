@@ -26,6 +26,8 @@ interface IPInfo {
   tor: boolean
   hosting: boolean
   residential: boolean
+  asn?: string
+  org?: string
 }
 
 // IP detection service with optional external API; falls back to strict mock
@@ -36,22 +38,27 @@ async function detectIPInfo(ip: string): Promise<IPInfo> {
     if (apiUrl && apiKey) {
       const res = await fetch(`${apiUrl}?ip=${encodeURIComponent(ip)}`, {
         headers: { Authorization: `Bearer ${apiKey}` },
-        // For edge/runtime compatibility we avoid Node-only options
         cache: "no-store",
       })
       if (res.ok) {
         const j = await res.json()
+        const hostingFlags = Boolean(
+          j.hosting || j.is_datacenter || j.datacenter || j.is_hosting || j.asnType === "hosting" || j.is_cloud,
+        )
+        const residential = j.residential !== undefined ? Boolean(j.residential) : !(hostingFlags || j.proxy || j.vpn)
         return {
           ip,
           country: j.country || "",
           region: j.region || "",
           city: j.city || "",
-          isp: j.isp || "",
+          isp: j.isp || j.organization || "",
           proxy: Boolean(j.proxy || j.is_proxy),
           vpn: Boolean(j.vpn || j.is_vpn),
           tor: Boolean(j.tor || j.is_tor),
-          hosting: Boolean(j.hosting || j.is_datacenter),
-          residential: j.residential !== undefined ? Boolean(j.residential) : !(j.hosting || j.proxy || j.vpn),
+          hosting: hostingFlags,
+          residential,
+          asn: j.asn || j.ASN,
+          org: j.organization || j.org,
         }
       }
     }
@@ -103,9 +110,10 @@ export async function checkAntiClone(
     const ipInfo = await detectIPInfo(ip)
 
     const strictness = Number(process.env.ANTI_CLONE_STRICTNESS || 1) // 0=loose,1=normal,2=strict
-    const vpnPenalty = strictness === 0 ? 20 : strictness === 2 ? 70 : 45
-    const proxyPenalty = strictness === 0 ? 10 : strictness === 2 ? 55 : 30
+    const vpnPenalty = strictness === 0 ? 15 : strictness === 2 ? 70 : 40
+    const proxyPenalty = strictness === 0 ? 8 : strictness === 2 ? 55 : 25
     const nonResPenalty = strictness === 0 ? 5 : strictness === 2 ? 45 : 20
+    const dcPenalty = strictness === 0 ? 25 : strictness === 2 ? 80 : 55
 
     if (ipInfo.vpn) {
       riskScore += vpnPenalty
@@ -120,6 +128,11 @@ export async function checkAntiClone(
     if (!ipInfo.residential) {
       riskScore += nonResPenalty
       reasons.push("Non-residential IP")
+    }
+
+    if (ipInfo.hosting) {
+      riskScore += dcPenalty
+      reasons.push("Datacenter network")
     }
 
     // 2. Check for existing users with same IP

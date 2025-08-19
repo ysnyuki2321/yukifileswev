@@ -90,7 +90,6 @@ export default function LoginForm() {
                   placeholder="you@example.com"
                   required
                   className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
-                  defaultValue={process.env.NEXT_PUBLIC_DEMO_EMAIL || "demo@yukifile.shockbyte.me"}
                 />
               </div>
               <div className="space-y-2">
@@ -103,7 +102,6 @@ export default function LoginForm() {
                   type="password"
                   required
                   className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
-                  defaultValue={process.env.NEXT_PUBLIC_DEMO_PASSWORD || "yukifiledemo"}
                 />
               </div>
               {/* Optional 2FA code */}
@@ -124,9 +122,7 @@ export default function LoginForm() {
 
             <SubmitButton disabled={!fingerprint} />
 
-            <p className="text-xs text-gray-400 text-center">
-              Demo account prefilled for quick review. This account is read-only and for preview purposes only.
-            </p>
+            <p className="text-xs text-gray-400 text-center">Use your email and password to sign in.</p>
 
             <div className="text-center text-gray-400">
               Don't have an account?{" "}
