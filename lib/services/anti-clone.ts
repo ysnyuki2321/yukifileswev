@@ -102,6 +102,21 @@ export async function checkAntiClone(
 
   console.log(`[v0] Anti-clone check for ${email} from IP ${ip}`)
 
+  // Check if debug mode is enabled - bypass all checks
+  try {
+    const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
+    const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
+      acc[s.setting_key] = s.setting_value
+      return acc
+    }, {} as Record<string, string>)
+    if (map["debug_mode"] === "true") {
+      console.log(`[v0] Debug mode enabled - bypassing anti-clone checks for ${email}`)
+      return { allowed: true, reason: "Debug mode", riskScore: 0 }
+    }
+  } catch (e) {
+    console.warn("[v0] Failed to check debug mode setting:", e)
+  }
+
   let riskScore = 0
   const reasons: string[] = []
 
