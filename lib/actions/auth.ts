@@ -154,7 +154,21 @@ export async function signUp(prevState: any, formData: FormData) {
     // Build redirect URL: prefer admin setting if available via cookie set by middleware
     const siteUrlCookie = headersList.get("cookie")?.match(/(?:^|;\s*)SITE_URL=([^;]+)/)?.[1]
     const decodedSiteUrl = siteUrlCookie ? decodeURIComponent(siteUrlCookie) : undefined
-    const redirectBase = decodedSiteUrl || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+    
+    // Get admin setting for site_url as fallback
+    let adminSiteUrl = ""
+    try {
+      const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
+      const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
+        acc[s.setting_key] = s.setting_value
+        return acc
+      }, {} as Record<string, string>)
+      adminSiteUrl = map["site_url"] || ""
+    } catch (e) {
+      console.warn("[v0] Failed to get admin site_url setting:", e)
+    }
+    
+    const redirectBase = decodedSiteUrl || adminSiteUrl || "http://localhost:3000"
 
     const { error, data } = await supabase.auth.signUp({
       email: email.toString(),

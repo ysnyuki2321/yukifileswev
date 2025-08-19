@@ -52,8 +52,10 @@ export async function GET(request: NextRequest) {
     // After verification, redirect using configured site_url if present
     const settings = await getAdminSettingsMap()
     const siteUrl = readSetting(settings, "site_url", "")
-    const target = siteUrl ? `${siteUrl}/dashboard` : "/dashboard"
-    return NextResponse.redirect(new URL(target, request.url))
+    
+    // Use admin site_url if set, otherwise use current request origin
+    const target = siteUrl ? `${siteUrl}/dashboard` : new URL("/dashboard", request.url).href
+    return NextResponse.redirect(target)
   } catch (e) {
     return NextResponse.redirect(new URL("/auth/login?error=verification_failed", request.url))
   }
