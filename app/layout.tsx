@@ -42,10 +42,16 @@ export default async function RootLayout({
 }>) {
   const settings = await getAdminSettingsMap()
   const brandName = readSetting(settings, "brand_name", "YukiFiles")
+  const primaryGradient = readSetting(settings, "primary_gradient", "")
+  const accentGlow = readSetting(settings, "accent_glow", "")
+  const cardBg = readSetting(settings, "card_bg", "")
   return (
     <html lang="en" className={outfit.variable}>
       <head />
       <body style={{ fontFamily: "var(--font-outfit)" }}>
+        <style>{` :root { ${primaryGradient ? `--text-gradient: ${primaryGradient};` : ""} ${
+          accentGlow ? `--glow-color: ${accentGlow};` : ""
+        } } .premium-card { ${cardBg ? `background: ${cardBg};` : ""} } `}</style>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

@@ -267,6 +267,28 @@ export default function AdminSettings({ settings: initialSettings }: AdminSettin
                   />
                 </div>
               </div>
+              <div className="flex items-center gap-3 pt-2">
+                <input
+                  id="auth_auto_verify"
+                  type="checkbox"
+                  checked={(settings.auth_auto_verify || "false") === "true"}
+                  onChange={(e) => updateSetting("auth_auto_verify", e.target.checked ? "true" : "false")}
+                />
+                <Label htmlFor="auth_auto_verify" className="text-gray-300">
+                  Auto Verify (testing only)
+                </Label>
+              </div>
+              <div className="flex items-center gap-3 pt-2">
+                <input
+                  id="auth_auto_verify"
+                  type="checkbox"
+                  checked={(settings.auth_auto_verify || "false") === "true"}
+                  onChange={(e) => updateSetting("auth_auto_verify", e.target.checked ? "true" : "false")}
+                />
+                <Label htmlFor="auth_auto_verify" className="text-gray-300">
+                  Auto Verify (testing only)
+                </Label>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

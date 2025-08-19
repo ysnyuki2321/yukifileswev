@@ -183,6 +183,18 @@ export async function signUp(prevState: any, formData: FormData) {
       console.log(`[v0] User ${data.user.email} registered successfully`)
     }
 
+    // Optional auto-verify for testing if enabled in admin settings
+    try {
+      const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
+      const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
+        acc[s.setting_key] = s.setting_value
+        return acc
+      }, {} as Record<string, string>)
+      if (map["auth_auto_verify"] === "true" && data.user?.email) {
+        await supabase.from("users").update({ is_verified: true, supabase_id: data.user.id }).eq("email", data.user.email)
+      }
+    } catch {}
+
     // Log attempt for rate limiting window
     await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "register")
 
