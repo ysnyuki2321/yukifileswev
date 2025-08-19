@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { File, ImageIcon, Video, Music, Download, Share2, Trash2, MoreVertical, Copy, Eye } from "lucide-react"
+import { File, ImageIcon, Video, Music, Download, Share2, Trash2, MoreVertical, Copy, Eye, Pencil, RefreshCcw, Shield } from "lucide-react"
 import { formatBytes, formatDate } from "@/lib/utils"
 
 interface FileItem {
@@ -50,6 +50,23 @@ export default function FileList({ files, onDelete, onShare }: FileListProps) {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
+  }
+
+  const rename = async (fileId: string) => {
+    const newName = prompt("Rename file to:")
+    if (!newName) return
+    const res = await fetch("/api/files/rename", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileId, newName }) })
+    if (res.ok) window.location.reload()
+  }
+
+  const togglePublic = async (fileId: string, current: boolean) => {
+    const res = await fetch("/api/files/visibility", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileId, makePublic: !current }) })
+    if (res.ok) window.location.reload()
+  }
+
+  const regenToken = async (fileId: string) => {
+    const res = await fetch("/api/files/regenerate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileId }) })
+    if (res.ok) window.location.reload()
   }
 
   if (files.length === 0) {
@@ -133,6 +150,18 @@ export default function FileList({ files, onDelete, onShare }: FileListProps) {
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Preview
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => rename(file.id)} className="text-gray-300 hover:text-white">
+                      <Pencil className="w-4 h-4 mr-2" />
+                      Rename
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => togglePublic(file.id, file.is_public)} className="text-gray-300 hover:text-white">
+                      <Shield className="w-4 h-4 mr-2" />
+                      {file.is_public ? "Make Private" : "Make Public"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => regenToken(file.id)} className="text-gray-300 hover:text-white">
+                      <RefreshCcw className="w-4 h-4 mr-2" />
+                      New Share Link
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onDelete(file.id)} className="text-red-400 hover:text-red-300">
                       <Trash2 className="w-4 h-4 mr-2" />

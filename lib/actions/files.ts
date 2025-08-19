@@ -5,6 +5,7 @@ import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { randomBytes } from "crypto"
 import { createHash } from "crypto"
+import { unlink } from "fs/promises"
 
 export async function uploadFile(formData: FormData) {
   const supabase = createServerClient()
@@ -137,6 +138,12 @@ export async function deleteFile(fileId: string) {
       return { error: "File not found" }
     }
 
+    // Delete physical file from disk (best-effort)
+    try {
+      const filePath = join(process.cwd(), "storage", "files", userData.id, fileData.stored_name)
+      await unlink(filePath)
+    } catch {}
+
     // Delete file from database
     const { error: dbError } = await supabase.from("files").delete().eq("id", fileId).eq("user_id", userData.id)
 
@@ -150,14 +157,62 @@ export async function deleteFile(fileId: string) {
       .update({ quota_used: Math.max(0, userData.quota_used - fileData.file_size) })
       .eq("id", userData.id)
 
-    // TODO: Delete physical file from disk
-    // const filePath = join(process.cwd(), "storage", "files", userData.id, fileData.stored_name)
-    // await unlink(filePath).catch(() => {}) // Ignore errors if file doesn't exist
-
     return { success: true }
   } catch (error) {
     console.error("Delete error:", error)
     return { error: "Delete failed" }
+  }
+}
+
+export async function renameFile(fileId: string, newName: string) {
+  const supabase = createServerClient()
+  if (!supabase) return { error: "Database connection failed" }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Authentication required" }
+  try {
+    const { data: userData } = await supabase.from("users").select("id").eq("email", user.email).single()
+    if (!userData) return { error: "User not found" }
+    await supabase.from("files").update({ original_name: newName }).eq("id", fileId).eq("user_id", userData.id)
+    return { success: true }
+  } catch (e) {
+    return { error: "Rename failed" }
+  }
+}
+
+export async function toggleFilePublic(fileId: string, makePublic: boolean) {
+  const supabase = createServerClient()
+  if (!supabase) return { error: "Database connection failed" }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Authentication required" }
+  try {
+    const { data: userData } = await supabase.from("users").select("id").eq("email", user.email).single()
+    if (!userData) return { error: "User not found" }
+    await supabase.from("files").update({ is_public: makePublic }).eq("id", fileId).eq("user_id", userData.id)
+    return { success: true }
+  } catch (e) {
+    return { error: "Update failed" }
+  }
+}
+
+export async function regenerateShareToken(fileId: string) {
+  const supabase = createServerClient()
+  if (!supabase) return { error: "Database connection failed" }
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: "Authentication required" }
+  try {
+    const { data: userData } = await supabase.from("users").select("id").eq("email", user.email).single()
+    if (!userData) return { error: "User not found" }
+    const newToken = randomBytes(16).toString("hex")
+    await supabase.from("files").update({ share_token: newToken }).eq("id", fileId).eq("user_id", userData.id)
+    return { success: true, shareToken: newToken }
+  } catch (e) {
+    return { error: "Regenerate failed" }
   }
 }
 
