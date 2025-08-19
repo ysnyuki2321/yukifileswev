@@ -24,6 +24,12 @@ export async function signIn(prevState: any, formData: FormData) {
   }
 
   try {
+    // Check duplicate email first in Supabase Auth and our users table
+    const { data: existing } = await supabase.from("users").select("id").eq("email", email.toString()).maybeSingle()
+    if (existing) {
+      return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
+    }
+
     const headersList = headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
     const userAgent = headersList.get("user-agent") || ""

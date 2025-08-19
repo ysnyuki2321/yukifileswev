@@ -87,6 +87,9 @@ export default function RegisterForm() {
                   required
                   className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
                 />
+                {state?.code === "EMAIL_EXISTS" && (
+                  <p className="text-xs text-red-400">This email is already registered. Try logging in instead.</p>
+                )}
               </div>
               <div className="space-y-2">
                 <label htmlFor="password" className="block text-sm font-medium text-gray-300">
