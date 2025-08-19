@@ -151,13 +151,16 @@ export async function signUp(prevState: any, formData: FormData) {
       return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
     }
 
+    // Build redirect URL: prefer admin setting if available via cookie set by middleware
+    const siteUrlCookie = headersList.get("cookie")?.match(/(?:^|;\s*)SITE_URL=([^;]+)/)?.[1]
+    const decodedSiteUrl = siteUrlCookie ? decodeURIComponent(siteUrlCookie) : undefined
+    const redirectBase = decodedSiteUrl || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
     const { error, data } = await supabase.auth.signUp({
       email: email.toString(),
       password: password.toString(),
       options: {
-        emailRedirectTo:
-          process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
+        emailRedirectTo: `${redirectBase}/auth/callback`,
       },
     })
 

@@ -4,6 +4,12 @@ import { NextResponse, type NextRequest } from "next/server"
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next()
 
+  // Ensure we have correct site URL for auth redirects
+  const url = new URL(request.url)
+  const host = url.host
+  // Dynamically set SITE_URL cookie for use in server components
+  response.cookies.set({ name: "SITE_URL", value: `${url.protocol}//${host}`, path: "/" })
+
   // Check if Supabase is configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     return response

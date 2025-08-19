@@ -9,9 +9,10 @@ import { signOut } from "@/lib/actions/auth"
 interface TopbarProps {
   userEmail: string
   isPremium: boolean
+  brandName?: string
 }
 
-export default function Topbar({ userEmail, isPremium }: TopbarProps) {
+export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles" }: TopbarProps) {
   return (
     <header className="h-16 w-full border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
       <div className="h-full container mx-auto px-4 flex items-center justify-between gap-4">
@@ -21,7 +22,7 @@ export default function Topbar({ userEmail, isPremium }: TopbarProps) {
           </button>
           <div className="hidden md:flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded" />
-            <PremiumText className="font-semibold">YukiFiles</PremiumText>
+            <PremiumText className="font-semibold">{brandName}</PremiumText>
           </div>
         </div>
 

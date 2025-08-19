@@ -6,9 +6,10 @@ import { Files, Home, CreditCard, Shield, Settings } from "lucide-react"
 
 interface SidebarProps {
   isAdmin?: boolean
+  brandName?: string
 }
 
-export default function Sidebar({ isAdmin = false }: SidebarProps) {
+export default function Sidebar({ isAdmin = false, brandName = "YukiFiles" }: SidebarProps) {
   const pathname = usePathname()
 
   const navItems = [
@@ -26,7 +27,7 @@ export default function Sidebar({ isAdmin = false }: SidebarProps) {
     <aside className="hidden md:flex md:flex-col w-64 min-h-screen bg-black/40 border-r border-purple-500/20 backdrop-blur-lg">
       <div className="h-16 px-6 flex items-center border-b border-purple-500/20">
         <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-2"></div>
-        <span className="text-white font-bold text-lg">YukiFiles</span>
+        <span className="text-white font-bold text-lg">{brandName}</span>
       </div>
       <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map((item) => {

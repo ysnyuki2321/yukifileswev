@@ -40,6 +40,9 @@ export default async function DashboardPage() {
   const filesCount = userData?.files_count ?? undefined
   const isPremium = userData?.subscription_type === "paid"
   const areaData = Array.from({ length: 7 }).map((_, i) => ({ label: `D${i + 1}`, value: Math.max(0, (filesCount || 0) - (6 - i)) }))
+  // Branding from settings
+  const { data: adminSettings } = await supabase.from("admin_settings").select("setting_key, setting_value")
+  const brandName = adminSettings?.reduce((acc: Record<string,string>, s: any) => { acc[s.setting_key] = s.setting_value; return acc }, {} as Record<string,string>)["brand_name"] || "YukiFiles"
 
   // Fetch recent files
   const { data: recentFiles } = await supabase
@@ -53,9 +56,9 @@ export default async function DashboardPage() {
     <ThemeProvider subscriptionType={userData?.subscription_type || "free"}>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
         <div className="flex">
-          <Sidebar isAdmin={Boolean(userData?.is_admin)} />
+          <Sidebar isAdmin={Boolean(userData?.is_admin)} brandName={brandName} />
           <div className="flex-1 min-w-0">
-            <Topbar userEmail={user.email!} isPremium={isPremium} />
+            <Topbar userEmail={user.email!} isPremium={isPremium} brandName={brandName} />
             <main className="container mx-auto px-4 py-6 space-y-6">
               {/* Stats */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
