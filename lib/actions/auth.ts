@@ -69,6 +69,12 @@ export async function signIn(prevState: any, formData: FormData) {
       return { error: error.message }
     }
 
+    // Enforce email verification
+    if (data.user && !(data.user as any).email_confirmed_at) {
+      await supabase.auth.signOut()
+      return { error: "Please verify your email first! We sent you a confirmation link." }
+    }
+
     // Log attempt regardless of success to enforce RL
     await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "login")
 

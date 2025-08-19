@@ -1,11 +1,10 @@
 "use client"
-
-import { useActionState } from "react"
+import { useState, useActionState } from "react"
 import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ArrowLeft, Mail, Lock, KeyRound } from "lucide-react"
+import { Loader2, ArrowLeft, Mail, Lock, KeyRound, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -37,6 +36,7 @@ export default function LoginForm() {
   const router = useRouter()
   const [state, formAction] = useActionState(signIn, null)
   const fingerprint = useDeviceFingerprint()
+  const [showPassword, setShowPassword] = useState(false)
 
   // Handle successful login by redirecting
   useEffect(() => {
@@ -104,10 +104,18 @@ export default function LoginForm() {
                   <Input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
-                    className="pl-9 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                    className="pl-9 pr-10 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
                   />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
               {/* Optional 2FA code */}
@@ -134,7 +142,7 @@ export default function LoginForm() {
             <p className="text-xs text-gray-400 text-center">Use your email and password to sign in.</p>
 
             <div className="text-center text-gray-400">
-              Don't have an account?{" "}
+              Don't have an account? {""}
               <Link href="/auth/register" className="text-purple-400 hover:text-purple-300 hover:underline">
                 Sign up
               </Link>

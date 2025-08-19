@@ -195,7 +195,7 @@
 
 /* Shared utility classes */
 .gradient-text {
-  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee, #ec4899);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -203,8 +203,8 @@
 
 .glass-effect {
   backdrop-filter: blur(20px);
-  background: rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(12,12,16,0.6), rgba(24,0,40,0.45));
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 /* Page transition effects for premium users */

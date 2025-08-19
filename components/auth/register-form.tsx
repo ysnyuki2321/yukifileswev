@@ -5,7 +5,7 @@ import { useFormStatus } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ArrowLeft, Shield, Mail, Lock } from "lucide-react"
+import { Loader2, ArrowLeft, Shield, Mail, Lock, Eye, EyeOff } from "lucide-react"
 import Link from "next/link"
 import { signUp } from "@/lib/actions/auth"
 import { useDeviceFingerprint } from "@/components/device-fingerprint"
@@ -34,6 +34,8 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 export default function RegisterForm() {
   const [state, formAction] = useActionState(signUp, null)
   const fingerprint = useDeviceFingerprint()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword2, setShowPassword2] = useState(false)
 
   const handleSubmit = (formData: FormData) => {
     if (fingerprint) {
@@ -103,13 +105,50 @@ export default function RegisterForm() {
                   <Input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     minLength={6}
-                    className="pl-9 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                    className="pl-9 pr-10 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
                   />
+                  <button
+                    type="button"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
                 </div>
                 <p className="text-xs text-gray-500">Minimum 6 characters</p>
+              </div>
+              <div className="space-y-2">
+                <label htmlFor="password2" className="block text-sm font-medium text-gray-300">
+                  Retype Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password2"
+                    name="password2"
+                    type={showPassword2 ? "text" : "password"}
+                    required
+                    minLength={6}
+                    className="pl-9 pr-10 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                    onChange={(e) => {
+                      const p1 = (document.getElementById("password") as HTMLInputElement | null)?.value || ""
+                      const p2 = e.currentTarget.value
+                      e.currentTarget.setCustomValidity(p1 !== p2 ? "Passwords do not match" : "")
+                    }}
+                  />
+                  <button
+                    type="button"
+                    aria-label={showPassword2 ? "Hide password" : "Show password"}
+                    onClick={() => setShowPassword2((s) => !s)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                  >
+                    {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
             </div>
 
