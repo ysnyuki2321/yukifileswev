@@ -42,6 +42,22 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Check debug mode first - if enabled, bypass all auth checks
+  try {
+    const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
+    const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
+      acc[s.setting_key] = s.setting_value
+      return acc
+    }, {} as Record<string, string>)
+    
+    if (map["debug_mode"] === "true") {
+      console.log("[v0] Debug mode enabled - bypassing auth checks")
+      return response
+    }
+  } catch (e) {
+    console.warn("[v0] Failed to check debug mode in middleware:", e)
+  }
+
   // Refresh session if expired
   await supabase.auth.getSession()
 
@@ -50,7 +66,9 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute =
     request.nextUrl.pathname.startsWith("/share/") ||
     request.nextUrl.pathname === "/" ||
-    request.nextUrl.pathname.startsWith("/api/")
+    request.nextUrl.pathname.startsWith("/api/") ||
+    request.nextUrl.pathname.startsWith("/debug-") ||
+    request.nextUrl.pathname.startsWith("/test-")
 
   if (!isAuthRoute && !isPublicRoute) {
     const {

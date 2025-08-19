@@ -21,16 +21,62 @@ export default async function DashboardPage() {
     redirect("/auth/login")
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+  // Check debug mode - if enabled, create mock user data
+  let user = null
+  let userData = null
+  
+  try {
+    const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
+    const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
+      acc[s.setting_key] = s.setting_value
+      return acc
+    }, {} as Record<string, string>)
+    
+    if (map["debug_mode"] === "true") {
+      console.log("[v0] Debug mode enabled - using mock user data")
+      user = { email: "debug@example.com", id: "debug-user-id" }
+      userData = {
+        id: "debug-user-id",
+        email: "debug@example.com",
+        quota_used: 1024 * 1024 * 1024, // 1GB
+        quota_limit: 2 * 1024 * 1024 * 1024, // 2GB
+        files_count: 15,
+        subscription_type: "free",
+        is_admin: true,
+        is_verified: true,
+        is_active: true
+      }
+    } else {
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect("/auth/login")
+      if (!authUser) {
+        redirect("/auth/login")
+      }
+      
+      user = authUser
+      // Get user data from our custom users table
+      const { data: userDataResult } = await supabase.from("users").select("*").eq("email", user.email).single()
+      userData = userDataResult
+    }
+  } catch (e) {
+    console.warn("[v0] Failed to check debug mode:", e)
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+
+    if (!authUser) {
+      redirect("/auth/login")
+    }
+    
+    user = authUser
+    // Get user data from our custom users table
+    const { data: userDataResult } = await supabase.from("users").select("*").eq("email", user.email).single()
+    userData = userDataResult
   }
 
-  // Get user data from our custom users table
-  const { data: userData } = await supabase.from("users").select("*").eq("email", user.email).single()
+
 
   const quotaUsedGB = userData ? (userData.quota_used / (1024 * 1024 * 1024)).toFixed(2) : "0.00"
   const quotaLimitGB = userData ? (userData.quota_limit / (1024 * 1024 * 1024)).toFixed(0) : "2"
