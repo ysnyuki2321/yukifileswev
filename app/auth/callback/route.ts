@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
+import { getAdminSettingsMap, readSetting } from "@/lib/services/settings"
 
 // Handles Supabase email confirmation / magic link callback
 // Updates our `users` table with verification status and Supabase user id
@@ -48,8 +49,11 @@ export async function GET(request: NextRequest) {
       })
       .eq("email", user.email)
 
-    // After verification, send user to dashboard
-    return NextResponse.redirect(new URL("/dashboard", request.url))
+    // After verification, redirect using configured site_url if present
+    const settings = await getAdminSettingsMap()
+    const siteUrl = readSetting(settings, "site_url", "")
+    const target = siteUrl ? `${siteUrl}/dashboard` : "/dashboard"
+    return NextResponse.redirect(new URL(target, request.url))
   } catch (e) {
     return NextResponse.redirect(new URL("/auth/login?error=verification_failed", request.url))
   }

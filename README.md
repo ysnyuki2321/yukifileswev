@@ -36,5 +36,6 @@ Continue building your app on:
 
 ## Auth flow
 - Registration uses Supabase Auth (email + password). Supabase sends a verification link to the user.
-- The link targets `/auth/callback` which exchanges the code for a session and marks the user as `is_verified=true` in our `users` table.
+- The link targets `/auth/callback` which exchanges the code for a session and marks the user as `is_verified=true` in our `users` table. Title for verification emails: "YukiFiles Verify".
+- To brand Supabase emails, update Authentication → Email Templates with our HTML (see `app/auth/email-template.ts`). Set subject to "YukiFiles Verify". Use `{{ .ConfirmationURL }}` placeholder.
 - Dev admin: `ysnyuki2321@outlook.jp` with pass `Yuki@2321` (mark as dev-only; change in prod). Demo login prefilled: `demo@yukifile.shockbyte.me` / `yukifiledemo`.

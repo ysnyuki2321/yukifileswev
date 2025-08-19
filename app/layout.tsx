@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Outfit } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme/theme-provider"
+import { getAdminSettingsMap, readSetting } from "@/lib/services/settings"
 
 export const metadata: Metadata = {
   title: {
@@ -34,11 +35,13 @@ export const metadata: Metadata = {
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const settings = await getAdminSettingsMap()
+  const brandName = readSetting(settings, "brand_name", "YukiFiles")
   return (
     <html lang="en" className={outfit.variable}>
       <head />
