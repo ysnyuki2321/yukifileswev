@@ -3,6 +3,8 @@ import { createServerClient } from "@/lib/supabase/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { randomBytes, createHash } from "crypto"
+import zlib from "zlib"
+import { resolvePlanFromUserRow } from "@/lib/services/plans"
 
 export async function POST(request: NextRequest) {
   try {
@@ -26,9 +28,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Check file size (100MB limit)
-    if (file.size > 100 * 1024 * 1024) {
-      return NextResponse.json({ error: "File size exceeds 100MB limit" }, { status: 400 })
+    // Check plan-based upload size limits
+    const { data: planRow } = await supabase.from("users").select("*").eq("email", user.email).single()
+    const plan = resolvePlanFromUserRow(planRow)
+    if (plan.uploadLimitBytes && file.size > plan.uploadLimitBytes) {
+      return NextResponse.json({ error: `Upload limit is ${(plan.uploadLimitBytes / (1024*1024)).toFixed(0)}MB for your plan.` }, { status: 400 })
     }
 
     // Get user data and check quota
@@ -69,15 +73,17 @@ export async function POST(request: NextRequest) {
     const userDir = join(process.cwd(), "storage", "files", userData.id)
     await mkdir(userDir, { recursive: true })
 
-    // Save file to disk
-    const filePath = join(userDir, storedName)
-    await writeFile(filePath, buffer)
+    // Save file to disk (compressed tar.gz like approach: gzip the content).
+    // We store compressed bytes but account quota as original size per spec.
+    const filePath = join(userDir, `${storedName}.gz`)
+    const gzipped = zlib.gzipSync(buffer)
+    await writeFile(filePath, gzipped)
 
     // Save file record to database
     const { error: dbError } = await supabase.from("files").insert({
       user_id: userData.id,
       original_name: file.name,
-      stored_name: storedName,
+      stored_name: `${storedName}.gz`,
       file_size: file.size,
       mime_type: file.type,
       file_hash: fileHash,

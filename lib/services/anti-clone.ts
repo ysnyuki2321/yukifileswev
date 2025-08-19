@@ -28,27 +28,48 @@ interface IPInfo {
   residential: boolean
 }
 
-// Mock IP detection service (in production, use services like IPQualityScore, MaxMind, etc.)
+// IP detection service with optional external API; falls back to strict mock
 async function detectIPInfo(ip: string): Promise<IPInfo> {
-  // This is a mock implementation
-  // In production, integrate with services like:
-  // - IPQualityScore API
-  // - MaxMind GeoIP2
-  // - IPGeolocation API
+  try {
+    const apiUrl = process.env.ANTI_ABUSE_API_URL
+    const apiKey = process.env.ANTI_ABUSE_API_KEY
+    if (apiUrl && apiKey) {
+      const res = await fetch(`${apiUrl}?ip=${encodeURIComponent(ip)}`, {
+        headers: { Authorization: `Bearer ${apiKey}` },
+        // For edge/runtime compatibility we avoid Node-only options
+        cache: "no-store",
+      })
+      if (res.ok) {
+        const j = await res.json()
+        return {
+          ip,
+          country: j.country || "",
+          region: j.region || "",
+          city: j.city || "",
+          isp: j.isp || "",
+          proxy: Boolean(j.proxy || j.is_proxy),
+          vpn: Boolean(j.vpn || j.is_vpn),
+          tor: Boolean(j.tor || j.is_tor),
+          hosting: Boolean(j.hosting || j.is_datacenter),
+          residential: j.residential !== undefined ? Boolean(j.residential) : !(j.hosting || j.proxy || j.vpn),
+        }
+      }
+    }
+  } catch (e) {
+    console.warn("[anti-clone] External IP check failed; falling back", e)
+  }
 
-  console.log(`[v0] Checking IP: ${ip}`)
-
-  // Mock detection logic
-  const isVPN = ip.includes("192.168") || ip.includes("10.") || ip.includes("172.") ? false : Math.random() > 0.8
-  const isProxy = Math.random() > 0.9
-  const isResidential = !isVPN && !isProxy && Math.random() > 0.2
+  // Strict fallback defaults leaning on risk
+  const isVPN = !(ip.includes("192.168") || ip.includes("10.") || ip.includes("172.")) && Math.random() > 0.6
+  const isProxy = Math.random() > 0.7
+  const isResidential = !isVPN && !isProxy && Math.random() > 0.5
 
   return {
     ip,
-    country: "US",
-    region: "California",
-    city: "San Francisco",
-    isp: "Example ISP",
+    country: "",
+    region: "",
+    city: "",
+    isp: "",
     proxy: isProxy,
     vpn: isVPN,
     tor: false,
@@ -82,17 +103,17 @@ export async function checkAntiClone(
     const ipInfo = await detectIPInfo(ip)
 
     if (ipInfo.vpn) {
-      riskScore += 50
+      riskScore += 70
       reasons.push("VPN detected")
     }
 
     if (ipInfo.proxy) {
-      riskScore += 40
+      riskScore += 55
       reasons.push("Proxy detected")
     }
 
     if (!ipInfo.residential) {
-      riskScore += 30
+      riskScore += 45
       reasons.push("Non-residential IP")
     }
 
@@ -104,7 +125,7 @@ export async function checkAntiClone(
       .neq("email", email)
 
     if (sameIPUsers && sameIPUsers.length > 0) {
-      riskScore += 40
+      riskScore += Math.min(20 + sameIPUsers.length * 10, 60)
       reasons.push(`${sameIPUsers.length} accounts from same IP`)
     }
 
@@ -121,7 +142,7 @@ export async function checkAntiClone(
         if (user.device_fingerprint) {
           const similarity = calculateFingerprintSimilarity(fingerprintString, user.device_fingerprint)
           if (similarity > 0.8) {
-            riskScore += 60
+            riskScore += 70
             reasons.push(`Similar device fingerprint to ${user.email}`)
             break
           }
@@ -137,7 +158,7 @@ export async function checkAntiClone(
       .gte("created_at", new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()) // Last 24 hours
 
     if (recentLogs && recentLogs.length > 10) {
-      riskScore += 20
+      riskScore += 35
       reasons.push("High activity from IP")
     }
 
@@ -154,8 +175,9 @@ export async function checkAntiClone(
       action: action,
     })
 
-    // Decision logic
-    const allowed = riskScore < 70 // Threshold for blocking
+    // Decision logic (configurable threshold; stricter default)
+    const threshold = Number(process.env.CLONE_PROTECTION_THRESHOLD || 60)
+    const allowed = riskScore < threshold
 
     console.log(`[v0] Risk score: ${riskScore}, Allowed: ${allowed}, Reasons: ${reasons.join(", ")}`)
 
@@ -216,4 +238,65 @@ export async function logUserActivity(userId: string, action: string, metadata?:
   } catch (error) {
     console.error("Failed to log user activity:", error)
   }
+}
+
+// Basic per-identifier rate limit using `ip_logs` as storage.
+// Resets automatically by querying the last `windowSeconds`.
+export async function checkRateLimit(
+  identifier: { ip: string; email?: string },
+  action: "login" | "register",
+  limit = 10,
+  windowSeconds = 60 * 60,
+): Promise<{ allowed: boolean; remaining: number; resetSeconds: number }> {
+  const supabase = createServerClient()
+  if (!supabase) return { allowed: true, remaining: limit, resetSeconds: windowSeconds }
+
+  const sinceISO = new Date(Date.now() - windowSeconds * 1000).toISOString()
+  const attemptAction = action === "login" ? "login_attempt" : "register_attempt"
+
+  // Count attempts in the window for this IP (and email if provided)
+  let query = supabase
+    .from("ip_logs")
+    .select("id, created_at", { count: "exact", head: false })
+    .eq("ip_address", identifier.ip)
+    .eq("action", attemptAction)
+    .gte("created_at", sinceISO)
+
+  if (identifier.email) {
+    // Note: we cannot filter by email directly (not stored). We rely on metadata
+  }
+
+  const { data } = await query
+  const attempts = data ? data.length : 0
+
+  const allowed = attempts < limit
+  const remaining = Math.max(limit - attempts, 0)
+
+  // Compute reset seconds based on earliest attempt in window
+  let resetSeconds = windowSeconds
+  if (data && data.length > 0) {
+    const first = data[0]
+    const firstTs = new Date(first.created_at).getTime()
+    const elapsed = Math.floor((Date.now() - firstTs) / 1000)
+    resetSeconds = Math.max(windowSeconds - elapsed, 0)
+  }
+
+  return { allowed, remaining, resetSeconds }
+}
+
+export async function logRateLimitAttempt(ip: string, userAgent: string, fingerprint: string | null, action: "login" | "register") {
+  const supabase = createServerClient()
+  if (!supabase) return
+  const attemptAction = action === "login" ? "login_attempt" : "register_attempt"
+  await supabase.from("ip_logs").insert({
+    user_id: null,
+    ip_address: ip,
+    user_agent: userAgent,
+    device_fingerprint: fingerprint || undefined,
+    is_vpn: false,
+    is_proxy: false,
+    is_residential: true,
+    country_code: null,
+    action: attemptAction,
+  })
 }
