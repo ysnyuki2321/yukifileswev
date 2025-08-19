@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
 import { readFile } from "fs/promises"
 import { join } from "path"
+import zlib from "zlib"
 
 export async function GET(request: NextRequest, { params }: { params: { token: string } }) {
   try {
@@ -30,9 +31,10 @@ export async function GET(request: NextRequest, { params }: { params: { token: s
       }
     }
 
-    // Read file from disk
+    // Read file from disk (stored gzipped). Decompress to serve original bytes
     const filePath = join(process.cwd(), "storage", "files", fileData.user_id, fileData.stored_name)
-    const fileBuffer = await readFile(filePath)
+    const gzBuffer = await readFile(filePath)
+    const fileBuffer = zlib.gunzipSync(gzBuffer)
 
     // Update download count
     await supabase

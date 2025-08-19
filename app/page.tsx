@@ -1,8 +1,9 @@
 import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import Link from "next/link"
+// Link was already imported above
 import { Button } from "@/components/ui/button"
-import { Upload, Shield, Zap, Globe } from "lucide-react"
+import { Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users } from "lucide-react"
+import Link from "next/link"
 
 export default async function HomePage() {
   const supabase = createServerClient()
@@ -19,7 +20,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-neutral-950">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -75,6 +76,29 @@ export default async function HomePage() {
                 View Pricing
               </Button>
             </Link>
+          </div>
+
+          {/* Plan Experience CTA */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mt-10">
+            {[
+              { name: "Free", slug: "free", desc: "2GB, 200MB/upload, 720p", icon: <PlayCircle className="w-5 h-5" /> },
+              { name: "Paid", slug: "paid", desc: "5GB, 500MB/upload, 1080p", icon: <Star className="w-5 h-5" /> },
+              { name: "Developer", slug: "developer", desc: "8GB, API, E2E, Editor", icon: <Code2 className="w-5 h-5" /> },
+              { name: "Team", slug: "team", desc: "10GB, 2160p, best UI", icon: <Users className="w-5 h-5" /> },
+              { name: "Enterprise", slug: "enterprise", desc: "Custom limits & SLA", icon: <Shield className="w-5 h-5" /> },
+            ].map((p) => (
+              <div key={p.slug} className="bg-black/30 rounded-xl border border-purple-500/20 p-4 text-left hover:border-purple-400/40 transition-colors">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-white font-semibold">{p.name}</span>
+                  <span className="text-purple-300 text-xs">{p.desc}</span>
+                </div>
+                <Link href={`/pricing?demo=${p.slug}`}>
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                    Experience {p.name}
+                  </Button>
+                </Link>
+              </div>
+            ))}
           </div>
 
           {/* Features Grid */}

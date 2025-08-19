@@ -104,9 +104,25 @@ export default function LoginForm() {
                   className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
                 />
               </div>
+              {/* Optional 2FA code */}
+              <div className="space-y-2">
+                <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-300">
+                  2FA Code (if enabled)
+                </label>
+                <Input
+                  id="twoFactorCode"
+                  name="twoFactorCode"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  className="bg-black/20 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
+                />
+              </div>
             </div>
 
             <SubmitButton disabled={!fingerprint} />
+
+            <p className="text-xs text-gray-400 text-center">Use your email and password to sign in.</p>
 
             <div className="text-center text-gray-400">
               Don't have an account?{" "}
