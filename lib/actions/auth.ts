@@ -66,7 +66,7 @@ export async function signIn(prevState: any, formData: FormData) {
     }
 
     // Enforce email verification
-    if (data.user && !(data.user as any).email_confirmed_at) {
+    if (data.user && !data.user.email_confirmed_at) {
       await supabase.auth.signOut()
       return { error: "Please verify your email first! We sent you a confirmation link." }
     }

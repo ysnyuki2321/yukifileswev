@@ -46,6 +46,7 @@ export default function LoginForm() {
   }, [state, router])
 
   const handleSubmit = (formData: FormData) => {
+    // Optional: add fingerprint if available
     if (fingerprint) {
       formData.append("deviceFingerprint", JSON.stringify(fingerprint))
     }
@@ -137,7 +138,7 @@ export default function LoginForm() {
               </div>
             </div>
 
-            <SubmitButton disabled={!fingerprint} />
+            <SubmitButton disabled={false} />
 
             <p className="text-xs text-gray-400 text-center">Use your email and password to sign in.</p>
 
