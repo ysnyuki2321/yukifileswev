@@ -44,7 +44,7 @@ export default function AdminSettings({ settings: initialSettings }: AdminSettin
   return (
     <div className="space-y-6">
       <Tabs defaultValue="paypal" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 bg-black/20">
+        <TabsList className="grid w-full grid-cols-4 bg-black/20">
           <TabsTrigger value="paypal" className="data-[state=active]:bg-purple-500">
             <CreditCard className="w-4 h-4 mr-2" />
             PayPal
@@ -56,6 +56,10 @@ export default function AdminSettings({ settings: initialSettings }: AdminSettin
           <TabsTrigger value="system" className="data-[state=active]:bg-purple-500">
             <Settings className="w-4 h-4 mr-2" />
             System
+          </TabsTrigger>
+          <TabsTrigger value="branding" className="data-[state=active]:bg-purple-500">
+            <Settings className="w-4 h-4 mr-2" />
+            Branding
           </TabsTrigger>
         </TabsList>
 
@@ -209,6 +213,118 @@ export default function AdminSettings({ settings: initialSettings }: AdminSettin
                   onChange={(e) => updateSetting("paid_quota_gb", e.target.value)}
                   className="bg-black/20 border-gray-700 text-white focus:border-purple-500"
                 />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="site_url" className="text-gray-300">
+                    Site URL
+                  </Label>
+                  <Input
+                    id="site_url"
+                    value={settings.site_url || ""}
+                    onChange={(e) => updateSetting("site_url", e.target.value)}
+                    placeholder="https://yourdomain.com"
+                    className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="support_email" className="text-gray-300">
+                    Support Email
+                  </Label>
+                  <Input
+                    id="support_email"
+                    value={settings.support_email || ""}
+                    onChange={(e) => updateSetting("support_email", e.target.value)}
+                    placeholder="support@yourdomain.com"
+                    className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="supabase_url" className="text-gray-300">
+                    Supabase URL
+                  </Label>
+                  <Input
+                    id="supabase_url"
+                    value={settings.supabase_url || ""}
+                    onChange={(e) => updateSetting("supabase_url", e.target.value)}
+                    placeholder="https://xxxx.supabase.co"
+                    className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="supabase_anon_key" className="text-gray-300">
+                    Supabase Anon Key
+                  </Label>
+                  <Input
+                    id="supabase_anon_key"
+                    type="password"
+                    value={settings.supabase_anon_key || ""}
+                    onChange={(e) => updateSetting("supabase_anon_key", e.target.value)}
+                    placeholder="eyJ..."
+                    className="bg-black/20 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="branding">
+          <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white">Branding & Theme</CardTitle>
+              <CardDescription className="text-gray-400">Customize brand name, logo, and theme colors</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="brand_name" className="text-gray-300">
+                    Brand Name
+                  </Label>
+                  <Input
+                    id="brand_name"
+                    value={settings.brand_name || "YukiFiles"}
+                    onChange={(e) => updateSetting("brand_name", e.target.value)}
+                    className="bg-black/20 border-gray-700 text-white focus:border-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="primary_gradient" className="text-gray-300">
+                    Primary Gradient
+                  </Label>
+                  <Input
+                    id="primary_gradient"
+                    value={settings.primary_gradient || "linear-gradient(135deg,#8b5cf6,#22d3ee,#ec4899)"}
+                    onChange={(e) => updateSetting("primary_gradient", e.target.value)}
+                    className="bg-black/20 border-gray-700 text-white focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="accent_glow" className="text-gray-300">
+                    Accent Glow (rgba)
+                  </Label>
+                  <Input
+                    id="accent_glow"
+                    value={settings.accent_glow || "rgba(139,92,246,0.3)"}
+                    onChange={(e) => updateSetting("accent_glow", e.target.value)}
+                    className="bg-black/20 border-gray-700 text-white focus:border-purple-500"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="card_bg" className="text-gray-300">
+                    Card Background (css)
+                  </Label>
+                  <Input
+                    id="card_bg"
+                    value={settings.card_bg || "linear-gradient(135deg,rgba(0,0,0,0.6),rgba(30,0,50,0.4),rgba(0,20,40,0.6))"}
+                    onChange={(e) => updateSetting("card_bg", e.target.value)}
+                    className="bg-black/20 border-gray-700 text-white focus:border-purple-500"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>

@@ -73,27 +73,38 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          {/* Plan Experience CTA */}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mt-10">
-            {[
-              { name: "Free", slug: "free", desc: "2GB, 200MB/upload, 720p", icon: <PlayCircle className="w-5 h-5" /> },
-              { name: "Paid", slug: "paid", desc: "5GB, 500MB/upload, 1080p", icon: <Star className="w-5 h-5" /> },
-              { name: "Developer", slug: "developer", desc: "8GB, API, E2E, Editor", icon: <Code2 className="w-5 h-5" /> },
-              { name: "Team", slug: "team", desc: "10GB, 2160p, best UI", icon: <Users className="w-5 h-5" /> },
-              { name: "Enterprise", slug: "enterprise", desc: "Custom limits & SLA", icon: <Shield className="w-5 h-5" /> },
-            ].map((p) => (
-              <div key={p.slug} className="bg-black/30 rounded-xl border border-purple-500/20 p-4 text-left hover:border-purple-400/40 transition-colors">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-white font-semibold">{p.name}</span>
-                  <span className="text-purple-300 text-xs">{p.desc}</span>
-                </div>
-                <Link href={`/pricing?demo=${p.slug}`}>
-                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                    Experience {p.name}
-                  </Button>
-                </Link>
+          {/* Pricing Snapshot */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2 mt-10 max-w-3xl mx-auto">
+            <div className="bg-black/30 rounded-xl border border-purple-500/20 p-6 text-left premium-glow">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-semibold text-xl">Free</span>
+                <span className="text-purple-300 text-sm">2GB storage</span>
               </div>
-            ))}
+              <div className="text-4xl font-bold text-white mb-4">$0</div>
+              <ul className="text-gray-300 space-y-1 mb-4 text-sm">
+                <li>• 2GB total</li>
+                <li>• Share links</li>
+                <li>• Basic security</li>
+              </ul>
+              <Link href="/auth/register">
+                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">Get Started</Button>
+              </Link>
+            </div>
+            <div className="bg-black/30 rounded-xl border border-purple-500/40 p-6 text-left premium-glow">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-white font-semibold text-xl">Premium</span>
+                <span className="text-purple-300 text-sm">5GB storage</span>
+              </div>
+              <div className="text-4xl font-bold gradient-text mb-4">$1<span className="text-white text-lg">/mo</span></div>
+              <ul className="text-gray-300 space-y-1 mb-4 text-sm">
+                <li>• 5GB total</li>
+                <li>• Premium UI</li>
+                <li>• Priority support</li>
+              </ul>
+              <Link href="/pricing">
+                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">View Pricing</Button>
+              </Link>
+            </div>
           </div>
 
           {/* Features Grid */}
