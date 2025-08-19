@@ -1,0 +1,4 @@
+:root{--bg:#0f0f1a;--fg:#f6f6f6}
+body{background:linear-gradient(120deg,#0f0f1a,#1a1040,#0f3a5b);color:var(--fg);min-height:100vh}
+header,footer{background:transparent;color:#f6f6f6}
+button{background:#7c3aed;color:#fff;box-shadow:0 10px 25px rgba(124,58,237,.35)}

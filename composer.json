@@ -1,0 +1,24 @@
+{
+	"name": "yuki/files",
+	"description": "YukiFiles - Modern file upload and sharing with auth, quotas, anti-clone, PayPal & crypto",
+	"type": "project",
+	"require": {
+		"php": ">=8.1",
+		"vlucas/phpdotenv": "^5.6",
+		"ramsey/uuid": "^4.7",
+		"guzzlehttp/guzzle": "^7.9"
+	},
+	"autoload": {
+		"psr-4": {
+			"App\\": "app/"
+		}
+	},
+	"scripts": {
+		"post-install-cmd": [
+			"@php -r 'is_dir(\"storage\") || mkdir(\"storage\"); is_dir(\"storage/files\") || mkdir(\"storage/files\", 0777, true); is_dir(\"storage/logs\") || mkdir(\"storage/logs\", 0777, true); is_dir(\"storage/sessions\") || mkdir(\"storage/sessions\", 0777, true); is_dir(\"storage/cache\") || mkdir(\"storage/cache\", 0777, true);'"
+		],
+		"post-update-cmd": [
+			"@post-install-cmd"
+		]
+	}
+}
