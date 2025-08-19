@@ -102,18 +102,23 @@ export async function checkAntiClone(
     // 1. Check IP information
     const ipInfo = await detectIPInfo(ip)
 
+    const strictness = Number(process.env.ANTI_CLONE_STRICTNESS || 1) // 0=loose,1=normal,2=strict
+    const vpnPenalty = strictness === 0 ? 20 : strictness === 2 ? 70 : 45
+    const proxyPenalty = strictness === 0 ? 10 : strictness === 2 ? 55 : 30
+    const nonResPenalty = strictness === 0 ? 5 : strictness === 2 ? 45 : 20
+
     if (ipInfo.vpn) {
-      riskScore += 70
+      riskScore += vpnPenalty
       reasons.push("VPN detected")
     }
 
     if (ipInfo.proxy) {
-      riskScore += 55
+      riskScore += proxyPenalty
       reasons.push("Proxy detected")
     }
 
     if (!ipInfo.residential) {
-      riskScore += 45
+      riskScore += nonResPenalty
       reasons.push("Non-residential IP")
     }
 
@@ -175,8 +180,8 @@ export async function checkAntiClone(
       action: action,
     })
 
-    // Decision logic (configurable threshold; stricter default)
-    const threshold = Number(process.env.CLONE_PROTECTION_THRESHOLD || 60)
+    // Decision logic (configurable threshold; relaxed default if unset)
+    const threshold = Number(process.env.CLONE_PROTECTION_THRESHOLD || 85)
     const allowed = riskScore < threshold
 
     console.log(`[v0] Risk score: ${riskScore}, Allowed: ${allowed}, Reasons: ${reasons.join(", ")}`)
