@@ -23,6 +23,14 @@ export const createServerClient = cache(() => {
       get(name: string) {
         return cookieStore.get(name)?.value
       },
+      set(name: string, value: string, options: any) {
+        // Server-side cookie setting is handled by middleware
+        cookieStore.set(name, value, options)
+      },
+      remove(name: string, options: any) {
+        // Server-side cookie removal is handled by middleware
+        cookieStore.set(name, "", { ...options, maxAge: 0 })
+      },
     },
   })
 })

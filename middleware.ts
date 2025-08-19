@@ -7,8 +7,13 @@ export async function middleware(request: NextRequest) {
   // Ensure we have correct site URL for auth redirects
   const url = new URL(request.url)
   const host = url.host
+  
+  // Handle Vercel deployment URLs
+  const isVercel = host.includes('.vercel.app') || host.includes('.vercel.app')
+  const siteUrl = isVercel ? `https://${host}` : `${url.protocol}//${host}`
+  
   // Dynamically set SITE_URL cookie for use in server components
-  response.cookies.set({ name: "SITE_URL", value: `${url.protocol}//${host}`, path: "/" })
+  response.cookies.set({ name: "SITE_URL", value: siteUrl, path: "/" })
 
   // Check if Supabase is configured
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
