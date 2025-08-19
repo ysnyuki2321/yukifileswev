@@ -11,6 +11,8 @@ import Topbar from "@/components/dashboard/Topbar"
 import StatCard from "@/components/dashboard/StatCard"
 import AreaChart from "@/components/dashboard/AreaChart"
 import RecentActivity from "@/components/dashboard/RecentActivity"
+import RecentFiles, { type RecentFileItem } from "@/components/dashboard/RecentFiles"
+import UploadZone from "@/components/file-manager/upload-zone"
 
 export default async function DashboardPage() {
   const supabase = createServerClient()
@@ -39,6 +41,14 @@ export default async function DashboardPage() {
   const isPremium = userData?.subscription_type === "paid"
   const areaData = Array.from({ length: 7 }).map((_, i) => ({ label: `D${i + 1}`, value: Math.max(0, (filesCount || 0) - (6 - i)) }))
 
+  // Fetch recent files
+  const { data: recentFiles } = await supabase
+    .from("files")
+    .select("id, original_name, file_size, share_token, created_at")
+    .eq("user_id", userData?.id)
+    .order("created_at", { ascending: false })
+    .limit(8)
+
   return (
     <ThemeProvider subscriptionType={userData?.subscription_type || "free"}>
       <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
@@ -65,19 +75,11 @@ export default async function DashboardPage() {
                     <AreaChart data={areaData} />
                   </CardContent>
                 </Card>
-                <Card className="bg-black/40 border-purple-500/20">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center mb-3 text-white">
-                      <Upload className="w-5 h-5 mr-2" />
-                      <span className="font-semibold">Quick Upload</span>
-                    </div>
-                    <PremiumButton className="w-full">Choose Files</PremiumButton>
-                  </CardContent>
-                </Card>
+                <UploadZone />
               </div>
 
-              {/* Recent Activity */}
-              <RecentActivity />
+              {/* Recent Files */}
+              <RecentFiles files={(recentFiles as RecentFileItem[]) || []} />
 
               {/* Premium CTA */}
               {!isPremium && (
