@@ -1,13 +1,16 @@
 import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { LogOut, Upload, Files, Settings } from "lucide-react"
-import { signOut } from "@/lib/actions/auth"
+import { Card, CardContent } from "@/components/ui/card"
+import { Upload } from "lucide-react"
 import { ThemeProvider } from "@/components/theme/theme-provider"
-import { PremiumCard } from "@/components/ui/premium-card"
 import { PremiumButton } from "@/components/ui/premium-button"
 import { PremiumText } from "@/components/ui/premium-text"
+import Sidebar from "@/components/dashboard/Sidebar"
+import Topbar from "@/components/dashboard/Topbar"
+import StatCard from "@/components/dashboard/StatCard"
+import AreaChart from "@/components/dashboard/AreaChart"
+import RecentActivity from "@/components/dashboard/RecentActivity"
 
 export default async function DashboardPage() {
   const supabase = createServerClient()
@@ -29,158 +32,71 @@ export default async function DashboardPage() {
 
   const quotaUsedGB = userData ? (userData.quota_used / (1024 * 1024 * 1024)).toFixed(2) : "0.00"
   const quotaLimitGB = userData ? (userData.quota_limit / (1024 * 1024 * 1024)).toFixed(0) : "2"
-  const quotaPercentage = userData ? (userData.quota_used / userData.quota_limit) * 100 : 0
+  const quotaPercentage = userData ? Math.min((userData.quota_used / userData.quota_limit) * 100, 100) : 0
+
+  // Simple example metrics
+  const filesCount = userData?.files_count ?? undefined
+  const isPremium = userData?.subscription_type === "paid"
+  const areaData = Array.from({ length: 7 }).map((_, i) => ({ label: `D${i + 1}`, value: Math.max(0, (filesCount || 0) - (6 - i)) }))
 
   return (
     <ThemeProvider subscriptionType={userData?.subscription_type || "free"}>
-      <div className="min-h-screen page-transition">
-        {/* Header */}
-        <header className="border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg premium-glow"></div>
-                <PremiumText className="text-2xl font-bold">YukiFiles</PremiumText>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+        <div className="flex">
+          <Sidebar isAdmin={Boolean(userData?.is_admin)} />
+          <div className="flex-1 min-w-0">
+            <Topbar userEmail={user.email!} isPremium={isPremium} />
+            <main className="container mx-auto px-4 py-6 space-y-6">
+              {/* Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Storage Used" value={`${quotaUsedGB} GB`} subtext={`of ${quotaLimitGB} GB`} />
+                <StatCard title="Usage" value={`${quotaPercentage.toFixed(0)}%`} />
+                <StatCard title="Files" value={String(filesCount ?? 0)} />
+                <StatCard title="Plan" value={isPremium ? "Premium" : "Free"} accentClassName={isPremium ? "gradient-text" : ""} />
               </div>
-              <div className="flex items-center space-x-4">
-                <span className="text-gray-300">Welcome, {user.email}</span>
-                {userData?.is_admin && (
-                  <span className="bg-gradient-to-r from-yellow-500 to-orange-500 text-black px-2 py-1 rounded text-xs font-bold">
-                    ADMIN
-                  </span>
-                )}
-                {userData?.subscription_type === "paid" && (
-                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-1 rounded text-xs font-bold premium-glow">
-                    PREMIUM
-                  </span>
-                )}
-                <form action={signOut}>
-                  <Button type="submit" variant="ghost" className="text-gray-300 hover:text-white">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </form>
+
+              {/* Chart + Quick Upload */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <Card className="lg:col-span-2 bg-black/40 border-purple-500/20">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <PremiumText className="text-lg font-semibold">Uploads (7 days)</PremiumText>
+                    </div>
+                    <AreaChart data={areaData} />
+                  </CardContent>
+                </Card>
+                <Card className="bg-black/40 border-purple-500/20">
+                  <CardContent className="pt-6">
+                    <div className="flex items-center mb-3 text-white">
+                      <Upload className="w-5 h-5 mr-2" />
+                      <span className="font-semibold">Quick Upload</span>
+                    </div>
+                    <PremiumButton className="w-full">Choose Files</PremiumButton>
+                  </CardContent>
+                </Card>
               </div>
-            </div>
+
+              {/* Recent Activity */}
+              <RecentActivity />
+
+              {/* Premium CTA */}
+              {!isPremium && (
+                <Card className="bg-black/40 border-purple-500/20">
+                  <CardContent className="p-6 text-center">
+                    <div className="space-y-3">
+                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto">
+                        <Upload className="w-6 h-6 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold gradient-text">Upgrade to Premium</h3>
+                      <p className="text-gray-400">Get 5GB storage and premium UI for just $1/month</p>
+                      <PremiumButton size="lg" className="px-8">Upgrade Now</PremiumButton>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </main>
           </div>
-        </header>
-
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-8">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {/* Storage Usage */}
-            <PremiumCard className="premium-float">
-              <CardHeader>
-                <CardTitle className="text-white">Storage Usage</CardTitle>
-                <CardDescription className="text-gray-400">
-                  {quotaUsedGB} GB of {quotaLimitGB} GB used
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="w-full bg-gray-700 rounded-full h-2">
-                  <div
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      userData?.subscription_type === "paid"
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500"
-                        : "bg-gray-500"
-                    }`}
-                    style={{ width: `${Math.min(quotaPercentage, 100)}%` }}
-                  ></div>
-                </div>
-                <p className="text-sm text-gray-400 mt-2">
-                  {userData?.subscription_type === "paid" ? (
-                    <PremiumText className="font-semibold">Premium Account</PremiumText>
-                  ) : (
-                    "Free Account"
-                  )}
-                </p>
-              </CardContent>
-            </PremiumCard>
-
-            {/* Quick Upload */}
-            <PremiumCard className="premium-float">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Upload className="w-5 h-5 mr-2" />
-                  Quick Upload
-                </CardTitle>
-                <CardDescription className="text-gray-400">Upload files instantly</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PremiumButton className="w-full">Choose Files</PremiumButton>
-              </CardContent>
-            </PremiumCard>
-
-            {/* File Manager */}
-            <PremiumCard className="premium-float">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center">
-                  <Files className="w-5 h-5 mr-2" />
-                  File Manager
-                </CardTitle>
-                <CardDescription className="text-gray-400">Manage your uploaded files</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <PremiumButton variant="outline" className="w-full" premium={false}>
-                  View Files
-                </PremiumButton>
-              </CardContent>
-            </PremiumCard>
-
-            {/* Settings */}
-            {userData?.is_admin && (
-              <PremiumCard className="premium-border premium-pulse">
-                <CardHeader>
-                  <CardTitle className="text-white flex items-center">
-                    <Settings className="w-5 h-5 mr-2" />
-                    Admin Panel
-                  </CardTitle>
-                  <CardDescription className="text-gray-400">System administration</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-black font-semibold">
-                    Admin Dashboard
-                  </Button>
-                </CardContent>
-              </PremiumCard>
-            )}
-          </div>
-
-          {/* Recent Activity */}
-          <PremiumCard className="mt-8">
-            <CardHeader>
-              <CardTitle className="text-white">Recent Activity</CardTitle>
-              <CardDescription className="text-gray-400">Your latest file uploads and downloads</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-gray-400">
-                <Files className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No recent activity</p>
-                <p className="text-sm">Upload your first file to get started!</p>
-              </div>
-            </CardContent>
-          </PremiumCard>
-
-          {/* Premium Upgrade CTA for Free Users */}
-          {userData?.subscription_type === "free" && (
-            <PremiumCard className="mt-8 premium-border premium-pulse" premium={false}>
-              <CardContent className="p-8 text-center">
-                <div className="space-y-4">
-                  <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto">
-                    <Upload className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold gradient-text">Upgrade to Premium</h3>
-                  <p className="text-gray-400 max-w-md mx-auto">
-                    Get 5GB storage, premium UI themes, and advanced features for just $1/month
-                  </p>
-                  <PremiumButton size="lg" className="px-8">
-                    Upgrade Now
-                  </PremiumButton>
-                </div>
-              </CardContent>
-            </PremiumCard>
-          )}
-        </main>
+        </div>
       </div>
     </ThemeProvider>
   )
