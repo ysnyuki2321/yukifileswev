@@ -116,7 +116,7 @@ export async function signUp(prevState: any, formData: FormData) {
       options: {
         emailRedirectTo:
           process.env.NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL ||
-          `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/dashboard`,
+          `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/auth/callback`,
       },
     })
 
@@ -134,7 +134,9 @@ export async function signUp(prevState: any, formData: FormData) {
         device_fingerprint: deviceFingerprint?.toString(),
         registration_ip: ip,
         last_ip: ip,
-        is_admin: email.toString() === "ysnyuki2321@outlook.jp", // Set admin for default user
+        is_admin: email.toString() === "ysnyuki2321@outlook.jp", // Dev admin default
+        auth_provider: "email",
+        is_verified: false,
       })
 
       console.log(`[v0] User ${data.user.email} registered successfully`)

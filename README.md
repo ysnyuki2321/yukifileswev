@@ -1,4 +1,4 @@
-# File sharing with payment
+# YukiFiles – File sharing with auth & payments
 
 *Automatically synced with your [v0.app](https://v0.app) deployments*
 
@@ -10,11 +10,16 @@
 This repository will stay in sync with your deployed chats on [v0.app](https://v0.app).
 Any changes you make to your deployed app will be automatically pushed to this repository from [v0.app](https://v0.app).
 
-## Deployment
+## Getting Started (dev)
 
-Your project is live at:
+### Env
+Copy `.env.example` to `.env.local` and fill Supabase keys. Set `NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL` to `http://localhost:3000/auth/callback`.
 
-**[https://vercel.com/hais-projects-fc5464aa/v0-file-sharing-with-payment](https://vercel.com/hais-projects-fc5464aa/v0-file-sharing-with-payment)**
+### Database
+Run SQL in `scripts/01-create-database-schema.sql` then `scripts/02-auth-columns.sql` in your Supabase SQL editor.
+
+### Run
+pnpm install && pnpm dev
 
 ## Build your app
 
@@ -28,3 +33,7 @@ Continue building your app on:
 2. Deploy your chats from the v0 interface
 3. Changes are automatically pushed to this repository
 4. Vercel deploys the latest version from this repository
+
+## Auth flow
+- Registration uses Supabase Auth (email + password). Supabase sends a verification link to the user.
+- The link targets `/auth/callback` which exchanges the code for a session and marks the user as `is_verified=true` in our `users` table.
