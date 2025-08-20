@@ -6,13 +6,13 @@ import { checkAntiClone, logUserActivity, checkRateLimit, logRateLimitAttempt } 
 import { headers } from "next/headers"
 
 export async function signIn(email: string, password: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { error: "Database connection failed" }
   }
 
   try {
-    const headersList = headers()
+    const headersList = await headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
     const userAgent = headersList.get("user-agent") || ""
 
@@ -73,13 +73,13 @@ export async function signUp(prevState: any, formData: FormData) {
     return { error: "Passwords do not match" }
   }
 
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { error: "Database connection failed" }
   }
 
   try {
-    const headersList = headers()
+    const headersList = await headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
     const userAgent = headersList.get("user-agent") || ""
 
@@ -113,7 +113,7 @@ export async function signUp(prevState: any, formData: FormData) {
 
     // Check if user already exists in Supabase Auth
     const { data: existingAuthUser } = await supabase.auth.admin.listUsers()
-    const userExists = existingAuthUser.users.some(user => user.email === email.toString())
+    const userExists = existingAuthUser.users.some((user: any) => user.email === email.toString())
     
     if (userExists) {
       return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
@@ -205,7 +205,7 @@ export async function signUp(prevState: any, formData: FormData) {
 }
 
 export async function signOut() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (supabase) {
     await supabase.auth.signOut()
   }
