@@ -4,18 +4,25 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users } from "lucide-react"
 import Link from "next/link"
+import { ConnectionStatus } from "@/components/ui/connection-status"
 
 export default async function HomePage() {
   const supabase = createServerClient()
 
+  // Only redirect if Supabase is properly configured and user is authenticated
   if (supabase) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
 
-    // If user is logged in, redirect to dashboard
-    if (user) {
-      redirect("/dashboard")
+      // If user is logged in, redirect to dashboard
+      if (user) {
+        redirect("/dashboard")
+      }
+    } catch (error) {
+      // If there's an error with Supabase, continue to show home page
+      console.warn("Supabase connection error, showing home page:", error)
     }
   }
 
@@ -42,6 +49,11 @@ export default async function HomePage() {
           </div>
         </nav>
       </header>
+
+      {/* Connection Status */}
+      <div className="container mx-auto px-4 mb-8">
+        <ConnectionStatus />
+      </div>
 
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-20">
