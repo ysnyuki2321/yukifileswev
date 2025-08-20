@@ -8,6 +8,7 @@ import ActivityFeed from "@/components/dashboard/ActivityFeed"
 import { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
 import DemoFileManager from "@/components/dashboard/DemoFileManager"
+import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
@@ -138,11 +139,12 @@ function DashboardContent() {
               />
               
               {isDemoMode ? (
-                // Demo Mode: Show full file manager
-                <div className="space-y-6">
-                  <QuickActions isPremium={userData?.subscription_type === "paid"} />
-                  <DemoFileManager />
-                </div>
+                // Demo Mode: Show enhanced demo manager with all features
+                <EnhancedDemoManager 
+                  userData={userData}
+                  recentFiles={recentFiles}
+                  recentActivity={recentActivity}
+                />
               ) : (
                 // Regular Mode: Show standard dashboard layout
                 <div className="grid gap-6 lg:grid-cols-3">

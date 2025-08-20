@@ -16,7 +16,7 @@ import {
   Eye, Download, Share2, Edit3, Trash2, Copy, Check, Star, StarOff,
   Folder, FolderOpen, X, AlertCircle, CheckCircle, Settings, User, Bell,
   CreditCard, Key, Shield, Globe, Palette, Zap, BarChart3, Activity,
-  Lock, Unlock, Calendar, Users, Zap, Crown, Sparkles, Globe2
+  Lock, Unlock, Calendar, Users, Crown, Sparkles, Globe2
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
