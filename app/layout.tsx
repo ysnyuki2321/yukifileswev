@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { Outfit } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme/theme-provider"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { ToastProvider } from "@/components/ui/toast"
 
 export const metadata: Metadata = {
   title: {
@@ -43,7 +45,13 @@ export default async function RootLayout({
     <html lang="en" className={outfit.variable}>
       <head />
       <body style={{ fontFamily: "var(--font-outfit)" }}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   )

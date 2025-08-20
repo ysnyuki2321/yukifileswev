@@ -8,6 +8,8 @@ import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 import { getDebugFiles } from "@/lib/services/debug-user"
+import { PageSkeleton } from "@/components/ui/loading-skeleton"
+import { Suspense } from "react"
 
 export default async function DashboardPage() {
   const supabase = await createServerClient()
@@ -17,12 +19,14 @@ export default async function DashboardPage() {
   let user = null
   let userData = null
   let recentFiles: any[] = []
+  let filesCount = 0
   
   if (debugMode) {
     console.log("[v0] Debug mode enabled - using mock data for dashboard")
     user = { email: "debug@yukifiles.com", id: "debug-user-123" }
     userData = getMockUserData()
     recentFiles = getDebugFiles().slice(0, 8)
+    filesCount = getDebugFiles().length
   } else {
     if (!supabase) {
       redirect("/auth/login")
@@ -40,14 +44,15 @@ export default async function DashboardPage() {
     const { data: userDataResult } = await supabase.from("users").select("*").eq("email", user.email).single()
     userData = userDataResult
 
-    const { data: recentFilesData } = await supabase
+    // Get files count and recent files
+    const { data: filesData } = await supabase
       .from("files")
       .select("id, original_name, file_size, share_token, created_at")
       .eq("user_id", userData?.id)
       .order("created_at", { ascending: false })
-      .limit(8)
     
-    recentFiles = recentFilesData || []
+    recentFiles = filesData?.slice(0, 8) || []
+    filesCount = filesData?.length || 0
   }
 
   // Get brand name from admin settings
@@ -61,6 +66,28 @@ export default async function DashboardPage() {
     brandName = settingsMap["brand_name"] || "YukiFiles"
   }
 
+  // Mock recent activity for now
+  const recentActivity = [
+    {
+      id: "1",
+      type: "upload" as const,
+      fileName: "document.pdf",
+      timestamp: new Date().toISOString()
+    },
+    {
+      id: "2", 
+      type: "share" as const,
+      fileName: "image.jpg",
+      timestamp: new Date(Date.now() - 3600000).toISOString()
+    },
+    {
+      id: "3",
+      type: "download" as const,
+      fileName: "video.mp4",
+      timestamp: new Date(Date.now() - 7200000).toISOString()
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       <div className="flex">
@@ -68,19 +95,25 @@ export default async function DashboardPage() {
         <div className="flex-1 min-w-0">
           <Topbar userEmail={user.email!} isPremium={userData?.subscription_type === "paid"} brandName={brandName} />
           <main className="container mx-auto px-4 py-6">
-            <div className="space-y-8">
-              <DashboardHeader userData={userData} />
-              
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
-                  <QuickActions />
-                  <ActivityFeed />
-                </div>
-                <div>
-                  <RecentFiles files={recentFiles} />
+            <Suspense fallback={<PageSkeleton />}>
+              <div className="space-y-8">
+                <DashboardHeader 
+                  userData={userData}
+                  filesCount={filesCount}
+                  recentActivity={recentActivity}
+                />
+                
+                <div className="grid gap-6 lg:grid-cols-3">
+                  <div className="lg:col-span-2 space-y-6">
+                    <QuickActions />
+                    <ActivityFeed />
+                  </div>
+                  <div>
+                    <RecentFiles files={recentFiles} />
+                  </div>
                 </div>
               </div>
-            </div>
+            </Suspense>
           </main>
         </div>
       </div>

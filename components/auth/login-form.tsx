@@ -1,156 +1,178 @@
 "use client"
-import { useState, useActionState } from "react"
-import { useFormStatus } from "react-dom"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ArrowLeft, Mail, Lock, KeyRound, Eye, EyeOff } from "lucide-react"
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from "lucide-react"
 import { signIn } from "@/lib/actions/auth"
-import { useDeviceFingerprint } from "@/components/device-fingerprint"
-
-function SubmitButton({ disabled }: { disabled: boolean }) {
-  const { pending } = useFormStatus()
-
-  return (
-    <Button
-      type="submit"
-      disabled={pending || disabled}
-      className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-6 text-lg font-medium rounded-lg h-[60px]"
-    >
-      {pending ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Signing in...
-        </>
-      ) : (
-        "Sign In"
-      )}
-    </Button>
-  )
-}
+import { useToastHelpers } from "@/components/ui/toast"
+import { isValidEmail } from "@/lib/utils/validation"
 
 export default function LoginForm() {
   const router = useRouter()
-  const [state, formAction] = useActionState(signIn, null)
-  const fingerprint = useDeviceFingerprint()
+  const toast = useToastHelpers()
+  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: ""
+  })
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Handle successful login by redirecting
-  useEffect(() => {
-    if (state?.success) {
-      router.push("/dashboard")
-    }
-  }, [state, router])
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {}
 
-  const handleSubmit = (formData: FormData) => {
-    // Optional: add fingerprint if available
-    if (fingerprint) {
-      formData.append("deviceFingerprint", JSON.stringify(fingerprint))
+    if (!formData.email) {
+      newErrors.email = "Email is required"
+    } else if (!isValidEmail(formData.email)) {
+      newErrors.email = "Please enter a valid email address"
     }
-    formAction(formData)
+
+    if (!formData.password) {
+      newErrors.password = "Password is required"
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters"
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (!validateForm()) {
+      return
+    }
+
+    setIsLoading(true)
+    setErrors({})
+
+    try {
+      const result = await signIn(formData.email, formData.password)
+      
+      if (result.success) {
+        toast.success("Welcome back!", "You have been successfully logged in.")
+        router.push("/dashboard")
+      } else {
+        setErrors({ general: result.error || "Login failed. Please try again." })
+        toast.error("Login failed", result.error || "Please check your credentials and try again.")
+      }
+    } catch (error) {
+      console.error("Login error:", error)
+      setErrors({ general: "An unexpected error occurred. Please try again." })
+      toast.error("Login error", "An unexpected error occurred. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
+    // Clear field-specific error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: "" }))
+    }
   }
 
   return (
-    <div className="w-full max-w-md">
-      {/* Back to home */}
-      <Link href="/" className="inline-flex items-center text-purple-300 hover:text-white mb-6 transition-colors">
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Home
-      </Link>
+    <Card className="w-full max-w-md bg-black/40 backdrop-blur-lg border-purple-500/20">
+      <CardHeader className="text-center">
+        <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Mail className="w-8 h-8 text-white" />
+        </div>
+        <CardTitle className="text-2xl text-white">Welcome Back</CardTitle>
+        <CardDescription className="text-gray-400">
+          Sign in to your account to continue
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {errors.general && (
+            <div className="flex items-center space-x-2 p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <AlertCircle className="w-4 h-4 text-red-400" />
+              <p className="text-red-400 text-sm">{errors.general}</p>
+            </div>
+          )}
 
-      <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
-        <CardHeader className="space-y-2 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"></div>
-            <span className="text-2xl font-bold text-white">YukiFiles</span>
-          </div>
-          <CardTitle className="text-3xl font-semibold text-white">Welcome back</CardTitle>
-          <CardDescription className="text-gray-400 text-lg">Sign in to your account</CardDescription>
-        </CardHeader>
-
-        <CardContent>
-          <form action={handleSubmit} className="space-y-6">
-            {state?.error && (
-              <div className="bg-red-500/10 border border-red-500/50 text-red-400 px-4 py-3 rounded-lg">
-                {state.error}
-              </div>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-gray-300">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                id="email"
+                type="email"
+                placeholder="Enter your email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                className={`pl-10 bg-black/30 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 ${
+                  errors.email ? "border-red-500" : ""
+                }`}
+                disabled={isLoading}
+              />
+            </div>
+            {errors.email && (
+              <p className="text-red-400 text-xs">{errors.email}</p>
             )}
+          </div>
 
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label htmlFor="email" className="block text-sm font-medium text-gray-300">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    className="pl-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-300">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    required
-                    className="pl-9 pr-10 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
-                  />
-                  <button
-                    type="button"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
-                    onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-              {/* Optional 2FA code */}
-              <div className="space-y-2">
-                <label htmlFor="twoFactorCode" className="block text-sm font-medium text-gray-300">
-                  2FA Code (if enabled)
-                </label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    id="twoFactorCode"
-                    name="twoFactorCode"
-                    type="text"
-                    inputMode="numeric"
-                    pattern="[0-9]*"
-                    className="pl-9 bg-black/30 border-gray-700 text-white focus:border-purple-500 focus:ring-purple-500"
-                  />
-                </div>
-              </div>
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-gray-300">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter your password"
+                value={formData.password}
+                onChange={(e) => handleInputChange("password", e.target.value)}
+                className={`pl-10 pr-10 bg-black/30 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 ${
+                  errors.password ? "border-red-500" : ""
+                }`}
+                disabled={isLoading}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white"
+                disabled={isLoading}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
+            {errors.password && (
+              <p className="text-red-400 text-xs">{errors.password}</p>
+            )}
+          </div>
 
-            <SubmitButton disabled={false} />
+          <Button
+            type="submit"
+            className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Signing In...
+              </>
+            ) : (
+              "Sign In"
+            )}
+          </Button>
 
-            <p className="text-xs text-gray-400 text-center">Use your email and password to sign in.</p>
-
-            <div className="text-center text-gray-400">
-              Don't have an account? {""}
-              <Link href="/auth/register" className="text-purple-400 hover:text-purple-300 hover:underline">
+          <div className="text-center">
+            <p className="text-gray-400 text-sm">
+              Don't have an account?{" "}
+              <a href="/auth/register" className="text-purple-400 hover:text-purple-300 underline">
                 Sign up
-              </Link>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+              </a>
+            </p>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   )
 }
