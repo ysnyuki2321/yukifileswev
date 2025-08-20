@@ -1,36 +1,90 @@
 import { createClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
-import { cache } from "react"
+import { isDebugModeEnabled, getMockSession } from "@/lib/services/debug-context"
 
-// Check if Supabase environment variables are available
-export const isSupabaseConfigured =
-  typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
-  typeof process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY === "string" &&
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY.length > 0
-
-// Create a cached version of the Supabase client for Server Components
-export const createServerClient = cache(() => {
+export function createServerClient() {
   const cookieStore = cookies()
 
-  if (!isSupabaseConfigured) {
-    console.warn("Supabase environment variables are not set.")
-    return null
+  // Check debug mode first
+  const checkDebugMode = async () => {
+    try {
+      return await isDebugModeEnabled()
+    } catch {
+      return false
+    }
   }
 
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    cookies: {
-      get(name: string) {
-        return cookieStore.get(name)?.value
+  const debugMode = checkDebugMode()
+
+  // If debug mode is enabled, return a mock client
+  if (debugMode) {
+    return {
+      auth: {
+        getUser: async () => ({
+          data: { user: getMockSession().user },
+          error: null
+        }),
+        getSession: async () => ({
+          data: { session: getMockSession() },
+          error: null
+        }),
+        signOut: async () => ({ error: null }),
+        signInWithPassword: async () => ({
+          data: { user: getMockSession().user, session: getMockSession() },
+          error: null
+        }),
+        signUp: async () => ({
+          data: { user: getMockSession().user, session: getMockSession() },
+          error: null
+        })
       },
-      set(name: string, value: string, options: any) {
-        // Server-side cookie setting is handled by middleware
-        cookieStore.set(name, value, options)
+      from: (table: string) => ({
+        select: (columns: string) => ({
+          eq: (column: string, value: any) => ({
+            single: async () => ({ data: null, error: null }),
+            then: (callback: any) => Promise.resolve({ data: null, error: null })
+          }),
+          then: (callback: any) => Promise.resolve({ data: [], error: null })
+        }),
+        insert: async (data: any) => ({ data, error: null }),
+        update: async (data: any) => ({ data, error: null }),
+        delete: async () => ({ data: null, error: null }),
+        upsert: async (data: any) => ({ data, error: null })
+      }),
+      storage: {
+        from: (bucket: string) => ({
+          upload: async (path: string, file: any) => ({ data: { path }, error: null }),
+          download: async (path: string) => ({ data: null, error: null }),
+          remove: async (paths: string[]) => ({ data: null, error: null })
+        })
+      }
+    } as any
+  }
+
+  // Return real Supabase client
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
+        },
+        set(name: string, value: string, options: any) {
+          try {
+            cookieStore.set(name, value, options)
+          } catch {
+            // Ignore errors in server components
+          }
+        },
+        remove(name: string, options: any) {
+          try {
+            cookieStore.set(name, "", { ...options, maxAge: 0 })
+          } catch {
+            // Ignore errors in server components
+          }
+        },
       },
-      remove(name: string, options: any) {
-        // Server-side cookie removal is handled by middleware
-        cookieStore.set(name, "", { ...options, maxAge: 0 })
-      },
-    },
-  })
-})
+    }
+  )
+}

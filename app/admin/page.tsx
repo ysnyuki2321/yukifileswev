@@ -4,11 +4,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Users, CreditCard, HardDrive, AlertTriangle } from "lucide-react"
 import AdminLayout from "@/components/admin/admin-layout"
-import { isDebugModeEnabled, getDebugStats } from "@/lib/services/debug-user"
+import { isDebugModeEnabled } from "@/lib/services/debug-context"
+import { getDebugStats } from "@/lib/services/debug-user"
 
 export default async function AdminDashboard() {
   const { userData } = await requireAdmin()
-  const supabase = createServerClient()!
+  const supabase = createServerClient()
 
   // Check debug mode for mock data
   const debugMode = await isDebugModeEnabled()
@@ -101,96 +102,92 @@ export default async function AdminDashboard() {
           <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-300">Total Files</CardTitle>
-              <HardDrive className="h-4 w-4 text-blue-400" />
+              <HardDrive className="h-4 w-4 text-purple-400" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-white">{stats.totalFiles}</div>
-              <p className="text-xs text-gray-400">{totalStorageGB} GB used</p>
+              <p className="text-xs text-gray-400">Uploaded files</p>
             </CardContent>
           </Card>
 
           <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-gray-300">Transactions</CardTitle>
-              <CreditCard className="h-4 w-4 text-green-400" />
+              <CreditCard className="h-4 w-4 text-purple-400" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-white">{stats.totalTransactions}</div>
-              <p className="text-xs text-gray-400">{stats.pendingTransactions} pending</p>
+              <p className="text-xs text-gray-400">
+                {stats.pendingTransactions} pending
+              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-300">Security Alerts</CardTitle>
-              <AlertTriangle className="h-4 w-4 text-red-400" />
+              <CardTitle className="text-sm font-medium text-gray-300">Storage Used</CardTitle>
+              <HardDrive className="h-4 w-4 text-purple-400" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-white">{stats.suspiciousIPs}</div>
-              <p className="text-xs text-gray-400">Suspicious IPs</p>
+              <div className="text-2xl font-bold text-white">{totalStorageGB} GB</div>
+              <p className="text-xs text-gray-400">Total storage</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Recent Activity */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Recent Transactions */}
-          <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
-            <CardHeader>
-              <CardTitle className="text-white">Recent Transactions</CardTitle>
-              <CardDescription className="text-gray-400">Latest payment activities</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {recentTransactions?.map((transaction) => (
-                  <div key={transaction.id} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
-                    <div>
-                      <p className="text-sm text-white">{(transaction.users as any)?.email}</p>
-                      <p className="text-xs text-gray-400">
-                        {transaction.payment_method} • ${transaction.amount}
-                      </p>
-                    </div>
-                    <Badge
-                      variant={
-                        transaction.status === "completed"
-                          ? "default"
-                          : transaction.status === "pending"
-                            ? "secondary"
-                            : "destructive"
-                      }
-                    >
-                      {transaction.status}
-                    </Badge>
-                  </div>
-                )) || <p className="text-gray-400 text-center py-4">No recent transactions</p>}
-              </div>
-            </CardContent>
-          </Card>
-
+        <div className="grid gap-6 md:grid-cols-2">
           {/* Recent Users */}
           <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
             <CardHeader>
               <CardTitle className="text-white">Recent Users</CardTitle>
-              <CardDescription className="text-gray-400">Newly registered accounts</CardDescription>
+              <CardDescription>Latest registered users</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {recentUsers?.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+              <div className="space-y-4">
+                {recentUsers.map((user: any) => (
+                  <div key={user.id} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-white">{user.email}</p>
-                      <p className="text-xs text-gray-400">
-                        {new Date(user.created_at).toLocaleDateString()} • {user.subscription_type}
+                      <p className="text-white font-medium">{user.email}</p>
+                      <p className="text-gray-400 text-sm">
+                        {new Date(user.created_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="flex space-x-1">
-                      {user.is_admin && <Badge className="bg-yellow-500 text-black text-xs">Admin</Badge>}
-                      <Badge variant={user.subscription_type === "paid" ? "default" : "secondary"}>
-                        {user.subscription_type}
-                      </Badge>
-                    </div>
+                    <Badge variant={user.subscription_type === "paid" ? "default" : "secondary"}>
+                      {user.subscription_type}
+                    </Badge>
                   </div>
-                )) || <p className="text-gray-400 text-center py-4">No recent users</p>}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent Transactions */}
+          <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white">Recent Transactions</CardTitle>
+              <CardDescription>Latest payment transactions</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentTransactions.map((tx: any) => (
+                  <div key={tx.id} className="flex items-center justify-between">
+                    <div>
+                      <p className="text-white font-medium">${tx.amount} {tx.currency}</p>
+                      <p className="text-gray-400 text-sm">
+                        {tx.users?.email || "Unknown user"}
+                      </p>
+                    </div>
+                    <Badge 
+                      variant={
+                        tx.status === "completed" ? "default" : 
+                        tx.status === "pending" ? "secondary" : "destructive"
+                      }
+                    >
+                      {tx.status}
+                    </Badge>
+                  </div>
+                ))}
               </div>
             </CardContent>
           </Card>

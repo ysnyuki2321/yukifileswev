@@ -93,7 +93,8 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/test-") ||
     request.nextUrl.pathname.startsWith("/auto-debug") ||
     request.nextUrl.pathname.startsWith("/force-debug") ||
-    request.nextUrl.pathname.startsWith("/instant-debug")
+    request.nextUrl.pathname.startsWith("/instant-debug") ||
+    request.nextUrl.pathname.startsWith("/enable-debug")
 
   if (!isAuthRoute && !isPublicRoute) {
     const {

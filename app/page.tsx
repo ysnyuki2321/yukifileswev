@@ -4,11 +4,15 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users } from "lucide-react"
 import Link from "next/link"
+import { isDebugModeEnabled } from "@/lib/services/debug-context"
 
 export default async function HomePage() {
   const supabase = createServerClient()
 
-  if (supabase) {
+  // Check debug mode first
+  const debugMode = await isDebugModeEnabled()
+  
+  if (supabase && !debugMode) {
     const {
       data: { user },
     } = await supabase.auth.getUser()
@@ -29,16 +33,26 @@ export default async function HomePage() {
             <span className="text-2xl font-bold text-white">YukiFiles</span>
           </div>
           <div className="space-x-4">
-            <Link href="/auth/login">
-              <Button variant="ghost" className="text-white hover:text-purple-300">
-                Sign In
-              </Button>
-            </Link>
-            <Link href="/auth/register">
-              <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                Get Started
-              </Button>
-            </Link>
+            {debugMode ? (
+              <Link href="/dashboard">
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  Debug Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/auth/login">
+                  <Button variant="ghost" className="text-white hover:text-purple-300">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/auth/register">
+                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                    Get Started
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </nav>
       </header>
@@ -54,23 +68,36 @@ export default async function HomePage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link href="/auth/register">
-              <Button
-                size="lg"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
-              >
-                Start Free
-              </Button>
-            </Link>
-            <Link href="/pricing">
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent"
-              >
-                View Pricing
-              </Button>
-            </Link>
+            {debugMode ? (
+              <Link href="/dashboard">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                >
+                  Enter Debug Mode
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/auth/register">
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                  >
+                    Start Free
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent"
+                  >
+                    View Pricing
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Pricing Snapshot */}
@@ -86,9 +113,15 @@ export default async function HomePage() {
                 <li>• Share links</li>
                 <li>• Basic security</li>
               </ul>
-              <Link href="/auth/register">
-                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">Get Started</Button>
-              </Link>
+              {debugMode ? (
+                <Link href="/dashboard">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">Debug Mode</Button>
+                </Link>
+              ) : (
+                <Link href="/auth/register">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">Get Started</Button>
+                </Link>
+              )}
             </div>
             <div className="bg-black/30 rounded-xl border border-purple-500/40 p-6 text-left premium-glow">
               <div className="flex items-center justify-between mb-2">
@@ -98,12 +131,18 @@ export default async function HomePage() {
               <div className="text-4xl font-bold gradient-text mb-4">$1<span className="text-white text-lg">/mo</span></div>
               <ul className="text-gray-300 space-y-1 mb-4 text-sm">
                 <li>• 5GB total</li>
-                <li>• Premium UI</li>
+                <li>• Advanced features</li>
                 <li>• Priority support</li>
               </ul>
-              <Link href="/pricing">
-                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">View Pricing</Button>
-              </Link>
+              {debugMode ? (
+                <Link href="/dashboard">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">Debug Mode</Button>
+                </Link>
+              ) : (
+                <Link href="/pricing">
+                  <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">Upgrade Now</Button>
+                </Link>
+              )}
             </div>
           </div>
 

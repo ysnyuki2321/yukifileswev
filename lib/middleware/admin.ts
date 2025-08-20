@@ -1,22 +1,23 @@
 import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { isDebugModeEnabled, getDebugUser } from "@/lib/services/debug-user"
+import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 
 export async function requireAdmin() {
   const supabase = createServerClient()
-  if (!supabase) {
-    redirect("/auth/login")
+
+  // Check debug mode first
+  const debugMode = await isDebugModeEnabled()
+  
+  if (debugMode) {
+    console.log("[v0] Debug mode enabled - bypassing admin checks")
+    return {
+      userData: getMockUserData(),
+      isAdmin: true
+    }
   }
 
-  // Check debug mode first - if enabled, return debug admin data
-  const debugMode = await isDebugModeEnabled()
-  if (debugMode) {
-    console.log("[v0] Debug mode enabled - bypassing admin check")
-    const debugUser = getDebugUser()
-    return {
-      user: { email: debugUser.email, id: debugUser.id },
-      userData: debugUser
-    }
+  if (!supabase) {
+    redirect("/auth/login")
   }
 
   const {
@@ -27,12 +28,15 @@ export async function requireAdmin() {
     redirect("/auth/login")
   }
 
-  // Check if user is admin
-  const { data: userData } = await supabase.from("users").select("*").eq("email", user.email).single()
+  const { data: userData } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", user.email)
+    .single()
 
-  if (!userData || !userData.is_admin) {
+  if (!userData?.is_admin) {
     redirect("/dashboard")
   }
 
-  return { user, userData }
+  return { userData, isAdmin: true }
 }
