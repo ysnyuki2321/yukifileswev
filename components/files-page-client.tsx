@@ -10,10 +10,44 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlayCircle, FileText, Code, Image, Video, Music, Sparkles } from "lucide-react"
 
+interface User {
+  email: string
+  id: string
+}
+
+interface UserData {
+  id: string
+  email: string
+  created_at: string
+  updated_at: string
+  subscription_type: string
+  subscription_expires_at: string
+  quota_used: number
+  quota_limit: number
+  password_hash: null
+  is_admin: boolean
+  is_active: boolean
+}
+
+interface FileItem {
+  id: string
+  name: string
+  type: string
+  size: number
+  lastModified: Date
+  isFolder: boolean
+  content?: string
+  thumbnail?: string
+  isStarred?: boolean
+  isShared?: boolean
+  owner?: string
+  path: string
+}
+
 export default function FilesPageClient() {
-  const [user, setUser] = useState(null)
-  const [userData, setUserData] = useState(null)
-  const [files, setFiles] = useState([])
+  const [user, setUser] = useState<User | null>(null)
+  const [userData, setUserData] = useState<UserData | null>(null)
+  const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(true)
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
@@ -26,7 +60,24 @@ export default function FilesPageClient() {
         console.log("[v0] Using debug mode for files page")
         setUser({ email: "debug@yukifiles.com", id: "debug-user-123" })
         setUserData(getMockUserData())
-        setFiles(getDebugFiles())
+        
+        // Transform debug files to match FileItem interface
+        const debugFiles = getDebugFiles()
+        const transformedDebugFiles: FileItem[] = debugFiles.map((file: any) => ({
+          id: file.id,
+          name: file.name || 'untitled.txt',
+          type: file.mime_type || 'application/octet-stream',
+          size: file.size || 0,
+          lastModified: new Date(file.uploaded_at || Date.now()),
+          isFolder: false,
+          content: file.content || '',
+          thumbnail: file.thumbnail,
+          isStarred: file.is_starred || false,
+          isShared: file.is_public || false,
+          owner: file.owner || 'debug@yukifiles.com',
+          path: '/'
+        }))
+        setFiles(transformedDebugFiles)
       } catch (error) {
         console.error("Error loading data:", error)
       } finally {
@@ -655,35 +706,62 @@ Thank you for trying YukiFiles! 🚀`,
   // Fake upload function for demo
   const handleFakeUpload = async (files: File[]) => {
     for (const file of files) {
-      const fileId = `upload-${Date.now()}-${Math.random()}`
+      const fileId = `fake-${Date.now()}-${Math.random()}`
+      const fileName = file.name || 'untitled.txt'
+      
       setUploadingFiles(prev => [...prev, fileId])
       setUploadProgress(prev => ({ ...prev, [fileId]: 0 }))
       
       // Simulate upload progress
       for (let i = 0; i <= 100; i += 10) {
-        await new Promise(resolve => setTimeout(resolve, 200))
+        await new Promise(resolve => setTimeout(resolve, 100))
         setUploadProgress(prev => ({ ...prev, [fileId]: i }))
       }
       
       // Add file to list
-      const newFile = {
+      const newFile: FileItem = {
         id: fileId,
-        name: file.name || 'untitled.txt',
-        type: file.type,
+        name: fileName,
+        type: file.type || 'application/octet-stream',
         size: file.size,
         lastModified: new Date(),
         isFolder: false,
-        content: file.type.startsWith('text/') ? await file.text() : '',
+        content: '',
         path: '/'
       }
       
       setFiles(prev => [newFile, ...prev])
       setUploadingFiles(prev => prev.filter(id => id !== fileId))
       setUploadProgress(prev => {
-        const { [fileId]: removed, ...rest } = prev
-        return rest
+        const newProgress = { ...prev }
+        delete newProgress[fileId]
+        return newProgress
       })
     }
+  }
+
+  const handleFileEdit = (file: FileItem) => {
+    // This will be handled by the file editor component
+    console.log("File edit requested:", file)
+  }
+
+  const handleFileSave = (file: FileItem, newContent: string, newName?: string, newType?: string) => {
+    setFiles(prevFiles =>
+      prevFiles.map(f =>
+        f.id === file.id
+          ? {
+              ...f,
+              content: newContent || f.content,
+              name: newName || f.name || 'untitled.txt',
+              type: newType ? `text/${newType}` : f.type
+            }
+          : f
+      )
+    )
+  }
+
+  const handleFileDelete = (fileId: string) => {
+    setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId))
   }
 
   const allFiles = isDemoMode ? demoFiles : [...transformedFiles, ...testFiles]
@@ -772,34 +850,20 @@ Thank you for trying YukiFiles! 🚀`,
           </Card>
         </div>
 
-        <EnhancedFileManager 
-          files={allFiles}
-          onFileSelect={(file) => console.log('File selected:', file)}
-          onFileEdit={(file, newContent, newName, newType) => {
-            console.log('File edit:', { file, newContent, newName, newType })
-            // Update file in the list
-            setFiles(prevFiles => 
-              prevFiles.map(f => 
-                f.id === file.id 
-                  ? { 
-                      ...f, 
-                      content: newContent || f.content,
-                      name: newName || f.name || 'untitled.txt',
-                      type: newType ? `text/${newType}` : f.type
-                    }
-                  : f
-              )
-            )
-          }}
-          onFileDelete={(fileId) => {
-            console.log('File delete:', fileId)
-            setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId))
-          }}
-          onFileShare={(fileId) => console.log('File share:', fileId)}
-          onFileDownload={(fileId) => console.log('File download:', fileId)}
-          onFileUpload={isDemoMode ? handleFakeUpload : (files) => console.log('Files upload:', files)}
+        <EnhancedFileManager
+          files={transformedFiles}
+          onFileUpload={handleFakeUpload}
+          onFileEdit={handleFileEdit}
+          onFileDelete={handleFileDelete}
+          onFileSave={handleFileSave}
           uploadProgress={uploadProgress}
           uploadingFiles={uploadingFiles}
+          isAdmin={Boolean(userData?.is_admin)}
+          userQuota={{
+            used: userData?.quota_used || 0,
+            limit: userData?.quota_limit || 0
+          }}
+          isDemoMode={isDemoMode}
         />
       </main>
     </div>

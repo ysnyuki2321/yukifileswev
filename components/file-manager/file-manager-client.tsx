@@ -33,7 +33,7 @@ export default function FileManagerClient({ userData, initialFiles, showHeader =
       const deletedFile = files.find((f) => f.id === fileId)
       if (deletedFile) {
         setFiles((prev) => prev.filter((f) => f.id !== fileId))
-        setQuotaUsed((prev) => Math.max(0, prev - deletedFile.file_size))
+        setQuotaUsed((prev: number) => Math.max(0, prev - deletedFile.file_size))
       }
     }
   }

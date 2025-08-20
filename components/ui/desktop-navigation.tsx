@@ -44,7 +44,7 @@ const megaDropdownItems = [
   }
 ]
 
-function MegaDropdown({ isOpen, onClose, triggerRef }: { isOpen: boolean; onClose: () => void; triggerRef: React.RefObject<HTMLButtonElement> }) {
+function MegaDropdown({ isOpen, onClose, triggerRef }: { isOpen: boolean; onClose: () => void; triggerRef: React.RefObject<HTMLButtonElement | null> }) {
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

@@ -10,7 +10,7 @@ import {
   FileText, Image, Video, Music, Archive, Code, File,
   Eye, Download, Share2, Edit3, Trash2, Star, Clock, User,
   Folder, FolderOpen, ChevronRight, ChevronDown, Home,
-  RefreshCw, Settings, SortAsc, SortDesc
+  RefreshCw, Settings, SortAsc, SortDesc, FileArchive, FileSpreadsheet
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,6 +19,7 @@ import { FileEditor } from "../file-editor/file-editor"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { LucideIcon } from "lucide-react"
 
 interface FileItem {
   id: string
@@ -46,15 +47,15 @@ interface EnhancedFileManagerProps {
   className?: string
 }
 
-const fileTypeIcons = {
+const fileTypeIcons: { [key: string]: LucideIcon } = {
   'image': Image,
   'video': Video,
   'audio': Music,
-  'archive': Archive,
-  'code': Code,
   'document': FileText,
-  'text': FileText,
-  'default': File
+  'archive': FileArchive,
+  'spreadsheet': FileSpreadsheet,
+  'presentation': FileText,
+  'default': FileText
 }
 
 const getFileType = (fileName: string, mimeType?: string): string => {

@@ -1,63 +1,74 @@
-import { NextResponse, type NextRequest } from "next/server"
-import { createServerClient } from "@/lib/supabase/server"
-import { getAdminSettingsMap, readSetting } from "@/lib/services/settings"
+import { NextRequest, NextResponse } from "next/server"
+import { createServerClient } from "@supabase/ssr"
+import { getAdminSettings, readSetting } from "@/lib/services/settings"
 
-// Handles Supabase email confirmation / magic link callback
-// Updates our `users` table with verification status and Supabase user id
 export async function GET(request: NextRequest) {
-  const supabase = createServerClient()
-  if (!supabase) {
-    return NextResponse.redirect(new URL("/auth/login?error=supabase_not_configured", request.url))
-  }
+  const { searchParams, origin } = new URL(request.url)
+  const code = searchParams.get("code")
+  const next = searchParams.get("next") ?? "/dashboard"
 
-  // Exchange the auth code for a session if present
-  const url = new URL(request.url)
-  const code = url.searchParams.get("code")
-  const tokenHash = url.searchParams.get("token_hash")
-  const type = url.searchParams.get("type")
+  if (code) {
+    const supabase = await createServerClient()
+    if (!supabase) {
+      return NextResponse.redirect(`${origin}/auth/login?error=Database connection failed`)
+    }
 
-  try {
-    if (code) {
+    try {
       const { error } = await supabase.auth.exchangeCodeForSession(code)
       if (error) {
-        return NextResponse.redirect(new URL(`/auth/login?error=${encodeURIComponent(error.message)}`, request.url))
+        console.error("Auth callback error:", error)
+        return NextResponse.redirect(`${origin}/auth/login?error=Authentication failed`)
       }
+    } catch (error) {
+      console.error("Auth callback error:", error)
+      return NextResponse.redirect(`${origin}/auth/login?error=Authentication failed`)
     }
-
-    // Get the current user after session exchange
-    const {
-      data: { user },
-      error: getUserError,
-    } = await supabase.auth.getUser()
-
-    if (getUserError || !user) {
-      return NextResponse.redirect(new URL("/auth/login?error=cannot_get_user", request.url))
-    }
-
-    // Mark as verified in our own users table and sync identifiers
-    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || request.headers.get("x-real-ip") || "127.0.0.1"
-
-    await supabase
-      .from("users")
-      .update({
-        is_active: true,
-        // new columns added via migration 02
-        is_verified: true,
-        supabase_id: user.id,
-        auth_provider: user.app_metadata?.provider || (type ?? "email"),
-        last_ip: ip,
-      })
-      .eq("email", user.email)
-
-    // After verification, redirect using configured site_url if present
-    const settings = await getAdminSettingsMap()
-    const siteUrl = readSetting(settings, "site_url", "")
-    
-    // Use admin site_url if set, otherwise use current request origin
-    const target = siteUrl ? `${siteUrl}/dashboard` : new URL("/dashboard", request.url).href
-    return NextResponse.redirect(target)
-  } catch (e) {
-    return NextResponse.redirect(new URL("/auth/login?error=verification_failed", request.url))
   }
+
+  // Get user info
+  const supabase = await createServerClient()
+  if (!supabase) {
+    return NextResponse.redirect(`${origin}/auth/login?error=Database connection failed`)
+  }
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    return NextResponse.redirect(`${origin}/auth/login?error=User not found`)
+  }
+
+  // Check if user exists in database
+  const { data: existingUser } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", user.email)
+    .single()
+
+  if (!existingUser) {
+    // Create new user
+    const { error: insertError } = await supabase.from("users").insert({
+      id: user.id,
+      email: user.email,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      subscription_type: "free",
+      subscription_expires_at: null,
+      quota_used: 0,
+      quota_limit: 1024 * 1024 * 1024, // 1GB
+      password_hash: null,
+      is_admin: false,
+      is_active: true,
+    })
+
+    if (insertError) {
+      console.error("Error creating user:", insertError)
+      return NextResponse.redirect(`${origin}/auth/login?error=Failed to create user`)
+    }
+  }
+
+  return NextResponse.redirect(`${origin}${next}`)
 }
 

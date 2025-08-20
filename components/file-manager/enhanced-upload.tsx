@@ -8,10 +8,12 @@ import { Badge } from "@/components/ui/badge"
 import { 
   Upload, Check, X, AlertCircle, FileText, Image, 
   Video, Music, Archive, Code, File,
-  Plus, Trash2, Eye, Download, Share2, Edit3
+  Plus, Trash2, Eye, Download, Share2, Edit3,
+  FileArchive, FileSpreadsheet
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { LucideIcon } from "lucide-react"
 
 interface UploadFile {
   id: string
@@ -34,15 +36,15 @@ interface EnhancedUploadProps {
   className?: string
 }
 
-const fileTypeIcons = {
+const fileTypeIcons: { [key: string]: LucideIcon } = {
   'image': Image,
   'video': Video,
   'audio': Music,
-  'archive': Archive,
-  'code': Code,
   'document': FileText,
-  'text': FileText,
-  'default': File
+  'archive': FileArchive,
+  'spreadsheet': FileSpreadsheet,
+  'presentation': FileText,
+  'default': FileText
 }
 
 const getFileType = (mimeType: string): string => {
@@ -240,8 +242,7 @@ export function EnhancedUpload({
   }, [uploadFiles.length])
 
   // Get file icon
-  const getFileIcon = (file: UploadFile) => {
-    const fileType = getFileType(file.type)
+  function getFileIcon(fileType: string) {
     const Icon = fileTypeIcons[fileType] || fileTypeIcons.default
     return <Icon className="w-5 h-5" />
   }
@@ -426,7 +427,7 @@ export function EnhancedUpload({
                         className="flex items-center space-x-3 p-3 bg-black/20 rounded-lg border border-purple-500/20"
                       >
                         <div className="flex-shrink-0 text-purple-400">
-                          {getFileIcon(file)}
+                          {getFileIcon(file.type)}
                         </div>
                         
                         <div className="flex-1 min-w-0">

@@ -23,7 +23,7 @@ export default function ResetPasswordPage() {
   })
   
   const router = useRouter()
-  const { showToast } = useToastHelpers()
+  const { success, error: toastError, warning, info } = useToastHelpers()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,13 +46,9 @@ export default function ResetPasswordPage() {
       // Simulate password reset
       await new Promise(resolve => setTimeout(resolve, 2000))
       setIsSubmitted(true)
-      showToast({
-        title: "Password Reset Successfully",
-        description: "Your password has been updated. You can now sign in with your new password.",
-        type: "success"
-      })
+      success("Password Reset Successfully", "Your password has been updated. You can now sign in with your new password.")
     } catch (error) {
-      setError("Failed to reset password. Please try again.")
+      toastError("Password Reset Failed", "Failed to reset password. Please try again.")
     } finally {
       setIsLoading(false)
     }

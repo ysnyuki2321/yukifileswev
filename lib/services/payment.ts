@@ -369,3 +369,41 @@ export async function checkCryptoPayment(transactionId: string) {
     throw error
   }
 }
+
+export async function getSiteUrl() {
+  try {
+    const headersList = await headers()
+    const host = headersList.get('host')
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    
+    if (host) {
+      return `${protocol}://${host}`
+    }
+    
+    return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  } catch (error) {
+    console.error('Error getting site URL:', error)
+    return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  }
+}
+
+export async function getPaymentSettings() {
+  const supabase = createServerClient()
+  if (!supabase) return null
+  
+  try {
+    const { data: settings } = await supabase.from("admin_settings").select("*")
+    
+    if (!settings) return null
+    
+    const paymentSettings = settings.reduce((acc: any, setting: any) => {
+      acc[setting.setting_key] = setting.setting_value
+      return acc
+    }, {})
+    
+    return paymentSettings
+  } catch (error) {
+    console.error("Error fetching payment settings:", error)
+    return null
+  }
+}

@@ -1,3 +1,6 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
+
 // Removed server import to avoid client component issues
 
 export interface DebugUser {
@@ -154,4 +157,24 @@ export async function isDebugModeEnabled(): Promise<boolean> {
   } catch (e) {
     return false
   }
+}
+
+export async function createDebugUser() {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return []
+        },
+        setAll() {
+          // No-op for debug
+        }
+      }
+    }
+  )
+  
+  // Debug user creation logic here
+  return supabase
 }

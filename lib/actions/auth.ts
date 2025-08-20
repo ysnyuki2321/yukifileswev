@@ -312,3 +312,20 @@ export async function signOut() {
   }
   redirect("/auth/login")
 }
+
+export async function getSiteUrl() {
+  try {
+    const headersList = await headers()
+    const host = headersList.get('host')
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    
+    if (host) {
+      return `${protocol}://${host}`
+    }
+    
+    return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  } catch (error) {
+    console.error('Error getting site URL:', error)
+    return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+  }
+}

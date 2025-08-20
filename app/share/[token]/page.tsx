@@ -77,7 +77,7 @@ export default async function SharePage({ params }: SharePageProps) {
           </div>
 
           {/* Actions */}
-          <ShareActions file={file} />
+          <ShareActions token={params.token} />
         </CardContent>
       </Card>
     </div>

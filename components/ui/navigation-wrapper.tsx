@@ -6,7 +6,7 @@ import {
   ChevronDown, LogIn, UserPlus, BarChart3, Shield, Sparkles,
   FileText, Users, Settings, HelpCircle, MessageCircle, Globe, Zap,
   Menu, X, Plus, Upload, Download, Share2, Eye, Trash2, Edit3,
-  Database, Code, Bug, Terminal, Wrench, TestTube, Flask
+  Database, Code, Bug, Terminal, Wrench, TestTube
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"

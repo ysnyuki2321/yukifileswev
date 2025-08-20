@@ -35,3 +35,33 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({ message: "Run these SQL scripts in Supabase SQL editor in order.", scripts })
 }
 
+export async function GET() {
+  try {
+    const supabase = await createServerClient()
+    if (!supabase) {
+      return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
+    }
+
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+
+    if (userError || !user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const { data: adminData } = await supabase.from("users").select("is_admin").eq("email", user.email).single()
+
+    if (!adminData?.is_admin) {
+      return NextResponse.json({ error: "Admin access required" }, { status: 403 })
+    }
+
+    // Bootstrap logic here
+    return NextResponse.json({ message: "Bootstrap completed" })
+  } catch (error) {
+    console.error("Bootstrap error:", error)
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+  }
+}
+

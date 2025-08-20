@@ -333,3 +333,30 @@ export async function logRateLimitAttempt(ip: string, userAgent: string, fingerp
     action: attemptAction,
   })
 }
+
+export async function getClientInfo() {
+  const headersList = await headers()
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
+  const userAgent = headersList.get("user-agent") || ""
+  
+  return { ip, userAgent }
+}
+
+export async function logClientInfo() {
+  const supabase = createServerClient()
+  if (!supabase) return
+  const headersList = await headers()
+  const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
+  const userAgent = headersList.get("user-agent") || ""
+  
+  try {
+    await supabase.from("ip_logs").insert({
+      ip_address: ip,
+      user_agent: userAgent,
+      timestamp: new Date().toISOString(),
+      action: "page_visit"
+    })
+  } catch (error) {
+    console.error("Error logging client info:", error)
+  }
+}

@@ -45,13 +45,13 @@ export function useDeviceFingerprint(): DeviceFingerprint | null {
 
         // WebGL fingerprinting
         const webglCanvas = document.createElement("canvas")
-        const gl = webglCanvas.getContext("webgl") || webglCanvas.getContext("experimental-webgl")
+        const gl = webglCanvas.getContext('webgl') || webglCanvas.getContext('experimental-webgl')
         let webglFingerprint = "not supported"
 
         if (gl) {
-          const debugInfo = gl.getExtension("WEBGL_debug_renderer_info")
+          const debugInfo = (gl as any).getExtension("WEBGL_debug_renderer_info")
           if (debugInfo) {
-            webglFingerprint = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
+            webglFingerprint = (gl as any).getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
           }
         }
 

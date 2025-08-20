@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import DashboardHeader from "@/components/dashboard/DashboardHeader"
 import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
+import { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
@@ -72,24 +73,27 @@ export default async function DashboardPage({
   }
 
   // Mock recent activity for now
-  const recentActivity = [
+  const recentActivity: ActivityItem[] = [
     {
-      id: "1",
-      type: "upload" as const,
-      fileName: "document.pdf",
-      timestamp: new Date().toISOString()
+      id: '1',
+      type: 'upload',
+      fileName: 'document.pdf',
+      timestamp: '2 hours ago',
+      fileType: 'document'
     },
     {
-      id: "2", 
-      type: "share" as const,
-      fileName: "image.jpg",
-      timestamp: new Date(Date.now() - 3600000).toISOString()
+      id: '2',
+      type: 'share',
+      fileName: 'presentation.pptx',
+      timestamp: '1 day ago',
+      fileType: 'presentation'
     },
     {
-      id: "3",
-      type: "download" as const,
-      fileName: "video.mp4",
-      timestamp: new Date(Date.now() - 7200000).toISOString()
+      id: '3',
+      type: 'download',
+      fileName: 'image.jpg',
+      timestamp: '3 days ago',
+      fileType: 'image'
     }
   ]
 

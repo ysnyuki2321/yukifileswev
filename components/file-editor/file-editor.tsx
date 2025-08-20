@@ -12,7 +12,7 @@ import {
   ZoomIn, ZoomOut, Eye, EyeOff, FileType, FileCode,
   ChevronDown, MoreHorizontal, RotateCcw, Play, Square,
   FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet,
-  Database, Globe, Lock, Unlock, Star, StarOff
+  Database, Globe, Lock, Unlock, Star, StarOff, Music, Video
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
@@ -22,6 +22,7 @@ import { Slider } from "@/components/ui/slider"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { motion, AnimatePresence } from "framer-motion"
+import { LucideIcon } from "lucide-react"
 
 interface FileEditorProps {
   file: {
@@ -51,116 +52,102 @@ interface EditorState {
 }
 
 // File type icons mapping
-const fileTypeIcons = {
-  // Code files
-  'javascript': FileCode,
-  'typescript': FileCode,
-  'python': FileCode,
-  'html': FileCode,
-  'css': FileCode,
-  'json': FileCode,
-  'js': FileCode,
-  'ts': FileCode,
-  'py': FileCode,
-  'jsx': FileCode,
-  'tsx': FileCode,
-  'vue': FileCode,
-  'php': FileCode,
-  'java': FileCode,
-  'cs': FileCode,
-  'cpp': FileCode,
-  'c': FileCode,
-  'go': FileCode,
-  'rs': FileCode,
-  'rb': FileCode,
-  'swift': FileCode,
-  'kt': FileCode,
-  'scala': FileCode,
-  'r': FileCode,
-  'matlab': FileCode,
-  'bash': FileCode,
-  'ps1': FileCode,
-  'dockerfile': FileCode,
-  'gitignore': FileCode,
-  'env': FileCode,
-  
-  // Text files
-  'markdown': FileText,
+const fileTypeIcons: { [key: string]: LucideIcon } = {
+  'javascript': Code,
+  'typescript': Code,
+  'python': Code,
+  'java': Code,
+  'cpp': Code,
+  'csharp': Code,
+  'php': Code,
+  'ruby': Code,
+  'go': Code,
+  'rust': Code,
+  'swift': Code,
+  'kotlin': Code,
+  'scala': Code,
+  'r': Code,
+  'matlab': Code,
+  'perl': Code,
+  'bash': Code,
+  'powershell': Code,
+  'sql': Code,
+  'html': Globe,
+  'css': Globe,
+  'js': Code,
+  'jsx': Code,
+  'ts': Code,
+  'tsx': Code,
+  'py': Code,
+  'htm': Globe,
+  'scss': Globe,
+  'sass': Globe,
+  'json': FileText,
   'md': FileText,
-  'txt': FileText,
-  'log': FileText,
-  'csv': FileText,
-  'xml': FileText,
   'yaml': FileText,
   'yml': FileText,
-  'toml': FileText,
+  'xml': FileText,
+  'csv': FileText,
+  'txt': FileText,
+  'log': FileText,
   'ini': FileText,
   'conf': FileText,
-  
-  // Image files
-  'jpg': FileImage,
-  'jpeg': FileImage,
-  'png': FileImage,
-  'gif': FileImage,
-  'webp': FileImage,
-  'svg': FileImage,
-  'bmp': FileImage,
-  'ico': FileImage,
-  'tiff': FileImage,
-  
-  // Video files
-  'mp4': FileVideo,
-  'avi': FileVideo,
-  'mov': FileVideo,
-  'wmv': FileVideo,
-  'flv': FileVideo,
-  'webm': FileVideo,
-  'mkv': FileVideo,
-  'm4v': FileVideo,
-  
-  // Audio files
-  'mp3': FileAudio,
-  'wav': FileAudio,
-  'flac': FileAudio,
-  'aac': FileAudio,
-  'ogg': FileAudio,
-  'wma': FileAudio,
-  'm4a': FileAudio,
-  
-  // Archive files
-  'zip': FileArchive,
-  'rar': FileArchive,
-  '7z': FileArchive,
-  'tar': FileArchive,
-  'gz': FileArchive,
-  'bz2': FileArchive,
-  
-  // Document files
-  'pdf': FileText,
+  'config': FileText,
+  'env': FileText,
+  'gitignore': FileText,
+  'dockerfile': FileText,
+  'makefile': FileText,
+  'readme': FileText,
+  'license': FileText,
+  'changelog': FileText,
+  'todo': FileText,
+  'note': FileText,
   'doc': FileText,
   'docx': FileText,
-  'xls': FileSpreadsheet,
-  'xlsx': FileSpreadsheet,
+  'pdf': FileText,
   'ppt': FileText,
   'pptx': FileText,
-  
-  // Database files
-  'sql': Database,
-  'db': Database,
-  'sqlite': Database,
-  
-  // Web files
-  'html': Globe,
-  'htm': Globe,
-  'css': Globe,
-  'js': Globe,
-  
-  // Default
-  'default': File
+  'xls': FileText,
+  'xlsx': FileText,
+  'zip': FileText,
+  'rar': FileText,
+  '7z': FileText,
+  'tar': FileText,
+  'gz': FileText,
+  'bz2': FileText,
+  'mp3': Music,
+  'wav': Music,
+  'flac': Music,
+  'aac': Music,
+  'ogg': Music,
+  'mp4': Video,
+  'avi': Video,
+  'mov': Video,
+  'wmv': Video,
+  'flv': Video,
+  'webm': Video,
+  'mkv': Video,
+  'jpg': Image,
+  'jpeg': Image,
+  'png': Image,
+  'gif': Image,
+  'bmp': Image,
+  'svg': Image,
+  'webp': Image,
+  'ico': Image,
+  'tiff': Image,
+  'tga': Image,
+  'psd': Image,
+  'ai': Image,
+  'eps': Image,
+  'raw': Image,
+  'heic': Image,
+  'heif': Image,
+  'default': FileText
 }
 
 // Syntax highlighting languages
-const syntaxLanguages = {
+const syntaxLanguages: { [key: string]: string } = {
   'js': 'javascript',
   'jsx': 'javascript',
   'ts': 'typescript',
@@ -173,75 +160,78 @@ const syntaxLanguages = {
   'sass': 'css',
   'json': 'json',
   'md': 'markdown',
-  'sql': 'sql',
   'yaml': 'yaml',
   'yml': 'yaml',
   'xml': 'xml',
   'php': 'php',
   'java': 'java',
-  'cs': 'csharp',
+  'csharp': 'csharp',
   'cpp': 'cpp',
-  'c': 'c',
+  'c': 'cpp',
+  'h': 'cpp',
+  'hpp': 'cpp',
+  'cs': 'csharp',
+  'rb': 'ruby',
   'go': 'go',
   'rs': 'rust',
-  'rb': 'ruby',
   'swift': 'swift',
   'kt': 'kotlin',
   'scala': 'scala',
   'r': 'r',
-  'matlab': 'matlab',
+  'm': 'matlab',
+  'pl': 'perl',
   'sh': 'bash',
-  'bash': 'bash',
   'ps1': 'powershell',
-  'dockerfile': 'dockerfile',
-  'gitignore': 'gitignore',
-  'env': 'env',
+  'sql': 'sql',
   'txt': 'plaintext',
   'log': 'plaintext',
-  'csv': 'plaintext'
+  'ini': 'ini',
+  'conf': 'ini',
+  'config': 'ini',
+  'env': 'ini',
+  'gitignore': 'plaintext',
+  'dockerfile': 'dockerfile',
+  'makefile': 'makefile',
+  'readme': 'markdown',
+  'license': 'plaintext',
+  'changelog': 'plaintext',
+  'todo': 'plaintext',
+  'note': 'plaintext',
+  'csv': 'csv'
 }
 
 // File type colors
-const fileTypeColors = {
+const fileTypeColors: { [key: string]: string } = {
   'javascript': 'text-yellow-400',
   'typescript': 'text-blue-400',
   'python': 'text-green-400',
   'html': 'text-orange-400',
   'css': 'text-pink-400',
-  'json': 'text-purple-400',
+  'json': 'text-green-300',
   'markdown': 'text-blue-300',
-  'sql': 'text-cyan-400',
-  'yaml': 'text-red-400',
-  'xml': 'text-green-300',
+  'sql': 'text-purple-400',
+  'yaml': 'text-yellow-300',
+  'xml': 'text-orange-300',
   'php': 'text-purple-300',
-  'java': 'text-red-500',
+  'java': 'text-red-400',
   'csharp': 'text-purple-500',
   'cpp': 'text-blue-500',
-  'c': 'text-gray-400',
-  'go': 'text-cyan-500',
+  'ruby': 'text-red-500',
+  'go': 'text-cyan-400',
   'rust': 'text-orange-500',
-  'ruby': 'text-red-400',
   'swift': 'text-orange-400',
   'kotlin': 'text-purple-400',
-  'scala': 'text-red-500',
+  'scala': 'text-red-400',
   'r': 'text-blue-400',
   'matlab': 'text-orange-400',
+  'perl': 'text-purple-400',
   'bash': 'text-green-400',
   'powershell': 'text-blue-400',
-  'dockerfile': 'text-blue-500',
-  'gitignore': 'text-gray-400',
-  'env': 'text-green-400',
-  'plaintext': 'text-gray-300',
-  'image': 'text-green-400',
-  'video': 'text-red-400',
-  'audio': 'text-purple-400',
-  'archive': 'text-orange-400',
-  'pdf': 'text-red-500',
-  'word': 'text-blue-500',
-  'spreadsheet': 'text-green-500',
-  'presentation': 'text-orange-500',
-  'database': 'text-cyan-400',
-  'web': 'text-blue-400',
+  'plaintext': 'text-gray-400',
+  'ini': 'text-gray-300',
+  'dockerfile': 'text-blue-400',
+  'makefile': 'text-yellow-400',
+  'csv': 'text-green-300',
   'default': 'text-gray-400'
 }
 
@@ -282,24 +272,21 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
   }
 
   // Get file type icon
-  function getFileTypeIcon(filename: string) {
-    if (!filename || typeof filename !== 'string') return fileTypeIcons['default']
+  function getFileTypeIcon(filename: string): LucideIcon {
     const ext = getFileExtension(filename)
     const IconComponent = fileTypeIcons[ext] || fileTypeIcons['default']
     return IconComponent
   }
 
   // Get file type color
-  function getFileTypeColor(filename: string) {
-    if (!filename || typeof filename !== 'string') return fileTypeColors['default']
+  function getFileTypeColor(filename: string): string {
     const ext = getFileExtension(filename)
     const language = syntaxLanguages[ext] || 'default'
     return fileTypeColors[language] || fileTypeColors['default']
   }
 
   // Get syntax language
-  function getSyntaxLanguage(filename: string) {
-    if (!filename || typeof filename !== 'string') return 'plaintext'
+  function getSyntaxLanguage(filename: string): string {
     const ext = getFileExtension(filename)
     return syntaxLanguages[ext] || 'plaintext'
   }
@@ -478,7 +465,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                           >
                             <FileIcon className="w-4 h-4" />
                             <span>{ext}</span>
-                            <span className="text-xs text-gray-400">({syntaxLanguages[ext]})</span>
+                            <span className="text-xs text-gray-400">({syntaxLanguages[ext] || 'plaintext'})</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>

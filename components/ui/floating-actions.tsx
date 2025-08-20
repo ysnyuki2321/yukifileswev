@@ -72,10 +72,7 @@ export function FloatingActions({ className }: FloatingActionsProps) {
             <span className="text-sm font-medium text-foreground bg-background/80 backdrop-blur-sm px-2 py-1 rounded-md border">
               Theme
             </span>
-            <ThemeToggle 
-              variant="floating" 
-              className="w-12 h-12 rounded-full shadow-lg"
-            />
+            <ThemeToggle />
           </div>
         )}
 
