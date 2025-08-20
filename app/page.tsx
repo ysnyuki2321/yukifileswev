@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users } from "lucide-react"
 import Link from "next/link"
 import { ConnectionStatus } from "@/components/ui/connection-status"
+import { RainbowGradient } from "@/components/ui/rainbow-gradient"
 
 export default async function HomePage() {
   const supabase = createServerClient()
@@ -27,7 +28,7 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <RainbowGradient className="min-h-screen">
       {/* Header */}
       <header className="container mx-auto px-4 py-6">
         <nav className="flex items-center justify-between">
@@ -94,7 +95,7 @@ export default async function HomePage() {
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5 mt-10">
             {[
               { name: "Free", slug: "free", desc: "2GB, 200MB/upload, 720p", icon: <PlayCircle className="w-5 h-5" /> },
-              { name: "Paid", slug: "paid", desc: "5GB, 500MB/upload, 1080p", icon: <Star className="w-5 h-5" /> },
+              { name: "Pro", slug: "pro", desc: "5GB, 500MB/upload, 1080p", icon: <Star className="w-5 h-5" /> },
               { name: "Developer", slug: "developer", desc: "8GB, API, E2E, Editor", icon: <Code2 className="w-5 h-5" /> },
               { name: "Team", slug: "team", desc: "10GB, 2160p, best UI", icon: <Users className="w-5 h-5" /> },
               { name: "Enterprise", slug: "enterprise", desc: "Custom limits & SLA", icon: <Shield className="w-5 h-5" /> },
@@ -156,6 +157,6 @@ export default async function HomePage() {
           <p>&copy; 2024 YukiFiles. All rights reserved.</p>
         </div>
       </footer>
-    </div>
+    </RainbowGradient>
   )
 }
