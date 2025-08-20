@@ -1,24 +1,45 @@
-import { requireAdmin } from "@/lib/middleware/admin"
 import { createServerClient } from "@/lib/supabase/server"
-import AdminLayout from "@/components/admin/admin-layout"
+import { redirect } from "next/navigation"
 import UsersManagement from "@/components/admin/users-management"
-
-// Force dynamic rendering
-export const dynamic = 'force-dynamic'
+import { isDebugModeEnabled } from "@/lib/services/debug-context"
 
 export default async function AdminUsersPage() {
-  const { userData } = await requireAdmin()
   const supabase = await createServerClient()
+  
+  // Check debug mode first
+  const debugMode = await isDebugModeEnabled()
+  
+  if (!debugMode && !supabase) {
+    redirect("/auth/login")
+  }
+
+  let users: any[] = []
+  
+  if (debugMode) {
+    // Mock users for debug mode
+    users = [
+      {
+        id: "debug-user-1",
+        email: "debug@yukifiles.com",
+        subscription_type: "paid",
+        is_admin: true,
+        is_verified: true,
+        created_at: new Date().toISOString(),
+        storage_used: 1024 * 1024 * 500, // 500MB
+        storage_limit: 1024 * 1024 * 1024 * 5 // 5GB
+      }
+    ]
+  } else {
+    // Get users from database
+    const { data: usersData } = await supabase!.from("users").select("*").order("created_at", { ascending: false })
+    users = usersData || []
+  }
 
   return (
-    <AdminLayout userData={userData}>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold text-white">User Management</h1>
-          <p className="text-gray-400">Manage user accounts and subscriptions</p>
-        </div>
-        <UsersManagement />
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+      <div className="container mx-auto px-4 py-8">
+        <UsersManagement users={users} />
       </div>
-    </AdminLayout>
+    </div>
   )
 }

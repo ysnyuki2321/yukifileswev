@@ -1,45 +1,68 @@
 "use client"
 
-import type React from "react"
-
 import { createContext, useContext, useEffect, useState } from "react"
 
+type Theme = "light" | "dark" | "system"
+
 interface ThemeContextType {
-  theme: "free" | "premium"
-  setTheme: (theme: "free" | "premium") => void
-  isPremium: boolean
+  theme: Theme
+  setTheme: (theme: Theme) => void
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
-export function ThemeProvider({
-  children,
-  subscriptionType,
-}: {
-  children: React.ReactNode
-  subscriptionType?: "free" | "paid"
-}) {
-  const [theme, setTheme] = useState<"free" | "premium">("free")
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<Theme>("dark")
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    // Set theme based on subscription type
-    const newTheme = subscriptionType === "paid" ? "premium" : "free"
-    setTheme(newTheme)
+    setMounted(true)
+    const savedTheme = localStorage.getItem("theme") as Theme || "dark"
+    setTheme(savedTheme)
+    applyTheme(savedTheme)
+  }, [])
 
-    // Apply theme class to document
-    document.documentElement.className = document.documentElement.className.replace(/theme-\w+/g, "")
-    document.documentElement.classList.add(`theme-${newTheme}`)
-
-    console.log(`[v0] Applied ${newTheme} theme for ${subscriptionType} user`)
-  }, [subscriptionType])
-
-  const value = {
-    theme,
-    setTheme,
-    isPremium: theme === "premium",
+  const applyTheme = (newTheme: Theme) => {
+    const root = document.documentElement
+    
+    // Remove existing theme classes
+    root.classList.remove("light", "dark")
+    
+    if (newTheme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      root.classList.add(systemTheme)
+    } else {
+      root.classList.add(newTheme)
+    }
+    
+    localStorage.setItem("theme", newTheme)
   }
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>
+  const handleThemeChange = (newTheme: Theme) => {
+    setTheme(newTheme)
+    applyTheme(newTheme)
+  }
+
+  // Listen for system theme changes
+  useEffect(() => {
+    if (theme === "system") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+      const handleChange = () => applyTheme("system")
+      
+      mediaQuery.addEventListener("change", handleChange)
+      return () => mediaQuery.removeEventListener("change", handleChange)
+    }
+  }, [theme])
+
+  if (!mounted) {
+    return <div className="dark">{children}</div>
+  }
+
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme: handleThemeChange }}>
+      {children}
+    </ThemeContext.Provider>
+  )
 }
 
 export function useTheme() {

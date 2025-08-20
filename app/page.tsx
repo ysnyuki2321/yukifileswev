@@ -7,11 +7,14 @@ import Navigation from "@/components/ui/navigation"
 import { 
   Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users, 
   CheckCircle, ArrowRight, FileText, HardDrive, Lock, Share2,
-  Download, Eye, Clock, BarChart3, Sparkles, Award, Globe2,
-  Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi
+  Download, Eye, Clock, BarChart3, Award, Globe2, Sparkles,
+  Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi,
+  Crown, Rocket, Building, Server, Infinity, Check, X, Folder
 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
+import { FloatingActions } from "@/components/ui/floating-actions"
 
 export default async function HomePage() {
   const supabase = await createServerClient()
@@ -69,6 +72,8 @@ export default async function HomePage() {
       price: "$0",
       period: "forever",
       description: "Perfect for getting started",
+      icon: <Rocket className="w-6 h-6" />,
+      color: "from-blue-500 to-cyan-500",
       features: [
         "2GB Storage",
         "Basic file sharing",
@@ -90,7 +95,9 @@ export default async function HomePage() {
       name: "Pro",
       price: "$9.99",
       period: "per month",
-      description: "For professionals and teams",
+      description: "For professionals and creators",
+      icon: <Crown className="w-6 h-6" />,
+      color: "from-purple-500 to-pink-500",
       features: [
         "50GB Storage",
         "Advanced sharing controls",
@@ -111,10 +118,64 @@ export default async function HomePage() {
       href: "/pricing"
     },
     {
+      name: "Developer",
+      price: "$19.99",
+      period: "per month",
+      description: "For developers and startups",
+      icon: <Code2 className="w-6 h-6" />,
+      color: "from-emerald-500 to-teal-500",
+      features: [
+        "200GB Storage",
+        "Full API access",
+        "Webhook integrations",
+        "Advanced security",
+        "Detailed analytics",
+        "Custom domains",
+        "Unlimited team members",
+        "Priority support"
+      ],
+      limitations: [
+        "5GB max file size",
+        "Rate limits apply",
+        "Community support"
+      ],
+      popular: false,
+      cta: "Start Developer Plan",
+      href: "/pricing"
+    },
+    {
+      name: "Team",
+      price: "$39.99",
+      period: "per month",
+      description: "For growing teams",
+      icon: <Users className="w-6 h-6" />,
+      color: "from-orange-500 to-red-500",
+      features: [
+        "1TB Storage",
+        "Team management",
+        "Advanced permissions",
+        "SSO integration",
+        "Advanced analytics",
+        "Custom branding",
+        "Dedicated support",
+        "SLA guarantee"
+      ],
+      limitations: [
+        "10GB max file size",
+        "25 team members",
+        "Business hours support"
+      ],
+      popular: false,
+      cta: "Start Team Plan",
+      href: "/pricing"
+    },
+    {
       name: "Enterprise",
-      price: "$29.99",
+      price: "Custom",
       period: "per month",
       description: "For large organizations",
+      icon: <Building className="w-6 h-6" />,
+      color: "from-indigo-500 to-purple-500",
       features: [
         "Unlimited Storage",
         "Advanced security & compliance",
@@ -126,7 +187,7 @@ export default async function HomePage() {
         "SLA guarantee"
       ],
       limitations: [
-        "10GB max file size",
+        "Unlimited file size",
         "Unlimited team members",
         "Custom contract terms"
       ],
@@ -168,7 +229,7 @@ export default async function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-neutral-950">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       {/* Navigation */}
       <Navigation />
 
@@ -177,7 +238,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-5xl mx-auto">
             <div className="flex items-center justify-center mb-6">
-              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
+              <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2 dark:bg-gradient-to-r dark:from-purple-500/20 dark:to-pink-500/20 dark:text-purple-300 dark:border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 border-purple-500/20">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Trusted by 500K+ users worldwide
               </Badge>
@@ -231,7 +292,7 @@ export default async function HomePage() {
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center mr-2">
                       {stat.icon}
                     </div>
                   </div>
@@ -256,9 +317,9 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center mb-4">
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
@@ -280,12 +341,12 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
             {plans.map((plan, index) => (
               <Card 
                 key={index} 
-                className={`relative bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 ${
-                  plan.popular ? 'border-purple-500/60 scale-105' : ''
+                className={`relative bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 ${
+                  plan.popular ? 'border-purple-500/60 scale-105 ring-2 ring-purple-500/20' : ''
                 }`}
               >
                 {plan.popular && (
@@ -298,11 +359,18 @@ export default async function HomePage() {
                 )}
                 
                 <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-2xl text-white">{plan.name}</CardTitle>
-                  <CardDescription className="text-gray-400">{plan.description}</CardDescription>
+                  <div className="flex items-center justify-center mb-4">
+                    <div className={`w-12 h-12 bg-gradient-to-r ${plan.color} rounded-lg flex items-center justify-center`}>
+                      {plan.icon}
+                    </div>
+                  </div>
+                  <CardTitle className="text-xl text-white">{plan.name}</CardTitle>
+                  <CardDescription className="text-gray-400 text-sm">{plan.description}</CardDescription>
                   <div className="mt-4">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-gray-400">/{plan.period}</span>
+                    <span className="text-3xl font-bold text-white">{plan.price}</span>
+                    {plan.price !== "Custom" && (
+                      <span className="text-gray-400 text-sm">/{plan.period}</span>
+                    )}
                   </div>
                 </CardHeader>
                 
@@ -310,8 +378,8 @@ export default async function HomePage() {
                   <div className="space-y-3">
                     {plan.features.map((feature, featureIndex) => (
                       <div key={featureIndex} className="flex items-center space-x-3">
-                        <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                        <span className="text-gray-300">{feature}</span>
+                        <Check className="w-4 h-4 text-green-400 flex-shrink-0" />
+                        <span className="text-gray-300 text-sm">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -322,8 +390,8 @@ export default async function HomePage() {
                       <div className="space-y-1">
                         {plan.limitations.map((limitation, limitIndex) => (
                           <div key={limitIndex} className="flex items-center space-x-3">
-                            <div className="w-1.5 h-1.5 bg-gray-500 rounded-full"></div>
-                            <span className="text-sm text-gray-500">{limitation}</span>
+                            <X className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                            <span className="text-xs text-gray-500">{limitation}</span>
                           </div>
                         ))}
                       </div>
@@ -335,7 +403,7 @@ export default async function HomePage() {
                       className={`w-full ${
                         plan.popular 
                           ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
-                          : 'bg-gray-700 hover:bg-gray-600'
+                          : `bg-gradient-to-r ${plan.color} hover:opacity-90`
                       }`}
                     >
                       {plan.cta}
@@ -361,7 +429,7 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20">
+              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
@@ -370,7 +438,7 @@ export default async function HomePage() {
                   </div>
                   <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center">
                       <span className="text-purple-300 font-semibold">
                         {testimonial.name.split(' ').map(n => n[0]).join('')}
                       </span>
@@ -491,6 +559,9 @@ export default async function HomePage() {
           </div>
         </div>
       </footer>
+      
+      {/* Floating Actions */}
+      <FloatingActions />
     </div>
   )
 }

@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PremiumText } from "@/components/ui/premium-text"
+
 import { Bell, LogOut, Menu } from "lucide-react"
 import { signOut } from "@/lib/actions/auth"
 
@@ -22,7 +22,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles" }
           </button>
           <div className="hidden md:flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded" />
-            <PremiumText className="font-semibold">{brandName}</PremiumText>
+            <span className="font-semibold text-foreground">{brandName}</span>
           </div>
         </div>
 
