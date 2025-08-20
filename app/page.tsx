@@ -14,7 +14,7 @@ import {
 import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
-import { FloatingActions } from "@/components/ui/floating-actions"
+
 
 export default async function HomePage() {
   const supabase = await createServerClient()
@@ -560,8 +560,6 @@ export default async function HomePage() {
         </div>
       </footer>
       
-      {/* Floating Actions */}
-      <FloatingActions />
     </div>
   )
 }
