@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { 
   ChevronDown, LogIn, UserPlus, BarChart3, Shield, Sparkles,
   FileText, Users, Settings, HelpCircle, MessageCircle, Globe, Zap,
-  Menu, X
+  Menu, X, Plus, Upload, Download, Share2, Eye, Trash2, Edit3,
+  Database, Code, Bug, Terminal, Wrench, TestTube, Flask
 } from "lucide-react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
@@ -22,6 +23,26 @@ const navigationItems = [
   { name: "Features", href: "/#features" },
   { name: "Pricing", href: "/pricing" },
   { name: "Contact", href: "/contact" }
+]
+
+const fileActions = [
+  { name: "Upload Files", href: "/files", icon: Upload, color: "text-blue-400" },
+  { name: "Download All", href: "/files", icon: Download, color: "text-green-400" },
+  { name: "Share Files", href: "/files", icon: Share2, color: "text-purple-400" },
+  { name: "View Files", href: "/files", icon: Eye, color: "text-yellow-400" },
+  { name: "Edit Files", href: "/files", icon: Edit3, color: "text-orange-400" },
+  { name: "Delete Files", href: "/files", icon: Trash2, color: "text-red-400" }
+]
+
+const debugOptions = [
+  { name: "Dashboard", href: "/dashboard", icon: BarChart3, color: "text-purple-400" },
+  { name: "Database", href: "/supabase-debug", icon: Database, color: "text-blue-400" },
+  { name: "API Debug", href: "/debug", icon: Code, color: "text-green-400" },
+  { name: "Error Logs", href: "/debug", icon: Bug, color: "text-red-400" },
+  { name: "Terminal", href: "/debug", icon: Terminal, color: "text-yellow-400" },
+  { name: "Settings", href: "/admin/settings", icon: Settings, color: "text-gray-400" },
+  { name: "Test Tools", href: "/debug", icon: TestTube, color: "text-pink-400" },
+  { name: "System Info", href: "/debug", icon: Wrench, color: "text-cyan-400" }
 ]
 
 const megaDropdownItems = [
@@ -47,6 +68,8 @@ const megaDropdownItems = [
 
 export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = false, isAdmin = false }: NavigationWrapperProps) {
   const [isMegaDropdownOpen, setIsMegaDropdownOpen] = useState(false)
+  const [isFileDropdownOpen, setIsFileDropdownOpen] = useState(false)
+  const [isDebugDropdownOpen, setIsDebugDropdownOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [debugMode, setDebugMode] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -108,6 +131,92 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                 {item.name}
               </a>
             ))}
+
+            {/* File Actions Dropdown */}
+            {isAuthenticated && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsFileDropdownOpen(!isFileDropdownOpen)}
+                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-all duration-300 group"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-blue-500/25">
+                    <Plus className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="font-medium">Files</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFileDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {/* File Actions Dropdown */}
+                {isFileDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-64 glass-effect border border-purple-500/20 rounded-xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
+                    <div className="p-3">
+                      <div className="text-xs font-medium text-gray-400 mb-2 px-2">File Actions</div>
+                      <div className="space-y-1">
+                        {fileActions.map((action) => {
+                          const Icon = action.icon
+                          return (
+                            <Link
+                              key={action.name}
+                              href={action.href}
+                              className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                              onClick={() => setIsFileDropdownOpen(false)}
+                            >
+                              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", action.color)}>
+                                <Icon className="w-4 h-4" />
+                              </div>
+                              <span className="font-medium">{action.name}</span>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Debug Dropdown */}
+            {debugMode && (
+              <div className="relative">
+                <button
+                  onClick={() => setIsDebugDropdownOpen(!isDebugDropdownOpen)}
+                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-all duration-300 group"
+                >
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-purple-500/25">
+                    <Bug className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="font-medium">Debug</span>
+                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDebugDropdownOpen ? 'rotate-180' : ''}`} />
+                </button>
+                
+                {/* Debug Options Dropdown */}
+                {isDebugDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-2 w-64 glass-effect border border-purple-500/20 rounded-xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
+                    <div className="p-3">
+                      <div className="text-xs font-medium text-gray-400 mb-2 px-2">Debug Tools</div>
+                      <div className="space-y-1">
+                        {debugOptions.map((option) => {
+                          const Icon = option.icon
+                          return (
+                            <Link
+                              key={option.name}
+                              href={option.href}
+                              className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                              onClick={() => setIsDebugDropdownOpen(false)}
+                            >
+                              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", option.color)}>
+                                <Icon className="w-4 h-4" />
+                              </div>
+                              <span className="font-medium">{option.name}</span>
+                            </Link>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Right Side Actions */}
@@ -186,6 +295,60 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                   </Link>
                 ))}
               </div>
+
+              {/* File Actions (Mobile) */}
+              {isAuthenticated && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                    File Actions
+                  </h3>
+                  <div className="space-y-2">
+                    {fileActions.map((action) => {
+                      const Icon = action.icon
+                      return (
+                        <Link
+                          key={action.name}
+                          href={action.href}
+                          className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", action.color)}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <span className="font-medium">{action.name}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Debug Options (Mobile) */}
+              {debugMode && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                    Debug Tools
+                  </h3>
+                  <div className="space-y-2">
+                    {debugOptions.map((option) => {
+                      const Icon = option.icon
+                      return (
+                        <Link
+                          key={option.name}
+                          href={option.href}
+                          className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", option.color)}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <span className="font-medium">{option.name}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Mega Menu Items */}
               {megaDropdownItems.map((section) => (
