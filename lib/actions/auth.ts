@@ -12,6 +12,7 @@ export async function signIn(prevState: any, formData: FormData) {
 
   const email = formData.get("email")
   const password = formData.get("password")
+  const twoFactorCode = formData.get("twoFactorCode")
   const deviceFingerprint = formData.get("deviceFingerprint")
 
   if (!email || !password) {
@@ -24,12 +25,6 @@ export async function signIn(prevState: any, formData: FormData) {
   }
 
   try {
-    // Check duplicate email first in Supabase Auth and our users table
-    const { data: existing } = await supabase.from("users").select("id").eq("email", email.toString()).maybeSingle()
-    if (existing) {
-      return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
-    }
-
     const headersList = headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
     const userAgent = headersList.get("user-agent") || ""
@@ -60,17 +55,17 @@ export async function signIn(prevState: any, formData: FormData) {
       }
     }
 
+    // Attempt to sign in with Supabase Auth
     const { error, data } = await supabase.auth.signInWithPassword({
       email: email.toString(),
       password: password.toString(),
     })
 
     if (error) {
+      // Log failed attempt for rate limiting
+      await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "login")
       return { error: error.message }
     }
-
-    // Log attempt regardless of success to enforce RL
-    await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "login")
 
     // Log successful login
     if (data.user) {
@@ -139,7 +134,14 @@ export async function signUp(prevState: any, formData: FormData) {
       }
     }
 
-    const { error, data } = await supabase.auth.signUp({
+    // Check if user already exists in our users table
+    const { data: existingUser } = await supabase.from("users").select("id").eq("email", email.toString()).maybeSingle()
+    if (existingUser) {
+      return { error: "Email already registered", code: "EMAIL_EXISTS" }
+    }
+
+    // Create user in Supabase Auth
+    const { error: authError, data: authData } = await supabase.auth.signUp({
       email: email.toString(),
       password: password.toString(),
       options: {
@@ -149,23 +151,34 @@ export async function signUp(prevState: any, formData: FormData) {
       },
     })
 
-    if (error) {
-      return { error: error.message }
+    if (authError) {
+      return { error: authError.message }
     }
 
-    // Create user record with anti-clone data
-    if (data.user) {
-      await supabase.from("users").insert({
-        email: data.user.email,
+    // Create user record in our custom users table
+    if (authData.user) {
+      const { error: dbError } = await supabase.from("users").insert({
+        id: authData.user.id, // Use the same ID as Supabase Auth
+        email: authData.user.email,
         device_fingerprint: deviceFingerprint?.toString(),
         registration_ip: ip,
         last_ip: ip,
         is_admin: email.toString() === "ysnyuki2321@outlook.jp", // Dev admin default
         auth_provider: "email",
         is_verified: false,
+        quota_used: 0,
+        quota_limit: 2 * 1024 * 1024 * 1024, // 2GB default
+        files_count: 0,
+        subscription_type: "free",
       })
 
-      console.log(`[v0] User ${data.user.email} registered successfully`)
+      if (dbError) {
+        console.error("Failed to create user record:", dbError)
+        // Don't fail the registration if user table insert fails
+        // The user can still be created in Supabase Auth
+      }
+
+      console.log(`[v0] User ${authData.user.email} registered successfully`)
     }
 
     // Log attempt for rate limiting window
