@@ -1,61 +1,58 @@
-# 🚀 Quick Deploy to Vercel
+# 🚀 Quick Deploy Guide - YukiFiles
 
-## ✅ Code đã sẵn sàng deploy!
+## 📋 Prerequisites
+- GitHub account
+- Vercel account  
+- Supabase account
 
-Ứng dụng YukiFiles đã được sửa lỗi và build thành công. Bây giờ bạn có thể deploy lên Vercel.
+## 🔧 Step 1: Deploy to Vercel
 
-## 📋 Deploy Steps
+### 1.1 Import Repository
+1. Go to [vercel.com](https://vercel.com)
+2. Click "New Project"
+3. Import Git repository: `ysnyuki2321/yukifileswev`
+4. **Select branch**: `fix-theme-switcher-and-site-url-issues` ⭐
 
-### 1. Truy cập Vercel
-- Vào [vercel.com](https://vercel.com)
-- Đăng nhập hoặc tạo tài khoản
-
-### 2. Import Repository
-- Click "New Project"
-- Import Git repository: `ysnyuki2321/yukifileswev`
-- Chọn branch: `cursor/fix-user-account-and-home-page-issues-96ce`
-
-### 3. Configure Project
-- **Framework Preset**: Next.js (auto-detected)
+### 1.2 Configure Project
+- **Framework Preset**: Next.js
 - **Root Directory**: `./` (default)
-- **Build Command**: `pnpm build` (auto-detected)
-- **Install Command**: `pnpm install` (auto-detected)
+- **Build Command**: `pnpm build`
+- **Install Command**: `pnpm install`
+- **Output Directory**: `.next`
 
-### 4. Environment Variables
-Thêm các environment variables sau:
+### 1.3 Environment Variables
+Add these environment variables:
 
 ```env
-# Supabase Configuration (Bắt buộc)
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
-
-# Site Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://whnwnshkyavvqldovaci.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indobnduc2hreWF2dnFsZG92YWNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MTY1MzMsImV4cCI6MjA3MTE5MjUzM30.p7q4AmPcHfdKIY8vZ0-KtMMxh36OKK-TnPhqpfbmf2E
+SUPABASE_SERVICE_ROLE_KEY=YOUR_SERVICE_ROLE_KEY_HERE
 NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
-
-# Optional: Debug Mode
 DEBUG_MODE=false
 ```
 
-### 5. Deploy
+### 1.4 Deploy
 - Click "Deploy"
-- Chờ build hoàn tất (khoảng 2-3 phút)
+- Wait for build to complete
+- Note your deployment URL
 
-## 🔧 Setup Supabase (Nếu chưa có)
+## 🔧 Step 2: Setup Supabase
 
-### 1. Tạo Supabase Project
-- Vào [supabase.com](https://supabase.com)
-- Click "New Project"
-- Chọn organization và database password
-- Chọn region gần nhất
+### 2.1 Get Service Role Key
+1. Go to [Supabase Dashboard](https://supabase.com/dashboard/project/whnwnshkyavvqldovaci)
+2. Navigate to Settings > API
+3. Copy the "service_role" key
+4. Replace `YOUR_SERVICE_ROLE_KEY_HERE` in Vercel environment variables
 
-### 2. Lấy Credentials
-- Vào **Settings > API**
-- Copy **Project URL** và **anon public key**
-- Vào **Settings > API > service_role** để lấy service role key
+### 2.2 Configure Auth
+1. Go to Authentication > Settings
+2. Set Site URL to your Vercel domain
+3. Add redirect URLs:
+   - `https://your-app.vercel.app/auth/callback`
+   - `https://your-app.vercel.app/dashboard`
 
-### 3. Setup Database
-Chạy SQL sau trong **SQL Editor**:
+### 2.3 Setup Database
+Run this SQL in Supabase SQL Editor:
 
 ```sql
 -- Create users table
@@ -104,52 +101,40 @@ INSERT INTO admin_settings (setting_key, setting_value) VALUES
 ON CONFLICT (setting_key) DO NOTHING;
 ```
 
-## 🔗 Post-Deployment Setup
+## ✅ Step 3: Test Your Deployment
 
-### 1. Configure Supabase Auth
-- Vào Supabase Dashboard > **Authentication > Settings**
-- Thêm domain Vercel vào **Site URL**: `https://your-app.vercel.app`
-- Thêm redirect URLs:
-  - `https://your-app.vercel.app/auth/callback`
-  - `https://your-app.vercel.app/dashboard`
+### 3.1 Basic Tests
+- [ ] Home page loads
+- [ ] Registration works
+- [ ] Login works
+- [ ] Dashboard accessible
+- [ ] File upload works
+- [ ] Theme switching works
 
-### 2. Test Application
-- Truy cập `https://your-app.vercel.app`
-- Test đăng ký tài khoản mới
-- Test đăng nhập
-- Test upload files
+### 3.2 Admin Access
+- [ ] Visit `/admin` (if you have admin privileges)
+- [ ] Check user management
+- [ ] Verify settings
 
-## 🎯 Repository Info
+## 🔗 Important Links
 
-- **Repository**: `https://github.com/ysnyuki2321/yukifileswev`
-- **Branch**: `cursor/fix-user-account-and-home-page-issues-96ce`
-- **Build Status**: ✅ Success
-- **TypeScript**: ✅ No errors
-- **Dependencies**: ✅ All installed
+- **Repository**: https://github.com/ysnyuki2321/yukifileswev
+- **Branch**: `fix-theme-switcher-and-site-url-issues`
+- **Supabase Project**: https://supabase.com/dashboard/project/whnwnshkyavvqldovaci
+- **Vercel Dashboard**: https://vercel.com/dashboard
 
-## 🚨 Troubleshooting
+## 🎉 What's Fixed
 
-### Build Errors
-- Kiểm tra environment variables đã được set đúng chưa
-- Đảm bảo Supabase project đã được tạo và credentials đúng
+✅ **Theme Switcher Issues**: Resolved conflicts and server-side rendering problems
+✅ **Site URL Issues**: Replaced hardcoded localhost with dynamic URL detection
+✅ **Auth Actions**: Now use current site URL for redirects
+✅ **Payment Service**: Uses current site URL for PayPal integration
+✅ **File Manager**: Fixed mimeType handling
+✅ **Build Issues**: Resolved all compilation errors
 
-### Runtime Errors
-- Kiểm tra Supabase Auth settings
-- Đảm bảo database tables đã được tạo
-- Xem logs trong Vercel Dashboard
+## 📝 Notes
 
-### Database Issues
-- Chạy SQL setup trong Supabase SQL Editor
-- Kiểm tra RLS policies đã được enable
-
-## 📞 Support
-
-Nếu gặp vấn đề:
-1. Check Vercel build logs
-2. Check Supabase logs
-3. Review environment variables
-4. Test locally với `pnpm dev`
-
----
-
-🎉 **Chúc mừng!** Ứng dụng YukiFiles đã sẵn sàng deploy lên Vercel!
+- All major issues have been resolved
+- Build is successful and ready for production
+- Dynamic site URL detection works across all environments
+- Theme switching works properly without conflicts
