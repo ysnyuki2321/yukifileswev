@@ -1,143 +1,200 @@
 "use client"
 
 import { useState } from "react"
-import { createClient } from "@supabase/supabase-js"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { CheckCircle, AlertCircle, Loader2, Zap, Settings, TestTube } from "lucide-react"
+import Link from "next/link"
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-)
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
 
 export default function DebugSetupPage() {
-  const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState("")
-  const [email, setEmail] = useState("test@example.com")
-  const [password, setPassword] = useState("test123456")
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [result, setResult] = useState<any>(null)
 
-  const setupDebug = async () => {
-    setLoading(true)
+  const enableDebug = async () => {
+    setStatus("loading")
     try {
-      const response = await fetch("/api/debug/setup", { method: "POST" })
+      const response = await fetch("/api/debug/setup")
       const data = await response.json()
-      setResult(JSON.stringify(data, null, 2))
-    } catch (e) {
-      setResult(`Error: ${e}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const testLogin = async () => {
-    setLoading(true)
-    try {
-      setResult("Testing login...")
       
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      })
-
-      if (error) {
-        setResult(`Login Error: ${error.message}`)
+      if (data.success) {
+        setStatus("success")
+        setResult(data)
       } else {
-        setResult(`Login Success! User: ${data.user?.email}, Confirmed: ${data.user?.email_confirmed_at}`)
+        setStatus("error")
+        setResult(data)
       }
-    } catch (e) {
-      setResult(`Exception: ${e}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const testSignUp = async () => {
-    setLoading(true)
-    try {
-      setResult("Testing signup...")
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) {
-        setResult(`Signup Error: ${error.message}`)
-      } else {
-        setResult(`Signup Success! Check email: ${data.user?.email}`)
-      }
-    } catch (e) {
-      setResult(`Exception: ${e}`)
-    } finally {
-      setLoading(false)
+    } catch (error) {
+      setStatus("error")
+      setResult({ error: "Failed to enable debug mode" })
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl space-y-6">
-        <h1 className="text-3xl font-bold text-white text-center">Debug Setup & Test</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">Setup</h2>
-            <button
-              onClick={setupDebug}
-              disabled={loading}
-              className="w-full p-4 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white rounded-lg font-medium"
-            >
-              {loading ? "Setting up..." : "Enable Debug Mode & Auto Verify"}
-            </button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <TestTube className="w-8 h-8 text-white" />
           </div>
-
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-white">Test Login</h2>
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-3 bg-black/30 border border-gray-700 rounded-lg text-white"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-3 bg-black/30 border border-gray-700 rounded-lg text-white"
-            />
-            <div className="space-y-2">
-              <button
-                onClick={testSignUp}
-                disabled={loading}
-                className="w-full p-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg"
-              >
-                Test Sign Up
-              </button>
-              <button
-                onClick={testLogin}
-                disabled={loading}
-                className="w-full p-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white rounded-lg"
-              >
-                Test Sign In
-              </button>
-            </div>
-          </div>
+          <h1 className="text-4xl font-bold text-white mb-4">Debug Mode Setup</h1>
+          <p className="text-xl text-gray-300">
+            Enable debug mode to bypass authentication and test all features
+          </p>
         </div>
 
-        {result && (
-          <div className="p-4 bg-black/30 border border-gray-700 rounded-lg">
-            <h3 className="text-white font-semibold mb-2">Result:</h3>
-            <pre className="text-white text-sm whitespace-pre-wrap overflow-auto max-h-96">{result}</pre>
-          </div>
-        )}
+        {/* Main Content */}
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Debug Setup Card */}
+          <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center space-x-2">
+                <Settings className="w-5 h-5" />
+                <span>Debug Configuration</span>
+              </CardTitle>
+              <CardDescription className="text-gray-400">
+                Configure debug mode settings
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-300">Bypass authentication</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-300">Mock user data</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-300">Auto-verify emails</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-green-400" />
+                  <span className="text-gray-300">Disable anti-fraud</span>
+                </div>
+              </div>
 
-        <div className="text-gray-400 text-sm space-y-2">
-          <p>Current origin: {window.location.origin}</p>
-          <p>Vercel URL: {process.env.NEXT_PUBLIC_VERCEL_URL || "Not set"}</p>
-          <p>Supabase URL: {process.env.NEXT_PUBLIC_SUPABASE_URL || "Not set"}</p>
-          <p>Redirect URL: {window.location.origin}/auth/callback</p>
+              <Button 
+                onClick={enableDebug}
+                disabled={status === "loading"}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              >
+                {status === "loading" ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Enabling Debug Mode...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Enable Debug Mode
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Status Card */}
+          <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20">
+            <CardHeader>
+              <CardTitle className="text-white">Status</CardTitle>
+              <CardDescription className="text-gray-400">
+                Current debug mode status
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {status === "idle" && (
+                <div className="text-center py-8">
+                  <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-400">Click "Enable Debug Mode" to start</p>
+                </div>
+              )}
+
+              {status === "loading" && (
+                <div className="text-center py-8">
+                  <Loader2 className="w-12 h-12 text-purple-400 mx-auto mb-4 animate-spin" />
+                  <p className="text-gray-400">Enabling debug mode...</p>
+                </div>
+              )}
+
+              {status === "success" && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-5 h-5 text-green-400" />
+                    <span className="text-white font-medium">Debug Mode Enabled!</span>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Debug Mode:</span>
+                      <Badge className="bg-green-500">Active</Badge>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400">Auto Verify:</span>
+                      <Badge className="bg-green-500">Enabled</Badge>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Link href="/dashboard">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/files">
+                      <Button variant="outline" className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10">
+                        Test File Manager
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {status === "error" && (
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="w-5 h-5 text-red-400" />
+                    <span className="text-white font-medium">Error</span>
+                  </div>
+                  <p className="text-red-400 text-sm">
+                    {result?.error || "Failed to enable debug mode"}
+                  </p>
+                  <Button 
+                    onClick={enableDebug}
+                    variant="outline"
+                    className="w-full border-red-500 text-red-300 hover:bg-red-500/10"
+                  >
+                    Retry
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Quick Links */}
+        <div className="mt-8 text-center">
+          <div className="space-x-4">
+            <Link href="/enable-debug">
+              <Button variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-500/10">
+                Quick Enable
+              </Button>
+            </Link>
+            <Link href="/instant-debug">
+              <Button variant="outline" className="border-purple-500 text-purple-300 hover:bg-purple-500/10">
+                Instant Debug
+              </Button>
+            </Link>
+            <Link href="/">
+              <Button variant="ghost" className="text-gray-400 hover:text-white">
+                Back to Home
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

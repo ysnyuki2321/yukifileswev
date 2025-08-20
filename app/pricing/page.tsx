@@ -6,7 +6,7 @@ import { Check, Star, Zap, Shield, Globe } from "lucide-react"
 import Link from "next/link"
 
 export default async function PricingPage() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   let user = null
   let userData = null
 
@@ -98,124 +98,56 @@ export default async function PricingPage() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Check className="w-5 h-5 text-green-400" />
-                  <span className="text-gray-300">100MB Max File Size</span>
+                  <span className="text-gray-300">Email Support</span>
                 </div>
               </div>
-
-              <div className="pt-4">
-                {userData?.subscription_type === "free" || !user ? (
-                  <Link href={user ? "/dashboard" : "/auth/register"}>
-                    <Button
-                      variant="outline"
-                      className="w-full border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
-                    >
-                      {user ? "Current Plan" : "Get Started"}
-                    </Button>
-                  </Link>
-                ) : (
-                  <Button disabled className="w-full bg-gray-700 text-gray-400">
-                    Current Plan
-                  </Button>
-                )}
-              </div>
+              <Link href="/auth/register">
+                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  Get Started Free
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 
           {/* Premium Plan */}
-          <Card className="bg-black/40 backdrop-blur-lg border-purple-500 relative">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-1">
-                <Star className="w-4 h-4 mr-1" />
-                Most Popular
-              </Badge>
+          <Card className="bg-black/40 backdrop-blur-lg border-purple-500/40 relative overflow-hidden">
+            <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-3 py-1 rounded-bl-lg">
+              Popular
             </div>
             <CardHeader className="text-center">
               <CardTitle className="text-2xl text-white">Premium</CardTitle>
-              <CardDescription className="text-gray-400">For power users and professionals</CardDescription>
+              <CardDescription className="text-gray-400">For power users</CardDescription>
               <div className="py-4">
-                <span className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                  $1
-                </span>
+                <span className="text-4xl font-bold text-white">$1</span>
                 <span className="text-gray-400">/month</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-purple-400" />
+                  <Check className="w-5 h-5 text-green-400" />
                   <span className="text-gray-300">5GB Storage</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-purple-400" />
-                  <span className="text-gray-300">Unlimited File Sharing</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-purple-400" />
+                  <Check className="w-5 h-5 text-green-400" />
                   <span className="text-gray-300">Advanced Security</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Check className="w-5 h-5 text-purple-400" />
-                  <span className="text-gray-300">100MB Max File Size</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Zap className="w-5 h-5 text-purple-400" />
-                  <span className="text-gray-300">Premium UI Theme</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Shield className="w-5 h-5 text-purple-400" />
+                  <Check className="w-5 h-5 text-green-400" />
                   <span className="text-gray-300">Priority Support</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <Globe className="w-5 h-5 text-purple-400" />
-                  <span className="text-gray-300">Global CDN</span>
+                  <Check className="w-5 h-5 text-green-400" />
+                  <span className="text-gray-300">Analytics</span>
                 </div>
               </div>
-
-              <div className="pt-4">
-                {userData?.subscription_type === "paid" ? (
-                  <Button disabled className="w-full bg-purple-600 text-white">
-                    Current Plan
-                  </Button>
-                ) : (
-                  <Link href={user ? "/payment/checkout" : "/auth/register"}>
-                    <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
-                      {user ? "Upgrade Now" : "Get Started"}
-                    </Button>
-                  </Link>
-                )}
-              </div>
+              <Link href="/payment/checkout">
+                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  Upgrade Now
+                </Button>
+              </Link>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Features Comparison */}
-        <div className="mt-20">
-          <h2 className="text-3xl font-bold text-white text-center mb-12">Why Choose Premium?</h2>
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Zap className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">More Storage</h3>
-              <p className="text-gray-400">Get 5GB of storage space - 2.5x more than the free plan</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Shield className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">Premium UI</h3>
-              <p className="text-gray-400">Beautiful gradient themes and enhanced user experience</p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Globe className="w-8 h-8 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-white mb-2">Priority Support</h3>
-              <p className="text-gray-400">Get faster support and priority assistance when you need it</p>
-            </div>
-          </div>
         </div>
       </main>
     </div>

@@ -7,7 +7,7 @@ import Link from "next/link"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
 
 export default async function HomePage() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   // Check debug mode first
   const debugMode = await isDebugModeEnabled()

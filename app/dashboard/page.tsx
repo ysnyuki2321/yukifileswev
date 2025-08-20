@@ -10,7 +10,7 @@ import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-contex
 import { getDebugFiles } from "@/lib/services/debug-user"
 
 export default async function DashboardPage() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   
   // Check debug mode first
   const debugMode = await isDebugModeEnabled()

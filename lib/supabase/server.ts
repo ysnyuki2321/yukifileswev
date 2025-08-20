@@ -2,63 +2,15 @@ import { createClient } from "@supabase/supabase-js"
 import { cookies } from "next/headers"
 import { isDebugModeEnabled, getMockSession } from "@/lib/services/debug-context"
 
-export function createServerClient() {
+export async function createServerClient() {
   const cookieStore = cookies()
 
   // Check debug mode first
-  const checkDebugMode = async () => {
-    try {
-      return await isDebugModeEnabled()
-    } catch {
-      return false
-    }
-  }
+  const debugMode = await isDebugModeEnabled()
 
-  const debugMode = checkDebugMode()
-
-  // If debug mode is enabled, return a mock client
+  // If debug mode is enabled, return null to bypass all database operations
   if (debugMode) {
-    return {
-      auth: {
-        getUser: async () => ({
-          data: { user: getMockSession().user },
-          error: null
-        }),
-        getSession: async () => ({
-          data: { session: getMockSession() },
-          error: null
-        }),
-        signOut: async () => ({ error: null }),
-        signInWithPassword: async () => ({
-          data: { user: getMockSession().user, session: getMockSession() },
-          error: null
-        }),
-        signUp: async () => ({
-          data: { user: getMockSession().user, session: getMockSession() },
-          error: null
-        })
-      },
-      from: (table: string) => ({
-        select: (columns: string) => ({
-          eq: (column: string, value: any) => ({
-            single: async () => ({ data: null, error: null }),
-            then: (callback: any) => Promise.resolve({ data: null, error: null })
-          }),
-          then: (callback: any) => Promise.resolve({ data: [], error: null })
-        }),
-        insert: async (data: any) => ({ data, error: null }),
-        update: async (data: any) => ({ data, error: null }),
-        delete: async () => ({ data: null, error: null }),
-        upsert: async (data: any) => ({ data, error: null })
-      }),
-      storage: {
-        from: (bucket: string) => ({
-          upload: async (path: string, file: any) => ({ data: { path }, error: null }),
-          download: async (path: string) => ({ data: null, error: null }),
-          remove: async (paths: string[]) => ({ data: null, error: null })
-        })
-      }
-    } as any
+    return null
   }
 
   // Return real Supabase client

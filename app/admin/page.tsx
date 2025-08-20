@@ -7,9 +7,12 @@ import AdminLayout from "@/components/admin/admin-layout"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
 import { getDebugStats } from "@/lib/services/debug-user"
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic'
+
 export default async function AdminDashboard() {
   const { userData } = await requireAdmin()
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   // Check debug mode for mock data
   const debugMode = await isDebugModeEnabled()
@@ -19,6 +22,10 @@ export default async function AdminDashboard() {
     console.log("[v0] Debug mode enabled - using mock admin stats")
     stats = getDebugStats()
   } else {
+    if (!supabase) {
+      throw new Error("Supabase client not available")
+    }
+    
     // Get system statistics
     const [
       { count: totalUsers },
@@ -51,7 +58,7 @@ export default async function AdminDashboard() {
   let recentUsers = []
   let totalStorageGB = "0.00"
   
-  if (!debugMode) {
+  if (!debugMode && supabase) {
     const { data: recentTransactionsData } = await supabase
       .from("transactions")
       .select("*, users(email)")

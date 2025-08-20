@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { Outfit } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme/theme-provider"
-import { getAdminSettingsMap, readSetting } from "@/lib/services/settings"
 
 export const metadata: Metadata = {
   title: {
@@ -40,18 +39,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const settings = await getAdminSettingsMap()
-  const brandName = readSetting(settings, "brand_name", "YukiFiles")
-  const primaryGradient = readSetting(settings, "primary_gradient", "")
-  const accentGlow = readSetting(settings, "accent_glow", "")
-  const cardBg = readSetting(settings, "card_bg", "")
   return (
     <html lang="en" className={outfit.variable}>
       <head />
       <body style={{ fontFamily: "var(--font-outfit)" }}>
-        <style>{` :root { ${primaryGradient ? `--text-gradient: ${primaryGradient};` : ""} ${
-          accentGlow ? `--glow-color: ${accentGlow};` : ""
-        } } .premium-card { ${cardBg ? `background: ${cardBg};` : ""} } `}</style>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

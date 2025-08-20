@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 
 export async function requireAdmin() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
 
   // Check debug mode first
   const debugMode = await isDebugModeEnabled()
