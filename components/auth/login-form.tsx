@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, Shield, Sparkles, Zap, CheckCircle } from "lucide-react"
+import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 import { signIn } from "@/lib/actions/auth"
 import { useToastHelpers } from "@/components/ui/toast"
 import { isValidEmail } from "@/lib/utils/validation"
@@ -23,6 +24,7 @@ export default function LoginForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isHovered, setIsHovered] = useState(false)
+  const [rememberMe, setRememberMe] = useState(false)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -190,13 +192,14 @@ export default function LoginForm() {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-2 cursor-pointer group">
-                <input
-                  type="checkbox"
-                  className="w-4 h-4 text-purple-500 bg-black/30 border-gray-600 rounded focus:ring-purple-500/20 focus:ring-2"
-                />
-                <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">Remember me</span>
-              </label>
+              <CustomCheckbox
+                checked={rememberMe}
+                onChange={setRememberMe}
+                variant="glow"
+                size="sm"
+              >
+                Remember me
+              </CustomCheckbox>
               <Link href="/auth/forgot-password" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
                 Forgot password?
               </Link>

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ArrowLeft, Shield, Mail, Lock, Eye, EyeOff, Sparkles, CheckCircle, AlertCircle, Zap, Star } from "lucide-react"
+import { CustomCheckbox, CheckboxGroup } from "@/components/ui/custom-checkbox"
 import Link from "next/link"
 import { signUp } from "@/lib/actions/auth"
 import { useDeviceFingerprint } from "@/components/device-fingerprint"
@@ -46,6 +47,8 @@ export default function RegisterForm() {
     password: "",
     password2: ""
   })
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false)
 
   const handleSubmit = (formData: FormData) => {
     if (fingerprint) {
@@ -257,14 +260,15 @@ export default function RegisterForm() {
               </div>
 
               {/* Terms and Conditions */}
-              <div className="space-y-3">
-                <label className="flex items-start space-x-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    required
-                    className="w-4 h-4 text-purple-500 bg-black/30 border-gray-600 rounded focus:ring-purple-500/20 focus:ring-2 mt-0.5"
-                  />
-                  <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+              <CheckboxGroup className="space-y-4">
+                <CustomCheckbox
+                  checked={termsAccepted}
+                  onChange={setTermsAccepted}
+                  required
+                  variant="gradient"
+                  size="md"
+                >
+                  <div className="text-sm">
                     I agree to the{" "}
                     <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">
                       Terms of Service
@@ -274,18 +278,19 @@ export default function RegisterForm() {
                       Privacy Policy
                     </Link>
                   </div>
-                </label>
+                </CustomCheckbox>
                 
-                <label className="flex items-start space-x-3 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-purple-500 bg-black/30 border-gray-600 rounded focus:ring-purple-500/20 focus:ring-2 mt-0.5"
-                  />
-                  <div className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">
+                <CustomCheckbox
+                  checked={newsletterSubscribed}
+                  onChange={setNewsletterSubscribed}
+                  variant="default"
+                  size="md"
+                >
+                  <div className="text-sm">
                     Send me product updates and security notifications
                   </div>
-                </label>
-              </div>
+                </CustomCheckbox>
+              </CheckboxGroup>
             </div>
 
             <SubmitButton disabled={false} />
