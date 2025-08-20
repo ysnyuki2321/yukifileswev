@@ -52,7 +52,7 @@ class FileUtils {
       if (format.includes('*')) {
         return file.type.startsWith(format.replace('/*', ''));
       }
-      return file.name.toLowerCase().endsWith(format);
+      return file.name && file.name.toLowerCase().endsWith(format);
     });
   }
 

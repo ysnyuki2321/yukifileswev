@@ -11,14 +11,18 @@ interface TopbarProps {
   isPremium: boolean
   brandName?: string
   isDemoMode?: boolean
+  onMenuToggle?: () => void
 }
 
-export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", isDemoMode = false }: TopbarProps) {
+export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", isDemoMode = false, onMenuToggle }: TopbarProps) {
   return (
     <header className="h-16 w-full border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
       <div className="h-full container mx-auto px-4 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <button className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-300 hover:text-white hover:bg-white/5">
+          <button 
+            onClick={onMenuToggle}
+            className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-300 hover:text-white hover:bg-white/5"
+          >
             <Menu className="h-5 w-5" />
           </button>
           <div className="hidden md:flex items-center gap-2">

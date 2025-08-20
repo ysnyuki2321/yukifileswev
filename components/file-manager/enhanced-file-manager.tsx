@@ -10,7 +10,8 @@ import {
   FileText, Image, Video, Music, Archive, Code, File,
   Eye, Download, Share2, Edit3, Trash2, Star, Clock, User,
   Folder, FolderOpen, ChevronRight, ChevronDown, Home,
-  RefreshCw, Settings, SortAsc, SortDesc, FileArchive, FileSpreadsheet
+  RefreshCw, Settings, SortAsc, SortDesc, FileArchive, FileSpreadsheet,
+  Plus, FolderPlus, FilePlus, Upload
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -19,6 +20,9 @@ import { FileEditor } from "../file-editor/file-editor"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LucideIcon } from "lucide-react"
 
 interface FileItem {
@@ -44,6 +48,8 @@ interface EnhancedFileManagerProps {
   onFileShare?: (fileId: string) => void
   onFileDownload?: (fileId: string) => void
   onFileUpload?: (files: File[]) => void
+  onFileCreate?: (file: { name: string, type: string, content: string, path: string }) => void
+  onFolderCreate?: (folder: { name: string, path: string }) => void
   className?: string
 }
 
@@ -125,6 +131,8 @@ export function EnhancedFileManager({
   onFileShare,
   onFileDownload,
   onFileUpload,
+  onFileCreate,
+  onFolderCreate,
   className
 }: EnhancedFileManagerProps) {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
@@ -136,13 +144,20 @@ export function EnhancedFileManager({
   const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set())
   const [editingFile, setEditingFile] = useState<FileItem | null>(null)
   const [showUpload, setShowUpload] = useState(false)
+  const [showCreateDialog, setShowCreateDialog] = useState(false)
+  const [createType, setCreateType] = useState<'file' | 'folder'>('file')
+  const [newFileName, setNewFileName] = useState('')
+  const [newFileType, setNewFileType] = useState('txt')
+  const [newFileContent, setNewFileContent] = useState('')
 
   // Filter and sort files
   const filteredAndSortedFiles = files
-    .filter(file => 
-      (file.name && file.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      file.path.startsWith(currentPath)
-    )
+    .filter(file => {
+      if (!file.name) return false
+      if (!searchQuery || searchQuery.trim() === '') return file.path.startsWith(currentPath)
+      return file.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
+             file.path.startsWith(currentPath)
+    })
     .sort((a, b) => {
       let comparison = 0
       

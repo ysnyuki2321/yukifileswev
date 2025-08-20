@@ -4,9 +4,16 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev",
+    "dev": "node scripts/dev.js",
+    "dev:quick": "next dev",
+    "dev:fancy": "node scripts/dev.js --fancy",
     "lint": "next lint",
-    "start": "next start",
+    "start": "node scripts/startup.js",
+    "start:next": "next start",
+    "health": "curl -s http://localhost:3000/api/health | jq",
+    "demo:logger": "node scripts/demo-logger.js",
+    "test:tolowercase": "node scripts/test-tolowercase-fixes.js",
+    "test:supabase": "node scripts/test-supabase.js",
     "migrate:db": "node scripts/migrate.mjs",
     "deploy": "./scripts/deploy.sh",
     "deploy:vercel": "vercel --prod"

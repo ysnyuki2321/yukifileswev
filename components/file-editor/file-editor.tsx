@@ -24,6 +24,62 @@ import { Label } from "@/components/ui/label"
 import { motion, AnimatePresence } from "framer-motion"
 import { LucideIcon } from "lucide-react"
 
+// Simple syntax highlighting patterns
+const syntaxHighlightPatterns: { [key: string]: Array<{ pattern: RegExp; className: string }> } = {
+  javascript: [
+    { pattern: /\b(const|let|var|function|return|if|else|for|while|do|break|continue|switch|case|default|try|catch|finally|throw|new|this|class|extends|import|export|from|as|async|await)\b/g, className: 'text-purple-400 font-semibold' },
+    { pattern: /\b(true|false|null|undefined)\b/g, className: 'text-orange-400' },
+    { pattern: /\b\d+(\.\d+)?\b/g, className: 'text-green-400' },
+    { pattern: /"([^"\\]|\\.)*"/g, className: 'text-yellow-300' },
+    { pattern: /'([^'\\]|\\.)*'/g, className: 'text-yellow-300' },
+    { pattern: /`([^`\\]|\\.)*`/g, className: 'text-yellow-300' },
+    { pattern: /\/\/.*$/gm, className: 'text-gray-500 italic' },
+    { pattern: /\/\*[\s\S]*?\*\//g, className: 'text-gray-500 italic' },
+  ],
+  typescript: [
+    { pattern: /\b(const|let|var|function|return|if|else|for|while|do|break|continue|switch|case|default|try|catch|finally|throw|new|this|class|extends|import|export|from|as|async|await|interface|type|enum|namespace|declare|readonly|private|public|protected|static)\b/g, className: 'text-purple-400 font-semibold' },
+    { pattern: /\b(string|number|boolean|any|void|never|unknown|object)\b/g, className: 'text-blue-400' },
+    { pattern: /\b(true|false|null|undefined)\b/g, className: 'text-orange-400' },
+    { pattern: /\b\d+(\.\d+)?\b/g, className: 'text-green-400' },
+    { pattern: /"([^"\\]|\\.)*"/g, className: 'text-yellow-300' },
+    { pattern: /'([^'\\]|\\.)*'/g, className: 'text-yellow-300' },
+    { pattern: /`([^`\\]|\\.)*`/g, className: 'text-yellow-300' },
+    { pattern: /\/\/.*$/gm, className: 'text-gray-500 italic' },
+    { pattern: /\/\*[\s\S]*?\*\//g, className: 'text-gray-500 italic' },
+  ],
+  python: [
+    { pattern: /\b(def|class|if|elif|else|for|while|in|not|and|or|is|return|yield|import|from|as|try|except|finally|raise|with|pass|break|continue|global|nonlocal|lambda|assert)\b/g, className: 'text-purple-400 font-semibold' },
+    { pattern: /\b(True|False|None)\b/g, className: 'text-orange-400' },
+    { pattern: /\b\d+(\.\d+)?\b/g, className: 'text-green-400' },
+    { pattern: /"([^"\\]|\\.)*"/g, className: 'text-yellow-300' },
+    { pattern: /'([^'\\]|\\.)*'/g, className: 'text-yellow-300' },
+    { pattern: /"""[\s\S]*?"""/g, className: 'text-yellow-300' },
+    { pattern: /#.*$/gm, className: 'text-gray-500 italic' },
+  ],
+  css: [
+    { pattern: /\b(color|background|margin|padding|border|width|height|font|display|position|top|left|right|bottom|z-index|opacity|transform|transition|animation)\b/g, className: 'text-blue-400' },
+    { pattern: /#[a-fA-F0-9]{3,6}\b/g, className: 'text-green-400' },
+    { pattern: /\b\d+(\.\d+)?(px|em|rem|%|vh|vw|pt|pc|in|cm|mm|ex|ch|vmin|vmax)\b/g, className: 'text-green-400' },
+    { pattern: /"([^"\\]|\\.)*"/g, className: 'text-yellow-300' },
+    { pattern: /'([^'\\]|\\.)*'/g, className: 'text-yellow-300' },
+    { pattern: /\/\*[\s\S]*?\*\//g, className: 'text-gray-500 italic' },
+  ],
+  json: [
+    { pattern: /"[^"]*"(?=\s*:)/g, className: 'text-blue-400' },
+    { pattern: /"([^"\\]|\\.)*"/g, className: 'text-yellow-300' },
+    { pattern: /\b(true|false|null)\b/g, className: 'text-orange-400' },
+    { pattern: /\b\d+(\.\d+)?\b/g, className: 'text-green-400' },
+  ],
+  markdown: [
+    { pattern: /^#{1,6}\s.+$/gm, className: 'text-purple-400 font-bold' },
+    { pattern: /\*\*([^*]+)\*\*/g, className: 'text-white font-bold' },
+    { pattern: /\*([^*]+)\*/g, className: 'text-white italic' },
+    { pattern: /`([^`]+)`/g, className: 'text-yellow-300 bg-gray-800 px-1 rounded' },
+    { pattern: /```[\s\S]*?```/g, className: 'text-yellow-300 bg-gray-800 p-2 rounded block' },
+    { pattern: /\[([^\]]+)\]\(([^)]+)\)/g, className: 'text-blue-400 underline' },
+  ]
+}
+
 interface FileEditorProps {
   file: {
     id: string
@@ -51,75 +107,102 @@ interface EditorState {
   fontSize: number
 }
 
-// File type icons mapping
+// File type icons mapping with better categorization
 const fileTypeIcons: { [key: string]: LucideIcon } = {
-  'javascript': Code,
-  'typescript': Code,
-  'python': Code,
-  'java': Code,
-  'cpp': Code,
-  'csharp': Code,
-  'php': Code,
-  'ruby': Code,
-  'go': Code,
-  'rust': Code,
-  'swift': Code,
-  'kotlin': Code,
-  'scala': Code,
-  'r': Code,
-  'matlab': Code,
-  'perl': Code,
-  'bash': Code,
-  'powershell': Code,
-  'sql': Code,
+  // Programming Languages
+  'javascript': FileCode,
+  'typescript': FileCode,
+  'python': FileCode,
+  'java': FileCode,
+  'cpp': FileCode,
+  'csharp': FileCode,
+  'php': FileCode,
+  'ruby': FileCode,
+  'go': FileCode,
+  'rust': FileCode,
+  'swift': FileCode,
+  'kotlin': FileCode,
+  'scala': FileCode,
+  'r': FileCode,
+  'matlab': FileCode,
+  'perl': FileCode,
+  'bash': FileCode,
+  'powershell': FileCode,
+  'sql': Database,
+  'js': FileCode,
+  'jsx': FileCode,
+  'ts': FileCode,
+  'tsx': FileCode,
+  'py': FileCode,
+  
+  // Web Technologies
   'html': Globe,
-  'css': Globe,
-  'js': Code,
-  'jsx': Code,
-  'ts': Code,
-  'tsx': Code,
-  'py': Code,
   'htm': Globe,
+  'css': Globe,
   'scss': Globe,
   'sass': Globe,
+  'vue': Globe,
+  'svelte': Globe,
+  
+  // Data & Config
   'json': FileText,
-  'md': FileText,
+  'xml': FileText,
   'yaml': FileText,
   'yml': FileText,
-  'xml': FileText,
-  'csv': FileText,
+  'csv': FileSpreadsheet,
+  'ini': Settings,
+  'conf': Settings,
+  'config': Settings,
+  'env': Settings,
+  'toml': Settings,
+  
+  // Documentation
+  'md': FileText,
+  'markdown': FileText,
   'txt': FileText,
   'log': FileText,
-  'ini': FileText,
-  'conf': FileText,
-  'config': FileText,
-  'env': FileText,
-  'gitignore': FileText,
-  'dockerfile': FileText,
-  'makefile': FileText,
   'readme': FileText,
+  'doc': FileText,
+  'docx': FileText,
+  'pdf': FileText,
+  
+  // Build & Deploy
+  'dockerfile': FileCode,
+  'makefile': FileCode,
+  'gradle': FileCode,
+  'maven': FileCode,
+  'package': Settings,
+  'lock': Lock,
+  
+  // Documents & Office
   'license': FileText,
   'changelog': FileText,
   'todo': FileText,
   'note': FileText,
-  'doc': FileText,
-  'docx': FileText,
   'pdf': FileText,
   'ppt': FileText,
   'pptx': FileText,
-  'xls': FileText,
-  'xlsx': FileText,
-  'zip': FileText,
-  'rar': FileText,
-  '7z': FileText,
-  'tar': FileText,
-  'gz': FileText,
-  'bz2': FileText,
+  'xls': FileSpreadsheet,
+  'xlsx': FileSpreadsheet,
+  
+  // Archives
+  'zip': FileArchive,
+  'rar': FileArchive,
+  '7z': FileArchive,
+  'tar': FileArchive,
+  'gz': FileArchive,
+  'bz2': FileArchive,
+  
+  // Media - Audio
   'mp3': Music,
   'wav': Music,
   'flac': Music,
   'aac': Music,
   'ogg': Music,
+  'wma': Music,
+  'm4a': Music,
+  
+  // Media - Video
   'mp4': Video,
   'avi': Video,
   'mov': Video,
@@ -127,22 +210,26 @@ const fileTypeIcons: { [key: string]: LucideIcon } = {
   'flv': Video,
   'webm': Video,
   'mkv': Video,
-  'jpg': Image,
-  'jpeg': Image,
-  'png': Image,
-  'gif': Image,
-  'bmp': Image,
-  'svg': Image,
-  'webp': Image,
-  'ico': Image,
-  'tiff': Image,
-  'tga': Image,
-  'psd': Image,
-  'ai': Image,
-  'eps': Image,
-  'raw': Image,
-  'heic': Image,
-  'heif': Image,
+  'm4v': Video,
+  'ogv': Video,
+  
+  // Media - Images
+  'jpg': FileImage,
+  'jpeg': FileImage,
+  'png': FileImage,
+  'gif': FileImage,
+  'bmp': FileImage,
+  'svg': FileImage,
+  'webp': FileImage,
+  'ico': FileImage,
+  'tiff': FileImage,
+  'tga': FileImage,
+  'psd': FileImage,
+  'ai': FileImage,
+  'eps': FileImage,
+  'raw': FileImage,
+  'heic': FileImage,
+  'heif': FileImage,
   'default': FileText
 }
 
@@ -289,6 +376,24 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
   function getSyntaxLanguage(filename: string): string {
     const ext = getFileExtension(filename)
     return syntaxLanguages[ext] || 'plaintext'
+  }
+
+  // Apply syntax highlighting
+  const applySyntaxHighlighting = (content: string, language: string): string => {
+    if (!syntaxHighlightPatterns[language]) {
+      return content.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
+    }
+
+    let highlightedContent = content
+    const patterns = syntaxHighlightPatterns[language]
+
+    patterns.forEach(({ pattern, className }) => {
+      highlightedContent = highlightedContent.replace(pattern, (match) => {
+        return `<span class="${className}">${match}</span>`
+      })
+    })
+
+    return highlightedContent.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
   }
 
   // Handle content change
@@ -702,6 +807,22 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                     </div>
                   )}
 
+                  {/* Syntax Highlighting Overlay */}
+                  <div 
+                    className={cn(
+                      "absolute inset-0 pointer-events-none font-mono text-sm leading-relaxed p-4 overflow-hidden",
+                      editorState.lineNumbers && "pl-16",
+                      editorState.wordWrap && "whitespace-pre-wrap"
+                    )}
+                    style={{ 
+                      fontSize: `${editorState.fontSize}px`, 
+                      fontFamily: '"Outfit", "JetBrains Mono", "Monaco", monospace'
+                    }}
+                    dangerouslySetInnerHTML={{
+                      __html: applySyntaxHighlighting(editorState.content, getSyntaxLanguage(file.name))
+                    }}
+                  />
+
                   {/* Main Editor */}
                   <textarea
                     ref={editorRef}
@@ -710,10 +831,10 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                     onKeyDown={handleKeyDown}
                     readOnly={readOnly}
                     className={cn(
-                      "w-full h-full bg-transparent text-white font-mono resize-none outline-none p-4",
+                      "w-full h-full bg-transparent text-transparent font-mono resize-none outline-none p-4 caret-white",
                       editorState.lineNumbers && "pl-16",
                       editorState.wordWrap && "whitespace-pre-wrap",
-                      "text-sm leading-relaxed"
+                      "text-sm leading-relaxed relative z-10"
                     )}
                     style={{ 
                       fontSize: `${editorState.fontSize}px`, 
@@ -723,7 +844,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                     autoComplete="off"
                     autoCorrect="off"
                     autoCapitalize="off"
-                    data-language={syntaxLang}
+                    data-language={getSyntaxLanguage(file.name)}
                   />
 
                   {/* Minimap */}

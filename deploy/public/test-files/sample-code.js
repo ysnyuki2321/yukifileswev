@@ -15,7 +15,7 @@ class FileManager {
         throw new Error('File size exceeds limit');
       }
 
-      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const fileExtension = file.name?.split('.').pop()?.toLowerCase() || '';
       if (!this.supportedTypes.includes(fileExtension)) {
         throw new Error('File type not supported');
       }
@@ -84,8 +84,9 @@ class FileManager {
 
   // Search files by name
   searchFiles(query) {
+    if (!query || typeof query !== 'string') return this.files;
     return this.files.filter(file => 
-      file.name.toLowerCase().includes(query.toLowerCase())
+      file.name && file.name.toLowerCase().includes(query.toLowerCase())
     );
   }
 }
