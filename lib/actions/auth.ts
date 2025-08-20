@@ -5,60 +5,26 @@ import { redirect } from "next/navigation"
 import { checkAntiClone, logUserActivity, checkRateLimit, logRateLimitAttempt } from "@/lib/services/anti-clone"
 import { headers } from "next/headers"
 
-export async function signIn(prevState: any, formData: FormData) {
-  if (!formData) {
-    return { error: "Form data is missing" }
-  }
-
-  const email = formData.get("email")
-  const password = formData.get("password")
-  const deviceFingerprint = formData.get("deviceFingerprint")
-
-  if (!email || !password) {
-    return { error: "Email and password are required" }
-  }
-
+export async function signIn(email: string, password: string) {
   const supabase = createServerClient()
   if (!supabase) {
     return { error: "Database connection failed" }
   }
 
   try {
-    // No duplicate email check on login. We allow users with existing accounts to sign in.
-
     const headersList = headers()
     const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
     const userAgent = headersList.get("user-agent") || ""
 
     // Rate limit login attempts per IP: 10 per hour
-    const rate = await checkRateLimit({ ip, email: email.toString() }, "login", 10, 60 * 60)
+    const rate = await checkRateLimit({ ip, email }, "login", 10, 60 * 60)
     if (!rate.allowed) {
       return { error: `Too many login attempts. Try again in ${Math.ceil(rate.resetSeconds / 60)} minutes.` }
     }
 
-    // Parse device fingerprint if provided
-    let fingerprintObj = null
-    if (deviceFingerprint) {
-      try {
-        fingerprintObj = JSON.parse(deviceFingerprint.toString())
-      } catch (e) {
-        console.log("[v0] Failed to parse device fingerprint")
-      }
-    }
-
-    // Anti-clone check for login
-    if (fingerprintObj) {
-      const antiCloneResult = await checkAntiClone(email.toString(), fingerprintObj, "login")
-
-      if (!antiCloneResult.allowed) {
-        console.log(`[v0] Login blocked for ${email}: ${antiCloneResult.reason}`)
-        return { error: `Access denied: ${antiCloneResult.reason}` }
-      }
-    }
-
     const { error, data } = await supabase.auth.signInWithPassword({
-      email: email.toString(),
-      password: password.toString(),
+      email,
+      password,
     })
 
     if (error) {
@@ -72,13 +38,13 @@ export async function signIn(prevState: any, formData: FormData) {
     }
 
     // Log attempt regardless of success to enforce RL
-    await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "login")
+    await logRateLimitAttempt(ip, userAgent, null, "login")
 
     // Log successful login
     if (data.user) {
       const { data: userData } = await supabase.from("users").select("id").eq("email", data.user.email).single()
       if (userData) {
-        await logUserActivity(userData.id, "login", { fingerprint: fingerprintObj })
+        await logUserActivity(userData.id, "login", { fingerprint: null })
       }
       console.log(`[v0] User ${data.user.email} logged in successfully`)
     }
@@ -145,9 +111,11 @@ export async function signUp(prevState: any, formData: FormData) {
       }
     }
 
-    // Prevent duplicate email in our users table for clearer UX code
-    const { data: existing } = await supabase.from("users").select("id").eq("email", email.toString()).maybeSingle()
-    if (existing) {
+    // Check if user already exists in Supabase Auth
+    const { data: existingAuthUser } = await supabase.auth.admin.listUsers()
+    const userExists = existingAuthUser.users.some(user => user.email === email.toString())
+    
+    if (userExists) {
       return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
     }
 
@@ -170,7 +138,8 @@ export async function signUp(prevState: any, formData: FormData) {
     
     const redirectBase = decodedSiteUrl || adminSiteUrl || "http://localhost:3000"
 
-    const { error, data } = await supabase.auth.signUp({
+    // Create user in Supabase Auth
+    const { error: signUpError, data } = await supabase.auth.signUp({
       email: email.toString(),
       password: password.toString(),
       options: {
@@ -178,21 +147,32 @@ export async function signUp(prevState: any, formData: FormData) {
       },
     })
 
-    if (error) {
-      return { error: error.message }
+    if (signUpError) {
+      return { error: signUpError.message }
     }
 
-    // Create user record with anti-clone data
+    // Create user record in our users table
     if (data.user) {
-      await supabase.from("users").insert({
+      const { error: insertError } = await supabase.from("users").insert({
         email: data.user.email,
-        device_fingerprint: deviceFingerprint?.toString(),
+        supabase_id: data.user.id,
+        device_fingerprint: deviceFingerprint?.toString() || null,
         registration_ip: ip,
         last_ip: ip,
         is_admin: email.toString() === "ysnyuki2321@outlook.jp", // Dev admin default
         auth_provider: "email",
         is_verified: false,
+        subscription_type: "free",
+        storage_used: 0,
+        storage_limit: 2 * 1024 * 1024 * 1024, // 2GB in bytes
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       })
+
+      if (insertError) {
+        console.error("[v0] Failed to insert user record:", insertError)
+        // Don't fail the registration if user table insert fails
+      }
 
       console.log(`[v0] User ${data.user.email} registered successfully`)
     }
@@ -205,9 +185,14 @@ export async function signUp(prevState: any, formData: FormData) {
         return acc
       }, {} as Record<string, string>)
       if (map["auth_auto_verify"] === "true" && data.user?.email) {
-        await supabase.from("users").update({ is_verified: true, supabase_id: data.user.id }).eq("email", data.user.email)
+        await supabase.from("users").update({ 
+          is_verified: true, 
+          supabase_id: data.user.id 
+        }).eq("email", data.user.email)
       }
-    } catch {}
+    } catch (e) {
+      console.warn("[v0] Failed to auto-verify user:", e)
+    }
 
     // Log attempt for rate limiting window
     await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "register")
