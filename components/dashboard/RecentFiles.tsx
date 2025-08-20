@@ -68,12 +68,14 @@ const fileTypeIcons: { [key: string]: LucideIcon } = {
   'default': FileText
 }
 
-const getFileIcon = (filename: string): LucideIcon => {
+const getFileIcon = (filename: string | undefined): LucideIcon => {
+  if (!filename || typeof filename !== 'string') return fileTypeIcons['default']
   const ext = filename.split('.').pop()?.toLowerCase() || ''
   return fileTypeIcons[ext] || fileTypeIcons['default']
 }
 
-const isTextFile = (filename: string): boolean => {
+const isTextFile = (filename: string | undefined): boolean => {
+  if (!filename || typeof filename !== 'string') return false
   const ext = filename.split('.').pop()?.toLowerCase() || ''
   const textExtensions = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'html', 'css', 'scss', 'sass', 'json', 'xml', 'yaml', 'yml', 'md', 'txt', 'csv', 'sql']
   return textExtensions.includes(ext)

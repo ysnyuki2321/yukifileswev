@@ -12,6 +12,7 @@
     "start:next": "next start",
     "health": "curl -s http://localhost:3000/api/health | jq",
     "demo:logger": "node scripts/demo-logger.js",
+    "test:tolowercase": "node scripts/test-tolowercase-fixes.js",
     "migrate:db": "node scripts/migrate.mjs",
     "deploy": "./scripts/deploy.sh",
     "deploy:vercel": "vercel --prod"
