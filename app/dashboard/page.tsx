@@ -13,6 +13,7 @@ import AreaChart from "@/components/dashboard/AreaChart"
 import RecentActivity from "@/components/dashboard/RecentActivity"
 import RecentFiles, { type RecentFileItem } from "@/components/dashboard/RecentFiles"
 import UploadZone from "@/components/file-manager/upload-zone"
+import { isDebugModeEnabled, getDebugUser, getDebugFiles } from "@/lib/services/debug-user"
 
 export default async function DashboardPage() {
   const supabase = createServerClient()
@@ -21,47 +22,18 @@ export default async function DashboardPage() {
     redirect("/auth/login")
   }
 
-  // Check debug mode - if enabled, create mock user data
+  // Check debug mode - if enabled, use debug user data
+  const debugMode = await isDebugModeEnabled()
   let user = null
   let userData = null
+  let recentFiles: RecentFileItem[] = []
   
-  try {
-    const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
-    const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
-      acc[s.setting_key] = s.setting_value
-      return acc
-    }, {} as Record<string, string>)
-    
-    if (map["debug_mode"] === "true") {
-      console.log("[v0] Debug mode enabled - using mock user data")
-      user = { email: "debug@example.com", id: "debug-user-id" }
-      userData = {
-        id: "debug-user-id",
-        email: "debug@example.com",
-        quota_used: 1024 * 1024 * 1024, // 1GB
-        quota_limit: 2 * 1024 * 1024 * 1024, // 2GB
-        files_count: 15,
-        subscription_type: "free",
-        is_admin: true,
-        is_verified: true,
-        is_active: true
-      }
-    } else {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser()
-
-      if (!authUser) {
-        redirect("/auth/login")
-      }
-      
-      user = authUser
-      // Get user data from our custom users table
-      const { data: userDataResult } = await supabase.from("users").select("*").eq("email", user.email).single()
-      userData = userDataResult
-    }
-  } catch (e) {
-    console.warn("[v0] Failed to check debug mode:", e)
+  if (debugMode) {
+    console.log("[v0] Debug mode enabled - using debug user data")
+    user = { email: "debug@yukifiles.com", id: "debug-user-123" }
+    userData = getDebugUser()
+    recentFiles = getDebugFiles().slice(0, 8) as RecentFileItem[]
+  } else {
     const {
       data: { user: authUser },
     } = await supabase.auth.getUser()
@@ -74,6 +46,16 @@ export default async function DashboardPage() {
     // Get user data from our custom users table
     const { data: userDataResult } = await supabase.from("users").select("*").eq("email", user.email).single()
     userData = userDataResult
+
+    // Fetch recent files
+    const { data: recentFilesData } = await supabase
+      .from("files")
+      .select("id, original_name, file_size, share_token, created_at")
+      .eq("user_id", userData?.id)
+      .order("created_at", { ascending: false })
+      .limit(8)
+    
+    recentFiles = (recentFilesData as RecentFileItem[]) || []
   }
 
 
@@ -90,13 +72,7 @@ export default async function DashboardPage() {
   const { data: adminSettings } = await supabase.from("admin_settings").select("setting_key, setting_value")
   const brandName = adminSettings?.reduce((acc: Record<string,string>, s: any) => { acc[s.setting_key] = s.setting_value; return acc }, {} as Record<string,string>)["brand_name"] || "YukiFiles"
 
-  // Fetch recent files
-  const { data: recentFiles } = await supabase
-    .from("files")
-    .select("id, original_name, file_size, share_token, created_at")
-    .eq("user_id", userData?.id)
-    .order("created_at", { ascending: false })
-    .limit(8)
+
 
   return (
     <ThemeProvider subscriptionType={userData?.subscription_type || "free"}>
@@ -128,7 +104,7 @@ export default async function DashboardPage() {
               </div>
 
               {/* Recent Files */}
-              <RecentFiles files={(recentFiles as RecentFileItem[]) || []} />
+              <RecentFiles files={recentFiles} />
 
               {/* Premium CTA */}
               {!isPremium && (
