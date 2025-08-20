@@ -101,7 +101,7 @@ export default function LoginForm() {
         Back to Home
       </Link>
 
-      <Card className="w-full bg-black/40 backdrop-blur-lg border-purple-500/20 shadow-2xl hover:border-purple-500/30 transition-all duration-300">
+      <Card className="w-full premium-card shadow-2xl hover:border-purple-500/30 transition-all duration-300">
         <CardHeader className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">

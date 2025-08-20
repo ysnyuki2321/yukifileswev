@@ -66,7 +66,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
 
   if (!mounted) {
     return (
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-lg border-b border-gray-800/50">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-purple-500/20">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="w-32 h-8 bg-gray-700 rounded animate-pulse" />
@@ -81,7 +81,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-lg border-b border-gray-800/50">
+    <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-purple-500/20">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -93,7 +93,6 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
               <span className="text-xl font-bold text-white group-hover:text-purple-300 transition-colors">
                 {brandName}
               </span>
-              <span className="text-xs text-gray-400 -mt-1">File Management</span>
             </div>
           </Link>
 
@@ -172,7 +171,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-gray-800/50">
+          <div className="lg:hidden glass-effect border-t border-purple-500/20">
             <div className="px-4 py-6 space-y-6">
               {/* Navigation Items */}
               <div className="space-y-3">

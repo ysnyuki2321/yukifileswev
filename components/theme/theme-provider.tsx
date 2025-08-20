@@ -27,13 +27,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const root = document.documentElement
     
     // Remove existing theme classes
-    root.classList.remove("light", "dark")
+    root.classList.remove("light", "dark", "theme-premium", "theme-free")
     
     if (newTheme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
       root.classList.add(systemTheme)
     } else {
       root.classList.add(newTheme)
+    }
+    
+    // Apply premium theme for better visual experience
+    if (newTheme === "dark") {
+      root.classList.add("theme-premium")
     }
     
     localStorage.setItem("theme", newTheme)
