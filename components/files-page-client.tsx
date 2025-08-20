@@ -16,6 +16,8 @@ export default function FilesPageClient() {
   const [files, setFiles] = useState([])
   const [loading, setLoading] = useState(true)
   const [isDemoMode, setIsDemoMode] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
+  const [uploadingFiles, setUploadingFiles] = useState<string[]>([])
 
   useEffect(() => {
     async function loadData() {
@@ -649,6 +651,40 @@ Thank you for trying YukiFiles! 🚀`,
     }
   ]
 
+  // Fake upload function for demo
+  const handleFakeUpload = async (files: File[]) => {
+    for (const file of files) {
+      const fileId = `upload-${Date.now()}-${Math.random()}`
+      setUploadingFiles(prev => [...prev, fileId])
+      setUploadProgress(prev => ({ ...prev, [fileId]: 0 }))
+      
+      // Simulate upload progress
+      for (let i = 0; i <= 100; i += 10) {
+        await new Promise(resolve => setTimeout(resolve, 200))
+        setUploadProgress(prev => ({ ...prev, [fileId]: i }))
+      }
+      
+      // Add file to list
+      const newFile = {
+        id: fileId,
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        lastModified: new Date(),
+        isFolder: false,
+        content: file.type.startsWith('text/') ? await file.text() : '',
+        path: '/'
+      }
+      
+      setFiles(prev => [newFile, ...prev])
+      setUploadingFiles(prev => prev.filter(id => id !== fileId))
+      setUploadProgress(prev => {
+        const { [fileId]: removed, ...rest } = prev
+        return rest
+      })
+    }
+  }
+
   const allFiles = isDemoMode ? demoFiles : [...transformedFiles, ...testFiles]
 
   if (loading) {
@@ -738,11 +774,31 @@ Thank you for trying YukiFiles! 🚀`,
         <EnhancedFileManager 
           files={allFiles}
           onFileSelect={(file) => console.log('File selected:', file)}
-          onFileEdit={(file) => console.log('File edit:', file)}
-          onFileDelete={(fileId) => console.log('File delete:', fileId)}
+          onFileEdit={(file, newContent, newName, newType) => {
+            console.log('File edit:', { file, newContent, newName, newType })
+            // Update file in the list
+            setFiles(prevFiles => 
+              prevFiles.map(f => 
+                f.id === file.id 
+                  ? { 
+                      ...f, 
+                      content: newContent || f.content,
+                      name: newName || f.name,
+                      type: newType ? `text/${newType}` : f.type
+                    }
+                  : f
+              )
+            )
+          }}
+          onFileDelete={(fileId) => {
+            console.log('File delete:', fileId)
+            setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId))
+          }}
           onFileShare={(fileId) => console.log('File share:', fileId)}
           onFileDownload={(fileId) => console.log('File download:', fileId)}
-          onFileUpload={(files) => console.log('Files upload:', files)}
+          onFileUpload={isDemoMode ? handleFakeUpload : (files) => console.log('Files upload:', files)}
+          uploadProgress={uploadProgress}
+          uploadingFiles={uploadingFiles}
         />
       </main>
     </div>

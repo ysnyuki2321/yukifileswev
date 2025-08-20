@@ -11,19 +11,24 @@ import { getDebugFiles } from "@/lib/services/debug-user"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { Suspense } from "react"
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { demo?: string }
+}) {
   const supabase = await createServerClient()
   
-  // Check debug mode first
+  // Check debug mode and demo mode
   const debugMode = await isDebugModeEnabled()
+  const isDemoMode = searchParams.demo === 'true'
   let user = null
   let userData = null
   let recentFiles: any[] = []
   let filesCount = 0
   
-  if (debugMode) {
-    console.log("[v0] Debug mode enabled - using mock data for dashboard")
-    user = { email: "debug@yukifiles.com", id: "debug-user-123" }
+  if (debugMode || isDemoMode) {
+    console.log("[v0] Debug/Demo mode enabled - using mock data for dashboard")
+    user = { email: isDemoMode ? "demo@yukifiles.com" : "debug@yukifiles.com", id: isDemoMode ? "demo-user-123" : "debug-user-123" }
     userData = getMockUserData()
     recentFiles = getDebugFiles().slice(0, 8)
     filesCount = getDebugFiles().length
@@ -56,8 +61,8 @@ export default async function DashboardPage() {
   }
 
   // Get brand name from admin settings
-  let brandName = "YukiFiles"
-  if (!debugMode && supabase) {
+  let brandName = isDemoMode ? "YukiFiles Demo" : "YukiFiles"
+  if (!debugMode && !isDemoMode && supabase) {
     const { data: adminSettings } = await supabase.from("admin_settings").select("setting_key, setting_value")
     const settingsMap = (adminSettings || []).reduce((acc: Record<string, string>, s: any) => {
       acc[s.setting_key] = s.setting_value
@@ -93,7 +98,7 @@ export default async function DashboardPage() {
       <div className="flex">
         <Sidebar isAdmin={Boolean(userData?.is_admin)} brandName={brandName} />
         <div className="flex-1 min-w-0">
-          <Topbar userEmail={user.email!} isPremium={userData?.subscription_type === "paid"} brandName={brandName} />
+          <Topbar userEmail={user.email!} isPremium={userData?.subscription_type === "paid"} brandName={brandName} isDemoMode={isDemoMode} />
           <main className="container mx-auto px-4 py-6">
             <Suspense fallback={<PageSkeleton />}>
               <div className="space-y-8">

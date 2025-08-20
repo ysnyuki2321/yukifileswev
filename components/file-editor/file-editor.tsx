@@ -11,9 +11,8 @@ import {
   Copy, Undo, Redo, Search, Replace, Edit3, Type,
   ZoomIn, ZoomOut, Eye, EyeOff, FileType, FileCode,
   ChevronDown, MoreHorizontal, RotateCcw, Play, Square,
-  FileImage, FileVideo, FileAudio, FileArchive, FilePdf,
-  FileWord, FileSpreadsheet, FilePresentation, Database,
-  Globe, Lock, Unlock, Star, StarOff
+  FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet,
+  Database, Globe, Lock, Unlock, Star, StarOff
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
@@ -137,13 +136,13 @@ const fileTypeIcons = {
   'bz2': FileArchive,
   
   // Document files
-  'pdf': FilePdf,
-  'doc': FileWord,
-  'docx': FileWord,
+  'pdf': FileText,
+  'doc': FileText,
+  'docx': FileText,
   'xls': FileSpreadsheet,
   'xlsx': FileSpreadsheet,
-  'ppt': FilePresentation,
-  'pptx': FilePresentation,
+  'ppt': FileText,
+  'pptx': FileText,
   
   // Database files
   'sql': Database,

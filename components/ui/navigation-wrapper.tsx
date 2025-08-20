@@ -215,17 +215,17 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <Link href="/auth/login">
-                  <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800/30 hover:border-gray-500 transition-all duration-300">
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Sign In
+                  <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800/30 hover:border-gray-500 transition-all duration-300 px-2 sm:px-4">
+                    <LogIn className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Sign In</span>
                   </Button>
                 </Link>
                 <Link href="/auth/register">
-                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
-                    <UserPlus className="w-4 h-4 mr-2" />
-                    Get Started
+                  <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300 px-2 sm:px-4">
+                    <UserPlus className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Get Started</span>
                   </Button>
                 </Link>
               </div>

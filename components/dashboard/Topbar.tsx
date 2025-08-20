@@ -10,9 +10,10 @@ interface TopbarProps {
   userEmail: string
   isPremium: boolean
   brandName?: string
+  isDemoMode?: boolean
 }
 
-export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles" }: TopbarProps) {
+export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", isDemoMode = false }: TopbarProps) {
   return (
     <header className="h-16 w-full border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
       <div className="h-full container mx-auto px-4 flex items-center justify-between gap-4">
@@ -31,7 +32,12 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles" }
         </div>
 
         <div className="flex items-center gap-2">
-          {isPremium && (
+          {isDemoMode && (
+            <span className="hidden sm:inline-block bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs px-2 py-1 rounded animate-pulse">
+              DEMO MODE
+            </span>
+          )}
+          {isPremium && !isDemoMode && (
             <span className="hidden sm:inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded premium-glow">
               PREMIUM
             </span>
