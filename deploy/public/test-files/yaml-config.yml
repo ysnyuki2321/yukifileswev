@@ -1,0 +1,419 @@
+# YukiFiles Configuration File
+# This file contains all configuration settings for the YukiFiles application
+
+# Application Settings
+app:
+  name: "YukiFiles"
+  version: "2.1.0"
+  environment: "production"
+  debug: false
+  port: 3000
+  host: "0.0.0.0"
+  timezone: "UTC"
+  locale: "en-US"
+  
+  # Security Settings
+  security:
+    jwt_secret: "${JWT_SECRET}"
+    jwt_expires_in: "7d"
+    jwt_refresh_expires_in: "30d"
+    bcrypt_rounds: 12
+    session_timeout: 3600
+    max_login_attempts: 5
+    lockout_duration: 900
+    
+    # CORS Settings
+    cors:
+      origin: 
+        - "https://yukifiles.com"
+        - "https://www.yukifiles.com"
+        - "https://app.yukifiles.com"
+      credentials: true
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+      allowed_headers: ["Content-Type", "Authorization", "X-Requested-With"]
+      
+    # Rate Limiting
+    rate_limit:
+      window_ms: 900000  # 15 minutes
+      max_requests: 100
+      skip_successful_requests: false
+      skip_failed_requests: false
+
+# Database Configuration
+database:
+  type: "postgresql"
+  host: "${DB_HOST}"
+  port: 5432
+  name: "${DB_NAME}"
+  user: "${DB_USER}"
+  password: "${DB_PASSWORD}"
+  ssl: true
+  
+  # Connection Pool
+  pool:
+    min: 2
+    max: 10
+    idle_timeout_ms: 30000
+    acquire_timeout_ms: 60000
+    
+  # Migration Settings
+  migrations:
+    directory: "./migrations"
+    table_name: "schema_migrations"
+    lock_timeout: 10000
+
+# Storage Configuration
+storage:
+  provider: "supabase"
+  bucket: "yukifiles-storage"
+  region: "us-east-1"
+  
+  # File Upload Settings
+  upload:
+    max_file_size: 2147483648  # 2GB in bytes
+    max_files_per_request: 10
+    allowed_types:
+      - "text/plain"
+      - "text/markdown"
+      - "application/json"
+      - "application/javascript"
+      - "text/css"
+      - "text/html"
+      - "application/x-python"
+      - "image/jpeg"
+      - "image/png"
+      - "image/gif"
+      - "image/webp"
+      - "application/pdf"
+      - "application/msword"
+      - "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      - "application/vnd.ms-excel"
+      - "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      - "application/vnd.ms-powerpoint"
+      - "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+      - "video/mp4"
+      - "video/webm"
+      - "audio/mpeg"
+      - "audio/wav"
+      
+    # File Processing
+    processing:
+      image_compression: true
+      image_quality: 85
+      generate_thumbnails: true
+      thumbnail_sizes: [150, 300, 600]
+      extract_metadata: true
+      
+    # Virus Scanning
+    virus_scan:
+      enabled: true
+      provider: "clamav"
+      timeout: 30000
+      max_file_size: 104857600  # 100MB
+
+# Email Configuration
+email:
+  provider: "sendgrid"
+  api_key: "${SENDGRID_API_KEY}"
+  from_address: "noreply@yukifiles.com"
+  from_name: "YukiFiles"
+  
+  # Email Templates
+  templates:
+    welcome:
+      id: "d-welcome-template-id"
+      subject: "Welcome to YukiFiles!"
+    verification:
+      id: "d-verification-template-id"
+      subject: "Verify your email address"
+    password_reset:
+      id: "d-password-reset-template-id"
+      subject: "Reset your password"
+    file_shared:
+      id: "d-file-shared-template-id"
+      subject: "A file has been shared with you"
+    storage_warning:
+      id: "d-storage-warning-template-id"
+      subject: "Storage limit warning"
+      
+  # Email Settings
+  settings:
+    retry_attempts: 3
+    retry_delay: 5000
+    batch_size: 100
+    rate_limit: 100  # emails per minute
+
+# Payment Configuration
+payment:
+  stripe:
+    secret_key: "${STRIPE_SECRET_KEY}"
+    publishable_key: "${STRIPE_PUBLISHABLE_KEY}"
+    webhook_secret: "${STRIPE_WEBHOOK_SECRET}"
+    currency: "usd"
+    
+    # Subscription Plans
+    plans:
+      free:
+        id: "price_free"
+        name: "Free"
+        price: 0
+        storage_limit: 2147483648  # 2GB
+        features:
+          - "Basic file sharing"
+          - "Email support"
+          - "Standard security"
+          
+      pro:
+        id: "price_pro_monthly"
+        name: "Pro"
+        price: 999  # $9.99 in cents
+        storage_limit: 107374182400  # 100GB
+        features:
+          - "Advanced file sharing"
+          - "Priority support"
+          - "Enhanced security"
+          - "Custom branding"
+          - "Analytics dashboard"
+          
+      enterprise:
+        id: "price_enterprise"
+        name: "Enterprise"
+        price: 4999  # $49.99 in cents
+        storage_limit: 1073741824000  # 1TB
+        features:
+          - "Unlimited storage"
+          - "Dedicated support"
+          - "Advanced security"
+          - "Custom integrations"
+          - "Team management"
+          
+  paypal:
+    client_id: "${PAYPAL_CLIENT_ID}"
+    client_secret: "${PAYPAL_CLIENT_SECRET}"
+    mode: "live"  # or "sandbox"
+    currency: "USD"
+
+# Logging Configuration
+logging:
+  level: "info"  # debug, info, warn, error
+  format: "json"
+  transports:
+    - "console"
+    - "file"
+    
+  # File Logging
+  file:
+    filename: "logs/yukifiles.log"
+    max_size: "10m"
+    max_files: 5
+    compress: true
+    
+  # Console Logging
+  console:
+    colorize: true
+    timestamp: true
+    
+  # Log Levels by Module
+  levels:
+    app: "info"
+    database: "warn"
+    storage: "info"
+    email: "warn"
+    payment: "info"
+    security: "warn"
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  
+  # Application Performance Monitoring
+  apm:
+    provider: "newrelic"
+    license_key: "${NEWRELIC_LICENSE_KEY}"
+    app_name: "YukiFiles"
+    
+  # Error Tracking
+  error_tracking:
+    provider: "sentry"
+    dsn: "${SENTRY_DSN}"
+    environment: "production"
+    
+  # Health Checks
+  health_checks:
+    enabled: true
+    interval: 30000  # 30 seconds
+    timeout: 5000
+    endpoints:
+      - "/health"
+      - "/health/db"
+      - "/health/storage"
+      - "/health/email"
+
+# Cache Configuration
+cache:
+  provider: "redis"
+  host: "${REDIS_HOST}"
+  port: 6379
+  password: "${REDIS_PASSWORD}"
+  db: 0
+  
+  # Cache Settings
+  settings:
+    ttl: 3600  # 1 hour default
+    max_size: 1000
+    compression: true
+    
+  # Cache Keys
+  keys:
+    user_profile: "user:profile:{id}"
+    file_metadata: "file:metadata:{id}"
+    share_link: "share:link:{token}"
+    storage_usage: "user:storage:{id}"
+
+# Queue Configuration
+queue:
+  provider: "bull"
+  redis:
+    host: "${REDIS_HOST}"
+    port: 6379
+    password: "${REDIS_PASSWORD}"
+    db: 1
+    
+  # Queue Settings
+  queues:
+    email:
+      concurrency: 5
+      attempts: 3
+      backoff: "exponential"
+      
+    file_processing:
+      concurrency: 3
+      attempts: 2
+      backoff: "fixed"
+      
+    virus_scan:
+      concurrency: 2
+      attempts: 1
+      backoff: "fixed"
+      
+    cleanup:
+      concurrency: 1
+      attempts: 1
+      schedule: "0 2 * * *"  # Daily at 2 AM
+
+# Feature Flags
+features:
+  file_editor:
+    enabled: true
+    max_file_size: 10485760  # 10MB
+    supported_types:
+      - ".txt"
+      - ".md"
+      - ".js"
+      - ".py"
+      - ".css"
+      - ".html"
+      - ".json"
+      - ".yml"
+      - ".yaml"
+      - ".sql"
+      
+  file_sharing:
+    enabled: true
+    default_expiry: 7  # days
+    max_expiry: 365  # days
+    password_protection: true
+    max_downloads: 1000
+    
+  collaboration:
+    enabled: true
+    real_time_editing: true
+    comments: true
+    version_control: true
+    max_collaborators: 10
+    
+  analytics:
+    enabled: true
+    track_downloads: true
+    track_views: true
+    track_shares: true
+    track_errors: true
+    
+  ai_features:
+    enabled: false
+    auto_tagging: false
+    content_analysis: false
+    smart_search: false
+
+# API Configuration
+api:
+  version: "v1"
+  base_path: "/api/v1"
+  rate_limit: 1000  # requests per hour per user
+  
+  # API Documentation
+  docs:
+    enabled: true
+    path: "/api/docs"
+    title: "YukiFiles API Documentation"
+    version: "2.1.0"
+    
+  # API Keys
+  keys:
+    enabled: true
+    max_keys_per_user: 5
+    key_length: 32
+
+# Webhook Configuration
+webhooks:
+  enabled: true
+  secret: "${WEBHOOK_SECRET}"
+  timeout: 10000
+  
+  # Webhook Events
+  events:
+    file_uploaded:
+      enabled: true
+      url: "${WEBHOOK_FILE_UPLOADED_URL}"
+    file_deleted:
+      enabled: true
+      url: "${WEBHOOK_FILE_DELETED_URL}"
+    user_registered:
+      enabled: true
+      url: "${WEBHOOK_USER_REGISTERED_URL}"
+    payment_successful:
+      enabled: true
+      url: "${WEBHOOK_PAYMENT_SUCCESSFUL_URL}"
+
+# Backup Configuration
+backup:
+  enabled: true
+  schedule: "0 3 * * *"  # Daily at 3 AM
+  
+  # Database Backup
+  database:
+    enabled: true
+    retention_days: 30
+    compression: true
+    
+  # File Backup
+  files:
+    enabled: true
+    retention_days: 7
+    compression: true
+    
+  # Storage Provider
+  storage:
+    provider: "s3"
+    bucket: "yukifiles-backups"
+    region: "us-east-1"
+    access_key: "${BACKUP_ACCESS_KEY}"
+    secret_key: "${BACKUP_SECRET_KEY}"
+
+# Development Settings (only used in development)
+development:
+  hot_reload: true
+  debug_mode: true
+  mock_payments: true
+  mock_email: true
+  seed_data: true
