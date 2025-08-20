@@ -31,7 +31,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
           </div>
         </div>
 
-        <div className="flex-1 max-w-xl hidden md:block">
+        <div className="flex-1 max-w-xl hidden sm:block">
           <Input placeholder="Search files, shares..." className="bg-black/30 border-gray-700" />
         </div>
 
@@ -46,7 +46,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
               PREMIUM
             </span>
           )}
-          <span className="hidden sm:inline text-gray-300 text-sm">{userEmail}</span>
+          <span className="hidden md:inline text-gray-300 text-sm">{userEmail}</span>
           <button className="inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-300 hover:text-white hover:bg-white/5">
             <Bell className="h-5 w-5" />
           </button>

@@ -85,7 +85,7 @@ export default function DashboardHeader({
       {/* Welcome Section */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white">
             {getGreeting()}, {userData.email.split('@')[0]}! 👋
           </h1>
           <p className="text-gray-400">

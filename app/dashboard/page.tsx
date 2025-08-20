@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
+import { useState, useEffect, Suspense } from "react"
+import { createClientComponentClient } from "@supabase/ssr"
 import DashboardHeader from "@/components/dashboard/DashboardHeader"
 import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
@@ -15,7 +15,7 @@ import { getDebugFiles } from "@/lib/services/debug-user"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { useSearchParams } from "next/navigation"
 
-export default function DashboardPage() {
+function DashboardContent() {
   const searchParams = useSearchParams()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -150,7 +150,7 @@ export default function DashboardPage() {
                       <QuickActions isPremium={userData?.subscription_type === "paid"} />
                       <ActivityFeed activities={recentActivity} />
                     </div>
-                    <div>
+                    <div className="order-first lg:order-last">
                       <RecentFiles files={recentFiles} />
                     </div>
                   </div>
@@ -160,5 +160,13 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   )
 }
