@@ -7,7 +7,7 @@ import Navigation from "@/components/ui/navigation"
 import { 
   Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users, 
   CheckCircle, ArrowRight, FileText, HardDrive, Lock, Share2,
-  Download, Eye, Clock, BarChart3, Award, Globe2,
+  Download, Eye, Clock, BarChart3, Award, Globe2, Sparkles,
   Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi,
   Crown, Rocket, Building, Server, Infinity, Check, X, Folder
 } from "lucide-react"

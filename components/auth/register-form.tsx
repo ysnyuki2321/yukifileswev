@@ -41,6 +41,11 @@ export default function RegisterForm() {
   const [showPassword2, setShowPassword2] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState(0)
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    password2: ""
+  })
 
   const handleSubmit = (formData: FormData) => {
     if (fingerprint) {
@@ -143,14 +148,16 @@ export default function RegisterForm() {
                 </label>
                 <div className="relative group">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    required
-                    className="pl-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
-                  />
+                                      <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                      className="pl-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                    />
                 </div>
               </div>
 
@@ -160,16 +167,20 @@ export default function RegisterForm() {
                 </label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password"
-                    required
-                    minLength={6}
-                    onChange={(e) => checkPasswordStrength(e.target.value)}
-                    className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
-                  />
+                                      <Input
+                      id="password"
+                      name="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder="Create a strong password"
+                      required
+                      minLength={6}
+                      value={formData.password}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, password: e.target.value }))
+                        checkPasswordStrength(e.target.value)
+                      }}
+                      className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                    />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
@@ -202,15 +213,15 @@ export default function RegisterForm() {
                       <CheckCircle className="w-3 h-3 mr-1" />
                       8+ characters
                     </span>
-                    <span className={`flex items-center ${/[a-z]/.test((document.getElementById('password') as HTMLInputElement)?.value || '') ? 'text-green-400' : 'text-gray-500'}`}>
+                    <span className={`flex items-center ${/[a-z]/.test(formData.password || '') ? 'text-green-400' : 'text-gray-500'}`}>
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Lowercase
                     </span>
-                    <span className={`flex items-center ${/[A-Z]/.test((document.getElementById('password') as HTMLInputElement)?.value || '') ? 'text-green-400' : 'text-gray-500'}`}>
+                    <span className={`flex items-center ${/[A-Z]/.test(formData.password || '') ? 'text-green-400' : 'text-gray-500'}`}>
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Uppercase
                     </span>
-                    <span className={`flex items-center ${/[0-9]/.test((document.getElementById('password') as HTMLInputElement)?.value || '') ? 'text-green-400' : 'text-gray-500'}`}>
+                    <span className={`flex items-center ${/[0-9]/.test(formData.password || '') ? 'text-green-400' : 'text-gray-500'}`}>
                       <CheckCircle className="w-3 h-3 mr-1" />
                       Number
                     </span>
@@ -224,15 +235,17 @@ export default function RegisterForm() {
                 </label>
                 <div className="relative group">
                   <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 group-focus-within:text-purple-400 transition-colors" />
-                  <Input
-                    id="password2"
-                    name="password2"
-                    type={showPassword2 ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    required
-                    minLength={6}
-                    className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
-                  />
+                                      <Input
+                      id="password2"
+                      name="password2"
+                      type={showPassword2 ? "text" : "password"}
+                      placeholder="Confirm your password"
+                      required
+                      minLength={6}
+                      value={formData.password2}
+                      onChange={(e) => setFormData(prev => ({ ...prev, password2: e.target.value }))}
+                      className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                    />
                   <button
                     type="button"
                     onClick={() => setShowPassword2(!showPassword2)}
