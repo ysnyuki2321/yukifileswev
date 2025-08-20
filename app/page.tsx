@@ -7,9 +7,9 @@ import Navigation from "@/components/ui/navigation"
 import { 
   Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users, 
   CheckCircle, ArrowRight, FileText, HardDrive, Lock, Share2,
-  Download, Eye, Clock, BarChart3, Sparkles, Award, Globe2,
+  Download, Eye, Clock, BarChart3, Award, Globe2,
   Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi,
-  Crown, Rocket, Building, Server, Infinity, Check, X
+  Crown, Rocket, Building, Server, Infinity, Check, X, Folder
 } from "lucide-react"
 import Link from "next/link"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
@@ -237,7 +237,7 @@ export default async function HomePage() {
           <div className="text-center max-w-5xl mx-auto">
             <div className="flex items-center justify-center mb-6">
               <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
-                <Sparkles className="w-4 h-4 mr-2" />
+                <Star className="w-4 h-4 mr-2" />
                 Trusted by 500K+ users worldwide
               </Badge>
             </div>

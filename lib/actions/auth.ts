@@ -2,7 +2,6 @@
 
 import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { checkAntiClone, logUserActivity, checkRateLimit, logRateLimitAttempt } from "@/lib/services/anti-clone"
 import { headers } from "next/headers"
 
 export async function signIn(email: string, password: string) {
@@ -12,16 +11,6 @@ export async function signIn(email: string, password: string) {
   }
 
   try {
-    const headersList = await headers()
-    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
-    const userAgent = headersList.get("user-agent") || ""
-
-    // Rate limit login attempts per IP: 10 per hour
-    const rate = await checkRateLimit({ ip, email }, "login", 10, 60 * 60)
-    if (!rate.allowed) {
-      return { error: `Too many login attempts. Try again in ${Math.ceil(rate.resetSeconds / 60)} minutes.` }
-    }
-
     const { error, data } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -37,15 +26,8 @@ export async function signIn(email: string, password: string) {
       return { error: "Please verify your email first! We sent you a confirmation link." }
     }
 
-    // Log attempt regardless of success to enforce RL
-    await logRateLimitAttempt(ip, userAgent, null, "login")
-
     // Log successful login
     if (data.user) {
-      const { data: userData } = await supabase.from("users").select("id").eq("email", data.user.email).single()
-      if (userData) {
-        await logUserActivity(userData.id, "login", { fingerprint: null })
-      }
       console.log(`[v0] User ${data.user.email} logged in successfully`)
     }
 
@@ -79,38 +61,6 @@ export async function signUp(prevState: any, formData: FormData) {
   }
 
   try {
-    const headersList = await headers()
-    const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"
-    const userAgent = headersList.get("user-agent") || ""
-
-    // Rate limit registration attempts per IP: 10 per hour
-    const rate = await checkRateLimit({ ip, email: email.toString() }, "register", 10, 60 * 60)
-    if (!rate.allowed) {
-      return { error: `Too many registrations from your IP. Try again in ${Math.ceil(rate.resetSeconds / 60)} minutes.` }
-    }
-
-    // Parse device fingerprint
-    let fingerprintObj = null
-    if (deviceFingerprint) {
-      try {
-        fingerprintObj = JSON.parse(deviceFingerprint.toString())
-      } catch (e) {
-        console.log("[v0] Failed to parse device fingerprint")
-      }
-    }
-
-    // Anti-clone check for registration
-    if (fingerprintObj) {
-      const antiCloneResult = await checkAntiClone(email.toString(), fingerprintObj, "register")
-
-      if (!antiCloneResult.allowed) {
-        console.log(`[v0] Registration blocked for ${email}: ${antiCloneResult.reason}`)
-        return {
-          error: `Registration denied: ${antiCloneResult.reason}. Please contact support if you believe this is an error.`,
-        }
-      }
-    }
-
     // Check if user already exists in Supabase Auth
     const { data: existingAuthUser } = await supabase.auth.admin.listUsers()
     const userExists = existingAuthUser.users.some((user: any) => user.email === email.toString())
@@ -119,7 +69,8 @@ export async function signUp(prevState: any, formData: FormData) {
       return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
     }
 
-    // Build redirect URL: prefer admin setting if available via cookie set by middleware
+    // Build redirect URL
+    const headersList = await headers()
     const siteUrlCookie = headersList.get("cookie")?.match(/(?:^|;\s*)SITE_URL=([^;]+)/)?.[1]
     const decodedSiteUrl = siteUrlCookie ? decodeURIComponent(siteUrlCookie) : undefined
     
@@ -157,8 +108,8 @@ export async function signUp(prevState: any, formData: FormData) {
         email: data.user.email,
         supabase_id: data.user.id,
         device_fingerprint: deviceFingerprint?.toString() || null,
-        registration_ip: ip,
-        last_ip: ip,
+        registration_ip: "127.0.0.1", // Simplified for now
+        last_ip: "127.0.0.1",
         is_admin: email.toString() === "ysnyuki2321@outlook.jp", // Dev admin default
         auth_provider: "email",
         is_verified: false,
@@ -193,9 +144,6 @@ export async function signUp(prevState: any, formData: FormData) {
     } catch (e) {
       console.warn("[v0] Failed to auto-verify user:", e)
     }
-
-    // Log attempt for rate limiting window
-    await logRateLimitAttempt(ip, userAgent, deviceFingerprint?.toString() || null, "register")
 
     return { success: "Check your email to confirm your account." }
   } catch (error) {

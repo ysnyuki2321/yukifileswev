@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, Shield, Sparkles } from "lucide-react"
+import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, Shield, Star, Folder } from "lucide-react"
 import { signIn } from "@/lib/actions/auth"
 import { useToastHelpers } from "@/components/ui/toast"
 import { isValidEmail } from "@/lib/utils/validation"
@@ -91,12 +91,17 @@ export default function LoginForm() {
         <CardHeader className="text-center space-y-4">
           <div className="flex items-center justify-center space-x-2 mb-4">
             <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-              <Sparkles className="w-5 h-5 text-white" />
+              <Star className="w-5 h-5 text-white" />
             </div>
             <span className="text-2xl font-bold text-white">YukiFiles</span>
           </div>
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mx-auto">
-            <Mail className="w-8 h-8 text-purple-300" />
+          <div className="relative">
+            <div className="w-20 h-20 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center mx-auto">
+              <Star className="w-10 h-10 text-purple-300" />
+            </div>
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
+              <Folder className="w-4 h-4 text-white" />
+            </div>
           </div>
           <CardTitle className="text-2xl text-white">Welcome Back</CardTitle>
           <CardDescription className="text-gray-400">
