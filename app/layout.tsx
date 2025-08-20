@@ -15,6 +15,10 @@ export const metadata: Metadata = {
     "Upload, share, and manage files with premium themes, resilient anti‑abuse, and easy share links. 2GB free, upgrade any time.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   alternates: { canonical: "/" },
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-touch-icon.png",
+  },
   openGraph: {
     title: "YukiFiles – Secure, Modern File Sharing",
     description:
@@ -42,9 +46,9 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={outfit.variable}>
+    <html lang="en" className={outfit.variable} suppressHydrationWarning>
       <head />
-      <body style={{ fontFamily: "var(--font-outfit)" }}>
+      <body style={{ fontFamily: "var(--font-outfit)" }} className="dark">
         <ErrorBoundary>
           <ThemeProvider>
             <ToastProvider>

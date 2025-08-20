@@ -5,6 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Menu, X, ChevronDown } from "lucide-react"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
+import { Logo } from "@/components/ui/logo"
+import { ThemeSwitcher } from "@/components/ui/theme-switcher"
 
 interface NavigationProps {
   brandName?: string
@@ -61,9 +63,8 @@ export default function Navigation({ brandName = "YukiFiles", isAuthenticated = 
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"></div>
-            <span className="text-xl font-bold text-white">{brandName}</span>
+          <Link href="/" className="flex items-center">
+            <Logo size="md" variant="default" showText={true} />
           </Link>
 
           {/* Desktop Navigation */}
@@ -126,6 +127,8 @@ export default function Navigation({ brandName = "YukiFiles", isAuthenticated = 
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Theme Switcher */}
+            <ThemeSwitcher size="sm" variant="floating" />
             {debugMode ? (
               <Link href="/dashboard">
                 <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
@@ -224,6 +227,11 @@ export default function Navigation({ brandName = "YukiFiles", isAuthenticated = 
                     {item.name}
                   </a>
                 ))}
+              </div>
+
+              {/* Theme Switcher */}
+              <div className="flex justify-center mb-4">
+                <ThemeSwitcher size="md" variant="default" />
               </div>
 
               {/* Auth Buttons */}

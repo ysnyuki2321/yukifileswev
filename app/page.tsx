@@ -11,6 +11,7 @@ import {
   Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi,
   Crown, Rocket, Building, Server, Infinity, Check, X, Folder
 } from "lucide-react"
+import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
 
@@ -237,8 +238,8 @@ export default async function HomePage() {
           <div className="text-center max-w-5xl mx-auto">
             <div className="flex items-center justify-center mb-6">
               <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
-                <Sparkles className="w-4 h-4 mr-2" />
-                Trusted by 500K+ users worldwide
+                <Logo size="sm" variant="default" showText={false} />
+                <span className="ml-2">Trusted by 500K+ users worldwide</span>
               </Badge>
             </div>
             
