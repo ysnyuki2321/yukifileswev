@@ -9,6 +9,7 @@ import {
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 
 interface DesktopNavigationProps {
   brandName?: string
@@ -175,6 +176,9 @@ export function DesktopNavigation({ brandName = "YukiFiles", isAuthenticated = f
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+            
             {/* Auth Buttons */}
             {debugMode ? (
               <Link href="/dashboard">

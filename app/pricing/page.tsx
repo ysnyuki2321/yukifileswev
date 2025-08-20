@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Navigation from "@/components/ui/navigation"
+import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
 import { 
   Crown, Rocket, Code2, Users, Building, Star, Check, X, ArrowRight,
   Zap, Shield, Globe, BarChart3, Eye, Share2, Upload, Lock, Infinity,
@@ -223,7 +223,7 @@ export default async function PricingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       {/* Navigation */}
-      <Navigation />
+      <NavigationWrapper />
 
       {/* Hero Section */}
       <section className="pt-24 pb-20">

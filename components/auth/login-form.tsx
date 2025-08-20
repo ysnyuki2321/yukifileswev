@@ -9,10 +9,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowLeft, Shield, Sparkles, Zap, CheckCircle, RefreshCw } from "lucide-react"
 import { CustomCheckbox } from "@/components/ui/custom-checkbox"
 import { Logo } from "@/components/ui/logo"
-import { signIn, resendVerificationEmail } from "@/lib/actions/auth"
+import { signIn } from "@/lib/actions/auth"
 import { useToastHelpers } from "@/components/ui/toast"
 import { isValidEmail } from "@/lib/utils/validation"
 import Link from "next/link"
+import { EmailVerificationNotice } from "@/components/auth/email-verification-notice"
 
 export default function LoginForm() {
   const router = useRouter()
@@ -26,8 +27,7 @@ export default function LoginForm() {
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [isHovered, setIsHovered] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-  const [showResendButton, setShowResendButton] = useState(false)
-  const [isResending, setIsResending] = useState(false)
+  const [showVerificationNotice, setShowVerificationNotice] = useState(false)
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
@@ -67,9 +67,9 @@ export default function LoginForm() {
       } else {
         setErrors({ general: result.error || "Login failed. Please try again." })
         
-        // Show resend button if email not verified
+        // Show verification notice if email not verified
         if (result.code === "EMAIL_NOT_VERIFIED") {
-          setShowResendButton(true)
+          setShowVerificationNotice(true)
         }
         
         toast.error("Login failed", result.error || "Please check your credentials and try again.")
@@ -91,23 +91,7 @@ export default function LoginForm() {
     }
   }
 
-  const handleResendVerification = async () => {
-    setIsResending(true)
-    try {
-      const result = await resendVerificationEmail(formData.email)
-      if (result.success) {
-        toast.success("Email sent!", result.success)
-        setShowResendButton(false)
-      } else {
-        toast.error("Failed to send email", result.error || "Please try again later.")
-      }
-    } catch (error) {
-      console.error("Resend error:", error)
-      toast.error("Error", "Failed to send verification email. Please try again.")
-    } finally {
-      setIsResending(false)
-    }
-  }
+
 
   return (
     <div className="w-full max-w-md">
@@ -262,38 +246,12 @@ export default function LoginForm() {
               </p>
             </div>
 
-            {/* Resend Verification Email */}
-            {showResendButton && (
-              <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-3 rounded-lg text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="font-medium">Email Not Verified</span>
-                  </div>
-                  <Button
-                    onClick={handleResendVerification}
-                    disabled={isResending}
-                    size="sm"
-                    variant="outline"
-                    className="border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/10"
-                  >
-                    {isResending ? (
-                      <>
-                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-3 h-3 mr-1" />
-                        Resend
-                      </>
-                    )}
-                  </Button>
-                </div>
-                <p className="mt-1 text-xs text-yellow-300">
-                  Didn't receive the verification email? Check your spam folder or resend it.
-                </p>
-              </div>
+            {/* Email Verification Notice */}
+            {showVerificationNotice && (
+              <EmailVerificationNotice 
+                email={formData.email} 
+                onClose={() => setShowVerificationNotice(false)}
+              />
             )}
 
             {/* Social Login Options */}

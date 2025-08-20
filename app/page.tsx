@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Navigation from "@/components/ui/navigation"
+import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
 import { 
   Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users, 
   CheckCircle, ArrowRight, FileText, HardDrive, Lock, Share2,
@@ -231,7 +231,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       {/* Navigation */}
-      <Navigation />
+      <NavigationWrapper />
 
       {/* Hero Section */}
       <section className="pt-24 pb-20">

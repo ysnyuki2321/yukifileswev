@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import Navigation from "@/components/ui/navigation"
+import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
 import { 
   Building, Mail, Phone, MapPin, MessageSquare, Users, Shield, 
   Zap, Globe, ArrowRight, Sparkles, CheckCircle
@@ -56,7 +56,7 @@ export default async function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       {/* Navigation */}
-      <Navigation />
+      <NavigationWrapper />
 
       {/* Hero Section */}
       <section className="pt-24 pb-20">
