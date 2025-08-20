@@ -21,6 +21,9 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
+  // In demo mode, Files should not navigate to separate page
+  const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
+
   if (isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: Shield })
     navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings })
@@ -58,6 +61,32 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = pathname === item.href
+          
+          // In demo mode, Files link should not navigate
+          if (isDemoMode && item.href === "/files") {
+            return (
+              <button
+                key={item.href}
+                onClick={() => {
+                  // Scroll to files section in demo
+                  const filesSection = document.querySelector('[data-section="files"]')
+                  if (filesSection) {
+                    filesSection.scrollIntoView({ behavior: 'smooth' })
+                  }
+                  onClose?.()
+                }}
+                className={`flex items-center px-3 py-2 rounded-md transition-colors w-full text-left ${
+                  isActive
+                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
+                    : "text-gray-300 hover:text-white hover:bg-white/5"
+                }`}
+              >
+                <Icon className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            )
+          }
+          
           return (
             <Link
               key={item.href}

@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
+import { FileEditor } from "@/components/file-editor/FileEditor"
 
 interface DemoFile {
   id: string
@@ -97,9 +98,66 @@ export function EnhancedDemoManager() {
   const [activeTab, setActiveTab] = useState("overview")
   const [showUploadDialog, setShowUploadDialog] = useState(false)
   const [showPricingDialog, setShowPricingDialog] = useState(false)
+  const [showFileEditor, setShowFileEditor] = useState(false)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [dragOver, setDragOver] = useState(false)
+  const [demoFiles, setDemoFiles] = useState<DemoFile[]>([
+    {
+      id: '1',
+      name: 'presentation.pptx',
+      type: 'file',
+      size: 2200000,
+      lastModified: new Date(Date.now() - 1000 * 60 * 60 * 2),
+      mimeType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      path: '/',
+      isStarred: true,
+      isPublic: true,
+      shareToken: 'abc123',
+      downloadCount: 15,
+      viewCount: 45
+    },
+    {
+      id: '2',
+      name: 'document.pdf',
+      type: 'file',
+      size: 450000,
+      lastModified: new Date(Date.now() - 1000 * 60 * 60 * 4),
+      mimeType: 'application/pdf',
+      path: '/',
+      isStarred: false,
+      isPublic: false,
+      downloadCount: 8,
+      viewCount: 23
+    },
+    {
+      id: '3',
+      name: 'image.jpg',
+      type: 'file',
+      size: 1800000,
+      lastModified: new Date(Date.now() - 1000 * 60 * 60 * 6),
+      mimeType: 'image/jpeg',
+      path: '/',
+      isStarred: true,
+      isPublic: true,
+      shareToken: 'def456',
+      downloadCount: 23,
+      viewCount: 67
+    },
+    {
+      id: '4',
+      name: 'video.mp4',
+      type: 'file',
+      size: 15200000,
+      lastModified: new Date(Date.now() - 1000 * 60 * 60 * 8),
+      mimeType: 'video/mp4',
+      path: '/',
+      isStarred: false,
+      isPublic: false,
+      downloadCount: 5,
+      viewCount: 12
+    }
+  ])
 
   const handleFileUpload = async () => {
     setUploading(true)
@@ -131,29 +189,48 @@ export function EnhancedDemoManager() {
     setShowUploadDialog(true)
   }, [])
 
+  const handleCreateFile = (fileName: string, content: string, fileType: string) => {
+    const newFile: DemoFile = {
+      id: Date.now().toString(),
+      name: fileName,
+      type: fileType === 'folder' ? 'folder' : 'file',
+      size: content.length,
+      lastModified: new Date(),
+      content: content,
+      mimeType: fileType === 'folder' ? undefined : 'text/plain',
+      path: '/',
+      isStarred: false,
+      isPublic: false,
+      downloadCount: 0,
+      viewCount: 0
+    }
+    
+    setDemoFiles(prev => [newFile, ...prev])
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-4">
-          <h2 className="text-2xl font-bold text-white">YukiFiles Demo</h2>
+        <div className="flex items-center gap-4 flex-wrap">
+          <h2 className="text-xl sm:text-2xl font-bold text-white">YukiFiles Demo</h2>
           <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
             Enterprise Features
           </Badge>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <Button
             variant="outline"
             onClick={() => setShowPricingDialog(true)}
-            className="border-gray-600 text-gray-300 hover:bg-gray-800"
+            className="border-gray-600 text-gray-300 hover:bg-gray-800 text-sm"
           >
             <Crown className="w-4 h-4 mr-2" />
             View Plans
           </Button>
           <Button
             onClick={() => setShowUploadDialog(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-sm"
           >
             <Upload className="w-4 h-4 mr-2" />
             Upload Files
@@ -163,25 +240,25 @@ export function EnhancedDemoManager() {
 
       {/* Tab Navigation */}
       <Card className="bg-gray-900/50 border-gray-700">
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4 bg-gray-800 mb-6">
-              <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500">
-                <Activity className="w-4 h-4 mr-2" />
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="files" className="data-[state=active]:bg-purple-500">
-                <Folder className="w-4 h-4 mr-2" />
-                Files
-              </TabsTrigger>
-              <TabsTrigger value="sharing" className="data-[state=active]:bg-purple-500">
-                <Share2 className="w-4 h-4 mr-2" />
-                Sharing
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="data-[state=active]:bg-purple-500">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 mb-6 overflow-x-auto">
+                              <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500">
+                  <Activity className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Overview</span>
+                </TabsTrigger>
+                <TabsTrigger value="files" className="data-[state=active]:bg-purple-500">
+                  <Folder className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Files</span>
+                </TabsTrigger>
+                <TabsTrigger value="sharing" className="data-[state=active]:bg-purple-500">
+                  <Share2 className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Sharing</span>
+                </TabsTrigger>
+                <TabsTrigger value="settings" className="data-[state=active]:bg-purple-500">
+                  <Settings className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Settings</span>
+                </TabsTrigger>
             </TabsList>
             
             <TabsContent value="overview">
@@ -320,7 +397,7 @@ export function EnhancedDemoManager() {
               </div>
             </TabsContent>
             
-            <TabsContent value="files">
+            <TabsContent value="files" data-section="files">
               <div className="space-y-6">
                 {/* File Manager Header */}
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -331,16 +408,23 @@ export function EnhancedDemoManager() {
                     </Badge>
                   </div>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                       <Input
                         placeholder="Search files..."
-                        className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 w-64"
+                        className="pl-10 bg-gray-800/50 border-gray-600 text-white placeholder-gray-400 w-full sm:w-64"
                       />
                     </div>
                     <Button variant="outline" className="border-gray-600 text-gray-300">
                       <Grid className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      onClick={() => setShowFileEditor(true)}
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create
                     </Button>
                   </div>
                 </div>
@@ -377,30 +461,41 @@ export function EnhancedDemoManager() {
                 <Card className="bg-gray-800/50 border-gray-600">
                   <CardContent className="p-6">
                     <div className="space-y-2">
-                      {[
-                        { name: 'presentation.pptx', size: '2.1MB', type: 'presentation', shared: true, downloads: 15 },
-                        { name: 'document.pdf', size: '450KB', type: 'document', shared: false, downloads: 8 },
-                        { name: 'image.jpg', size: '1.8MB', type: 'image', shared: true, downloads: 23 },
-                        { name: 'video.mp4', size: '15.2MB', type: 'video', shared: false, downloads: 5 }
-                      ].map((file, i) => (
+                      {demoFiles.map((file, i) => (
                         <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-700/50 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                              <FileText className="w-5 h-5 text-purple-400" />
+                                                      <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                {file.type === 'folder' ? (
+                                  <Folder className="w-5 h-5 text-purple-400" />
+                                ) : file.mimeType?.startsWith('image/') ? (
+                                  <FileImage className="w-5 h-5 text-purple-400" />
+                                ) : file.mimeType?.startsWith('video/') ? (
+                                  <Video className="w-5 h-5 text-purple-400" />
+                                ) : file.mimeType?.startsWith('audio/') ? (
+                                  <Music className="w-5 h-5 text-purple-400" />
+                                ) : file.mimeType?.includes('pdf') ? (
+                                  <FileText className="w-5 h-5 text-purple-400" />
+                                ) : file.mimeType?.includes('code') || file.name.includes('.js') || file.name.includes('.ts') || file.name.includes('.html') || file.name.includes('.css') ? (
+                                  <FileCode className="w-5 h-5 text-purple-400" />
+                                ) : (
+                                  <FileText className="w-5 h-5 text-purple-400" />
+                                )}
+                              </div>
+                              <div>
+                                <div className="text-white font-medium">{file.name}</div>
+                                <div className="text-gray-400 text-sm">
+                                  {file.type === 'folder' ? 'Folder' : `${(file.size / 1024 / 1024).toFixed(1)}MB`} • {file.type}
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <div className="text-white font-medium">{file.name}</div>
-                              <div className="text-gray-400 text-sm">{file.size} • {file.type}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            {file.shared && (
-                              <Badge variant="secondary" className="bg-green-500/20 text-green-300">
-                                <Share2 className="w-3 h-3 mr-1" />
-                                Shared
-                              </Badge>
-                            )}
-                            <span className="text-gray-400 text-sm">{file.downloads} downloads</span>
+                            <div className="flex items-center gap-2">
+                              {file.isPublic && (
+                                <Badge variant="secondary" className="bg-green-500/20 text-green-300">
+                                  <Share2 className="w-3 h-3 mr-1" />
+                                  Shared
+                                </Badge>
+                              )}
+                              <span className="text-gray-400 text-sm">{file.downloadCount} downloads</span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -701,6 +796,13 @@ export function EnhancedDemoManager() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* File Editor */}
+      <FileEditor
+        isOpen={showFileEditor}
+        onClose={() => setShowFileEditor(false)}
+        onSave={handleCreateFile}
+      />
     </div>
   )
 }
