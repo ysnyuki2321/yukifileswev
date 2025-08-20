@@ -7,7 +7,9 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "migrate:db": "node scripts/migrate.mjs"
+    "migrate:db": "node scripts/migrate.mjs",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:vercel": "vercel --prod"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
