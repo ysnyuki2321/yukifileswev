@@ -91,8 +91,11 @@ export default function RegisterForm() {
 
       <Card className="bg-black/40 backdrop-blur-lg border-purple-500/20 shadow-2xl hover:border-purple-500/30 transition-all duration-300">
         <CardHeader className="space-y-4 text-center">
-          <div className="flex items-center justify-center mb-4">
-            <Logo size="lg" variant="glow" showText={true} />
+          <div className="flex items-center justify-center space-x-2 mb-4">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-2xl font-bold text-white">YukiFiles</span>
           </div>
           
           {/* Enhanced Icon with Animation */}

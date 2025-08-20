@@ -238,8 +238,8 @@ export default async function HomePage() {
           <div className="text-center max-w-5xl mx-auto">
             <div className="flex items-center justify-center mb-6">
               <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
-                <Logo size="sm" variant="default" showText={false} />
-                <span className="ml-2">Trusted by 500K+ users worldwide</span>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Trusted by 500K+ users worldwide
               </Badge>
             </div>
             
