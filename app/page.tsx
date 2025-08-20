@@ -258,7 +258,7 @@ export default async function HomePage() {
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
                   >
                     Enter Debug Mode
                   </Button>
@@ -268,19 +268,21 @@ export default async function HomePage() {
                   <Link href="/auth/register">
                     <Button
                       size="lg"
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
                     >
-                      Start Free Trial
+                      <span className="hidden sm:inline">Start Free Trial</span>
+                      <span className="sm:hidden">Get Started</span>
                     </Button>
                   </Link>
-                  <Link href="#demo">
+                  <Link href="/demo">
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent"
+                      className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-transparent w-full sm:w-auto"
                     >
                       <PlayCircle className="w-5 h-5 mr-2" />
-                      Watch Demo
+                      <span className="hidden sm:inline">Try Demo</span>
+                      <span className="sm:hidden">Demo</span>
                     </Button>
                   </Link>
                 </>
@@ -468,7 +470,7 @@ export default async function HomePage() {
                 <Link href="/dashboard">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
                   >
                     Enter Debug Mode
                   </Button>
@@ -478,18 +480,20 @@ export default async function HomePage() {
                   <Link href="/auth/register">
                     <Button
                       size="lg"
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4"
+                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
                     >
-                      Start Free Trial
+                      <span className="hidden sm:inline">Start Free Trial</span>
+                      <span className="sm:hidden">Get Started</span>
                     </Button>
                   </Link>
                   <Link href="/pricing">
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent"
+                      className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-transparent w-full sm:w-auto"
                     >
-                      View All Plans
+                      <span className="hidden sm:inline">View All Plans</span>
+                      <span className="sm:hidden">Pricing</span>
                     </Button>
                   </Link>
                 </>
@@ -560,6 +564,19 @@ export default async function HomePage() {
         </div>
       </footer>
       
+      {/* Floating Demo Button */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <Link href="/demo">
+          <Button
+            size="lg"
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-2xl shadow-purple-500/25 text-white font-semibold px-6 py-3 rounded-full flex items-center space-x-2 transition-all duration-300 hover:scale-105"
+          >
+            <PlayCircle className="w-5 h-5" />
+            <span className="hidden sm:inline">Try Demo</span>
+            <span className="sm:hidden">Demo</span>
+          </Button>
+        </Link>
+      </div>
     </div>
   )
 }
