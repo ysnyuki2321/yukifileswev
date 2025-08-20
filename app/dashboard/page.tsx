@@ -25,8 +25,7 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true)
   
   const isDemoMode = searchParams?.get('demo') === 'true'
-  const supabase = createClientComponentClient()
-
+  
   useEffect(() => {
     const loadData = async () => {
       setLoading(true)
@@ -39,6 +38,7 @@ function DashboardContent() {
         setFilesCount(getDebugFiles().length)
       } else {
         try {
+          const supabase = createClientComponentClient()
           const { data: { user: authUser } } = await supabase.auth.getUser()
           
           if (!authUser) {
@@ -74,7 +74,7 @@ function DashboardContent() {
     }
 
     loadData()
-  }, [isDemoMode, supabase])
+  }, [isDemoMode])
 
   // Get brand name
   const brandName = isDemoMode ? "YukiFiles Demo" : "YukiFiles"
@@ -137,24 +137,24 @@ function DashboardContent() {
                 recentActivity={recentActivity}
               />
               
-                              {isDemoMode ? (
-                  // Demo Mode: Show full file manager
-                  <div className="space-y-6">
+              {isDemoMode ? (
+                // Demo Mode: Show full file manager
+                <div className="space-y-6">
+                  <QuickActions isPremium={userData?.subscription_type === "paid"} />
+                  <DemoFileManager />
+                </div>
+              ) : (
+                // Regular Mode: Show standard dashboard layout
+                <div className="grid gap-6 lg:grid-cols-3">
+                  <div className="lg:col-span-2 space-y-6">
                     <QuickActions isPremium={userData?.subscription_type === "paid"} />
-                    <DemoFileManager />
+                    <ActivityFeed activities={recentActivity} />
                   </div>
-                ) : (
-                  // Regular Mode: Show standard dashboard layout
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-6">
-                      <QuickActions isPremium={userData?.subscription_type === "paid"} />
-                      <ActivityFeed activities={recentActivity} />
-                    </div>
-                    <div className="order-first lg:order-last">
-                      <RecentFiles files={recentFiles} />
-                    </div>
+                  <div className="order-first lg:order-last">
+                    <RecentFiles files={recentFiles} />
                   </div>
-                )}
+                </div>
+              )}
             </div>
           </main>
         </div>
