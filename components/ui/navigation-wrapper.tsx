@@ -26,11 +26,11 @@ const navigationItems = [
 ]
 
 const fileActions = [
-  { name: "Upload Files", href: "/files", icon: Upload, color: "text-blue-400" },
-  { name: "Download All", href: "/files", icon: Download, color: "text-green-400" },
+  { name: "Upload Files", href: "/files", icon: Upload, color: "text-purple-400" },
+  { name: "Download All", href: "/files", icon: Download, color: "text-pink-400" },
   { name: "Share Files", href: "/files", icon: Share2, color: "text-purple-400" },
-  { name: "View Files", href: "/files", icon: Eye, color: "text-yellow-400" },
-  { name: "Edit Files", href: "/files", icon: Edit3, color: "text-orange-400" },
+  { name: "View Files", href: "/files", icon: Eye, color: "text-pink-400" },
+  { name: "Edit Files", href: "/files", icon: Edit3, color: "text-purple-400" },
   { name: "Delete Files", href: "/files", icon: Trash2, color: "text-red-400" }
 ]
 
@@ -132,21 +132,19 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
               </a>
             ))}
 
-            {/* File Actions Dropdown */}
-            {isAuthenticated && (
+            {/* File Actions Dropdown - Hidden for now */}
+            {/* {isAuthenticated && (
               <div className="relative">
                 <button
                   onClick={() => setIsFileDropdownOpen(!isFileDropdownOpen)}
                   className="flex items-center space-x-2 text-gray-300 hover:text-white transition-all duration-300 group"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-blue-500/25">
+                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-purple-500/25">
                     <Plus className="w-4 h-4 text-white" />
                   </div>
-                  <span className="font-medium">Files</span>
                   <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isFileDropdownOpen ? 'rotate-180' : ''}`} />
                 </button>
                 
-                {/* File Actions Dropdown */}
                 {isFileDropdownOpen && (
                   <div className="absolute top-full left-0 mt-2 w-64 glass-effect border border-purple-500/20 rounded-xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
                     <div className="p-3">
@@ -173,49 +171,16 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                   </div>
                 )}
               </div>
-            )}
+            )} */}
 
-            {/* Debug Dropdown */}
+            {/* Debug Dashboard Button */}
             {debugMode && (
-              <div className="relative">
-                <button
-                  onClick={() => setIsDebugDropdownOpen(!isDebugDropdownOpen)}
-                  className="flex items-center space-x-2 text-gray-300 hover:text-white transition-all duration-300 group"
-                >
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg group-hover:shadow-purple-500/25">
-                    <Bug className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-medium">Debug</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${isDebugDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {/* Debug Options Dropdown */}
-                {isDebugDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-2 w-64 glass-effect border border-purple-500/20 rounded-xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200">
-                    <div className="p-3">
-                      <div className="text-xs font-medium text-gray-400 mb-2 px-2">Debug Tools</div>
-                      <div className="space-y-1">
-                        {debugOptions.map((option) => {
-                          const Icon = option.icon
-                          return (
-                            <Link
-                              key={option.name}
-                              href={option.href}
-                              className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group"
-                              onClick={() => setIsDebugDropdownOpen(false)}
-                            >
-                              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", option.color)}>
-                                <Icon className="w-4 h-4" />
-                              </div>
-                              <span className="font-medium">{option.name}</span>
-                            </Link>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <Link href="/dashboard">
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
+                  <Bug className="w-4 h-4 mr-2" />
+                  Debug Dashboard
+                </Button>
+              </Link>
             )}
           </div>
 
@@ -296,8 +261,8 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                 ))}
               </div>
 
-              {/* File Actions (Mobile) */}
-              {isAuthenticated && (
+              {/* File Actions (Mobile) - Hidden for now */}
+              {/* {isAuthenticated && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
                     File Actions
@@ -321,10 +286,10 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                     })}
                   </div>
                 </div>
-              )}
+              )} */}
 
-              {/* Debug Options (Mobile) */}
-              {debugMode && (
+              {/* Debug Options (Mobile) - Hidden for now */}
+              {/* {debugMode && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
                     Debug Tools
@@ -348,7 +313,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                     })}
                   </div>
                 </div>
-              )}
+              )} */}
 
               {/* Mega Menu Items */}
               {megaDropdownItems.map((section) => (
