@@ -139,10 +139,12 @@ export function EnhancedFileManager({
 
   // Filter and sort files
   const filteredAndSortedFiles = files
-    .filter(file => 
-      (file.name && file.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
-      file.path.startsWith(currentPath)
-    )
+    .filter(file => {
+      if (!file.name) return false
+      if (!searchQuery || searchQuery.trim() === '') return file.path.startsWith(currentPath)
+      return file.name.toLowerCase().includes(searchQuery.toLowerCase()) && 
+             file.path.startsWith(currentPath)
+    })
     .sort((a, b) => {
       let comparison = 0
       
