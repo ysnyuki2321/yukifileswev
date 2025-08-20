@@ -1,18 +1,12 @@
 import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Upload } from "lucide-react"
 import { ThemeProvider } from "@/components/theme/theme-provider"
-import { PremiumButton } from "@/components/ui/premium-button"
-import { PremiumText } from "@/components/ui/premium-text"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
-import StatCard from "@/components/dashboard/StatCard"
-import AreaChart from "@/components/dashboard/AreaChart"
-import RecentActivity from "@/components/dashboard/RecentActivity"
+import DashboardHeader from "@/components/dashboard/DashboardHeader"
+import ActivityFeed from "@/components/dashboard/ActivityFeed"
+import QuickActions from "@/components/dashboard/QuickActions"
 import RecentFiles, { type RecentFileItem } from "@/components/dashboard/RecentFiles"
-import UploadZone from "@/components/file-manager/upload-zone"
 import { isDebugModeEnabled, getDebugUser, getDebugFiles } from "@/lib/services/debug-user"
 
 export default async function DashboardPage() {
@@ -64,13 +58,37 @@ export default async function DashboardPage() {
   const quotaLimitGB = userData ? (userData.quota_limit / (1024 * 1024 * 1024)).toFixed(0) : "2"
   const quotaPercentage = userData ? Math.min((userData.quota_used / userData.quota_limit) * 100, 100) : 0
 
-  // Simple example metrics
-  const filesCount = userData?.files_count ?? undefined
+  const filesCount = userData?.files_count ?? 0
   const isPremium = userData?.subscription_type === "paid"
-  const areaData = Array.from({ length: 7 }).map((_, i) => ({ label: `D${i + 1}`, value: Math.max(0, (filesCount || 0) - (6 - i)) }))
+  
   // Branding from settings
   const { data: adminSettings } = await supabase.from("admin_settings").select("setting_key, setting_value")
   const brandName = adminSettings?.reduce((acc: Record<string,string>, s: any) => { acc[s.setting_key] = s.setting_value; return acc }, {} as Record<string,string>)["brand_name"] || "YukiFiles"
+
+  // Mock activity data for debug mode
+  const mockActivities = debugMode ? [
+    {
+      id: "1",
+      type: "upload" as const,
+      fileName: "presentation.pdf",
+      fileType: "document" as const,
+      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: "2", 
+      type: "share" as const,
+      fileName: "screenshot.png",
+      fileType: "image" as const,
+      timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: "3",
+      type: "download" as const,
+      fileName: "document.docx",
+      fileType: "document" as const,
+      timestamp: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString()
+    }
+  ] : []
 
 
 
@@ -81,46 +99,30 @@ export default async function DashboardPage() {
           <Sidebar isAdmin={Boolean(userData?.is_admin)} brandName={brandName} />
           <div className="flex-1 min-w-0">
             <Topbar userEmail={user.email!} isPremium={isPremium} brandName={brandName} />
-            <main className="container mx-auto px-4 py-6 space-y-6">
-              {/* Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Storage Used" value={`${quotaUsedGB} GB`} subtext={`of ${quotaLimitGB} GB`} />
-                <StatCard title="Usage" value={`${quotaPercentage.toFixed(0)}%`} />
-                <StatCard title="Files" value={String(filesCount ?? 0)} />
-                <StatCard title="Plan" value={isPremium ? "Premium" : "Free"} accentClassName={isPremium ? "gradient-text" : ""} />
+            <main className="container mx-auto px-4 py-6 space-y-8">
+              {/* Dashboard Header */}
+              <DashboardHeader
+                userEmail={user.email!}
+                isPremium={isPremium}
+                filesCount={filesCount}
+                quotaUsedGB={quotaUsedGB}
+                quotaLimitGB={quotaLimitGB}
+                quotaPercentage={quotaPercentage}
+              />
+
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                {/* Left Column - Quick Actions & Recent Files */}
+                <div className="xl:col-span-2 space-y-8">
+                  <QuickActions isPremium={isPremium} />
+                  <RecentFiles files={recentFiles} />
+                </div>
+
+                {/* Right Column - Activity Feed */}
+                <div className="space-y-8">
+                  <ActivityFeed activities={mockActivities} />
+                </div>
               </div>
-
-              {/* Chart + Quick Upload */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                <Card className="lg:col-span-2 bg-black/40 border-purple-500/20">
-                  <CardContent className="pt-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <PremiumText className="text-lg font-semibold">Uploads (7 days)</PremiumText>
-                    </div>
-                    <AreaChart data={areaData} />
-                  </CardContent>
-                </Card>
-                <UploadZone />
-              </div>
-
-              {/* Recent Files */}
-              <RecentFiles files={recentFiles} />
-
-              {/* Premium CTA */}
-              {!isPremium && (
-                <Card className="bg-black/40 border-purple-500/20">
-                  <CardContent className="p-6 text-center">
-                    <div className="space-y-3">
-                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto">
-                        <Upload className="w-6 h-6 text-white" />
-                      </div>
-                      <h3 className="text-xl font-bold gradient-text">Upgrade to Premium</h3>
-                      <p className="text-gray-400">Get 5GB storage and premium UI for just $1/month</p>
-                      <PremiumButton size="lg" className="px-8">Upgrade Now</PremiumButton>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
             </main>
           </div>
         </div>
