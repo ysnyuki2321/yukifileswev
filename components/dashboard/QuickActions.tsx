@@ -15,9 +15,10 @@ import {
 
 interface QuickActionsProps {
   isPremium: boolean
+  isDemoMode?: boolean
 }
 
-export default function QuickActions({ isPremium }: QuickActionsProps) {
+export default function QuickActions({ isPremium, isDemoMode = false }: QuickActionsProps) {
   const actions = [
     {
       icon: Upload,

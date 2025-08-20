@@ -7,6 +7,7 @@ import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
 import { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
+import DemoFileManager from "@/components/dashboard/DemoFileManager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
@@ -136,15 +137,24 @@ export default function DashboardPage() {
                 recentActivity={recentActivity}
               />
               
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
-                  <QuickActions isPremium={userData?.subscription_type === "paid"} />
-                  <ActivityFeed activities={recentActivity} />
-                </div>
-                <div>
-                  <RecentFiles files={recentFiles} />
-                </div>
-              </div>
+                              {isDemoMode ? (
+                  // Demo Mode: Show full file manager
+                  <div className="space-y-6">
+                    <QuickActions isPremium={userData?.subscription_type === "paid"} />
+                    <DemoFileManager />
+                  </div>
+                ) : (
+                  // Regular Mode: Show standard dashboard layout
+                  <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2 space-y-6">
+                      <QuickActions isPremium={userData?.subscription_type === "paid"} />
+                      <ActivityFeed activities={recentActivity} />
+                    </div>
+                    <div>
+                      <RecentFiles files={recentFiles} />
+                    </div>
+                  </div>
+                )}
             </div>
           </main>
         </div>
