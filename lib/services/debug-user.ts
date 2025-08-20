@@ -1,4 +1,4 @@
-import { createServerClient } from "@/lib/supabase/server"
+// Removed server import to avoid client component issues
 
 export interface DebugUser {
   id: string
