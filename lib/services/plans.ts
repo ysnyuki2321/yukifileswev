@@ -53,7 +53,7 @@ export const PLAN_CONFIG: Record<PlanName, PlanConfig> = {
 }
 
 export function resolvePlanFromUserRow(user: any): PlanConfig {
-  const planKey = (user?.plan || user?.subscription_type || "free").toLowerCase()
+  const planKey = (user?.plan || user?.subscription_type || "free")?.toLowerCase() || "free"
   const plan = (PLAN_CONFIG as any)[planKey] || PLAN_CONFIG.free
   return plan
 }

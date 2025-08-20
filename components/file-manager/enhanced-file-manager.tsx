@@ -58,6 +58,8 @@ const fileTypeIcons = {
 }
 
 const getFileType = (fileName: string, mimeType?: string): string => {
+  if (!fileName || typeof fileName !== 'string') return 'default'
+  
   const extension = fileName.split('.').pop()?.toLowerCase()
   
   if (mimeType) {
@@ -137,7 +139,7 @@ export function EnhancedFileManager({
   // Filter and sort files
   const filteredAndSortedFiles = files
     .filter(file => 
-      file.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      (file.name && file.name.toLowerCase().includes(searchQuery.toLowerCase())) &&
       file.path.startsWith(currentPath)
     )
     .sort((a, b) => {
@@ -145,7 +147,7 @@ export function EnhancedFileManager({
       
       switch (sortBy) {
         case 'name':
-          comparison = a.name.localeCompare(b.name)
+          comparison = (a.name || '').localeCompare(b.name || '')
           break
         case 'size':
           comparison = a.size - b.size
@@ -154,7 +156,7 @@ export function EnhancedFileManager({
           comparison = a.lastModified.getTime() - b.lastModified.getTime()
           break
         case 'type':
-          comparison = getFileType(a.name).localeCompare(getFileType(b.name))
+          comparison = getFileType(a.name || '').localeCompare(getFileType(b.name || ''))
           break
       }
       
@@ -176,7 +178,7 @@ export function EnhancedFileManager({
       setCurrentPath(file.path)
     } else {
       // Check if it's a text file that can be edited
-      const fileType = getFileType(file.name)
+      const fileType = getFileType(file.name || '')
       if (['text', 'code', 'document'].includes(fileType)) {
         setEditingFile(file)
       } else {
@@ -210,7 +212,7 @@ export function EnhancedFileManager({
   const handleFileSave = useCallback(async (content: string) => {
     if (editingFile) {
       // TODO: Implement actual save functionality
-      console.log('Saving file:', editingFile.name, content)
+      console.log('Saving file:', editingFile.name || 'untitled', content)
       setEditingFile(null)
     }
   }, [editingFile])
@@ -221,7 +223,7 @@ export function EnhancedFileManager({
       return expandedFolders.has(file.id) ? <FolderOpen className="w-5 h-5" /> : <Folder className="w-5 h-5" />
     }
     
-    const fileType = getFileType(file.name)
+    const fileType = getFileType(file.name || '')
     const Icon = fileTypeIcons[fileType] || fileTypeIcons.default
     return <Icon className="w-5 h-5" />
   }
@@ -413,8 +415,8 @@ export function EnhancedFileManager({
                             </div>
                           </div>
                           <div className="space-y-1">
-                            <p className="text-white text-sm font-medium truncate" title={file.name}>
-                              {file.name}
+                            <p className="text-white text-sm font-medium truncate" title={file.name || 'Untitled'}>
+                              {file.name || 'Untitled'}
                             </p>
                             <p className="text-gray-400 text-xs">
                               {file.isFolder ? 'Folder' : formatFileSize(file.size)}
@@ -433,7 +435,7 @@ export function EnhancedFileManager({
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
-                              <p className="text-white font-medium truncate">{file.name}</p>
+                              <p className="text-white font-medium truncate">{file.name || 'Untitled'}</p>
                               <div className="flex items-center space-x-2 text-gray-400 text-sm">
                                 <span>{file.isFolder ? 'Folder' : formatFileSize(file.size)}</span>
                                 <span>•</span>
@@ -539,7 +541,7 @@ export function EnhancedFileManager({
             <FileEditor
               file={{
                 id: editingFile.id,
-                name: editingFile.name,
+                name: editingFile.name || 'untitled.txt',
                 content: editingFile.content || '',
                 type: editingFile.type,
                 size: editingFile.size,

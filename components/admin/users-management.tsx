@@ -32,7 +32,9 @@ export default function UsersManagement({ users: initialUsers }: UsersManagement
   const [searchTerm, setSearchTerm] = useState("")
   const [loading, setLoading] = useState<string | null>(null)
 
-  const filteredUsers = users.filter((user) => user.email.toLowerCase().includes(searchTerm.toLowerCase()))
+  const filteredUsers = users.filter((user) => 
+    user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
   const handleUserAction = async (userId: string, action: string) => {
     setLoading(userId)

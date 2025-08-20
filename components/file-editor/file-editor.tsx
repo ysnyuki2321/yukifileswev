@@ -268,20 +268,22 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle')
   const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 })
   const [isRenaming, setIsRenaming] = useState(false)
-  const [newFileName, setNewFileName] = useState(file.name)
+  const [newFileName, setNewFileName] = useState(file.name || 'untitled.txt')
   const [showTypeSelector, setShowTypeSelector] = useState(false)
-  const [selectedFileType, setSelectedFileType] = useState(getFileExtension(file.name))
+  const [selectedFileType, setSelectedFileType] = useState(getFileExtension(file.name || 'untitled.txt'))
 
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
   // Get file extension
   function getFileExtension(filename: string): string {
+    if (!filename || typeof filename !== 'string') return 'txt'
     return filename.split('.').pop()?.toLowerCase() || 'txt'
   }
 
   // Get file type icon
   function getFileTypeIcon(filename: string) {
+    if (!filename || typeof filename !== 'string') return fileTypeIcons['default']
     const ext = getFileExtension(filename)
     const IconComponent = fileTypeIcons[ext] || fileTypeIcons['default']
     return IconComponent
@@ -289,6 +291,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   // Get file type color
   function getFileTypeColor(filename: string) {
+    if (!filename || typeof filename !== 'string') return fileTypeColors['default']
     const ext = getFileExtension(filename)
     const language = syntaxLanguages[ext] || 'default'
     return fileTypeColors[language] || fileTypeColors['default']
@@ -296,6 +299,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   // Get syntax language
   function getSyntaxLanguage(filename: string) {
+    if (!filename || typeof filename !== 'string') return 'plaintext'
     const ext = getFileExtension(filename)
     return syntaxLanguages[ext] || 'plaintext'
   }
@@ -347,7 +351,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   // Handle rename
   const handleRename = () => {
-    if (newFileName.trim() && newFileName !== file.name) {
+    if (newFileName.trim() && newFileName !== (file.name || 'untitled.txt')) {
       if (onRename) {
         onRename(newFileName)
       }
@@ -361,7 +365,8 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
     setShowTypeSelector(false)
     
     // Update file name with new extension
-    const nameWithoutExt = newFileName.split('.').slice(0, -1).join('.')
+    const currentName = newFileName || 'untitled.txt'
+    const nameWithoutExt = currentName.split('.').slice(0, -1).join('.')
     const newName = `${nameWithoutExt}.${newType}`
     setNewFileName(newName)
   }
@@ -430,9 +435,9 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
     }
   }, [isModified, isSaving])
 
-  const FileIcon = getFileTypeIcon(file.name)
-  const fileColor = getFileTypeColor(file.name)
-  const syntaxLang = getSyntaxLanguage(file.name)
+  const FileIcon = getFileTypeIcon(file.name || 'untitled.txt')
+  const fileColor = getFileTypeColor(file.name || 'untitled.txt')
+  const syntaxLang = getSyntaxLanguage(file.name || 'untitled.txt')
 
   return (
     <TooltipProvider>
@@ -483,7 +488,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <FileIcon className={cn("w-5 h-5", fileColor)} />
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-white font-medium truncate">{file.name}</h3>
+                      <h3 className="text-white font-medium truncate">{file.name || 'Untitled'}</h3>
                       <p className="text-xs text-gray-400">{syntaxLang} • {file.size} bytes</p>
                     </div>
                   </div>

@@ -40,7 +40,7 @@ export default function FilesPageClient() {
   // Transform files to match EnhancedFileManager interface
   const transformedFiles = files.map((file: any) => ({
     id: file.id,
-    name: file.name,
+    name: file.name || 'untitled.txt',
     type: file.mime_type || 'application/octet-stream',
     size: file.size || 0,
     lastModified: new Date(file.uploaded_at || Date.now()),
@@ -335,6 +335,7 @@ const formatFileSize = (bytes) => {
 };
 
 const getFileExtension = (filename) => {
+  if (!filename || typeof filename !== 'string') return '';
   return filename.split('.').pop()?.toLowerCase() || '';
 };
 
@@ -667,7 +668,7 @@ Thank you for trying YukiFiles! 🚀`,
       // Add file to list
       const newFile = {
         id: fileId,
-        name: file.name,
+        name: file.name || 'untitled.txt',
         type: file.type,
         size: file.size,
         lastModified: new Date(),
@@ -783,7 +784,7 @@ Thank you for trying YukiFiles! 🚀`,
                   ? { 
                       ...f, 
                       content: newContent || f.content,
-                      name: newName || f.name,
+                      name: newName || f.name || 'untitled.txt',
                       type: newType ? `text/${newType}` : f.type
                     }
                   : f
