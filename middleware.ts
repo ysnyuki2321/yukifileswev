@@ -89,10 +89,11 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/share/") ||
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/api/") ||
-    request.nextUrl.pathname.startsWith("/debug-") ||
+    request.nextUrl.pathname.startsWith("/debug") ||
     request.nextUrl.pathname.startsWith("/test-") ||
     request.nextUrl.pathname.startsWith("/auto-debug") ||
-    request.nextUrl.pathname.startsWith("/force-debug")
+    request.nextUrl.pathname.startsWith("/force-debug") ||
+    request.nextUrl.pathname.startsWith("/instant-debug")
 
   if (!isAuthRoute && !isPublicRoute) {
     const {
