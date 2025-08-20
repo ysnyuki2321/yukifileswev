@@ -4,6 +4,34 @@ import { createServerClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 
+// Helper function to get the current site URL
+function getCurrentSiteUrl(): string {
+  // Try to get from environment variable first
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+  
+  // Try to get from Vercel URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  
+  // Try to get from headers (for production)
+  try {
+    const headersList = headers()
+    const host = headersList.get('host')
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    if (host) {
+      return `${protocol}://${host}`
+    }
+  } catch (error) {
+    console.warn("Could not get site URL from headers:", error)
+  }
+  
+  // Fallback to localhost for development
+  return "http://localhost:3000"
+}
+
 export async function signIn(email: string, password: string) {
   const supabase = await createServerClient()
   if (!supabase) {
@@ -81,25 +109,11 @@ export async function signUp(prevState: any, formData: FormData) {
       return { error: "Email already registered", code: "EMAIL_EXISTS" as any }
     }
 
-    // Build redirect URL
-    const headersList = await headers()
-    const siteUrlCookie = headersList.get("cookie")?.match(/(?:^|;\s*)SITE_URL=([^;]+)/)?.[1]
-    const decodedSiteUrl = siteUrlCookie ? decodeURIComponent(siteUrlCookie) : undefined
+    // Get current site URL
+    const currentSiteUrl = getCurrentSiteUrl()
     
-    // Get admin setting for site_url as fallback
-    let adminSiteUrl = ""
-    try {
-      const { data: settings } = await supabase.from("admin_settings").select("setting_key, setting_value")
-      const map = (settings || []).reduce((acc: Record<string, string>, s: any) => {
-        acc[s.setting_key] = s.setting_value
-        return acc
-      }, {} as Record<string, string>)
-      adminSiteUrl = map["site_url"] || ""
-    } catch (e) {
-      console.warn("[v0] Failed to get admin site_url setting:", e)
-    }
-    
-    const redirectBase = decodedSiteUrl || adminSiteUrl || "http://localhost:3000"
+    // Build redirect URL with current site URL
+    const redirectBase = currentSiteUrl
 
     // Create user in Supabase Auth with enhanced options
     const { error: signUpError, data } = await supabase.auth.signUp({
@@ -261,9 +275,12 @@ export async function forgotPassword(email: string) {
       return { error: "Too many password reset attempts. Please wait 1 hour before trying again." }
     }
 
+    // Get current site URL
+    const currentSiteUrl = getCurrentSiteUrl()
+
     // Send password reset email
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
+      redirectTo: `${currentSiteUrl}/auth/reset-password`,
     })
 
     if (error) {

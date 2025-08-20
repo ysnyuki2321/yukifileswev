@@ -6,6 +6,22 @@ import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ErrorBoundary } from "@/components/ui/error-boundary"
 import { ToastProvider } from "@/components/ui/toast"
 
+// Helper function to get the current site URL
+function getCurrentSiteUrl(): string {
+  // Try to get from environment variable first
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+  
+  // Try to get from Vercel URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  
+  // Fallback to localhost for development
+  return "http://localhost:3000"
+}
+
 export const metadata: Metadata = {
   title: {
     default: "YukiFiles – Secure, Modern File Sharing",
@@ -13,7 +29,7 @@ export const metadata: Metadata = {
   },
   description:
     "Upload, share, and manage files with premium themes, resilient anti‑abuse, and easy share links. 2GB free, upgrade any time.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
+  metadataBase: new URL(getCurrentSiteUrl()),
   alternates: { canonical: "/" },
   icons: {
     icon: "/icon.svg",

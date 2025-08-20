@@ -1,15 +1,14 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { 
-  Menu, X, Sparkles, LogIn, UserPlus, Upload, 
-  BarChart3, Crown, Mail, Download, HelpCircle, Github,
-  Settings, User, Shield
+  Menu, X, Sparkles, LogIn, UserPlus, BarChart3, Shield,
+  FileText, Users, Settings, HelpCircle, MessageCircle, Globe, Zap
 } from "lucide-react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
-import { ThemeSwitcher } from "@/components/ui/theme-switcher"
 
 interface MobileNavigationProps {
   brandName?: string
@@ -17,47 +16,60 @@ interface MobileNavigationProps {
   isAdmin?: boolean
 }
 
-export function MobileNavigation({ 
-  brandName = "YukiFiles", 
-  isAuthenticated = false, 
-  isAdmin = false 
-}: MobileNavigationProps) {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+const navigationItems = [
+  { name: "Features", href: "/#features" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Contact", href: "/contact" }
+]
+
+const mobileMenuItems = [
+  {
+    category: "Product",
+    items: [
+      { name: "File Management", href: "/#features", icon: FileText },
+      { name: "Team Collaboration", href: "/#features", icon: Users },
+      { name: "Security & Privacy", href: "/#features", icon: Shield },
+      { name: "API & Integrations", href: "/#features", icon: Zap }
+    ]
+  },
+  {
+    category: "Support",
+    items: [
+      { name: "Help Center", href: "/help", icon: HelpCircle },
+      { name: "Documentation", href: "/docs", icon: FileText },
+      { name: "Contact Support", href: "/contact", icon: MessageCircle },
+      { name: "Status Page", href: "/status", icon: Globe }
+    ]
+  }
+]
+
+export function MobileNavigation({ brandName = "YukiFiles", isAuthenticated = false, isAdmin = false }: MobileNavigationProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [debugMode, setDebugMode] = useState(false)
 
   useEffect(() => {
     const checkDebugMode = async () => {
-      const debug = await isDebugModeEnabled()
-      setDebugMode(debug)
+      try {
+        const debug = await isDebugModeEnabled()
+        setDebugMode(debug)
+      } catch (error) {
+        console.warn("Could not check debug mode:", error)
+      }
     }
     checkDebugMode()
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const navigationItems = [
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "About", href: "#about" },
-  ]
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
+  }
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-black/80 backdrop-blur-lg border-b border-gray-800' 
-        : 'bg-transparent'
-    }`}>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-lg border-b border-gray-800/50">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+          <Link href="/" className="flex items-center space-x-3 group">
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-lg group-hover:shadow-purple-500/25">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-lg font-bold text-white group-hover:text-purple-300 transition-colors">
@@ -66,85 +78,66 @@ export function MobileNavigation({
           </Link>
 
           {/* Mobile Menu Button */}
-          <button
-            className="text-white hover:text-purple-300 transition-colors"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleMenu}
+            className="lg:hidden text-gray-300 hover:text-white hover:bg-white/10"
           >
-            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </Button>
         </div>
 
         {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className="bg-black/95 backdrop-blur-lg border-t border-gray-800">
+        {isMenuOpen && (
+          <div className="lg:hidden bg-black/95 backdrop-blur-xl border-t border-gray-800/50">
             <div className="px-4 py-6 space-y-6">
-              {/* Quick Actions */}
-              <div className="grid grid-cols-2 gap-3">
-                <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-center hover:scale-105 transition-transform">
-                    <LogIn className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                    <span className="text-sm font-medium text-white">Sign In</span>
-                  </div>
-                </Link>
-                
-                <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 text-center hover:scale-105 transition-transform">
-                    <UserPlus className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                    <span className="text-sm font-medium text-white">Register</span>
-                  </div>
-                </Link>
-              </div>
-
-              {/* Features */}
-              <div className="space-y-3">
-                <h3 className="text-white font-semibold mb-3 flex items-center">
-                  <Sparkles className="w-4 h-4 mr-2 text-purple-400" />
-                  Features
-                </h3>
-                <Link href="/files" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-                    <Upload className="w-4 h-4 text-blue-400" />
-                    <span className="text-gray-300">File Management</span>
-                  </div>
-                </Link>
-                <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-                    <BarChart3 className="w-4 h-4 text-purple-400" />
-                    <span className="text-gray-300">Analytics</span>
-                  </div>
-                </Link>
-                <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)}>
-                  <div className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors">
-                    <Crown className="w-4 h-4 text-yellow-400" />
-                    <span className="text-gray-300">Premium Plans</span>
-                  </div>
-                </Link>
-              </div>
-
               {/* Navigation Items */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {navigationItems.map((item) => (
-                  <a
+                  <Link
                     key={item.name}
                     href={item.href}
-                    className="block p-3 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block text-gray-300 hover:text-white transition-colors py-2"
+                    onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
-                  </a>
+                  </Link>
                 ))}
               </div>
 
-              {/* Theme Switcher */}
-              <div className="flex justify-center">
-                <ThemeSwitcher size="md" variant="default" />
-              </div>
+              {/* Mega Menu Items */}
+              {mobileMenuItems.map((section) => (
+                <div key={section.category} className="space-y-3">
+                  <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
+                    {section.category}
+                  </h3>
+                  <div className="space-y-2">
+                    {section.items.map((item) => {
+                      const Icon = item.icon
+                      return (
+                        <Link
+                          key={item.name}
+                          href={item.href}
+                          className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200"
+                          onClick={() => setIsMenuOpen(false)}
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center">
+                            <Icon className="w-4 h-4 text-purple-300" />
+                          </div>
+                          <span className="font-medium">{item.name}</span>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              ))}
 
               {/* Auth Buttons */}
-              <div className="pt-4 border-t border-gray-700">
+              <div className="pt-4 border-t border-gray-800/50">
                 {debugMode ? (
-                  <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  <Link href="/dashboard" className="block">
+                    <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
                       <Sparkles className="w-4 h-4 mr-2" />
                       Debug Dashboard
                     </Button>
@@ -152,15 +145,15 @@ export function MobileNavigation({
                 ) : isAuthenticated ? (
                   <div className="space-y-3">
                     {isAdmin && (
-                      <Link href="/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Button variant="outline" className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10">
+                      <Link href="/admin" className="block">
+                        <Button variant="outline" className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10 transition-all duration-300">
                           <Shield className="w-4 h-4 mr-2" />
                           Admin Panel
                         </Button>
                       </Link>
                     )}
-                    <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                    <Link href="/dashboard" className="block">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
                         <BarChart3 className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
@@ -168,14 +161,14 @@ export function MobileNavigation({
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <Link href="/auth/login" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-700">
+                    <Link href="/auth/login" className="block">
+                      <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800/30 hover:border-gray-500 transition-all duration-300">
                         <LogIn className="w-4 h-4 mr-2" />
                         Sign In
                       </Button>
                     </Link>
-                    <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)}>
-                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                    <Link href="/auth/register" className="block">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
                         <UserPlus className="w-4 h-4 mr-2" />
                         Get Started
                       </Button>

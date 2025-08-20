@@ -3,6 +3,22 @@ import { redirect } from "next/navigation"
 import AdminSettings from "@/components/admin/admin-settings"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
 
+// Helper function to get the current site URL
+function getCurrentSiteUrl(): string {
+  // Try to get from environment variable first
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+  
+  // Try to get from Vercel URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  
+  // Fallback to localhost for development
+  return "http://localhost:3000"
+}
+
 export default async function AdminSettingsPage() {
   const supabase = await createServerClient()
   
@@ -21,7 +37,7 @@ export default async function AdminSettingsPage() {
       brand_name: "YukiFiles",
       debug_mode: "true",
       auth_auto_verify: "false",
-      site_url: "http://localhost:3000"
+      site_url: getCurrentSiteUrl()
     }
   } else {
     // Get settings from database

@@ -1,6 +1,35 @@
 "use server"
 
 import { createServerClient } from "@/lib/supabase/server"
+import { headers } from "next/headers"
+
+// Helper function to get the current site URL
+function getCurrentSiteUrl(): string {
+  // Try to get from environment variable first
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    return process.env.NEXT_PUBLIC_SITE_URL
+  }
+  
+  // Try to get from Vercel URL
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`
+  }
+  
+  // Try to get from headers (for production)
+  try {
+    const headersList = headers()
+    const host = headersList.get('host')
+    const protocol = headersList.get('x-forwarded-proto') || 'http'
+    if (host) {
+      return `${protocol}://${host}`
+    }
+  } catch (error) {
+    console.warn("Could not get site URL from headers:", error)
+  }
+  
+  // Fallback to localhost for development
+  return "http://localhost:3000"
+}
 
 interface PayPalConfig {
   clientId: string
@@ -85,6 +114,9 @@ export async function createPayPalOrder(userId: string, amount = 1.0) {
     const tokenData = await tokenResponse.json()
     const accessToken = tokenData.access_token
 
+    // Get current site URL
+    const currentSiteUrl = getCurrentSiteUrl()
+
     // Create PayPal order
     const orderResponse = await fetch(`https://api-m.sandbox.paypal.com/v2/checkout/orders`, {
       method: "POST",
@@ -104,8 +136,8 @@ export async function createPayPalOrder(userId: string, amount = 1.0) {
           },
         ],
         application_context: {
-          return_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/payment/success`,
-          cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/payment/cancel`,
+          return_url: `${currentSiteUrl}/payment/success`,
+          cancel_url: `${currentSiteUrl}/payment/cancel`,
         },
       }),
     })

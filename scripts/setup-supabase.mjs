@@ -94,7 +94,7 @@ async function insertDefaultSettings() {
       { setting_key: 'brand_name', setting_value: 'YukiFiles' },
       { setting_key: 'debug_mode', setting_value: 'false' },
       { setting_key: 'auth_auto_verify', setting_value: 'false' },
-      { setting_key: 'site_url', setting_value: 'http://localhost:3000' }
+      { setting_key: 'site_url', setting_value: process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }
     ])
   
   if (error) {

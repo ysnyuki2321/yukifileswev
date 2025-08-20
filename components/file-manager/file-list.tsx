@@ -29,6 +29,7 @@ export default function FileList({ files, onDelete, onShare }: FileListProps) {
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
 
   const getFileIcon = (mimeType: string) => {
+    if (!mimeType) return <File className="w-5 h-5 text-gray-400" />
     if (mimeType.startsWith("image/")) return <ImageIcon className="w-5 h-5 text-blue-400" />
     if (mimeType.startsWith("video/")) return <Video className="w-5 h-5 text-red-400" />
     if (mimeType.startsWith("audio/")) return <Music className="w-5 h-5 text-green-400" />

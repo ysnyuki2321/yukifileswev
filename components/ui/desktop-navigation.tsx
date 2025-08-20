@@ -1,16 +1,14 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
-import Link from "next/link"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { 
-  Menu, X, ChevronDown, Sparkles, LogIn, UserPlus, Upload, 
-  BarChart3, Crown, Mail, Download, HelpCircle, Github,
-  Settings, Sun, Moon, Monitor, User, Shield, Globe
+  ChevronDown, LogIn, UserPlus, BarChart3, Shield, Sparkles,
+  FileText, Users, Settings, HelpCircle, MessageCircle, Globe, Zap
 } from "lucide-react"
+import Link from "next/link"
+import { cn } from "@/lib/utils"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
-import { ThemeSwitcher } from "@/components/ui/theme-switcher"
-import { MegaDropdown } from "@/components/ui/mega-dropdown"
 
 interface DesktopNavigationProps {
   brandName?: string
@@ -18,44 +16,113 @@ interface DesktopNavigationProps {
   isAdmin?: boolean
 }
 
-export function DesktopNavigation({ 
-  brandName = "YukiFiles", 
-  isAuthenticated = false, 
-  isAdmin = false 
-}: DesktopNavigationProps) {
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [debugMode, setDebugMode] = useState(false)
+const navigationItems = [
+  { name: "Features", href: "/#features" },
+  { name: "Pricing", href: "/pricing" },
+  { name: "Contact", href: "/contact" }
+]
+
+const megaDropdownItems = [
+  {
+    category: "Product",
+    items: [
+      { name: "File Management", href: "/#features", icon: FileText },
+      { name: "Team Collaboration", href: "/#features", icon: Users },
+      { name: "Security & Privacy", href: "/#features", icon: Shield },
+      { name: "API & Integrations", href: "/#features", icon: Zap }
+    ]
+  },
+  {
+    category: "Support",
+    items: [
+      { name: "Help Center", href: "/help", icon: HelpCircle },
+      { name: "Documentation", href: "/docs", icon: FileText },
+      { name: "Contact Support", href: "/contact", icon: MessageCircle },
+      { name: "Status Page", href: "/status", icon: Globe }
+    ]
+  }
+]
+
+function MegaDropdown({ isOpen, onClose, triggerRef }: { isOpen: boolean; onClose: () => void; triggerRef: React.RefObject<HTMLButtonElement> }) {
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          triggerRef.current && !triggerRef.current.contains(event.target as Node)) {
+        onClose()
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen, onClose, triggerRef])
+
+  if (!isOpen) return null
+
+  return (
+    <div
+      ref={dropdownRef}
+      className="absolute top-full left-0 mt-2 w-[600px] bg-black/95 backdrop-blur-xl border border-gray-700/50 rounded-xl shadow-2xl z-50 animate-in slide-in-from-top-2 duration-200"
+    >
+      <div className="p-6">
+        <div className="grid grid-cols-2 gap-8">
+          {megaDropdownItems.map((section) => (
+            <div key={section.category}>
+              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4">
+                {section.category}
+              </h3>
+              <div className="space-y-3">
+                {section.items.map((item) => {
+                  const Icon = item.icon
+                  return (
+                    <Link
+                      key={item.name}
+                      href={item.href}
+                      className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 group"
+                      onClick={onClose}
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Icon className="w-4 h-4 text-purple-300" />
+                      </div>
+                      <span className="font-medium">{item.name}</span>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function DesktopNavigation({ brandName = "YukiFiles", isAuthenticated = false, isAdmin = false }: DesktopNavigationProps) {
   const [isMegaDropdownOpen, setIsMegaDropdownOpen] = useState(false)
   const megaDropdownTriggerRef = useRef<HTMLButtonElement>(null)
+  const [debugMode, setDebugMode] = useState(false)
 
   useEffect(() => {
     const checkDebugMode = async () => {
-      const debug = await isDebugModeEnabled()
-      setDebugMode(debug)
+      try {
+        const debug = await isDebugModeEnabled()
+        setDebugMode(debug)
+      } catch (error) {
+        console.warn("Could not check debug mode:", error)
+      }
     }
     checkDebugMode()
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const navigationItems = [
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "About", href: "#about" },
-  ]
-
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-      isScrolled 
-        ? 'bg-black/80 backdrop-blur-lg border-b border-gray-800' 
-        : 'bg-transparent'
-    }`}>
-      <div className="container mx-auto px-6">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-lg border-b border-gray-800/50">
+      <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
@@ -108,9 +175,6 @@ export function DesktopNavigation({
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            {/* Theme Switcher */}
-            <ThemeSwitcher isDesktop={true} />
-
             {/* Auth Buttons */}
             {debugMode ? (
               <Link href="/dashboard">
