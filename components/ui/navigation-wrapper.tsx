@@ -87,6 +87,37 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
     checkDebugMode()
   }, [])
 
+  // Handle mobile menu open/close with body scroll prevention
+  useEffect(() => {
+    if (isMenuOpen) {
+      document.body.setAttribute('data-dropdown-open', 'true')
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.removeAttribute('data-dropdown-open')
+      document.body.style.overflow = ''
+    }
+
+    return () => {
+      document.body.removeAttribute('data-dropdown-open')
+      document.body.style.overflow = ''
+    }
+  }, [isMenuOpen])
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element
+      if (isMenuOpen && !target.closest('.mobile-menu-container')) {
+        setIsMenuOpen(false)
+      }
+    }
+
+    if (isMenuOpen) {
+      document.addEventListener('click', handleClickOutside)
+      return () => document.removeEventListener('click', handleClickOutside)
+    }
+  }, [isMenuOpen])
+
   if (!mounted) {
     return (
       <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-purple-500/20">
@@ -236,7 +267,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
               variant="ghost"
               size="icon"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="lg:hidden text-gray-300 hover:text-white hover:bg-white/10"
+              className="lg:hidden text-gray-300 hover:text-white hover:bg-white/10 touch-manipulation"
             >
               {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </Button>
@@ -245,15 +276,15 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="lg:hidden glass-effect border-t border-purple-500/20">
-            <div className="px-4 py-6 space-y-6">
+          <div className="lg:hidden glass-effect border-t border-purple-500/20 mobile-menu-container">
+            <div className="px-4 py-6 space-y-6 max-h-[calc(100vh-4rem)] overflow-y-auto">
               {/* Navigation Items */}
               <div className="space-y-3">
                 {navigationItems.map((item) => (
                   <Link
                     key={item.name}
                     href={item.href}
-                    className="block text-gray-300 hover:text-white transition-colors py-2"
+                    className="block text-gray-300 hover:text-white transition-colors py-3 px-4 rounded-lg hover:bg-white/10 touch-manipulation"
                     onClick={() => setIsMenuOpen(false)}
                   >
                     {item.name}
@@ -328,7 +359,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                         <Link
                           key={item.name}
                           href={item.href}
-                          className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200"
+                          className="flex items-center space-x-3 p-3 rounded-lg text-gray-300 hover:text-white hover:bg-white/10 transition-all duration-200 touch-manipulation"
                           onClick={() => setIsMenuOpen(false)}
                         >
                           <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center">
@@ -346,7 +377,7 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
               <div className="pt-4 border-t border-gray-800/50">
                 {debugMode ? (
                   <Link href="/dashboard" className="block">
-                    <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
+                    <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300 touch-manipulation">
                       <Sparkles className="w-4 h-4 mr-2" />
                       Debug Dashboard
                     </Button>
@@ -355,14 +386,14 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                   <div className="space-y-3">
                     {isAdmin && (
                       <Link href="/admin" className="block">
-                        <Button variant="outline" className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10 transition-all duration-300">
+                        <Button variant="outline" className="w-full border-purple-500 text-purple-300 hover:bg-purple-500/10 transition-all duration-300 touch-manipulation">
                           <Shield className="w-4 h-4 mr-2" />
                           Admin Panel
                         </Button>
                       </Link>
                     )}
                     <Link href="/dashboard" className="block">
-                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300 touch-manipulation">
                         <BarChart3 className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
@@ -371,13 +402,13 @@ export function NavigationWrapper({ brandName = "YukiFiles", isAuthenticated = f
                 ) : (
                   <div className="space-y-3">
                     <Link href="/auth/login" className="block">
-                      <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800/30 hover:border-gray-500 transition-all duration-300">
+                      <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-800/30 hover:border-gray-500 transition-all duration-300 touch-manipulation">
                         <LogIn className="w-4 h-4 mr-2" />
                         Sign In
                       </Button>
                     </Link>
                     <Link href="/auth/register" className="block">
-                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300">
+                      <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-lg hover:shadow-purple-500/25 transition-all duration-300 touch-manipulation">
                         <UserPlus className="w-4 h-4 mr-2" />
                         Get Started
                       </Button>

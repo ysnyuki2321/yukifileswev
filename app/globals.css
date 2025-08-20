@@ -76,6 +76,46 @@
   --sidebar-ring: oklch(0.439 0 0);
 }
 
+/* Mobile-specific dropdown menu improvements */
+@media (max-width: 768px) {
+  [data-radix-dropdown-menu-content] {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: calc(100vw - 2rem) !important;
+    max-width: 320px !important;
+    max-height: 80vh !important;
+    z-index: 9999 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.8), 0 10px 10px -5px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  [data-radix-dropdown-menu-item] {
+    min-height: 48px !important;
+    padding: 12px 16px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+    margin: 2px 8px !important;
+  }
+
+  [data-radix-dropdown-menu-trigger] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+  }
+}
+
+/* Touch-friendly improvements */
+.touch-manipulation {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent body scroll when dropdown is open on mobile */
+body[data-dropdown-open="true"] {
+  overflow: hidden;
+}
+
 /* Added premium theme system with gradient backgrounds and enhanced styling */
 /* Premium Theme - Gradient backgrounds and enhanced styling for paid users */
 .theme-premium {

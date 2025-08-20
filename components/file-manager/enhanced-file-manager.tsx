@@ -253,16 +253,16 @@ export function EnhancedFileManager({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-purple-500/20 text-purple-300">
+                <Button variant="outline" size="sm" className="border-purple-500/20 text-purple-300 touch-manipulation">
                   <Settings className="w-4 h-4 mr-2" />
                   Settings
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem>Preferences</DropdownMenuItem>
-                <DropdownMenuItem>Keyboard Shortcuts</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>About</DropdownMenuItem>
+              <DropdownMenuContent className="bg-black/90 border-gray-700 text-white">
+                <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10">Preferences</DropdownMenuItem>
+                <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10">Keyboard Shortcuts</DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-gray-700" />
+                <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-white/10">About</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -312,27 +312,27 @@ export function EnhancedFileManager({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="border-purple-500/20 text-purple-300">
+                <Button variant="outline" size="sm" className="border-purple-500/20 text-purple-300 touch-manipulation">
                   <Filter className="w-4 h-4 mr-2" />
                   Sort by {sortBy}
                   {sortOrder === 'asc' ? <SortAsc className="w-4 h-4 ml-2" /> : <SortDesc className="w-4 h-4 ml-2" />}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuItem onClick={() => setSortBy('name')}>
+              <DropdownMenuContent className="bg-black/90 border-gray-700 text-white">
+                <DropdownMenuItem onClick={() => setSortBy('name')} className="text-gray-300 hover:text-white hover:bg-white/10">
                   Name
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('size')}>
+                <DropdownMenuItem onClick={() => setSortBy('size')} className="text-gray-300 hover:text-white hover:bg-white/10">
                   Size
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('date')}>
+                <DropdownMenuItem onClick={() => setSortBy('date')} className="text-gray-300 hover:text-white hover:bg-white/10">
                   Date Modified
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy('type')}>
+                <DropdownMenuItem onClick={() => setSortBy('type')} className="text-gray-300 hover:text-white hover:bg-white/10">
                   Type
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}>
+                <DropdownMenuSeparator className="bg-gray-700" />
+                <DropdownMenuItem onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')} className="text-gray-300 hover:text-white hover:bg-white/10">
                   {sortOrder === 'asc' ? 'Descending' : 'Ascending'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -454,26 +454,26 @@ export function EnhancedFileManager({
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="w-8 h-8 p-0 bg-black/50 hover:bg-black/70"
+                              className="w-8 h-8 p-0 bg-black/50 hover:bg-black/70 touch-manipulation"
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => handleFileAction('edit', file)}>
+                          <DropdownMenuContent className="bg-black/90 border-gray-700 text-white">
+                            <DropdownMenuItem onClick={() => handleFileAction('edit', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                               <Edit3 className="w-4 h-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleFileAction('download', file)}>
+                            <DropdownMenuItem onClick={() => handleFileAction('download', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                               <Download className="w-4 h-4 mr-2" />
                               Download
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleFileAction('share', file)}>
+                            <DropdownMenuItem onClick={() => handleFileAction('share', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                               <Share2 className="w-4 h-4 mr-2" />
                               Share
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => handleFileAction('delete', file)}>
+                            <DropdownMenuSeparator className="bg-gray-700" />
+                            <DropdownMenuItem onClick={() => handleFileAction('delete', file)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -482,26 +482,26 @@ export function EnhancedFileManager({
                       </div>
                     </div>
                   </ContextMenuTrigger>
-                  <ContextMenuContent>
-                    <ContextMenuItem onClick={() => handleFileClick(file)}>
+                  <ContextMenuContent className="bg-black/90 border-gray-700 text-white">
+                    <ContextMenuItem onClick={() => handleFileClick(file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                       <Eye className="w-4 h-4 mr-2" />
                       Open
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => handleFileAction('edit', file)}>
+                    <ContextMenuItem onClick={() => handleFileAction('edit', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                       <Edit3 className="w-4 h-4 mr-2" />
                       Edit
                     </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => handleFileAction('download', file)}>
+                    <ContextMenuSeparator className="bg-gray-700" />
+                    <ContextMenuItem onClick={() => handleFileAction('download', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                       <Download className="w-4 h-4 mr-2" />
                       Download
                     </ContextMenuItem>
-                    <ContextMenuItem onClick={() => handleFileAction('share', file)}>
+                    <ContextMenuItem onClick={() => handleFileAction('share', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
                       <Share2 className="w-4 h-4 mr-2" />
                       Share
                     </ContextMenuItem>
-                    <ContextMenuSeparator />
-                    <ContextMenuItem onClick={() => handleFileAction('delete', file)}>
+                    <ContextMenuSeparator className="bg-gray-700" />
+                    <ContextMenuItem onClick={() => handleFileAction('delete', file)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete
                     </ContextMenuItem>
