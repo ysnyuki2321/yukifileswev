@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Sun, Moon, Monitor, Sparkles, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-
-type Theme = "light" | "dark" | "system"
+import { useTheme } from "@/components/theme/theme-provider"
 
 interface ThemeSwitcherProps {
   className?: string
@@ -20,17 +19,26 @@ export function ThemeSwitcher({
   variant = "default",
   isDesktop = false
 }: ThemeSwitcherProps) {
-  const [theme, setTheme] = useState<Theme>("dark")
+  const [theme, setTheme] = useState<"light" | "dark" | "system">("dark")
   const [isOpen, setIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
   const [dropdownPosition, setDropdownPosition] = useState<"top" | "bottom">("bottom")
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Try to get theme from context, fallback to local state
+  let themeContext: { theme: "light" | "dark" | "system"; setTheme: (theme: "light" | "dark" | "system") => void } | null = null
+  
+  try {
+    themeContext = useTheme()
+  } catch (error) {
+    // Server-side or context not available, use local state
+  }
+
+  const currentTheme = themeContext?.theme || theme
+  const setCurrentTheme = themeContext?.setTheme || setTheme
+
   useEffect(() => {
     setMounted(true)
-    const savedTheme = localStorage.getItem("theme") as Theme || "dark"
-    setTheme(savedTheme)
-    applyTheme(savedTheme)
   }, [])
 
   useEffect(() => {
@@ -49,22 +57,8 @@ export function ThemeSwitcher({
     }
   }, [isOpen])
 
-  const applyTheme = (newTheme: Theme) => {
-    const root = document.documentElement
-    
-    if (newTheme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      root.classList.toggle("dark", systemTheme === "dark")
-    } else {
-      root.classList.toggle("dark", newTheme === "dark")
-    }
-    
-    localStorage.setItem("theme", newTheme)
-  }
-
-  const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme)
-    applyTheme(newTheme)
+  const handleThemeChange = (newTheme: "light" | "dark" | "system") => {
+    setCurrentTheme(newTheme)
     setIsOpen(false)
   }
 
@@ -91,7 +85,7 @@ export function ThemeSwitcher({
   }
 
   const getThemeIcon = () => {
-    switch (theme) {
+    switch (currentTheme) {
       case "light":
         return <Sun className={iconSizes[size]} />
       case "dark":
@@ -104,7 +98,7 @@ export function ThemeSwitcher({
   }
 
   const getThemeColor = () => {
-    switch (theme) {
+    switch (currentTheme) {
       case "light":
         return "text-yellow-500"
       case "dark":
@@ -132,7 +126,7 @@ export function ThemeSwitcher({
           <div className={cn("transition-all duration-300", getThemeColor())}>
             {getThemeIcon()}
           </div>
-          <span className="text-sm font-medium text-gray-300">{theme.charAt(0).toUpperCase() + theme.slice(1)}</span>
+          <span className="text-sm font-medium text-gray-300">{currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)}</span>
           <ChevronDown className={cn(
             "w-4 h-4 text-gray-400 transition-transform duration-200",
             isOpen && "rotate-180"
@@ -158,16 +152,16 @@ export function ThemeSwitcher({
                   return (
                     <button
                       key={option.value}
-                      onClick={() => handleThemeChange(option.value as Theme)}
+                      onClick={() => handleThemeChange(option.value as "light" | "dark" | "system")}
                       className={cn(
                         "w-full flex items-center space-x-3 p-3 rounded-lg text-sm transition-all duration-200",
                         "hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]",
-                        theme === option.value && "bg-purple-500/20 text-purple-300",
-                        theme !== option.value && "text-gray-300 hover:text-white"
+                        currentTheme === option.value && "bg-purple-500/20 text-purple-300",
+                        currentTheme !== option.value && "text-gray-300 hover:text-white"
                       )}
                     >
                       <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", 
-                        theme === option.value ? "bg-purple-500/20" : "bg-gray-800/50"
+                        currentTheme === option.value ? "bg-purple-500/20" : "bg-gray-800/50"
                       )}>
                         <Icon className={cn("w-4 h-4", option.color)} />
                       </div>
@@ -175,7 +169,7 @@ export function ThemeSwitcher({
                         <div className="font-medium">{option.label}</div>
                         <div className="text-xs text-gray-500">{option.desc}</div>
                       </div>
-                      {theme === option.value && (
+                      {currentTheme === option.value && (
                         <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
                       )}
                     </button>
@@ -236,17 +230,17 @@ export function ThemeSwitcher({
               return (
                 <button
                   key={option.value}
-                  onClick={() => handleThemeChange(option.value as Theme)}
+                  onClick={() => handleThemeChange(option.value as "light" | "dark" | "system")}
                   className={cn(
                     "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-sm transition-all duration-200",
                     "hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]",
-                    theme === option.value && "bg-purple-500/20 text-purple-300",
-                    theme !== option.value && "text-gray-300 hover:text-white"
+                    currentTheme === option.value && "bg-purple-500/20 text-purple-300",
+                    currentTheme !== option.value && "text-gray-300 hover:text-white"
                   )}
                 >
                   <Icon className={cn("w-4 h-4", option.color)} />
                   <span>{option.label}</span>
-                  {theme === option.value && (
+                  {currentTheme === option.value && (
                     <div className="ml-auto w-2 h-2 bg-purple-400 rounded-full animate-pulse" />
                   )}
                 </button>

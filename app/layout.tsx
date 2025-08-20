@@ -48,7 +48,7 @@ export default async function RootLayout({
   return (
     <html lang="en" className={outfit.variable} suppressHydrationWarning>
       <head />
-      <body style={{ fontFamily: "var(--font-outfit)" }} className="dark">
+      <body style={{ fontFamily: "var(--font-outfit)" }}>
         <ErrorBoundary>
           <ThemeProvider>
             <ToastProvider>

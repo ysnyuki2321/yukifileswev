@@ -14,6 +14,7 @@ import {
 import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
+import { FloatingActions } from "@/components/ui/floating-actions"
 
 export default async function HomePage() {
   const supabase = await createServerClient()
@@ -237,7 +238,7 @@ export default async function HomePage() {
         <div className="container mx-auto px-4">
           <div className="text-center max-w-5xl mx-auto">
             <div className="flex items-center justify-center mb-6">
-              <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
+              <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2 dark:bg-gradient-to-r dark:from-purple-500/20 dark:to-pink-500/20 dark:text-purple-300 dark:border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 border-purple-500/20">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Trusted by 500K+ users worldwide
               </Badge>
@@ -558,6 +559,9 @@ export default async function HomePage() {
           </div>
         </div>
       </footer>
+      
+      {/* Floating Actions */}
+      <FloatingActions />
     </div>
   )
 }

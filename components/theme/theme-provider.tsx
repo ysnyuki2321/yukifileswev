@@ -25,11 +25,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const applyTheme = (newTheme: Theme) => {
     const root = document.documentElement
     
+    // Remove existing theme classes
+    root.classList.remove("light", "dark")
+    
     if (newTheme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      root.classList.toggle("dark", systemTheme === "dark")
+      root.classList.add(systemTheme)
     } else {
-      root.classList.toggle("dark", newTheme === "dark")
+      root.classList.add(newTheme)
     }
     
     localStorage.setItem("theme", newTheme)
