@@ -560,7 +560,16 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                         if (e.key === 'Enter') handleRename()
                         if (e.key === 'Escape') setIsRenaming(false)
                       }}
-                      onBlur={handleRename}
+                      // Avoid premature blur-submit on mobile when opening type selector or tapping outside
+                      onBlur={(e) => {
+                        // Delay to allow clicks on adjacent controls
+                        setTimeout(() => {
+                          // Only commit if still focused away and name changed
+                          if (document.activeElement !== e.currentTarget) {
+                            handleRename()
+                          }
+                        }, 100)
+                      }}
                       className="flex-1 text-sm bg-transparent border-purple-500/30 focus:border-purple-500"
                       autoFocus
                     />
@@ -821,7 +830,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                   {/* Syntax Highlighting Overlay */}
                   <div 
                     className={cn(
-                      "absolute inset-0 pointer-events-none font-mono text-sm leading-relaxed p-4 overflow-hidden",
+                      "absolute inset-0 pointer-events-none font-mono text-sm leading-relaxed p-4 overflow-auto",
                       editorState.lineNumbers && "pl-16",
                       editorState.wordWrap && "whitespace-pre-wrap"
                     )}
@@ -829,10 +838,14 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                       fontSize: `${editorState.fontSize}px`, 
                       fontFamily: '"Outfit", "JetBrains Mono", "Monaco", monospace'
                     }}
-                    dangerouslySetInnerHTML={{
-                      __html: applySyntaxHighlighting(editorState.content, getSyntaxLanguage(file.name))
-                    }}
-                  />
+                  >
+                    <pre
+                      className="min-h-full"
+                      dangerouslySetInnerHTML={{
+                        __html: applySyntaxHighlighting(editorState.content, getSyntaxLanguage(file.name))
+                      }}
+                    />
+                  </div>
 
                   {/* Main Editor */}
                   <textarea
@@ -842,7 +855,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                     onKeyDown={handleKeyDown}
                     readOnly={readOnly}
                     className={cn(
-                      "w-full h-full bg-transparent text-transparent font-mono resize-none outline-none p-4 caret-white",
+                      "w-full h-full bg-transparent text-transparent font-mono resize-none outline-none p-4 caret-white overflow-auto",
                       editorState.lineNumbers && "pl-16",
                       editorState.wordWrap && "whitespace-pre-wrap",
                       "text-sm leading-relaxed relative z-10"
