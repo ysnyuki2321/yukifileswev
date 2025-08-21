@@ -159,6 +159,49 @@ export function EnhancedDemoManager() {
       isPublic: false,
       downloadCount: 5,
       viewCount: 12
+    },
+    // Sample code/text files for syntax demo
+    {
+      id: '5',
+      name: 'hello-world.js',
+      type: 'file',
+      content: `function greet(name) {\n  const message = ` + "`Hello, ${name}!`" + `\n  console.log(message)\n  return message\n}\n\nexport default greet\n\n// Try: greet('YukiFiles')`,
+      size: new Blob([`function greet(name) {\n  const message = ` + "`Hello, ${name}!`" + `\n  console.log(message)\n  return message\n}\n\nexport default greet\n\n// Try: greet('YukiFiles')`]).size,
+      lastModified: new Date(),
+      mimeType: 'text/javascript',
+      path: '/',
+      isStarred: false,
+      isPublic: false,
+      downloadCount: 0,
+      viewCount: 0
+    },
+    {
+      id: '6',
+      name: 'App.tsx',
+      type: 'file',
+      content: `import React from 'react'\n\ninterface Props {\n  title: string\n}\n\nexport const App: React.FC<Props> = ({ title }) => {\n  const [count, setCount] = React.useState<number>(0)\n\n  return (\n    <div className=\"p-4\">\n      <h1 className=\"text-2xl font-bold\">{title}</h1>\n      <button onClick={() => setCount(c => c + 1)} className=\"mt-2 px-3 py-1 bg-purple-600 text-white rounded\">\n        Clicked {count} times\n      </button>\n    </div>\n  )\n}`,
+      size: new Blob([`import React from 'react'\n\ninterface Props {\n  title: string\n}\n\nexport const App: React.FC<Props> = ({ title }) => {\n  const [count, setCount] = React.useState<number>(0)\n\n  return (\n    <div className=\"p-4\">\n      <h1 className=\"text-2xl font-bold\">{title}</h1>\n      <button onClick={() => setCount(c => c + 1)} className=\"mt-2 px-3 py-1 bg-purple-600 text-white rounded\">\n        Clicked {count} times\n      </button>\n    </div>\n  )\n}`]).size,
+      lastModified: new Date(),
+      mimeType: 'text/typescript',
+      path: '/',
+      isStarred: true,
+      isPublic: false,
+      downloadCount: 0,
+      viewCount: 0
+    },
+    {
+      id: '7',
+      name: 'README.md',
+      type: 'file',
+      content: `# YukiFiles Demo\n\n- Create files\n- Upload assets\n- Preview content\n\n> This is a demo README.`,
+      size: new Blob([`# YukiFiles Demo\n\n- Create files\n- Upload assets\n- Preview content\n\n> This is a demo README.`]).size,
+      lastModified: new Date(),
+      mimeType: 'text/markdown',
+      path: '/',
+      isStarred: false,
+      isPublic: false,
+      downloadCount: 0,
+      viewCount: 0
     }
   ])
 
@@ -241,7 +284,7 @@ export function EnhancedDemoManager() {
   }
 
       return (
-      <div className="space-y-4 sm:space-y-6 max-w-full overflow-hidden mobile-scrollbar">
+      <div className="space-y-4 sm:space-y-6 max-w-full overflow-x-hidden mobile-scrollbar">
         {/* Header */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
@@ -274,20 +317,20 @@ export function EnhancedDemoManager() {
       <Card className="bg-gray-900/50 border-gray-700">
         <CardContent className="p-3 sm:p-4 lg:p-6 mobile-scrollbar">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 mb-4 sm:mb-6 overflow-hidden">
-                              <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 mb-4 sm:mb-6 overflow-hidden gap-1 sm:gap-2 p-1">
+                              <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500 min-h-10 text-sm">
                   <Activity className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Overview</span>
                 </TabsTrigger>
-                <TabsTrigger value="files" className="data-[state=active]:bg-purple-500">
+                <TabsTrigger value="files" className="data-[state=active]:bg-purple-500 min-h-10 text-sm">
                   <Folder className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Files</span>
                 </TabsTrigger>
-                <TabsTrigger value="sharing" className="data-[state=active]:bg-purple-500">
+                <TabsTrigger value="sharing" className="data-[state=active]:bg-purple-500 min-h-10 text-sm">
                   <Share2 className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Sharing</span>
                 </TabsTrigger>
-                <TabsTrigger value="settings" className="data-[state=active]:bg-purple-500">
+                <TabsTrigger value="settings" className="data-[state=active]:bg-purple-500 min-h-10 text-sm">
                   <Settings className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Settings</span>
                 </TabsTrigger>
