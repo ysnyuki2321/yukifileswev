@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useSearchParams } from "next/navigation"
 import { Files, Home, CreditCard, Shield, Settings, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -15,18 +15,16 @@ interface SidebarProps {
 
 export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOpen = false, onClose, activeTab }: SidebarProps) {
   const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const isDemoMode = searchParams.get('demo') === 'true'
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home },
+    { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home },
+    { href: "/files", label: "File Manager", icon: Files },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
-  // In demo mode, add File Manager to navigation
-  const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
-  
-  if (isDemoMode) {
-    navItems.splice(1, 0, { href: "#file-manager", label: "File Manager", icon: Files })
-  }
+  // Detect demo mode handled via search params above
 
   if (isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: Shield })
