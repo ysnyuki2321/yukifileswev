@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Label } from "@/components/ui/label"
 import { FileEditor } from "@/components/file-editor/FileEditor"
+import { PlanSwitcher } from "@/components/plan-switcher/PlanSwitcher"
 
 interface DemoFile {
   id: string
@@ -99,6 +100,8 @@ export function EnhancedDemoManager() {
   const [showUploadDialog, setShowUploadDialog] = useState(false)
   const [showPricingDialog, setShowPricingDialog] = useState(false)
   const [showFileEditor, setShowFileEditor] = useState(false)
+  const [showPlanSwitcher, setShowPlanSwitcher] = useState(false)
+  const [currentPlan, setCurrentPlan] = useState('free')
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [dragOver, setDragOver] = useState(false)
@@ -190,11 +193,14 @@ export function EnhancedDemoManager() {
   }, [])
 
   const handleCreateFile = (fileName: string, content: string, fileType: string) => {
+    // Calculate proper file size in bytes
+    const fileSize = new Blob([content]).size
+    
     const newFile: DemoFile = {
       id: Date.now().toString(),
       name: fileName,
       type: fileType === 'folder' ? 'folder' : 'file',
-      size: content.length,
+      size: fileSize,
       lastModified: new Date(),
       content: content,
       mimeType: fileType === 'folder' ? undefined : 'text/plain',
@@ -208,41 +214,52 @@ export function EnhancedDemoManager() {
     setDemoFiles(prev => [newFile, ...prev])
   }
 
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="flex items-center gap-4 flex-wrap">
-          <h2 className="text-xl sm:text-2xl font-bold text-white">YukiFiles Demo</h2>
-          <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
-            Enterprise Features
-          </Badge>
+  const handlePlanSwitch = (newPlan: string) => {
+    setCurrentPlan(newPlan)
+    setShowPlanSwitcher(false)
+    
+    // Show success animation
+    setTimeout(() => {
+      // You can add toast notification here
+      console.log(`Switched to ${newPlan} plan`)
+    }, 500)
+  }
+
+      return (
+      <div className="space-y-4 sm:space-y-6 max-w-full overflow-hidden">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
+          <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">YukiFiles Demo</h2>
+            <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 text-xs sm:text-sm">
+              Enterprise Features
+            </Badge>
+          </div>
+          
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            <Button
+              variant="outline"
+              onClick={() => setShowPlanSwitcher(true)}
+              className="border-gray-600 text-gray-300 hover:bg-gray-800 text-xs sm:text-sm flex-1 sm:flex-none"
+            >
+              <Crown className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              Switch Plan
+            </Button>
+            <Button
+              onClick={() => setShowUploadDialog(true)}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs sm:text-sm flex-1 sm:flex-none"
+            >
+              <Upload className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              Upload
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button
-            variant="outline"
-            onClick={() => setShowPricingDialog(true)}
-            className="border-gray-600 text-gray-300 hover:bg-gray-800 text-sm"
-          >
-            <Crown className="w-4 h-4 mr-2" />
-            View Plans
-          </Button>
-          <Button
-            onClick={() => setShowUploadDialog(true)}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-sm"
-          >
-            <Upload className="w-4 h-4 mr-2" />
-            Upload Files
-          </Button>
-        </div>
-      </div>
 
       {/* Tab Navigation */}
       <Card className="bg-gray-900/50 border-gray-700">
-        <CardContent className="p-4 sm:p-6">
+        <CardContent className="p-3 sm:p-4 lg:p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 mb-6 overflow-x-auto">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 mb-4 sm:mb-6 overflow-hidden">
                               <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500">
                   <Activity className="w-4 h-4 sm:mr-2" />
                   <span className="hidden sm:inline">Overview</span>
@@ -262,18 +279,18 @@ export function EnhancedDemoManager() {
             </TabsList>
             
             <TabsContent value="overview">
-              <div className="grid gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2 space-y-6">
+              <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+                <div className="lg:col-span-2 space-y-4 sm:space-y-6">
                   {/* Analytics Dashboard */}
                   <Card className="bg-gray-800/50 border-gray-600">
-                    <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-2">
-                        <BarChart3 className="w-5 h-5" />
+                    <CardHeader className="p-4 sm:p-6">
+                      <CardTitle className="text-white flex items-center gap-2 text-sm sm:text-base">
+                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
                         Analytics Overview
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <CardContent className="p-4 sm:p-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
                         <div className="text-center">
                           <div className="text-2xl font-bold text-purple-400">1.2TB</div>
                           <div className="text-sm text-gray-400">Storage Used</div>
@@ -802,6 +819,14 @@ export function EnhancedDemoManager() {
         isOpen={showFileEditor}
         onClose={() => setShowFileEditor(false)}
         onSave={handleCreateFile}
+      />
+
+      {/* Plan Switcher */}
+      <PlanSwitcher
+        isOpen={showPlanSwitcher}
+        onClose={() => setShowPlanSwitcher(false)}
+        onSwitch={handlePlanSwitch}
+        currentPlan={currentPlan}
       />
     </div>
   )

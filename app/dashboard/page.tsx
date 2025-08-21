@@ -121,6 +121,7 @@ function DashboardContent() {
           brandName={brandName}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
+          activeTab={isDemoMode ? "overview" : undefined}
         />
         <div className="flex-1 min-w-0">
           <Topbar 

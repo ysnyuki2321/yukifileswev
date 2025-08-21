@@ -10,19 +10,23 @@ interface SidebarProps {
   brandName?: string
   isOpen?: boolean
   onClose?: () => void
+  activeTab?: string
 }
 
-export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOpen = false, onClose }: SidebarProps) {
+export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOpen = false, onClose, activeTab }: SidebarProps) {
   const pathname = usePathname()
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/files", label: "Files", icon: Files },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
-  // In demo mode, Files should not navigate to separate page
+  // In demo mode, add File Manager to navigation
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
+  
+  if (isDemoMode) {
+    navItems.splice(1, 0, { href: "#file-manager", label: "File Manager", icon: Files })
+  }
 
   if (isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: Shield })
@@ -62,8 +66,8 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
           const Icon = item.icon
           const isActive = pathname === item.href
           
-          // In demo mode, Files link should not navigate
-          if (isDemoMode && item.href === "/files") {
+          // Handle File Manager in demo mode
+          if (isDemoMode && item.href === "#file-manager") {
             return (
               <button
                 key={item.href}
@@ -76,7 +80,7 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
                   onClose?.()
                 }}
                 className={`flex items-center px-3 py-2 rounded-md transition-colors w-full text-left ${
-                  isActive
+                  activeTab === "files"
                     ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
                     : "text-gray-300 hover:text-white hover:bg-white/5"
                 }`}
