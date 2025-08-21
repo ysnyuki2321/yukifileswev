@@ -41,24 +41,24 @@ async function detectIPInfo(ip: string): Promise<IPInfo> {
         cache: "no-store",
       })
       if (res.ok) {
-        const j = await res.json()
+        const ipData = await res.json()
         const hostingFlags = Boolean(
-          j.hosting || j.is_datacenter || j.datacenter || j.is_hosting || j.asnType === "hosting" || j.is_cloud,
+          ipData.hosting || ipData.is_datacenter || ipData.datacenter || ipData.is_hosting || ipData.asnType === "hosting" || ipData.is_cloud,
         )
-        const residential = j.residential !== undefined ? Boolean(j.residential) : !(hostingFlags || j.proxy || j.vpn)
+        const residential = ipData.residential !== undefined ? Boolean(ipData.residential) : !(hostingFlags || ipData.proxy || ipData.vpn)
         return {
           ip,
-          country: j.country || "",
-          region: j.region || "",
-          city: j.city || "",
-          isp: j.isp || j.organization || "",
-          proxy: Boolean(j.proxy || j.is_proxy),
-          vpn: Boolean(j.vpn || j.is_vpn),
-          tor: Boolean(j.tor || j.is_tor),
+          country: ipData.country || "",
+          region: ipData.region || "",
+          city: ipData.city || "",
+          isp: ipData.isp || ipData.organization || "",
+          proxy: Boolean(ipData.proxy || ipData.is_proxy),
+          vpn: Boolean(ipData.vpn || ipData.is_vpn),
+          tor: Boolean(ipData.tor || ipData.is_tor),
           hosting: hostingFlags,
           residential,
-          asn: j.asn || j.ASN,
-          org: j.organization || j.org,
+          asn: ipData.asn || ipData.ASN,
+          org: ipData.organization || ipData.org,
         }
       }
     }

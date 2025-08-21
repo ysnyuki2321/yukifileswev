@@ -7,7 +7,7 @@ import ProfessionalCharts from "@/components/dashboard/ProfessionalCharts"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
 import { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
-import DemoFileManager from "@/components/dashboard/DemoFileManager"
+import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
@@ -141,7 +141,11 @@ function DashboardContent() {
                 // Demo Mode: Show full file manager
                 <div className="space-y-6">
                   <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                  <DemoFileManager />
+                  <EnhancedDemoManager 
+                    userData={userData}
+                    recentFiles={recentFiles}
+                    recentActivity={recentActivity}
+                  />
                 </div>
               ) : (
                 // Regular Mode: Show standard dashboard layout
