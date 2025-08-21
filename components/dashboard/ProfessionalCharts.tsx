@@ -94,10 +94,10 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
 
   const getMetricTitle = () => {
     switch (selectedMetric) {
-      case 'views': return 'Lượt Truy Cập'
-      case 'downloads': return 'Lượt Tải'
-      case 'uploads': return 'Lượt Upload'
-      case 'shares': return 'Lượt Chia Sẻ'
+      case 'views': return 'Page Views'
+      case 'downloads': return 'Downloads'
+      case 'uploads': return 'Uploads'
+      case 'shares': return 'Shares'
     }
   }
 
@@ -135,10 +135,10 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
               {showDropdown && (
                 <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 border border-purple-500/20 rounded-lg shadow-xl z-10">
                   {[
-                    { key: 'views' as const, label: 'Lượt Truy Cập', icon: Eye },
-                    { key: 'downloads' as const, label: 'Lượt Tải', icon: Download },
-                    { key: 'uploads' as const, label: 'Lượt Upload', icon: Upload },
-                    { key: 'shares' as const, label: 'Lượt Chia Sẻ', icon: Share2 }
+                    { key: 'views' as const, label: 'Page Views', icon: Eye },
+                    { key: 'downloads' as const, label: 'Downloads', icon: Download },
+                    { key: 'uploads' as const, label: 'Uploads', icon: Upload },
+                    { key: 'shares' as const, label: 'Shares', icon: Share2 }
                   ].map(({ key, label, icon: Icon }) => (
                     <button
                       key={key}
@@ -163,17 +163,55 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
         
         <CardContent>
           {/* Chart */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {currentData.map((item, index) => (
-              <div key={index} className="relative">
-                <div className="bg-slate-800/50 rounded-lg p-4">
+          <div className="mb-6">
+            {/* Chart Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-white font-medium">{getMetricTitle()} Analytics</h3>
+              <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
+                Last 30 days
+              </Badge>
+            </div>
+            
+            {/* Main Chart */}
+            <div className="bg-slate-800/30 rounded-lg p-6 mb-4">
+              <div className="h-64 flex items-end justify-between gap-2">
+                {currentData.map((item, index) => (
+                  <div key={index} className="flex-1 flex flex-col items-center">
+                    <div className="w-full max-w-16 relative">
+                      <div 
+                        className={`w-full rounded-t-lg transition-all duration-1000 ease-out ${item.color} opacity-80 hover:opacity-100`}
+                        style={{ 
+                          height: `${(item.value / maxValue) * 200}px`,
+                          minHeight: '20px'
+                        }}
+                      />
+                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs text-white font-bold">
+                        {item.value.toLocaleString()}
+                      </div>
+                    </div>
+                    <div className="text-xs text-gray-400 mt-2 text-center">{item.label}</div>
+                    <Badge 
+                      variant={item.change > 0 ? "default" : "destructive"}
+                      className="text-xs mt-1"
+                    >
+                      {item.change > 0 ? '+' : ''}{item.change}%
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {currentData.map((item, index) => (
+                <div key={index} className="bg-slate-800/50 rounded-lg p-4 border border-purple-500/10">
                   <div className="text-sm text-gray-400 mb-1">{item.label}</div>
-                  <div className="text-2xl font-bold text-white mb-2">
+                  <div className="text-xl font-bold text-white mb-2">
                     {item.value.toLocaleString()}
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center justify-between">
                     <div 
-                      className={`h-2 rounded-full ${item.color}`}
+                      className={`h-1 rounded-full flex-1 mr-2 ${item.color}`}
                       style={{ width: `${(item.value / maxValue) * 100}%` }}
                     />
                     <Badge 
@@ -184,8 +222,8 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
                     </Badge>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
           {/* Links Detail (for views and downloads) */}
