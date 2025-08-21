@@ -277,13 +277,16 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
                     </Badge>
                   </div>
                 </div>
-              ) : demoFile.mime_type.startsWith('video/') ? (
-                <VideoPlayer
-                  src={demoFile.preview_url}
-                  title={demoFile.original_name}
-                  className="w-full h-64 md:h-80"
-                />
-              ) : (
+                             ) : demoFile.mime_type.startsWith('video/') ? (
+                <div className="flex justify-center">
+                  <VideoPlayer
+                    src={demoFile.preview_url}
+                    title={demoFile.original_name}
+                    className="max-w-md w-full"
+                    aspectRatio="auto"
+                  />
+                </div>
+               ) : (
                 <div className="bg-slate-800/50 rounded-lg p-8 text-center">
                   <HardDrive className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <p className="text-gray-300 font-medium">{demoFile.original_name}</p>

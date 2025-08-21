@@ -17,8 +17,8 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
   const pathname = usePathname()
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/files", label: "Files", icon: Files },
+    { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home },
+    { href: isDemoMode ? "/files?demo=true" : "/files", label: "Files", icon: Files },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 

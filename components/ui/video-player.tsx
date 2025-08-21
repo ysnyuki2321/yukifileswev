@@ -16,9 +16,10 @@ interface VideoPlayerProps {
   poster?: string
   title?: string
   className?: string
+  aspectRatio?: 'auto' | '16:9' | '9:16' | '1:1' | '4:3'
 }
 
-export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps) {
+export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto' }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -30,6 +31,8 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
   const [isLoading, setIsLoading] = useState(true)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showSettings, setShowSettings] = useState(false)
+  const [quality, setQuality] = useState('auto')
+  const [videoMetadata, setVideoMetadata] = useState<{ width: number, height: number } | null>(null)
 
   useEffect(() => {
     const video = videoRef.current
@@ -38,6 +41,7 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
     const updateTime = () => setCurrentTime(video.currentTime)
     const updateDuration = () => {
       setDuration(video.duration)
+      setVideoMetadata({ width: video.videoWidth, height: video.videoHeight })
       setIsLoading(false)
     }
     const handleEnded = () => setIsPlaying(false)
@@ -125,6 +129,27 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
+  const getAspectRatioClass = () => {
+    if (aspectRatio !== 'auto') {
+      switch (aspectRatio) {
+        case '16:9': return 'aspect-video'
+        case '9:16': return 'aspect-[9/16]'
+        case '1:1': return 'aspect-square'
+        case '4:3': return 'aspect-[4/3]'
+      }
+    }
+    
+    // Auto-detect from video metadata
+    if (videoMetadata) {
+      const ratio = videoMetadata.width / videoMetadata.height
+      if (ratio > 1.5) return 'aspect-video' // Landscape
+      if (ratio < 0.8) return 'aspect-[9/16]' // Portrait (TikTok style)
+      return 'aspect-square' // Square-ish
+    }
+    
+    return 'aspect-video' // Default
+  }
+
   return (
     <div 
       className={cn("relative bg-black rounded-lg overflow-hidden shadow-2xl", className)}
@@ -132,13 +157,15 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
       onMouseLeave={() => setShowControls(false)}
     >
       {/* Video Element */}
-      <video
-        ref={videoRef}
-        src={src}
-        poster={poster}
-        className="w-full h-full object-cover"
-        onClick={togglePlay}
-      />
+      <div className={getAspectRatioClass()}>
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster}
+          className="w-full h-full object-cover"
+          onClick={togglePlay}
+        />
+      </div>
 
       {/* Loading Overlay */}
       {isLoading && (
@@ -254,20 +281,62 @@ export function VideoPlayer({ src, poster, title, className }: VideoPlayerProps)
                   </Button>
                   
                   {showSettings && (
-                    <div className="absolute bottom-full right-0 mb-2 bg-black/90 border border-purple-500/20 rounded-lg p-2 min-w-32">
-                      <div className="text-white text-xs font-medium mb-2">Playback Speed</div>
-                      {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
-                        <button
-                          key={rate}
-                          onClick={() => changePlaybackRate(rate)}
-                          className={cn(
-                            "w-full text-left px-2 py-1 text-xs rounded hover:bg-purple-500/20",
-                            playbackRate === rate ? "text-purple-400 bg-purple-500/10" : "text-gray-300"
-                          )}
-                        >
-                          {rate}x
-                        </button>
-                      ))}
+                    <div className="absolute bottom-full right-0 mb-2 bg-black/90 border border-purple-500/20 rounded-lg p-3 min-w-40">
+                      {/* Playback Speed */}
+                      <div className="mb-4">
+                        <div className="text-white text-xs font-medium mb-2">Playback Speed</div>
+                        <div className="space-y-1">
+                          {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
+                            <button
+                              key={rate}
+                              onClick={() => changePlaybackRate(rate)}
+                              className={cn(
+                                "w-full text-left px-2 py-1 text-xs rounded hover:bg-purple-500/20",
+                                playbackRate === rate ? "text-purple-400 bg-purple-500/10" : "text-gray-300"
+                              )}
+                            >
+                              {rate}x {rate === 1 ? '(Normal)' : ''}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Quality Settings */}
+                      <div className="border-t border-gray-700 pt-3">
+                        <div className="text-white text-xs font-medium mb-2">Quality</div>
+                        <div className="space-y-1">
+                          {[
+                            { value: 'auto', label: 'Auto (Best)' },
+                            { value: '1080p', label: '1080p HD' },
+                            { value: '720p', label: '720p HD' },
+                            { value: '480p', label: '480p' },
+                            { value: '360p', label: '360p' }
+                          ].map((q) => (
+                            <button
+                              key={q.value}
+                              onClick={() => setQuality(q.value)}
+                              className={cn(
+                                "w-full text-left px-2 py-1 text-xs rounded hover:bg-purple-500/20",
+                                quality === q.value ? "text-purple-400 bg-purple-500/10" : "text-gray-300"
+                              )}
+                            >
+                              {q.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Video Info */}
+                      {videoMetadata && (
+                        <div className="border-t border-gray-700 pt-3 mt-3">
+                          <div className="text-white text-xs font-medium mb-2">Video Info</div>
+                          <div className="text-gray-400 text-xs space-y-1">
+                            <div>Resolution: {videoMetadata.width}×{videoMetadata.height}</div>
+                            <div>Duration: {formatTime(duration)}</div>
+                            <div>Aspect: {(videoMetadata.width / videoMetadata.height).toFixed(2)}</div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

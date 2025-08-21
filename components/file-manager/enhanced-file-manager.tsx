@@ -17,6 +17,7 @@ import {
   WifiOff, CheckCircle, XCircle, AlertCircle, Info
 } from "lucide-react"
 import { FileEditor } from "@/components/file-editor/file-editor"
+import { MediaPreview } from "@/components/ui/media-preview"
 import { formatBytes } from "@/lib/utils"
 
 export interface FileItem {
@@ -63,6 +64,7 @@ export function EnhancedFileManager({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [showMediaPreview, setShowMediaPreview] = useState(false)
   const [sortBy, setSortBy] = useState<"name" | "size" | "date">("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
   const [filterType, setFilterType] = useState<"all" | "images" | "videos" | "audio" | "documents" | "code">("all")
@@ -119,6 +121,10 @@ export function EnhancedFileManager({
       setSelectedFile(file)
       setShowEditor(true)
       onFileEdit?.(file)
+    } else if (isMediaFile(file.name)) {
+      setSelectedFile(file)
+      setShowMediaPreview(true)
+      onFileEdit?.(file)
     }
   }
 
@@ -130,6 +136,16 @@ export function EnhancedFileManager({
     ]
     const ext = filename.split('.').pop()?.toLowerCase()
     return textExtensions.includes(ext || '')
+  }
+
+  const isMediaFile = (filename: string): boolean => {
+    const mediaExtensions = [
+      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
+      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
+      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return mediaExtensions.includes(ext || '')
   }
 
   const getFileIcon = (file: FileItem) => {
@@ -204,6 +220,11 @@ export function EnhancedFileManager({
 
   const closeEditor = () => {
     setShowEditor(false)
+    setSelectedFile(null)
+  }
+
+  const closeMediaPreview = () => {
+    setShowMediaPreview(false)
     setSelectedFile(null)
   }
 
@@ -498,6 +519,20 @@ export function EnhancedFileManager({
             readOnly={false}
           />
         </div>
+      )}
+
+      {/* Media Preview Modal */}
+      {showMediaPreview && selectedFile && (
+        <MediaPreview
+          file={{
+            id: selectedFile.id,
+            name: selectedFile.name,
+            type: selectedFile.type,
+            size: selectedFile.size,
+            thumbnail: selectedFile.thumbnail
+          }}
+          onClose={closeMediaPreview}
+        />
       )}
     </div>
   )
