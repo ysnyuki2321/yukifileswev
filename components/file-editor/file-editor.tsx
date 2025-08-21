@@ -31,6 +31,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
   const [fileName, setFileName] = useState(file.name || 'untitled.txt')
   const [content, setContent] = useState(file.content || '')
   const [isModified, setIsModified] = useState(false)
+  const [iconKey, setIconKey] = useState(0) // For icon animation
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const lineNumbersRef = useRef<HTMLDivElement>(null)
 
@@ -46,6 +47,14 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
   }
 
   const handleFileNameChange = (newName: string) => {
+    const oldExtension = fileName.split('.').pop()?.toLowerCase()
+    const newExtension = newName.split('.').pop()?.toLowerCase()
+    
+    // Trigger icon animation if extension changed
+    if (oldExtension !== newExtension) {
+      setIconKey(prev => prev + 1)
+    }
+    
     setFileName(newName)
     setIsModified(true)
   }
@@ -172,9 +181,10 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
           <div className="flex items-center justify-between p-3 sm:p-6 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur-sm">
             <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
               <motion.div
+                key={iconKey} // Re-animate when iconKey changes
                 initial={{ rotate: -180, scale: 0 }}
                 animate={{ rotate: 0, scale: 1 }}
-                transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+                transition={{ duration: 0.4, type: "spring", damping: 20, stiffness: 300 }}
                 className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center ring-2 ring-purple-500/20 flex-shrink-0"
               >
                 {getFileIcon()}

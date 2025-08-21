@@ -51,6 +51,9 @@ interface EnhancedFileManagerProps {
   onFileUpload?: (files: File[]) => void
   onFileCreate?: (file: { name: string, type: string, content: string, path: string }) => void
   onFolderCreate?: (folder: { name: string, path: string }) => void
+  onFileRename?: (fileId: string, newName: string) => void
+  onFileCopy?: (fileId: string) => void
+  onFileMove?: (fileId: string, newPath: string) => void
   className?: string
 }
 
@@ -150,6 +153,12 @@ export function EnhancedFileManager({
   const [newFileName, setNewFileName] = useState('')
   const [newFileType, setNewFileType] = useState('txt')
   const [newFileContent, setNewFileContent] = useState('')
+  const [showRenameDialog, setShowRenameDialog] = useState(false)
+  const [renamingFile, setRenamingFile] = useState<FileItem | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [copiedFiles, setCopiedFiles] = useState<string[]>([])
+  const [showMoveDialog, setShowMoveDialog] = useState(false)
+  const [movingFile, setMovingFile] = useState<FileItem | null>(null)
 
   // Filter and sort files
   const filteredAndSortedFiles = files
