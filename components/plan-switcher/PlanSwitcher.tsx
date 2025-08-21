@@ -104,9 +104,7 @@ export function PlanSwitcher({ isOpen, onClose, onSwitch, currentPlan }: PlanSwi
               </div>
             </div>
             
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-gray-400">
-              <X className="w-4 h-4" />
-            </Button>
+            {/* Removed duplicate header close button to avoid double X */}
           </div>
         </DialogHeader>
         
