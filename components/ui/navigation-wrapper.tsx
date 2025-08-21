@@ -21,6 +21,7 @@ interface NavigationWrapperProps {
 
 const navigationItems = [
   { name: "Features", href: "/#features" },
+  { name: "Files", href: "/files" },
   { name: "Pricing", href: "/pricing" },
   { name: "Contact", href: "/contact" }
 ]

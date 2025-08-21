@@ -40,8 +40,7 @@ export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: E
           <RecentFiles files={recentFiles} />
         </div>
       </div>
-      {/* Full File Manager (demo data) */}
-      <EnhancedFileManager files={mappedFiles} />
+      {/* In demo, we only show a summary. Full file manager available at /files */}
     </div>
   )
 }

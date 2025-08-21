@@ -9,7 +9,7 @@ import {
   Save, Download, Share2, Settings, Maximize2, Minimize2, 
   FileText, Code, Image, File, X, Check, AlertCircle,
   Copy, Undo, Redo, Search, Replace, Edit3, Type,
-  ZoomIn, ZoomOut, Eye, EyeOff, FileType, FileCode,
+  Eye, EyeOff, FileType, FileCode,
   ChevronDown, MoreHorizontal, RotateCcw, Play, Square,
   FileImage, FileVideo, FileAudio, FileArchive, FileSpreadsheet,
   Database, Globe, Lock, Unlock, Star, StarOff, Music, Video
@@ -99,7 +99,6 @@ interface EditorState {
   content: string
   selection: { start: number; end: number }
   scrollPosition: { x: number; y: number }
-  zoom: number
   wordWrap: boolean
   lineNumbers: boolean
   minimap: boolean
@@ -327,7 +326,6 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
     content: file.content,
     selection: { start: 0, end: 0 },
     scrollPosition: { x: 0, y: 0 },
-    zoom: 100,
     wordWrap: true,
     lineNumbers: true,
     minimap: true,
