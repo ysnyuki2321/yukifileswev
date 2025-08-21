@@ -24,6 +24,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Label } from "@/components/ui/label"
 import { FileEditor } from "@/components/file-editor/FileEditor"
 import { PlanSwitcher } from "@/components/plan-switcher/PlanSwitcher"
+import { FilePreview } from "@/components/file-preview/FilePreview"
 
 interface DemoFile {
   id: string
@@ -105,6 +106,8 @@ export function EnhancedDemoManager() {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [dragOver, setDragOver] = useState(false)
+  const [previewFile, setPreviewFile] = useState<DemoFile | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
   const [demoFiles, setDemoFiles] = useState<DemoFile[]>([
     {
       id: '1',
@@ -283,8 +286,19 @@ export function EnhancedDemoManager() {
     return planId !== 'free'
   }
 
+  const formatFileSize = (bytes: number) => {
+    if (!bytes || bytes <= 0) return '0 B'
+    const kb = bytes / 1024
+    if (kb < 1) return `${bytes} B`
+    const mb = kb / 1024
+    if (mb < 1) return `${Math.max(1, Math.round(kb))} KB`
+    const gb = mb / 1024
+    if (gb < 1) return `${mb.toFixed(1)} MB`
+    return `${gb.toFixed(2)} GB`
+  }
+
       return (
-      <div className="space-y-4 sm:space-y-6 max-w-full overflow-x-hidden mobile-scrollbar">
+      <div className="space-y-4 sm:space-y-6 max-w-full overflow-x-hidden overflow-y-auto mobile-scrollbar">
         {/* Header */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
@@ -538,7 +552,7 @@ export function EnhancedDemoManager() {
                     <div className="space-y-2">
                       {demoFiles.map((file, i) => (
                         <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-700/50 transition-colors">
-                                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                                                      <div className="flex items-center gap-3 min-w-0 flex-1 cursor-pointer" onClick={() => { setPreviewFile(file); setShowPreview(true) }}>
                               <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                                 {file.type === 'folder' ? (
                                   <Folder className="w-5 h-5 text-purple-400" />
@@ -559,7 +573,7 @@ export function EnhancedDemoManager() {
                               <div className="min-w-0 flex-1">
                                 <div className="text-white font-medium text-ellipsis">{file.name}</div>
                                 <div className="text-gray-400 text-sm text-ellipsis">
-                                  {file.type === 'folder' ? 'Folder' : `${(file.size / 1024 / 1024).toFixed(1)}MB`} • {file.type}
+                                  {file.type === 'folder' ? 'Folder' : formatFileSize(file.size)} • {file.type}
                                 </div>
                               </div>
                             </div>
@@ -573,7 +587,7 @@ export function EnhancedDemoManager() {
                               <span className="text-gray-400 text-sm">{file.downloadCount} downloads</span>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={(e) => e.stopPropagation()}>
                                   <MoreHorizontal className="w-4 h-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -886,6 +900,20 @@ export function EnhancedDemoManager() {
         onSwitch={handlePlanSwitch}
         currentPlan={currentPlan}
       />
+      {/* File Preview */}
+      {previewFile && (
+        <FilePreview
+          file={{
+            id: previewFile.id,
+            name: previewFile.name,
+            size: previewFile.size,
+            mimeType: previewFile.mimeType,
+            content: previewFile.content
+          }}
+          isOpen={showPreview}
+          onClose={() => setShowPreview(false)}
+        />
+      )}
     </div>
   )
 }
