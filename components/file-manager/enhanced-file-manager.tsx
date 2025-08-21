@@ -40,7 +40,7 @@ interface EnhancedFileManagerProps {
   onFileEdit?: (file: FileItem) => void
   onFileDelete?: (fileId: string) => void
   onFileSave?: (file: FileItem, content: string, name?: string) => void
-  onFileCreate?: (name: string, type: string) => void
+  onFileCreate?: (newFile: { name: string, type: string, content: string, path: string }) => void
   onFolderCreate?: (name: string) => void
   uploadProgress?: { [key: string]: number }
   uploadingFiles?: string[]
@@ -156,8 +156,14 @@ export function EnhancedFileManager({
 
   const handleCreateFile = () => {
     const name = prompt("Enter file name:")
-    if (name) {
-      onFileCreate?.(name, "text")
+    if (name && onFileCreate) {
+      const newFile = {
+        name,
+        type: "text",
+        content: "",
+        path: "/"
+      }
+      onFileCreate(newFile)
     }
   }
 

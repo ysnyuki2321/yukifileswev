@@ -172,32 +172,92 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
               </Badge>
             </div>
             
-            {/* Main Chart */}
+            {/* Main Chart - Curved Line Chart */}
             <div className="bg-slate-800/30 rounded-lg p-6 mb-4">
-              <div className="h-64 flex items-end justify-between gap-2">
-                {currentData.map((item, index) => (
-                  <div key={index} className="flex-1 flex flex-col items-center">
-                    <div className="w-full max-w-16 relative">
-                      <div 
-                        className={`w-full rounded-t-lg transition-all duration-1000 ease-out ${item.color} opacity-80 hover:opacity-100`}
-                        style={{ 
-                          height: `${(item.value / maxValue) * 200}px`,
-                          minHeight: '20px'
-                        }}
-                      />
-                      <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 text-xs text-white font-bold">
-                        {item.value.toLocaleString()}
-                      </div>
+              <div className="h-64 relative">
+                {/* Chart Grid */}
+                <div className="absolute inset-0 grid grid-rows-4 opacity-20">
+                  {[...Array(4)].map((_, i) => (
+                    <div key={i} className="border-b border-gray-600 last:border-b-0" />
+                  ))}
+                </div>
+                
+                {/* Chart Line */}
+                <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 200">
+                  <defs>
+                    <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                      <stop offset="50%" stopColor="#ec4899" stopOpacity="0.6" />
+                      <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.8" />
+                    </linearGradient>
+                    <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
+                      <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.05" />
+                    </linearGradient>
+                  </defs>
+                  
+                  {/* Area under curve */}
+                  <path
+                    d={`M 50 ${200 - (currentData[0].value / maxValue) * 150} 
+                        Q 150 ${200 - (currentData[1].value / maxValue) * 150} 200 ${200 - (currentData[2].value / maxValue) * 150}
+                        Q 300 ${200 - (currentData[3].value / maxValue) * 150} 350 ${200 - (currentData[3].value / maxValue) * 150}
+                        L 350 200 L 50 200 Z`}
+                    fill="url(#areaGradient)"
+                  />
+                  
+                  {/* Main curve line */}
+                  <path
+                    d={`M 50 ${200 - (currentData[0].value / maxValue) * 150} 
+                        Q 150 ${200 - (currentData[1].value / maxValue) * 150} 200 ${200 - (currentData[2].value / maxValue) * 150}
+                        Q 300 ${200 - (currentData[3].value / maxValue) * 150} 350 ${200 - (currentData[3].value / maxValue) * 150}`}
+                    stroke="url(#chartGradient)"
+                    strokeWidth="3"
+                    fill="none"
+                    strokeLinecap="round"
+                  />
+                  
+                  {/* Data points */}
+                  {currentData.map((item, index) => {
+                    const x = 50 + (index * 100)
+                    const y = 200 - (item.value / maxValue) * 150
+                    return (
+                      <g key={index}>
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="6"
+                          fill="#8b5cf6"
+                          stroke="white"
+                          strokeWidth="2"
+                          className="hover:r-8 transition-all cursor-pointer"
+                        />
+                        <text
+                          x={x}
+                          y={y - 15}
+                          textAnchor="middle"
+                          className="fill-white text-xs font-bold"
+                        >
+                          {item.value.toLocaleString()}
+                        </text>
+                      </g>
+                    )
+                  })}
+                </svg>
+                
+                {/* X-axis labels */}
+                <div className="absolute bottom-0 left-0 right-0 flex justify-between px-12 pb-2">
+                  {currentData.map((item, index) => (
+                    <div key={index} className="text-xs text-gray-400 text-center">
+                      <div>{item.label}</div>
+                      <Badge 
+                        variant={item.change > 0 ? "default" : "destructive"}
+                        className="text-xs mt-1"
+                      >
+                        {item.change > 0 ? '+' : ''}{item.change}%
+                      </Badge>
                     </div>
-                    <div className="text-xs text-gray-400 mt-2 text-center">{item.label}</div>
-                    <Badge 
-                      variant={item.change > 0 ? "default" : "destructive"}
-                      className="text-xs mt-1"
-                    >
-                      {item.change > 0 ? '+' : ''}{item.change}%
-                    </Badge>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
