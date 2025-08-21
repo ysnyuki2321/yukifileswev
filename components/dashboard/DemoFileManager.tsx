@@ -146,11 +146,11 @@ export function DemoFileManager() {
       return
     }
     if (action === 'delete') {
-      setFiles(prev => prev.filter(f => f.id !== id))
+      setFiles(prevFiles => prevFiles.filter(f => f.id !== id))
       return
     }
     if (action === 'star') {
-      setFiles(prev => prev.map(f => f.id === id ? { ...f, isStarred: !f.isStarred } : f))
+      setFiles(prevFiles => prevFiles.map(f => f.id === id ? { ...f, isStarred: !f.isStarred } : f))
       return
     }
   }
@@ -166,7 +166,7 @@ export function DemoFileManager() {
       isStarred: false,
       isPublic: false
     }
-    setFiles(prev => [newFolder, ...prev])
+    setFiles(prevFiles => [newFolder, ...prevFiles])
   }
 
   return (
@@ -252,11 +252,13 @@ export function DemoFileManager() {
                       )}
                       onContextMenu={(e) => handleContextMenu(e, file.id)}
                       onDoubleClick={() => handleFileAction('open', file.id)}
-                      onClick={() => setSelectedFiles(prev => 
-                        prev.includes(file.id) 
-                          ? prev.filter(id => id !== file.id)
-                          : [...prev, file.id]
-                      )}
+                      onClick={() => {
+                        setSelectedFiles(prevFiles => 
+                          prevFiles.includes(file.id) 
+                            ? prevFiles.filter(id => id !== file.id)
+                            : [...prevFiles, file.id]
+                        )
+                      }}
                     >
                       <CardContent className="p-3 md:p-4">
                         <div className="flex items-start justify-between mb-2 md:mb-3">
@@ -313,11 +315,13 @@ export function DemoFileManager() {
                       )}
                       onContextMenu={(e) => handleContextMenu(e, file.id)}
                       onDoubleClick={() => handleFileAction('open', file.id)}
-                      onClick={() => setSelectedFiles(prev => 
-                        prev.includes(file.id) 
-                          ? prev.filter(id => id !== file.id)
-                          : [...prev, file.id]
-                      )}
+                      onClick={() => {
+                        setSelectedFiles(prevFiles => 
+                          prevFiles.includes(file.id) 
+                            ? prevFiles.filter(id => id !== file.id)
+                            : [...prevFiles, file.id]
+                        )
+                      }}
                     >
                       <Icon className="w-5 h-5 text-purple-400" />
                       <div className="min-w-0">
