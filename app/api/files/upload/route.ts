@@ -8,7 +8,7 @@ import { resolvePlanFromUserRow } from "@/lib/services/plans"
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     if (!supabase) {
       return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
     }

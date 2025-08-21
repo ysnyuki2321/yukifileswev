@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { createClientComponentClient } from "@supabase/ssr"
+import { supabase } from "@/lib/supabase/client"
 import DashboardHeader from "@/components/dashboard/DashboardHeader"
 import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
@@ -38,7 +38,7 @@ function DashboardContent() {
         setFilesCount(getDebugFiles().length)
       } else {
         try {
-          const supabase = createClientComponentClient()
+          // Use the imported supabase client
           const { data: { user: authUser } } = await supabase.auth.getUser()
           
           if (!authUser) {

@@ -1,10 +1,10 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
 import { createCryptoPayment } from "@/lib/services/payment"
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     if (!supabase) {
       return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
     }

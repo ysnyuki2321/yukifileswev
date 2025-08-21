@@ -978,7 +978,7 @@ export function getDebugStats() {
 }
 
 export async function isDebugModeEnabled(): Promise<boolean> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return false
   
   try {

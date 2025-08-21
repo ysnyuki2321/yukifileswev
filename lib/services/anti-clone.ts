@@ -90,7 +90,7 @@ export async function checkAntiClone(
   deviceFingerprint: DeviceFingerprint,
   action = "register",
 ): Promise<{ allowed: boolean; reason?: string; riskScore: number }> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { allowed: false, reason: "Database connection failed", riskScore: 100 }
   }
@@ -247,7 +247,7 @@ function calculateFingerprintSimilarity(fp1: string, fp2: string): number {
 }
 
 export async function logUserActivity(userId: string, action: string, metadata?: any) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return
 
   const headersList = headers()
@@ -281,7 +281,7 @@ export async function checkRateLimit(
   limit = 10,
   windowSeconds = 60 * 60,
 ): Promise<{ allowed: boolean; remaining: number; resetSeconds: number }> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return { allowed: true, remaining: limit, resetSeconds: windowSeconds }
 
   const sinceISO = new Date(Date.now() - windowSeconds * 1000).toISOString()
@@ -318,7 +318,7 @@ export async function checkRateLimit(
 }
 
 export async function logRateLimitAttempt(ip: string, userAgent: string, fingerprint: string | null, action: "login" | "register") {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return
   const attemptAction = action === "login" ? "login_attempt" : "register_attempt"
   await supabase.from("ip_logs").insert({
@@ -343,7 +343,7 @@ export async function getClientInfo() {
 }
 
 export async function logClientInfo() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return
   const headersList = await headers()
   const ip = headersList.get("x-forwarded-for")?.split(",")[0] || headersList.get("x-real-ip") || "127.0.0.1"

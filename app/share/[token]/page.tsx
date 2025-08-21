@@ -6,12 +6,13 @@ import { Download, Copy, Eye, Calendar, HardDrive } from "lucide-react"
 import ShareActions from "@/components/share/ShareActions"
 
 interface SharePageProps {
-  params: {
+  params: Promise<{
     token: string
-  }
+  }>
 }
 
 export default async function SharePage({ params }: SharePageProps) {
+  const { token } = await params
   const supabase = await createServerClient()
 
   if (!supabase) {
@@ -22,7 +23,7 @@ export default async function SharePage({ params }: SharePageProps) {
   const { data: file } = await supabase
     .from("files")
     .select("*")
-    .eq("share_token", params.token)
+    .eq("share_token", token)
     .single()
 
   if (!file) {
@@ -77,7 +78,7 @@ export default async function SharePage({ params }: SharePageProps) {
           </div>
 
           {/* Actions */}
-          <ShareActions token={params.token} />
+          <ShareActions token={token} />
         </CardContent>
       </Card>
     </div>

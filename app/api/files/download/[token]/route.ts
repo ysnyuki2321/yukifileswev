@@ -4,9 +4,13 @@ import { readFile } from "fs/promises"
 import { join } from "path"
 import zlib from "zlib"
 
-export async function GET(request: NextRequest, { params }: { params: { token: string } }) {
+interface RouteParams {
+  params: Promise<{ token: string }>
+}
+
+export async function GET(request: NextRequest, context: RouteParams) {
   try {
-    const { token } = params
+    const { token } = await context.params
     const supabase = await createServerClient()
     if (!supabase) {
       return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
