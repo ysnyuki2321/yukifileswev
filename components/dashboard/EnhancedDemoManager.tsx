@@ -4,7 +4,7 @@ import React from "react"
 import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed, { type ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles, { type RecentFileItem } from "@/components/dashboard/RecentFiles"
-import { DemoFileManager } from "@/components/dashboard/DemoFileManager"
+import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
 
 interface EnhancedDemoManagerProps {
   userData: any
@@ -13,6 +13,17 @@ interface EnhancedDemoManagerProps {
 }
 
 export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: EnhancedDemoManagerProps) {
+  const transformedFiles = (recentFiles || []).map((f) => ({
+    id: f.id,
+    name: f.original_name,
+    type: f.mimeType || f.type || 'text/plain',
+    size: f.file_size,
+    lastModified: new Date(f.created_at),
+    isFolder: false,
+    content: f.content || '',
+    path: '/'
+  }))
+
   return (
     <div className="space-y-6">
       <div className="grid gap-6 lg:grid-cols-3">
@@ -26,7 +37,7 @@ export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: E
       </div>
 
       <section id="file-manager" data-section="files" className="scroll-mt-24">
-        <DemoFileManager />
+        <EnhancedFileManager files={transformedFiles} />
       </section>
     </div>
   )

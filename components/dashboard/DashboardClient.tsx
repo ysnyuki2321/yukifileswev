@@ -104,23 +104,11 @@ export default function DashboardClient() {
                 filesCount={filesCount}
                 recentActivity={recentActivity}
               />
-              {isDemoMode ? (
-                <EnhancedDemoManager 
-                  userData={userData}
-                  recentFiles={recentFiles}
-                  recentActivity={recentActivity}
-                />
-              ) : (
-                <div className="grid gap-6 lg:grid-cols-3">
-                  <div className="lg:col-span-2 space-y-6">
-                    <QuickActions isPremium={userData?.subscription_type === "paid"} />
-                    <ActivityFeed activities={recentActivity} />
-                  </div>
-                  <div className="order-first lg:order-last">
-                    <RecentFiles files={recentFiles} />
-                  </div>
-                </div>
-              )}
+              <EnhancedDemoManager 
+                userData={userData}
+                recentFiles={recentFiles}
+                recentActivity={recentActivity}
+              />
             </div>
           </main>
         </div>
