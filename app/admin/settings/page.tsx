@@ -1,7 +1,7 @@
 import { createServerClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
 import AdminSettings from "@/components/admin/admin-settings"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
+import { requireAdmin } from "@/lib/middleware/admin"
 
 // Helper function to get the current site URL
 function getCurrentSiteUrl(): string {
@@ -20,18 +20,13 @@ function getCurrentSiteUrl(): string {
 }
 
 export default async function AdminSettingsPage() {
+  // Enforce admin access
+  await requireAdmin()
   const supabase = await createServerClient()
-  
-  // Check debug mode first
-  const debugMode = await isDebugModeEnabled()
-  
-  if (!debugMode && !supabase) {
-    redirect("/auth/login")
-  }
 
   let settings: Record<string, string> = {}
   
-  if (debugMode) {
+  if (await isDebugModeEnabled()) {
     // Mock settings for debug mode
     settings = {
       brand_name: "YukiFiles",

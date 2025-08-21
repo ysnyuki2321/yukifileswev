@@ -380,11 +380,22 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   // Apply syntax highlighting
   const applySyntaxHighlighting = (content: string, language: string): string => {
+    // Escape HTML to prevent XSS before injecting into DOM
+    const escapeHtml = (input: string): string =>
+      input
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+
+    const safeContent = escapeHtml(content)
+
     if (!syntaxHighlightPatterns[language]) {
-      return content.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
+      return safeContent.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
     }
 
-    let highlightedContent = content
+    let highlightedContent = safeContent
     const patterns = syntaxHighlightPatterns[language]
 
     patterns.forEach(({ pattern, className }) => {
