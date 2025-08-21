@@ -100,11 +100,11 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
   }
 
   const toggleFullscreen = () => {
-    const container = videoRef.current?.parentElement?.parentElement
-    if (!document.fullscreenElement && container) {
-      container.requestFullscreen()
+    const playerContainer = videoRef.current?.closest('.video-player-container')
+    if (!document.fullscreenElement && playerContainer) {
+      playerContainer.requestFullscreen()
       setIsFullscreen(true)
-    } else {
+    } else if (document.fullscreenElement) {
       document.exitFullscreen()
       setIsFullscreen(false)
     }
@@ -116,21 +116,26 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
     video.currentTime = Math.max(0, Math.min(duration, video.currentTime + seconds))
   }
 
-  // Custom skip button component with number
+  // Custom skip button component
   const SkipButton = ({ seconds, direction }: { seconds: number, direction: 'forward' | 'backward' }) => (
     <Button
       onClick={() => skip(direction === 'forward' ? seconds : -seconds)}
       size="sm"
       variant="ghost"
-      className="text-white hover:bg-white/20 relative w-12 h-10"
+      className="text-white hover:bg-white/20 relative"
+      title={`${direction === 'forward' ? 'Forward' : 'Backward'} ${seconds} seconds`}
     >
-      <div className="flex flex-col items-center justify-center">
-        <div className="flex items-center gap-1">
-          {direction === 'backward' ? <SkipBack className="w-3 h-3" /> : <SkipForward className="w-3 h-3" />}
-          <span className="text-sm font-bold">{seconds}</span>
+      {direction === 'backward' ? (
+        <div className="flex items-center">
+          <RotateCcw className="w-4 h-4" />
+          <span className="text-xs ml-1">{seconds}</span>
         </div>
-        <span className="text-xs opacity-80">sec</span>
-      </div>
+      ) : (
+        <div className="flex items-center">
+          <span className="text-xs mr-1">{seconds}</span>
+          <RotateCcw className="w-4 h-4 scale-x-[-1]" />
+        </div>
+      )}
     </Button>
   )
 
@@ -171,7 +176,7 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
 
   return (
     <div 
-      className={cn("relative bg-black rounded-lg overflow-hidden shadow-2xl", className)}
+      className={cn("relative bg-black rounded-lg overflow-hidden shadow-2xl video-player-container", className)}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
     >
@@ -286,7 +291,7 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
                   </Button>
                   
                   {showSettings && (
-                    <div className="absolute bottom-full right-0 mb-2 bg-black/90 border border-purple-500/20 rounded-lg p-3 min-w-40">
+                    <div className="fixed bottom-20 right-4 bg-black/95 border border-purple-500/20 rounded-lg p-3 min-w-48 max-h-80 overflow-y-auto shadow-2xl z-50">
                       {/* Playback Speed */}
                       <div className="mb-4">
                         <div className="text-white text-xs font-medium mb-2">Playback Speed</div>
