@@ -2,7 +2,9 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme/theme-provider"
+import { ToastProvider } from "@/components/ui/toast"
 import { Toaster } from "sonner"
+import { ErrorOverlay } from "@/components/ui/error-overlay"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -80,10 +82,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Preload critical resources */}
-        <link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
-        
         {/* DNS prefetch for external resources */}
         <link rel="dns-prefetch" href="//fonts.googleapis.com" />
         <link rel="dns-prefetch" href="//api.supabase.co" />
@@ -99,8 +97,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
-          {children}
-          <Toaster />
+          <ToastProvider>
+            {children}
+            <Toaster />
+            <ErrorOverlay />
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

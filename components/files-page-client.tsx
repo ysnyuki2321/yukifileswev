@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
 import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
-import { getDebugFiles } from "@/lib/services/debug-user"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -62,22 +61,31 @@ export default function FilesPageClient() {
         setUserData(getMockUserData())
         
         // Transform debug files to match FileItem interface
-        const debugFiles = getDebugFiles()
+        const res = await fetch('/api/debug/files', { cache: 'no-store' })
+        const data = await res.json()
+        const debugFiles = Array.isArray(data.files) ? data.files : []
+        // Replace untitled placeholders with curated sample files
+        const samples: FileItem[] = [
+          { id: 's1', name: 'app.tsx', type: 'text/tsx', size: 1520, lastModified: new Date(), isFolder: false, content: `import React from 'react'\nexport default function App(){\n  return <div>Hello YukiFiles</div>\n}` , path: '/' },
+          { id: 's2', name: 'server.js', type: 'application/javascript', size: 2440, lastModified: new Date(), isFolder: false, content: `const http=require('http')\nhttp.createServer((_,res)=>{res.end('OK')}).listen(3000)` , path: '/' },
+          { id: 's3', name: 'style.css', type: 'text/css', size: 980, lastModified: new Date(), isFolder: false, content: `body{font-family:system-ui;background:#0b1020;color:#fff}` , path: '/' },
+          { id: 's4', name: 'README.md', type: 'text/markdown', size: 1200, lastModified: new Date(), isFolder: false, content: `# YukiFiles\n\nDemo file manager samples.` , path: '/' }
+        ]
         const transformedDebugFiles: FileItem[] = debugFiles.map((file: any) => ({
           id: file.id,
-          name: file.name || 'untitled.txt',
+          name: file.original_name || file.name || 'sample.txt',
           type: file.mime_type || 'application/octet-stream',
-          size: file.size || 0,
-          lastModified: new Date(file.uploaded_at || Date.now()),
+          size: file.file_size || file.size || 0,
+          lastModified: new Date(file.created_at || file.uploaded_at || Date.now()),
           isFolder: false,
           content: file.content || '',
           thumbnail: file.thumbnail,
-          isStarred: file.is_starred || false,
-          isShared: file.is_public || false,
+          isStarred: Boolean(file.is_starred),
+          isShared: Boolean(file.is_public),
           owner: file.owner || 'debug@yukifiles.com',
           path: '/'
         }))
-        setFiles(transformedDebugFiles)
+        setFiles([...samples, ...transformedDebugFiles])
       } catch (error) {
         console.error("Error loading data:", error)
       } finally {

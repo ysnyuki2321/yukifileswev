@@ -153,7 +153,7 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
                     >
                       <Copy className="h-4 w-4" />
                     </Button>
-                    <Link href={`/share/${file.share_token}`} target="_blank">
+                    <Link href={`/share/${file.share_token}`} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm" className="border-gray-700 text-gray-300">
                         <Eye className="h-4 w-4" />
                       </Button>

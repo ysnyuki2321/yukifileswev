@@ -13,11 +13,15 @@ export async function isDebugModeEnabled(): Promise<boolean> {
   }
 
   try {
-    // Check if Supabase is configured
+    // In production, never enable debug by default
+    const isProd = process.env.NODE_ENV === 'production'
+    // If Supabase env missing:
+    // - In dev: default to true to ease local development
+    // - In prod: default to false to avoid accidental bypass
     if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      debugModeCache = true
+      debugModeCache = isProd ? false : true
       debugModeCacheTime = now
-      return true
+      return debugModeCache
     }
 
     const supabase = createClient(
@@ -31,7 +35,7 @@ export async function isDebugModeEnabled(): Promise<boolean> {
       .eq("setting_key", "debug_mode")
       .single()
 
-    const isDebug = settings?.setting_value === "true"
+    const isDebug = settings?.setting_value === "true" && !isProd
     
     // Update cache
     debugModeCache = isDebug
@@ -40,10 +44,10 @@ export async function isDebugModeEnabled(): Promise<boolean> {
     return isDebug
   } catch (error) {
     console.warn("[Debug] Failed to check debug mode:", error)
-    // Default to debug mode if there's an error
-    debugModeCache = true
+    // Fail-closed in production, fail-open in dev
+    debugModeCache = process.env.NODE_ENV === 'production' ? false : true
     debugModeCacheTime = now
-    return true
+    return debugModeCache
   }
 }
 
