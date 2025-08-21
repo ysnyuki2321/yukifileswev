@@ -47,7 +47,7 @@ export async function isDebugModeEnabled(): Promise<boolean> {
     // Fail-closed in production, fail-open in dev
     debugModeCache = process.env.NODE_ENV === 'production' ? false : true
     debugModeCacheTime = now
-    return true
+    return debugModeCache
   }
 }
 

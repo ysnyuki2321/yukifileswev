@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic'
 import { redirect } from "next/navigation"
 import UsersManagement from "@/components/admin/users-management"
 import { isDebugModeEnabled } from "@/lib/services/debug-context"
