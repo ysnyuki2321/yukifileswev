@@ -4,7 +4,7 @@ import React from "react"
 import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed, { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
-import DemoFileManager from "@/components/dashboard/DemoFileManager"
+import { DemoFileManager } from "@/components/dashboard/DemoFileManager"
 
 interface EnhancedDemoManagerProps {
   userData: any
