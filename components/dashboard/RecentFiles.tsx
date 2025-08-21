@@ -4,10 +4,12 @@ import { useCallback, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatBytes } from "@/lib/utils"
-import { Copy, Link as LinkIcon, ExternalLink, FileText, Eye, Edit3, FileCode, FileImage, Music, Video, FileArchive, Database } from "lucide-react"
+import { Copy, Link as LinkIcon, ExternalLink, FileText, Eye, Edit3, FileCode, FileImage, Music, Video, FileArchive, Database, MoreVertical, Share2 } from "lucide-react"
 import Link from "next/link"
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { ShareModal } from "@/components/ui/share-modal"
 import { LucideIcon } from "lucide-react"
 
 export interface RecentFileItem {
@@ -84,6 +86,8 @@ const isTextFile = (filename: string | undefined): boolean => {
 export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
   const [selectedFile, setSelectedFile] = useState<RecentFileItem | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [shareFile, setShareFile] = useState<RecentFileItem | null>(null)
 
   const copyShareLink = useCallback((token: string) => {
     const url = `${window.location.origin}/share/${token}`
@@ -100,6 +104,11 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
   const closeEditor = useCallback(() => {
     setShowEditor(false)
     setSelectedFile(null)
+  }, [])
+
+  const handleShare = useCallback((file: RecentFileItem) => {
+    setShareFile(file)
+    setShowShareModal(true)
   }, [])
 
   return (
@@ -158,6 +167,36 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="text-gray-300 hover:text-white">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="bg-black/90 border-gray-700">
+                        <DropdownMenuItem
+                          onClick={() => handleShare(file)}
+                          className="text-gray-300 hover:text-white"
+                        >
+                          <Share2 className="w-4 h-4 mr-2" />
+                          Generate Link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => copyShareLink(file.share_token)}
+                          className="text-gray-300 hover:text-white"
+                        >
+                          <Copy className="w-4 h-4 mr-2" />
+                          Copy Current Link
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => window.open(`/share/${file.share_token}`, '_blank')}
+                          className="text-gray-300 hover:text-white"
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Open Preview
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </li>
               )
@@ -186,6 +225,18 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Share Modal */}
+      {shareFile && (
+        <ShareModal
+          isOpen={showShareModal}
+          onClose={() => {
+            setShowShareModal(false)
+            setShareFile(null)
+          }}
+          file={shareFile}
+        />
+      )}
     </Card>
   )
 }
