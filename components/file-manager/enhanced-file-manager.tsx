@@ -373,14 +373,14 @@ export function EnhancedFileManager({
 
         {/* Toolbar */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search files..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64 bg-black/20 border-purple-500/20 text-white placeholder-gray-400"
+                className="pl-10 w-[10rem] sm:w-64 bg-black/20 border-purple-500/20 text-white placeholder-gray-400"
               />
             </div>
 
@@ -413,14 +413,15 @@ export function EnhancedFileManager({
             </DropdownMenu>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  aria-label="Grid view"
                   variant={viewMode === 'grid' ? 'default' : 'outline'}
-                  size="sm"
+                  size="icon"
                   onClick={() => setViewMode('grid')}
-                  className={viewMode === 'grid' ? 'bg-purple-500 text-white' : 'border-purple-500/20 text-purple-300'}
+                  className={viewMode === 'grid' ? 'bg-purple-500 text-white' : 'border-purple-500/20 text-purple-300 w-9 h-9'}
                 >
                   <Grid className="w-4 h-4" />
                 </Button>
@@ -431,10 +432,11 @@ export function EnhancedFileManager({
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
+                  aria-label="List view"
                   variant={viewMode === 'list' ? 'default' : 'outline'}
-                  size="sm"
+                  size="icon"
                   onClick={() => setViewMode('list')}
-                  className={viewMode === 'list' ? 'bg-purple-500 text-white' : 'border-purple-500/20 text-purple-300'}
+                  className={viewMode === 'list' ? 'bg-purple-500 text-white' : 'border-purple-500/20 text-purple-300 w-9 h-9'}
                 >
                   <List className="w-4 h-4" />
                 </Button>
@@ -443,10 +445,11 @@ export function EnhancedFileManager({
             </Tooltip>
 
             <Button
+              aria-label="Refresh"
               variant="outline"
-              size="sm"
+              size="icon"
               onClick={() => window.location.reload()}
-              className="border-purple-500/20 text-purple-300"
+              className="border-purple-500/20 text-purple-300 w-9 h-9"
             >
               <RefreshCw className="w-4 h-4" />
             </Button>

@@ -128,6 +128,29 @@ export default example;`,
       path: '/'
     },
     {
+      id: 'test-lua',
+      name: 'sample.lua',
+      type: 'text/x-lua',
+      size: 1200,
+      lastModified: new Date(),
+      isFolder: false,
+      content: `-- Lua sample
+local msg = "Hello Lua";
+print(msg)
+`,
+      path: '/'
+    },
+    {
+      id: 'test-txt',
+      name: 'notes.txt',
+      type: 'text/plain',
+      size: 300,
+      lastModified: new Date(),
+      isFolder: false,
+      content: `Quick notes\n- item 1\n- item 2`,
+      path: '/'
+    },
+    {
       id: 'test-md',
       name: 'markdown-example.md',
       type: 'text/markdown',
