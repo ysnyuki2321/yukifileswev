@@ -874,18 +874,23 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                   <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
                     <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleUndo} disabled={historyIndex <= 0} title="Undo (Ctrl+Z)">
                       <Undo className="w-3 h-3" />
+                      <span className="hidden md:inline ml-1 text-xs">Undo</span>
                     </Button>
                     <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleRedo} disabled={historyIndex >= history.length - 1} title="Redo (Ctrl+Y)">
                       <Redo className="w-3 h-3" />
+                      <span className="hidden md:inline ml-1 text-xs">Redo</span>
                     </Button>
                     <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleCut} title="Cut (Ctrl+X)">
                       <Scissors className="w-3 h-3" />
+                      <span className="hidden md:inline ml-1 text-xs">Cut</span>
                     </Button>
                     <Button size="sm" variant="outline" className="h-8 px-2" onClick={handlePaste} title="Paste (Ctrl+V)">
                       <Clipboard className="w-3 h-3" />
+                      <span className="hidden md:inline ml-1 text-xs">Paste</span>
                     </Button>
                     <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleSelectAll} title="Select All (Ctrl+A)">
                       <MousePointer className="w-3 h-3" />
+                      <span className="hidden md:inline ml-1 text-xs">Select</span>
                     </Button>
                   </div>
                 )}

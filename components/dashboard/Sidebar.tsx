@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Files, Home, CreditCard, Shield, Settings, X } from "lucide-react"
+import { Files, Home, CreditCard, Shield, Settings, X, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
@@ -49,7 +49,9 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
       )}>
         <div className="h-16 px-6 flex items-center justify-between border-b border-purple-500/20">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-2"></div>
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-2 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
             <span className="text-white font-bold text-lg">{brandName}</span>
           </div>
           <button 

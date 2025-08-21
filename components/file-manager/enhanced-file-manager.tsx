@@ -455,7 +455,9 @@ export function EnhancedFileManager({
               lastModified: selectedFile.lastModified
             }}
             onSave={(file, content, name) => {
-              onFileSave?.(selectedFile, content, name)
+              if (onFileSave) {
+                onFileSave(selectedFile, content, name)
+              }
               closeEditor()
             }}
             onClose={closeEditor}
