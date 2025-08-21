@@ -13,7 +13,7 @@ import {
   BookOpen, Hash, AlignLeft, FileCheck, ChevronUp, ChevronDown,
   ArrowUp, ArrowDown, SkipBack, SkipForward, MousePointer,
   Scissors, Clipboard, FileX, RefreshCw, Clock, Calculator,
-  Regex, CaseSensitive, Whole, Filter, SortAsc, SortDesc,
+  Regex, CaseSensitive, Filter, SortAsc, SortDesc,
   Indent, Outdent, ToggleLeft, ToggleRight, Sun, Moon
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -861,7 +861,7 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                       <CaseSensitive className="w-3 h-3" />
                     </Button>
                     <Button size="sm" variant={wholeWord ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setWholeWord(!wholeWord)} title="Whole Word">
-                      <Whole className="w-3 h-3" />
+                      <Hash className="w-3 h-3" />
                     </Button>
                     <Button size="sm" variant={useRegex ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setUseRegex(!useRegex)} title="Use Regex">
                       <Regex className="w-3 h-3" />
