@@ -34,6 +34,9 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
   const [iconKey, setIconKey] = useState(0) // For icon animation
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const lineNumbersRef = useRef<HTMLDivElement>(null)
+  const [wrapEnabled, setWrapEnabled] = useState(false)
+  const [findQuery, setFindQuery] = useState('')
+  const [replaceQuery, setReplaceQuery] = useState('')
 
   useEffect(() => {
     setFileName(file.name || 'untitled.txt')
@@ -80,7 +83,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
       'php': { icon: FileCode, color: 'text-indigo-400' },
       'html': { icon: FileCode, color: 'text-orange-400' },
       'css': { icon: FileCode, color: 'text-pink-400' },
-      'json': { icon: FileCode, color: 'text-yellow-300' },
+      'json': { icon: FileText, color: 'text-yellow-300' },
       'xml': { icon: FileCode, color: 'text-orange-300' },
       'yaml': { icon: FileCode, color: 'text-red-300' },
       'yml': { icon: FileCode, color: 'text-red-300' },
@@ -149,6 +152,75 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
       'dockerfile': 'Dockerfile'
     }
     return langMap[extension || ''] || 'Plain Text'
+  }
+
+  // Find/Replace helpers
+  const handleFindNext = () => {
+    if (!findQuery || !textareaRef.current) return
+    const text = content
+    const start = textareaRef.current.selectionEnd
+    const idx = text.indexOf(findQuery, start)
+    const nextIdx = idx !== -1 ? idx : text.indexOf(findQuery, 0)
+    if (nextIdx !== -1) {
+      textareaRef.current.focus()
+      textareaRef.current.setSelectionRange(nextIdx, nextIdx + findQuery.length)
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight * (nextIdx / text.length)
+    }
+  }
+
+  const handleReplace = () => {
+    if (!textareaRef.current || !findQuery) return
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const selected = content.slice(selectionStart, selectionEnd)
+    if (selected === findQuery) {
+      const newText = content.slice(0, selectionStart) + replaceQuery + content.slice(selectionEnd)
+      setContent(newText)
+      setIsModified(true)
+      const newPos = selectionStart + replaceQuery.length
+      setTimeout(() => {
+        textareaRef.current?.setSelectionRange(newPos, newPos)
+      }, 0)
+    } else {
+      handleFindNext()
+    }
+  }
+
+  const handleReplaceAll = () => {
+    if (!findQuery) return
+    if (!content.includes(findQuery)) return
+    const newText = content.split(findQuery).join(replaceQuery)
+    setContent(newText)
+    setIsModified(true)
+  }
+
+  const handleCopy = async () => {
+    try { await navigator.clipboard.writeText(content) } catch {}
+  }
+
+  const handleDownload = () => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    URL.revokeObjectURL(url)
+  }
+
+  const handleFormat = () => {
+    const ext = fileName.split('.').pop()?.toLowerCase()
+    if (ext === 'json') {
+      try {
+        const parsed = JSON.parse(content)
+        const pretty = JSON.stringify(parsed, null, 2)
+        setContent(pretty)
+        setIsModified(true)
+        return
+      } catch {}
+    }
+    // No-op for other types (could integrate a formatter later)
   }
 
   // Prevent body scroll when modal is open
@@ -267,6 +339,35 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                   <span className="text-xs sm:text-sm">{content.split('\n').length} lines</span>
                 </div>
               </div>
+
+              {/* Tools */}
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Input
+                    value={findQuery}
+                    onChange={(e) => setFindQuery(e.target.value)}
+                    placeholder="Find..."
+                    className="h-8 bg-slate-800/50 border-purple-500/20 text-white max-w-[180px]"
+                  />
+                  <Input
+                    value={replaceQuery}
+                    onChange={(e) => setReplaceQuery(e.target.value)}
+                    placeholder="Replace with..."
+                    className="h-8 bg-slate-800/50 border-purple-500/20 text-white max-w-[200px]"
+                  />
+                  <Button size="sm" className="h-8" onClick={handleFindNext}>Find Next</Button>
+                  <Button size="sm" variant="outline" className="h-8" onClick={handleReplace}>Replace</Button>
+                  <Button size="sm" variant="outline" className="h-8" onClick={handleReplaceAll}>Replace All</Button>
+                </div>
+                <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end">
+                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8" onClick={() => setWrapEnabled(v => !v)}>
+                    {wrapEnabled ? 'Wrap: On' : 'Wrap: Off'}
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8" onClick={handleCopy}>Copy</Button>
+                  <Button size="sm" variant="outline" className="h-8" onClick={handleDownload}>Download</Button>
+                  <Button size="sm" variant="outline" className="h-8" onClick={handleFormat}>Format</Button>
+                </div>
+              </div>
             </div>
 
             {/* Code Editor */}
@@ -297,7 +398,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                           lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop
                         }
                       }}
-                      className="w-full h-full bg-slate-800/30 border-0 text-white font-mono text-sm resize-none focus:ring-0 focus:outline-none leading-6 p-3 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-slate-700"
+                      className={`w-full h-full bg-slate-800/30 border-0 text-white font-mono text-sm resize-none focus:ring-0 focus:outline-none leading-6 p-3 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-slate-700 ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}
                       placeholder="Start typing your code here..."
                       style={{ 
                         minHeight: '100%',
