@@ -225,14 +225,29 @@ export function EnhancedDemoManager() {
     }, 500)
   }
 
+  const getPlanDisplayName = (planId: string) => {
+    switch (planId) {
+      case 'free': return 'Free'
+      case 'pro': return 'Pro'
+      case 'developer': return 'Developer'
+      case 'team': return 'Team'
+      case 'enterprise': return 'Enterprise'
+      default: return 'Free'
+    }
+  }
+
+  const isPaidPlan = (planId: string) => {
+    return planId !== 'free'
+  }
+
       return (
-      <div className="space-y-4 sm:space-y-6 max-w-full overflow-hidden">
+      <div className="space-y-4 sm:space-y-6 max-w-full overflow-hidden mobile-scrollbar">
         {/* Header */}
         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between">
           <div className="flex items-center gap-3 sm:gap-4 flex-wrap">
             <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white">YukiFiles Demo</h2>
             <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 text-xs sm:text-sm">
-              Enterprise Features
+              {isPaidPlan(currentPlan) ? `${getPlanDisplayName(currentPlan)} Plan` : 'Free Plan'}
             </Badge>
           </div>
           
@@ -257,7 +272,7 @@ export function EnhancedDemoManager() {
 
       {/* Tab Navigation */}
       <Card className="bg-gray-900/50 border-gray-700">
-        <CardContent className="p-3 sm:p-4 lg:p-6">
+        <CardContent className="p-3 sm:p-4 lg:p-6 mobile-scrollbar">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-gray-800 mb-4 sm:mb-6 overflow-hidden">
                               <TabsTrigger value="overview" className="data-[state=active]:bg-purple-500">
@@ -480,8 +495,8 @@ export function EnhancedDemoManager() {
                     <div className="space-y-2">
                       {demoFiles.map((file, i) => (
                         <div key={i} className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-700/50 transition-colors">
-                                                      <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
+                                                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center flex-shrink-0">
                                 {file.type === 'folder' ? (
                                   <Folder className="w-5 h-5 text-purple-400" />
                                 ) : file.mimeType?.startsWith('image/') ? (
@@ -498,9 +513,9 @@ export function EnhancedDemoManager() {
                                   <FileText className="w-5 h-5 text-purple-400" />
                                 )}
                               </div>
-                              <div>
-                                <div className="text-white font-medium">{file.name}</div>
-                                <div className="text-gray-400 text-sm">
+                              <div className="min-w-0 flex-1">
+                                <div className="text-white font-medium text-ellipsis">{file.name}</div>
+                                <div className="text-gray-400 text-sm text-ellipsis">
                                   {file.type === 'folder' ? 'Folder' : `${(file.size / 1024 / 1024).toFixed(1)}MB`} • {file.type}
                                 </div>
                               </div>
