@@ -92,7 +92,7 @@ export default function QuickActions({ isPremium, isDemoMode = false }: QuickAct
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {actions.map((action, index) => (
               <Button
                 key={index}
@@ -123,7 +123,7 @@ export default function QuickActions({ isPremium, isDemoMode = false }: QuickAct
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {premiumFeatures.map((feature, index) => (
                 <div
                   key={index}
@@ -157,7 +157,7 @@ export default function QuickActions({ isPremium, isDemoMode = false }: QuickAct
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {premiumFeatures.map((feature, index) => (
                 <div
                   key={index}

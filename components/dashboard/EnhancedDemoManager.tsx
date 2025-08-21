@@ -1,0 +1,5 @@
+  const [previewFile, setPreviewFile] = useState<DemoFile | null>(null)
+  const [showPreview, setShowPreview] = useState(false)
+  const [editorFileName, setEditorFileName] = useState<string>("")
+  const [editorContent, setEditorContent] = useState<string>("")
+  const [editorType, setEditorType] = useState<'text' | 'code' | 'folder'>("text")
