@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Files, Home, CreditCard, Shield, Settings, X, Sparkles } from "lucide-react"
+import { Files, Home, CreditCard, Shield, Settings, X, Sparkles, BarChart3, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
@@ -19,16 +19,28 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
   const navItems = [
     { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home },
     { href: isDemoMode ? "/files?demo=true" : "/files", label: "Files", icon: Files },
-    { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
   // Check if we're in demo mode or files page
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
   const isFilesPage = pathname === '/files'
 
-  if (isAdmin) {
-    navItems.push({ href: "/admin", label: "Admin", icon: Shield })
-    navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings })
+  // Demo mode: Add all features to dashboard
+  if (isDemoMode) {
+    navItems.push({ href: "/dashboard?demo=true&tab=analytics", label: "Analytics", icon: BarChart3 })
+    navItems.push({ href: "/dashboard?demo=true&tab=collaboration", label: "Collaboration", icon: Users })
+    navItems.push({ href: "/dashboard?demo=true&tab=ai", label: "AI Tools", icon: Sparkles })
+    navItems.push({ href: "/dashboard?demo=true&tab=security", label: "Security", icon: Shield })
+    navItems.push({ href: "/dashboard?demo=true&tab=pricing", label: "Pricing", icon: CreditCard })
+    if (isAdmin) {
+      navItems.push({ href: "/dashboard?demo=true&tab=admin", label: "Admin", icon: Settings })
+    }
+  } else {
+    navItems.push({ href: "/pricing", label: "Pricing", icon: CreditCard })
+    if (isAdmin) {
+      navItems.push({ href: "/admin", label: "Admin", icon: Shield })
+      navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings })
+    }
   }
 
   return (
