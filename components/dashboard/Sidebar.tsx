@@ -18,6 +18,7 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
+    { href: "/files", label: "Files", icon: Files },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
@@ -25,7 +26,8 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
   
   if (isDemoMode) {
-    navItems.splice(1, 0, { href: "#file-manager", label: "File Manager", icon: Files })
+    // Keep explicit File Manager anchor in demo landing when needed
+    navItems.splice(2, 0, { href: "#file-manager", label: "File Manager", icon: Files })
   }
 
   if (isAdmin) {
