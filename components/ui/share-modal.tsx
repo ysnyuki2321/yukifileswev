@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
+import { Slider } from "@/components/ui/slider"
 import { 
   Share2, Copy, ExternalLink, QrCode, Calendar, Clock, 
   Lock, Unlock, Eye, Download, Sparkles, Link2, Globe,
@@ -34,6 +35,7 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
   const [expiresIn, setExpiresIn] = useState('never')
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [tokenLength, setTokenLength] = useState([7])
 
   useEffect(() => {
     if (isOpen) {
@@ -46,6 +48,7 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
         setHasPassword(settings.hasPassword || false)
         setPassword(settings.password || '')
         setExpiresIn(settings.expiresIn || 'never')
+        setTokenLength([settings.tokenLength || 7])
       } else {
         generateNewLink()
       }
@@ -56,7 +59,7 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
     setIsGenerating(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
-    const newToken = Math.random().toString(36).substring(7)
+    const newToken = Math.random().toString(36).substring(2, 2 + tokenLength[0])
     const newLink = `${window.location.origin}/demo/share/${newToken}`
     setShareLink(newLink)
     
@@ -67,7 +70,8 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
       hasPassword,
       password,
       expiresIn,
-      fileName: file.original_name
+      fileName: file.original_name,
+      tokenLength: tokenLength[0]
     }
     localStorage.setItem(`share-${file.id}`, JSON.stringify(settings))
     setIsGenerating(false)
@@ -80,7 +84,8 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
       hasPassword,
       password,
       expiresIn,
-      fileName: file.original_name
+      fileName: file.original_name,
+      tokenLength: tokenLength[0]
     }
     localStorage.setItem(`share-${file.id}`, JSON.stringify(settings))
   }
@@ -261,11 +266,43 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
                     type="password"
                     placeholder="Enter password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value)
+                      setTimeout(saveSettings, 500)
+                    }}
                     className="bg-slate-800/50 border-purple-500/20 text-white"
                   />
                 </motion.div>
               )}
+
+              {/* Token Length */}
+              <div className="p-3 bg-slate-800/30 rounded-lg">
+                <div className="flex items-center gap-3 mb-3">
+                  <Link2 className="w-5 h-5 text-cyan-400" />
+                  <div>
+                    <p className="text-white text-sm font-medium">Token Length</p>
+                    <p className="text-gray-400 text-xs">Generate {tokenLength[0]} random characters</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Slider
+                    value={tokenLength}
+                    onValueChange={(value) => {
+                      setTokenLength(value)
+                      setTimeout(saveSettings, 100)
+                    }}
+                    max={10}
+                    min={1}
+                    step={1}
+                    className="w-full"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>1 char</span>
+                    <span className="text-cyan-400 font-medium">{tokenLength[0]} characters</span>
+                    <span>10 chars</span>
+                  </div>
+                </div>
+              </div>
 
               {/* Expiration */}
               <div className="p-3 bg-slate-800/30 rounded-lg">
@@ -278,7 +315,10 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
                 </div>
                 <select
                   value={expiresIn}
-                  onChange={(e) => setExpiresIn(e.target.value)}
+                  onChange={(e) => {
+                    setExpiresIn(e.target.value)
+                    setTimeout(saveSettings, 100)
+                  }}
                   className="w-full bg-slate-800/50 border border-purple-500/20 text-white text-sm rounded px-3 py-2"
                 >
                   <option value="never">Never expires</option>
@@ -331,11 +371,15 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
               Preview
             </Button>
             <Button
-              onClick={onClose}
+              onClick={() => {
+                saveSettings()
+                onClose()
+              }}
               variant="ghost"
               className="text-gray-400 hover:text-white"
             >
-              Done
+              <Settings className="w-4 h-4 mr-2" />
+              Save
             </Button>
           </div>
         </div>
