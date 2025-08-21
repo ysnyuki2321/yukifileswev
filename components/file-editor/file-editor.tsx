@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { 
   FileText, FileCode, Save, X, AlertCircle, CheckCircle,
-  Type, Code, File, Folder, Maximize2, Minimize2
+  Type, Code, File, Folder, Maximize2, Minimize2, Eye
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -25,9 +25,10 @@ interface FileEditorProps {
   file: FileItem
   onSave: (file: FileItem, newContent: string, newName?: string, newType?: string) => void
   onClose: () => void
+  readOnly?: boolean
 }
 
-export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
+export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEditorProps) {
   const [fileName, setFileName] = useState(file.name || 'untitled.txt')
   const [content, setContent] = useState(file.content || '')
   const [isModified, setIsModified] = useState(false)
@@ -45,11 +46,13 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
   }, [file])
 
   const handleContentChange = (newContent: string) => {
+    if (readOnly) return
     setContent(newContent)
     setIsModified(true)
   }
 
   const handleFileNameChange = (newName: string) => {
+    if (readOnly) return
     const oldExtension = fileName.split('.').pop()?.toLowerCase()
     const newExtension = newName.split('.').pop()?.toLowerCase()
     
@@ -63,6 +66,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
   }
 
   const handleSave = () => {
+    if (readOnly) return
     onSave(file, content, fileName)
     setIsModified(false)
   }
@@ -223,11 +227,37 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
     // No-op for other types (could integrate a formatter later)
   }
 
-  // Prevent body scroll when modal is open
+  // Prevent body scroll when modal is open and add custom scrollbar styles
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    
+    // Add custom scrollbar styles
+    const style = document.createElement('style')
+    style.textContent = `
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: rgba(55, 65, 81, 0.5);
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(139, 92, 246, 0.6);
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(139, 92, 246, 0.8);
+      }
+      .custom-scrollbar::-webkit-scrollbar-corner {
+        background: rgba(55, 65, 81, 0.5);
+      }
+    `
+    document.head.appendChild(style)
+    
     return () => {
       document.body.style.overflow = 'unset'
+      document.head.removeChild(style)
     }
   }, [])
 
@@ -294,7 +324,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
             >
               <Button
                 onClick={handleSave}
-                disabled={!isModified}
+                disabled={!isModified || readOnly}
                 size="sm"
                 className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm"
               >
@@ -329,6 +359,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                     onChange={(e) => handleFileNameChange(e.target.value)}
                     className="bg-slate-800/50 border-purple-500/20 text-white focus:border-purple-400 transition-colors duration-200"
                     placeholder="Enter file name..."
+                    disabled={readOnly}
                   />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-400">
@@ -340,54 +371,82 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                 </div>
               </div>
 
-              {/* Tools */}
-              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Input
-                    value={findQuery}
-                    onChange={(e) => setFindQuery(e.target.value)}
-                    placeholder="Find..."
-                    className="h-8 bg-slate-800/50 border-purple-500/20 text-white max-w-[180px]"
-                  />
-                  <Input
-                    value={replaceQuery}
-                    onChange={(e) => setReplaceQuery(e.target.value)}
-                    placeholder="Replace with..."
-                    className="h-8 bg-slate-800/50 border-purple-500/20 text-white max-w-[200px]"
-                  />
-                  <Button size="sm" className="h-8" onClick={handleFindNext}>Find Next</Button>
-                  <Button size="sm" variant="outline" className="h-8" onClick={handleReplace}>Replace</Button>
-                  <Button size="sm" variant="outline" className="h-8" onClick={handleReplaceAll}>Replace All</Button>
+                          {/* Tools */}
+            <div className="mt-3 space-y-3">
+              {/* Find/Replace Row - Mobile Optimized */}
+              {!readOnly && (
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="flex flex-1 gap-2">
+                    <Input
+                      value={findQuery}
+                      onChange={(e) => setFindQuery(e.target.value)}
+                      placeholder="Find..."
+                      className="h-8 bg-slate-800/50 border-purple-500/20 text-white flex-1 min-w-0"
+                    />
+                    <Input
+                      value={replaceQuery}
+                      onChange={(e) => setReplaceQuery(e.target.value)}
+                      placeholder="Replace..."
+                      className="h-8 bg-slate-800/50 border-purple-500/20 text-white flex-1 min-w-0"
+                    />
+                  </div>
+                  <div className="flex gap-1 flex-wrap">
+                    <Button size="sm" className="h-8 text-xs px-2" onClick={handleFindNext}>Find</Button>
+                    <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleReplace}>Replace</Button>
+                    <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleReplaceAll}>All</Button>
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-2 justify-start md:justify-end">
-                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8" onClick={() => setWrapEnabled(v => !v)}>
-                    {wrapEnabled ? 'Wrap: On' : 'Wrap: Off'}
+              )}
+              
+              {/* Action Buttons Row - Mobile Optimized */}
+              <div className="flex flex-wrap items-center gap-1 justify-between">
+                <div className="flex gap-1 flex-wrap">
+                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8 text-xs px-2" onClick={() => setWrapEnabled(v => !v)}>
+                    <span className="hidden sm:inline">{wrapEnabled ? 'Wrap: On' : 'Wrap: Off'}</span>
+                    <span className="sm:hidden">{wrapEnabled ? 'Wrap' : 'NoWrap'}</span>
                   </Button>
-                  <Button size="sm" variant="outline" className="h-8" onClick={handleCopy}>Copy</Button>
-                  <Button size="sm" variant="outline" className="h-8" onClick={handleDownload}>Download</Button>
-                  <Button size="sm" variant="outline" className="h-8" onClick={handleFormat}>Format</Button>
+                  <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleCopy}>Copy</Button>
+                  <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleDownload}>
+                    <span className="hidden sm:inline">Download</span>
+                    <span className="sm:hidden">DL</span>
+                  </Button>
+                  {!readOnly && (
+                    <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleFormat}>Format</Button>
+                  )}
                 </div>
+                {readOnly && (
+                  <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded">
+                    <Eye className="w-3 h-3" />
+                    <span className="hidden sm:inline">Read Only</span>
+                    <span className="sm:hidden">RO</span>
+                  </div>
+                )}
               </div>
+            </div>
             </div>
 
             {/* Code Editor */}
-            <div className="flex-1 p-3 md:p-6">
-              <div className="h-full relative overflow-hidden rounded-lg border border-purple-500/20">
+            <div className="flex-1 p-3 md:p-6 min-h-0">
+              <div className="h-full relative overflow-hidden rounded-lg border border-purple-500/20 bg-slate-800/30">
                 <div className="flex h-full">
                   {/* Line numbers */}
                   <div 
                     ref={lineNumbersRef}
-                    className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-xs text-gray-500 font-mono leading-6 select-none overflow-hidden"
+                    className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-xs text-gray-500 font-mono leading-6 select-none overflow-y-auto overflow-x-hidden scrollbar-none"
+                    style={{
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none'
+                    }}
                   >
                     {content.split('\n').map((_, index) => (
-                      <div key={index} className="h-6 text-right min-w-[2rem]">
+                      <div key={index} className="h-6 text-right min-w-[2.5rem] pr-2">
                         {String(index + 1).padStart(3, ' ')}
                       </div>
                     ))}
                   </div>
                   
                   {/* Code area */}
-                  <div className="flex-1 relative">
+                  <div className="flex-1 relative min-w-0">
                     <Textarea
                       ref={textareaRef}
                       value={content}
@@ -398,13 +457,17 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                           lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop
                         }
                       }}
-                      className={`w-full h-full bg-slate-800/30 border-0 text-white font-mono text-sm resize-none focus:ring-0 focus:outline-none leading-6 p-3 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-slate-700 ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}
-                      placeholder="Start typing your code here..."
+                      className={`w-full h-full bg-transparent border-0 text-white font-mono text-sm resize-none focus:ring-0 focus:outline-none leading-6 p-3 custom-scrollbar ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre overflow-x-auto'}`}
+                      placeholder={readOnly ? "File content (read-only)" : "Start typing your code here..."}
                       style={{ 
                         minHeight: '100%',
                         tabSize: 2,
-                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace'
+                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
+                        scrollbarWidth: 'thin',
+                        scrollbarColor: '#8b5cf6 #374151'
                       }}
+                      disabled={readOnly}
+                      readOnly={readOnly}
                     />
                   </div>
                 </div>
