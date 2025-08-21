@@ -4,7 +4,7 @@ import React from "react"
 import QuickActions from "@/components/dashboard/QuickActions"
 import ActivityFeed, { type ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles, { type RecentFileItem } from "@/components/dashboard/RecentFiles"
-import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
+// File manager is available on its own page now
 
 interface EnhancedDemoManagerProps {
   userData: any
@@ -13,16 +13,7 @@ interface EnhancedDemoManagerProps {
 }
 
 export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: EnhancedDemoManagerProps) {
-  const transformedFiles = (recentFiles || []).map((f) => ({
-    id: f.id,
-    name: f.original_name,
-    type: f.mimeType || f.type || 'text/plain',
-    size: f.file_size,
-    lastModified: new Date(f.created_at),
-    isFolder: false,
-    content: f.content || '',
-    path: '/'
-  }))
+  // Keep recent files in dashboard only; full manager moved to /files
 
   return (
     <div className="space-y-6">
@@ -36,9 +27,10 @@ export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: E
         </div>
       </div>
 
-      <section id="file-manager" data-section="files" className="scroll-mt-24">
-        <EnhancedFileManager files={transformedFiles} />
-      </section>
+      {/* Link to full File Manager page */}
+      <div className="flex justify-end">
+        <a href="/files" className="text-sm text-purple-300 hover:text-white underline">Open full File Manager →</a>
+      </div>
     </div>
   )
 }

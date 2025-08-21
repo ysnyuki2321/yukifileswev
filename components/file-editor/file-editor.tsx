@@ -378,13 +378,21 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
     return syntaxLanguages[ext] || 'plaintext'
   }
 
-  // Apply syntax highlighting
+  // Apply syntax highlighting (improved ordering and escaping)
+  const escapeHtml = (str: string) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
   const applySyntaxHighlighting = (content: string, language: string): string => {
     if (!syntaxHighlightPatterns[language]) {
-      return content.replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
+      return escapeHtml(content).replace(/\n/g, '<br>').replace(/ /g, '&nbsp;')
     }
 
-    let highlightedContent = content
+    let highlightedContent = escapeHtml(content)
     const patterns = syntaxHighlightPatterns[language]
 
     patterns.forEach(({ pattern, className }) => {
@@ -797,7 +805,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
           <CardContent className="flex-1 p-0 overflow-hidden">
             <ContextMenu>
               <ContextMenuTrigger asChild>
-                <div className="relative h-full overflow-auto">
+                <div className="relative h-full overflow-auto overscroll-none touch-pan-y">
                   {/* Line Numbers */}
                   {editorState.lineNumbers && (
                     <div className="absolute left-0 top-0 bottom-0 w-12 bg-black/20 border-r border-purple-500/20 text-xs text-gray-400 font-mono overflow-hidden">
@@ -812,7 +820,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                   {/* Syntax Highlighting Overlay */}
                   <div 
                     className={cn(
-                      "absolute inset-0 pointer-events-none font-mono text-sm leading-relaxed p-4 overflow-hidden",
+                      "absolute inset-0 pointer-events-none font-mono text-sm leading-relaxed p-4 overflow-hidden select-none",
                       editorState.lineNumbers && "pl-16",
                       editorState.wordWrap && "whitespace-pre-wrap"
                     )}

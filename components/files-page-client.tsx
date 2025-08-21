@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
-import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
+import Sidebar from "@/components/dashboard/Sidebar"
+import Topbar from "@/components/dashboard/Topbar"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 import { getDebugFiles } from "@/lib/services/debug-user"
 import { Button } from "@/components/ui/button"
@@ -52,6 +53,7 @@ export default function FilesPageClient() {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
   const [uploadingFiles, setUploadingFiles] = useState<string[]>([])
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -775,14 +777,24 @@ Thank you for trying YukiFiles! 🚀`,
   }
 
   return (
-    <div className="min-h-screen theme-premium">
-      <NavigationWrapper 
-        brandName="YukiFiles" 
-        isAuthenticated={true} 
-        isAdmin={Boolean(userData?.is_admin)} 
-      />
-      
-      <main className="container mx-auto px-4 py-6 pt-24">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+      <div className="flex">
+        <Sidebar 
+          isAdmin={Boolean(userData?.is_admin)}
+          brandName="YukiFiles"
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          activeTab="files"
+        />
+        <div className="flex-1 min-w-0">
+          <Topbar 
+            userEmail={user?.email || "guest@yukifiles.com"}
+            isPremium={userData?.subscription_type === "paid"}
+            brandName="YukiFiles"
+            isDemoMode={isDemoMode}
+            onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          />
+          <main className="container mx-auto px-4 py-6">
         {/* Demo Mode Toggle */}
         <div className="mb-8">
           <Card className="premium-card border-purple-500/20">
@@ -865,7 +877,9 @@ Thank you for trying YukiFiles! 🚀`,
           }}
           isDemoMode={isDemoMode}
         />
-      </main>
+          </main>
+        </div>
+      </div>
     </div>
   )
 }

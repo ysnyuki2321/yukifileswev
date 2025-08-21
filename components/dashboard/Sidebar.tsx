@@ -18,7 +18,7 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/dashboard#file-manager", label: "File Manager", icon: Files },
+    { href: "/files", label: "File Manager", icon: Files },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
@@ -92,17 +92,7 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
             <Link
               key={item.href}
               href={item.href}
-              onClick={(e) => {
-                // Support in-page anchor scrolling for file manager
-                if (item.href.includes('#')) {
-                  e.preventDefault()
-                  const target = document.querySelector(item.href.split('#')[1] ? `#${item.href.split('#')[1]}` : '')
-                  if (target) target.scrollIntoView({ behavior: 'smooth' })
-                  onClose?.()
-                  return
-                }
-                onClose?.()
-              }}
+              onClick={onClose}
               className={`flex items-center px-3 py-2 rounded-md transition-colors ${
                 isActive
                   ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
