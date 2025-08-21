@@ -406,7 +406,7 @@ const isImageFile = (filename) => {
 };
 
 // Export for use in other modules
-export { FileManager, formatFileSize, getFileExtension, isImageFile };`,
+// export { FileManager, formatFileSize, getFileExtension, isImageFile };`,
       path: '/'
     },
     {
