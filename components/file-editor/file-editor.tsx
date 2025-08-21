@@ -10,7 +10,11 @@ import {
   Type, Code, File, Folder, Maximize2, Minimize2, Eye,
   Search, Replace, WrapText, Copy, Download, Palette,
   Undo, Redo, ZoomIn, ZoomOut, RotateCcw, Settings,
-  BookOpen, Hash, AlignLeft, FileCheck
+  BookOpen, Hash, AlignLeft, FileCheck, ChevronUp, ChevronDown,
+  ArrowUp, ArrowDown, SkipBack, SkipForward, MousePointer,
+  Scissors, Clipboard, FileX, RefreshCw, Clock, Calculator,
+  Regex, CaseSensitive, Whole, Filter, SortAsc, SortDesc,
+  Indent, Outdent, ToggleLeft, ToggleRight, Sun, Moon
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -47,6 +51,14 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
   const [historyIndex, setHistoryIndex] = useState(-1)
   const [showTools, setShowTools] = useState(false)
   const [isDesktop, setIsDesktop] = useState(true)
+  const [isWindows, setIsWindows] = useState(false)
+  const [cursorPosition, setCursorPosition] = useState({ line: 1, column: 1 })
+  const [selectedText, setSelectedText] = useState('')
+  const [caseSensitive, setCaseSensitive] = useState(false)
+  const [wholeWord, setWholeWord] = useState(false)
+  const [useRegex, setUseRegex] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
+  const [autoSave, setAutoSave] = useState(false)
 
   useEffect(() => {
     setFileName(file.name || 'untitled.txt')
@@ -347,15 +359,216 @@ Add your content here...`
     setIsModified(true)
   }
 
+  // Advanced tools
+  const handleCut = () => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const selected = content.slice(selectionStart, selectionEnd)
+    if (selected) {
+      navigator.clipboard.writeText(selected)
+      const newContent = content.slice(0, selectionStart) + content.slice(selectionEnd)
+      setContent(newContent)
+      setIsModified(true)
+    }
+  }
+
+  const handlePaste = async () => {
+    if (!textareaRef.current || readOnly) return
+    try {
+      const text = await navigator.clipboard.readText()
+      const { selectionStart, selectionEnd } = textareaRef.current
+      const newContent = content.slice(0, selectionStart) + text + content.slice(selectionEnd)
+      setContent(newContent)
+      setIsModified(true)
+      setTimeout(() => {
+        const newPos = selectionStart + text.length
+        textareaRef.current?.setSelectionRange(newPos, newPos)
+      }, 0)
+    } catch {}
+  }
+
+  const handleSelectAll = () => {
+    if (!textareaRef.current) return
+    textareaRef.current.select()
+  }
+
+  const handleGoToLine = () => {
+    const lineNumber = prompt("Go to line number:")
+    if (!lineNumber || !textareaRef.current) return
+    const lineNum = parseInt(lineNumber)
+    const lines = content.split('\n')
+    if (lineNum > 0 && lineNum <= lines.length) {
+      const position = lines.slice(0, lineNum - 1).join('\n').length + (lineNum > 1 ? 1 : 0)
+      textareaRef.current.focus()
+      textareaRef.current.setSelectionRange(position, position)
+      textareaRef.current.scrollTop = textareaRef.current.scrollHeight * ((lineNum - 1) / lines.length)
+    }
+  }
+
+  const handleDuplicateLine = () => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart } = textareaRef.current
+    const lines = content.split('\n')
+    const currentLineIndex = content.slice(0, selectionStart).split('\n').length - 1
+    const currentLine = lines[currentLineIndex]
+    lines.splice(currentLineIndex + 1, 0, currentLine)
+    const newContent = lines.join('\n')
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleDeleteLine = () => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart } = textareaRef.current
+    const lines = content.split('\n')
+    const currentLineIndex = content.slice(0, selectionStart).split('\n').length - 1
+    lines.splice(currentLineIndex, 1)
+    const newContent = lines.join('\n')
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleMoveLine = (direction: 'up' | 'down') => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart } = textareaRef.current
+    const lines = content.split('\n')
+    const currentLineIndex = content.slice(0, selectionStart).split('\n').length - 1
+    
+    if (direction === 'up' && currentLineIndex > 0) {
+      [lines[currentLineIndex], lines[currentLineIndex - 1]] = [lines[currentLineIndex - 1], lines[currentLineIndex]]
+    } else if (direction === 'down' && currentLineIndex < lines.length - 1) {
+      [lines[currentLineIndex], lines[currentLineIndex + 1]] = [lines[currentLineIndex + 1], lines[currentLineIndex]]
+    }
+    
+    const newContent = lines.join('\n')
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleIndent = () => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const beforeSelection = content.slice(0, selectionStart)
+    const selection = content.slice(selectionStart, selectionEnd)
+    const afterSelection = content.slice(selectionEnd)
+    
+    const indentedSelection = selection.split('\n').map(line => '  ' + line).join('\n')
+    const newContent = beforeSelection + indentedSelection + afterSelection
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleOutdent = () => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const beforeSelection = content.slice(0, selectionStart)
+    const selection = content.slice(selectionStart, selectionEnd)
+    const afterSelection = content.slice(selectionEnd)
+    
+    const outdentedSelection = selection.split('\n').map(line => line.replace(/^  /, '')).join('\n')
+    const newContent = beforeSelection + outdentedSelection + afterSelection
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleToggleComment = () => {
+    if (!textareaRef.current || readOnly) return
+    const ext = fileName.split('.').pop()?.toLowerCase()
+    let commentPrefix = '//'
+    
+    switch (ext) {
+      case 'html':
+      case 'xml':
+        commentPrefix = '<!-- '
+        break
+      case 'css':
+        commentPrefix = '/* '
+        break
+      case 'py':
+        commentPrefix = '# '
+        break
+      case 'sql':
+        commentPrefix = '-- '
+        break
+    }
+    
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const beforeSelection = content.slice(0, selectionStart)
+    const selection = content.slice(selectionStart, selectionEnd)
+    const afterSelection = content.slice(selectionEnd)
+    
+    const lines = selection.split('\n')
+    const toggledLines = lines.map(line => {
+      if (line.trim().startsWith(commentPrefix.trim())) {
+        return line.replace(new RegExp(`^\\s*${commentPrefix.trim()}\\s?`), '')
+      } else {
+        return commentPrefix + line
+      }
+    })
+    
+    const newContent = beforeSelection + toggledLines.join('\n') + afterSelection
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleSortLines = (ascending: boolean = true) => {
+    if (!textareaRef.current || readOnly) return
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const beforeSelection = content.slice(0, selectionStart)
+    const selection = content.slice(selectionStart, selectionEnd)
+    const afterSelection = content.slice(selectionEnd)
+    
+    const lines = selection.split('\n')
+    const sortedLines = lines.sort((a, b) => ascending ? a.localeCompare(b) : b.localeCompare(a))
+    const newContent = beforeSelection + sortedLines.join('\n') + afterSelection
+    setContent(newContent)
+    setIsModified(true)
+  }
+
+  const handleWordCount = () => {
+    const words = getWordCount()
+    const chars = getCharCount()
+    const lines = content.split('\n').length
+    const charsNoSpaces = content.replace(/\s/g, '').length
+    
+    alert(`Statistics:
+Words: ${words}
+Characters: ${chars}
+Characters (no spaces): ${charsNoSpaces}
+Lines: ${lines}
+Paragraphs: ${content.split(/\n\s*\n/).length}`)
+  }
+
+  // Update cursor position
+  const updateCursorPosition = () => {
+    if (!textareaRef.current) return
+    const { selectionStart, selectionEnd } = textareaRef.current
+    const textBeforeCursor = content.slice(0, selectionStart)
+    const lines = textBeforeCursor.split('\n')
+    const line = lines.length
+    const column = lines[lines.length - 1].length + 1
+    setCursorPosition({ line, column })
+    
+    if (selectionStart !== selectionEnd) {
+      setSelectedText(content.slice(selectionStart, selectionEnd))
+    } else {
+      setSelectedText('')
+    }
+  }
+
   // Prevent body scroll when modal is open and add custom scrollbar styles
   useEffect(() => {
     document.body.style.overflow = 'hidden'
     
-    // Check if desktop
+    // Check if desktop and Windows
     const checkDesktop = () => {
       setIsDesktop(window.innerWidth >= 768)
     }
+    const checkWindows = () => {
+      setIsWindows(navigator.platform.toLowerCase().includes('win'))
+    }
     checkDesktop()
+    checkWindows()
     window.addEventListener('resize', checkDesktop)
     
     // Add custom scrollbar styles
@@ -504,24 +717,28 @@ Add your content here...`
             <div className="mt-3 space-y-2">
               {/* Mobile Toggle Button */}
               <div className="flex justify-between items-center">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-8 text-xs px-2 md:hidden"
-                  onClick={() => setShowTools(!showTools)}
-                >
-                  <Settings className="w-3 h-3 mr-1" />
-                  Tools {showTools ? '▲' : '▼'}
-                </Button>
+                {!isWindows && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-8 text-xs px-2 md:hidden"
+                    onClick={() => setShowTools(!showTools)}
+                  >
+                    <Settings className="w-3 h-3 mr-1" />
+                    {showTools ? 'Hide Tools' : 'Show Tools'}
+                  </Button>
+                )}
                 <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <span>Ln {cursorPosition.line}, Col {cursorPosition.column}</span>
+                  {selectedText && <span>({selectedText.length} selected)</span>}
                   <span>{getCharCount()} chars</span>
                   <span>{getWordCount()} words</span>
                   <span>{content.split('\n').length} lines</span>
                 </div>
               </div>
 
-              {/* Find/Replace Row - Collapsible on Mobile */}
-              {!readOnly && (showTools || isDesktop) && (
+              {/* Find/Replace Row - Always show on Windows, collapsible on mobile */}
+              {!readOnly && (isWindows || showTools || isDesktop) && (
                 <div className="flex flex-col sm:flex-row gap-2 p-2 bg-slate-800/30 rounded-lg">
                   <div className="flex flex-1 gap-1">
                     <div className="relative flex-1">
@@ -553,23 +770,77 @@ Add your content here...`
                     <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleReplaceAll} title="Replace All">
                       <AlignLeft className="w-3 h-3" />
                     </Button>
+                    <Button size="sm" variant={caseSensitive ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setCaseSensitive(!caseSensitive)} title="Case Sensitive">
+                      <CaseSensitive className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant={wholeWord ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setWholeWord(!wholeWord)} title="Whole Word">
+                      <Whole className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant={useRegex ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setUseRegex(!useRegex)} title="Use Regex">
+                      <Regex className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
               )}
               
-              {/* Main Tools Row - Icon-based for Mobile */}
-              <div className={`flex flex-wrap gap-1 p-2 bg-slate-800/20 rounded-lg ${!showTools && 'hidden md:flex'}`}>
+              {/* Main Tools Row - Always show on Windows */}
+              <div className={`flex flex-wrap gap-1 p-2 bg-slate-800/20 rounded-lg ${!isWindows && !showTools && 'hidden md:flex'}`}>
                 {/* Edit Tools */}
                 {!readOnly && (
                   <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
-                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleUndo} disabled={historyIndex <= 0} title="Undo">
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleUndo} disabled={historyIndex <= 0} title="Undo (Ctrl+Z)">
                       <Undo className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleRedo} disabled={historyIndex >= history.length - 1} title="Redo">
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleRedo} disabled={historyIndex >= history.length - 1} title="Redo (Ctrl+Y)">
                       <Redo className="w-3 h-3" />
                     </Button>
-                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={insertTemplate} title="Insert Template">
-                      <BookOpen className="w-3 h-3" />
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleCut} title="Cut (Ctrl+X)">
+                      <Scissors className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handlePaste} title="Paste (Ctrl+V)">
+                      <Clipboard className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleSelectAll} title="Select All (Ctrl+A)">
+                      <MousePointer className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Line Tools */}
+                {!readOnly && (
+                  <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={() => handleMoveLine('up')} title="Move Line Up">
+                      <ArrowUp className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={() => handleMoveLine('down')} title="Move Line Down">
+                      <ArrowDown className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleDuplicateLine} title="Duplicate Line">
+                      <Copy className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleDeleteLine} title="Delete Line">
+                      <FileX className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleToggleComment} title="Toggle Comment">
+                      <Hash className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Indent Tools */}
+                {!readOnly && (
+                  <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleIndent} title="Indent (Tab)">
+                      <Indent className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleOutdent} title="Outdent (Shift+Tab)">
+                      <Outdent className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={() => handleSortLines(true)} title="Sort Lines A-Z">
+                      <SortAsc className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={() => handleSortLines(false)} title="Sort Lines Z-A">
+                      <SortDesc className="w-3 h-3" />
                     </Button>
                   </div>
                 )}
@@ -593,9 +864,22 @@ Add your content here...`
                   </Button>
                 </div>
 
+                {/* Navigation Tools */}
+                <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleGoToLine} title="Go to Line (Ctrl+G)">
+                    <SkipForward className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleWordCount} title="Word Count">
+                    <Calculator className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={insertTemplate} title="Insert Template">
+                    <BookOpen className="w-3 h-3" />
+                  </Button>
+                </div>
+
                 {/* File Tools */}
                 <div className="flex gap-1">
-                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleCopy} title="Copy Content">
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleCopy} title="Copy All (Ctrl+C)">
                     <Copy className="w-3 h-3" />
                   </Button>
                   <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleDownload} title="Download File">
@@ -606,6 +890,9 @@ Add your content here...`
                       <Palette className="w-3 h-3" />
                     </Button>
                   )}
+                  <Button size="sm" variant={darkMode ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setDarkMode(!darkMode)} title="Toggle Theme">
+                    {darkMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
+                  </Button>
                 </div>
 
                 {/* Status Indicator */}
@@ -620,19 +907,20 @@ Add your content here...`
             </div>
 
             {/* Code Editor */}
-            <div className="flex-1 p-3 md:p-6 min-h-0">
-              <div className="h-full relative overflow-hidden rounded-lg border border-purple-500/20 bg-slate-800/30">
+            <div className="flex-1 p-3 md:p-6 min-h-0 overflow-hidden">
+              <div className="h-full relative rounded-lg border border-purple-500/20 bg-slate-800/30 overflow-hidden">
                 <div className="flex h-full">
                   {/* Line numbers */}
                   {showLineNumbers && (
                     <div 
                       ref={lineNumbersRef}
-                      className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-gray-500 font-mono select-none overflow-y-auto overflow-x-hidden scrollbar-none"
+                      className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-gray-500 font-mono select-none overflow-y-scroll overflow-x-hidden"
                       style={{
                         fontSize: `${fontSize - 2}px`,
                         lineHeight: `${fontSize + 6}px`,
                         scrollbarWidth: 'none',
-                        msOverflowStyle: 'none'
+                        msOverflowStyle: 'none',
+                        maxHeight: '100%'
                       }}
                     >
                       {content.split('\n').map((_, index) => (
@@ -644,7 +932,7 @@ Add your content here...`
                   )}
                   
                   {/* Code area */}
-                  <div className="flex-1 relative min-w-0">
+                  <div className="flex-1 relative min-w-0 overflow-hidden">
                     <Textarea
                       ref={textareaRef}
                       value={content}
@@ -655,10 +943,49 @@ Add your content here...`
                           lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop
                         }
                       }}
-                      className={`w-full h-full bg-transparent border-0 text-white font-mono resize-none focus:ring-0 focus:outline-none p-3 custom-scrollbar ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre overflow-x-auto'}`}
+                      onKeyUp={updateCursorPosition}
+                      onMouseUp={updateCursorPosition}
+                      onKeyDown={(e) => {
+                        // Handle keyboard shortcuts
+                        if (e.ctrlKey || e.metaKey) {
+                          switch (e.key) {
+                            case 'z':
+                              if (!readOnly) {
+                                e.preventDefault()
+                                handleUndo()
+                              }
+                              break
+                            case 'y':
+                              if (!readOnly) {
+                                e.preventDefault()
+                                handleRedo()
+                              }
+                              break
+                            case 'g':
+                              e.preventDefault()
+                              handleGoToLine()
+                              break
+                            case 'a':
+                              e.preventDefault()
+                              handleSelectAll()
+                              break
+                            case 's':
+                              if (!readOnly) {
+                                e.preventDefault()
+                                handleSave()
+                              }
+                              break
+                          }
+                        }
+                        updateCursorPosition()
+                      }}
+                      className={`w-full h-full bg-transparent border-0 text-white font-mono resize-none focus:ring-0 focus:outline-none p-3 custom-scrollbar ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}
                       placeholder={readOnly ? "File content (read-only)" : "Start typing your code here..."}
                       style={{ 
-                        minHeight: '100%',
+                        height: '100%',
+                        maxHeight: '100%',
+                        overflowY: 'scroll',
+                        overflowX: wrapEnabled ? 'hidden' : 'scroll',
                         fontSize: `${fontSize}px`,
                         lineHeight: `${fontSize + 6}px`,
                         tabSize: 2,
