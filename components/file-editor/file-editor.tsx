@@ -93,6 +93,7 @@ interface FileEditorProps {
   onClose?: () => void
   onRename?: (newName: string) => void
   readOnly?: boolean
+  userQuota?: { used: number; limit: number }
 }
 
 interface EditorState {
@@ -322,7 +323,7 @@ const fileTypeColors: { [key: string]: string } = {
   'default': 'text-gray-400'
 }
 
-export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }: FileEditorProps) {
+export function FileEditor({ file, onSave, onClose, onRename, readOnly = false, userQuota }: FileEditorProps) {
   const [editorState, setEditorState] = useState<EditorState>({
     content: file.content,
     selection: { start: 0, end: 0 },
@@ -351,6 +352,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
+  const previousContentSizeBytesRef = useRef<number>(new Blob([file.content || '']).size)
 
   // Get file extension
   function getFileExtension(filename: string): string {
@@ -406,7 +408,27 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   // Handle content change
   const handleContentChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const newContent = e.target.value
+    let newContent = e.target.value
+
+    // Enforce quota if provided (simulate text size as UTF-8 bytes)
+    if (userQuota && !readOnly) {
+      const newSizeBytes = new Blob([newContent]).size
+      const delta = newSizeBytes - previousContentSizeBytesRef.current
+      const projected = userQuota.used + delta
+      if (projected > userQuota.limit) {
+        // Trim input to fit quota
+        const allowedBytes = userQuota.limit - userQuota.used + previousContentSizeBytesRef.current
+        // Binary search to trim string to allowed bytes
+        let low = 0, high = newContent.length
+        while (low < high) {
+          const mid = Math.floor((low + high + 1) / 2)
+          const size = new Blob([newContent.slice(0, mid)]).size
+          if (size <= allowedBytes) low = mid; else high = mid - 1
+        }
+        newContent = newContent.slice(0, low)
+      }
+    }
+
     setEditorState(prev => ({ ...prev, content: newContent }))
     setIsModified(true)
     
@@ -418,6 +440,14 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
       column: lines[lines.length - 1].length + 1
     })
   }
+  // Lock background scroll while editor is open
+  useEffect(() => {
+    const original = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = original
+    }
+  }, [])
 
   // Handle save
   const handleSave = async () => {
@@ -535,9 +565,10 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
     }
   }, [isModified, isSaving])
 
-  const FileIcon = getFileTypeIcon(file.name || 'untitled.txt')
-  const fileColor = getFileTypeColor(file.name || 'untitled.txt')
-  const syntaxLang = getSyntaxLanguage(file.name || 'untitled.txt')
+  const currentExt = getFileExtension(newFileName || file.name || 'untitled.txt')
+  const FileIcon = getFileTypeIcon(newFileName || file.name || 'untitled.txt')
+  const fileColor = getFileTypeColor(newFileName || file.name || 'untitled.txt')
+  const syntaxLang = getSyntaxLanguage(newFileName || file.name || 'untitled.txt')
 
   return (
     <TooltipProvider>
@@ -551,7 +582,14 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
               <div className="flex items-center space-x-3 flex-1 min-w-0">
                 {isRenaming ? (
                   <div className="flex items-center space-x-2 flex-1">
-                    <FileIcon className={cn("w-5 h-5", fileColor)} />
+                    <motion.div
+                      key={`icon-${currentExt}`}
+                      initial={{ scale: 0.8, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                    >
+                      <FileIcon className={cn("w-5 h-5", fileColor)} />
+                    </motion.div>
                     <Input
                       value={newFileName}
                       onChange={(e) => setNewFileName(e.target.value)}
@@ -588,7 +626,14 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
                   </div>
                 ) : (
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <FileIcon className={cn("w-5 h-5", fileColor)} />
+                    <motion.div
+                      key={`icon-${currentExt}`}
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                    >
+                      <FileIcon className={cn("w-5 h-5", fileColor)} />
+                    </motion.div>
                     <div className="flex-1 min-w-0">
                       <h3 className="text-white font-medium truncate">{file.name || 'Untitled'}</h3>
                       <p className="text-xs text-gray-400">{syntaxLang} • {file.size} bytes</p>

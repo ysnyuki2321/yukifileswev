@@ -794,7 +794,7 @@ Thank you for trying YukiFiles! 🚀`,
             isDemoMode={isDemoMode}
             onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           />
-          <main className="container mx-auto px-4 py-6">
+          <main className="container mx-auto px-4 py-6 overflow-x-hidden">
         {/* Demo Mode Toggle */}
         <div className="mb-8">
           <Card className="premium-card border-purple-500/20">

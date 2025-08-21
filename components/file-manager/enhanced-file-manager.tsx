@@ -472,7 +472,7 @@ export function EnhancedFileManager({
                   <ContextMenuTrigger asChild>
                     <div
                       className={cn(
-                        "group cursor-pointer transition-all duration-200",
+                        "group cursor-pointer transition-all duration-200 touch-manipulation",
                         viewMode === 'grid'
                           ? "p-4 rounded-lg border border-purple-500/20 bg-black/20 hover:bg-purple-500/10 hover:border-purple-500/40"
                           : "flex items-center space-x-4 p-3 rounded-lg border border-purple-500/20 bg-black/20 hover:bg-purple-500/10 hover:border-purple-500/40"
@@ -480,7 +480,7 @@ export function EnhancedFileManager({
                       onClick={() => handleFileClick(file)}
                     >
                       {viewMode === 'grid' ? (
-                        <div className="text-center space-y-2">
+                        <div className="text-center space-y-2 select-none">
                           <div className="flex justify-center">
                             <div className="w-12 h-12 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center text-purple-400">
                               {getFileIcon(file)}
@@ -627,6 +627,7 @@ export function EnhancedFileManager({
                 size: editingFile.size,
                 lastModified: editingFile.lastModified
               }}
+              userQuota={{ used: files.reduce((s, f) => s + f.size, 0), limit: 2 * 1024 * 1024 * 1024 }}
               onSave={handleFileSave}
               onClose={() => setEditingFile(null)}
             />
