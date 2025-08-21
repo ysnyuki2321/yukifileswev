@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
-import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
+import Sidebar from "@/components/dashboard/Sidebar"
+import Topbar from "@/components/dashboard/Topbar"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -51,6 +52,7 @@ export default function FilesPageClient() {
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
   const [uploadingFiles, setUploadingFiles] = useState<string[]>([])
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   useEffect(() => {
     async function loadData() {
@@ -782,98 +784,111 @@ Thank you for trying YukiFiles! 🚀`,
     )
   }
 
-  return (
-    <div className="min-h-screen theme-premium">
-      <NavigationWrapper 
-        brandName="YukiFiles" 
-        isAuthenticated={true} 
-        isAdmin={Boolean(userData?.is_admin)} 
-      />
-      
-      <main className="container mx-auto px-4 py-6 pt-24">
-        {/* Demo Mode Toggle */}
-        <div className="mb-8">
-          <Card className="premium-card border-purple-500/20">
-            <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2">
-                    <Sparkles className="w-5 h-5 text-purple-400" />
-                    <h2 className="text-xl font-semibold text-white">File Manager</h2>
-                  </div>
-                  {isDemoMode && (
-                    <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30">
-                      <PlayCircle className="w-3 h-3 mr-1" />
-                      Demo Mode
-                    </Badge>
-                  )}
-                </div>
-                
-                <div className="flex items-center space-x-3">
-                  <Button
-                    variant={isDemoMode ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setIsDemoMode(!isDemoMode)}
-                    className={isDemoMode 
-                      ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white" 
-                      : "border-purple-500 text-purple-300 hover:bg-purple-500/10"
-                    }
-                  >
-                    <PlayCircle className="w-4 h-4 mr-2" />
-                    {isDemoMode ? "Exit Demo" : "Try Demo"}
-                  </Button>
-                </div>
-              </div>
-              
-              {isDemoMode && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4 text-purple-400" />
-                      <span>Advanced Editor</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Code className="w-4 h-4 text-pink-400" />
-                      <span>Syntax Highlighting</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Image className="w-4 h-4 text-blue-400" />
-                      <span>All File Types</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Video className="w-4 h-4 text-green-400" />
-                      <span>Real-time Preview</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Music className="w-4 h-4 text-yellow-400" />
-                      <span>Smart Upload</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2">
-                    Click on any demo file to experience our advanced file editor with syntax highlighting and real-time editing capabilities.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+  const brandName = isDemoMode ? "YukiFiles Demo" : "YukiFiles"
 
-        <EnhancedFileManager
-          files={transformedFiles}
-          onFileUpload={handleFakeUpload}
-          onFileEdit={handleFileEdit}
-          onFileDelete={handleFileDelete}
-          onFileSave={handleFileSave}
-          uploadProgress={uploadProgress}
-          uploadingFiles={uploadingFiles}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+      <div className="flex">
+        <Sidebar 
           isAdmin={Boolean(userData?.is_admin)}
-          userQuota={{
-            used: userData?.quota_used || 0,
-            limit: userData?.quota_limit || 0
-          }}
-          isDemoMode={isDemoMode}
+          brandName={brandName}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+          activeTab="files"
         />
-      </main>
+        <div className="flex-1 min-w-0">
+          <Topbar 
+            user={user}
+            userData={userData}
+            onMenuClick={() => setIsSidebarOpen(true)}
+            showUpgrade={false}
+          />
+          <main className="p-6">
+            {/* Demo Mode Toggle */}
+            <div className="mb-8">
+              <Card className="premium-card border-purple-500/20">
+                <CardContent className="p-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="flex items-center space-x-2">
+                        <Sparkles className="w-5 h-5 text-purple-400" />
+                        <h2 className="text-xl font-semibold text-white">File Manager</h2>
+                      </div>
+                      {isDemoMode && (
+                        <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30">
+                          <PlayCircle className="w-3 h-3 mr-1" />
+                          Demo Mode
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center space-x-3">
+                      <Button
+                        variant={isDemoMode ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setIsDemoMode(!isDemoMode)}
+                        className={isDemoMode 
+                          ? "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white" 
+                          : "border-purple-500 text-purple-300 hover:bg-purple-500/10"
+                        }
+                      >
+                        <PlayCircle className="w-4 h-4 mr-2" />
+                        {isDemoMode ? "Exit Demo" : "Try Demo"}
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {isDemoMode && (
+                    <div className="mt-4 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
+                        <div className="flex items-center space-x-2">
+                          <FileText className="w-4 h-4 text-purple-400" />
+                          <span>Advanced Editor</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Code className="w-4 h-4 text-pink-400" />
+                          <span>Syntax Highlighting</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Image className="w-4 h-4 text-blue-400" />
+                          <span>All File Types</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Video className="w-4 h-4 text-green-400" />
+                          <span>Real-time Preview</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Music className="w-4 h-4 text-yellow-400" />
+                          <span>Smart Upload</span>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-400 mt-2">
+                        Click on any demo file to experience our advanced file editor with syntax highlighting and real-time editing capabilities.
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            <EnhancedFileManager
+              files={transformedFiles}
+              onFileUpload={handleFakeUpload}
+              onFileEdit={handleFileEdit}
+              onFileDelete={handleFileDelete}
+              onFileSave={handleFileSave}
+              uploadProgress={uploadProgress}
+              uploadingFiles={uploadingFiles}
+              isAdmin={Boolean(userData?.is_admin)}
+              userQuota={{
+                used: userData?.quota_used || 0,
+                limit: userData?.quota_limit || 0
+              }}
+              isDemoMode={isDemoMode}
+            />
+          </main>
+        </div>
+      </div>
     </div>
   )
 }
