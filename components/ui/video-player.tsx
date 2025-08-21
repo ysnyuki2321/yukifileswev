@@ -116,17 +116,20 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
     video.currentTime = Math.max(0, Math.min(duration, video.currentTime + seconds))
   }
 
-  // Custom skip button component
+  // Custom skip button component with number
   const SkipButton = ({ seconds, direction }: { seconds: number, direction: 'forward' | 'backward' }) => (
     <Button
       onClick={() => skip(direction === 'forward' ? seconds : -seconds)}
       size="sm"
       variant="ghost"
-      className="text-white hover:bg-white/20 relative"
+      className="text-white hover:bg-white/20 relative w-12 h-10"
     >
-      <div className="flex flex-col items-center">
-        {direction === 'backward' ? <SkipBack className="w-4 h-4" /> : <SkipForward className="w-4 h-4" />}
-        <span className="text-xs font-bold absolute -bottom-1">{seconds}</span>
+      <div className="flex flex-col items-center justify-center">
+        <div className="flex items-center gap-1">
+          {direction === 'backward' ? <SkipBack className="w-3 h-3" /> : <SkipForward className="w-3 h-3" />}
+          <span className="text-sm font-bold">{seconds}</span>
+        </div>
+        <span className="text-xs opacity-80">sec</span>
       </div>
     </Button>
   )

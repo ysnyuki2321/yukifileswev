@@ -983,10 +983,10 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
 
                 {/* View Tools */}
                 <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
-                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setWrapEnabled(v => !v)} title="Toggle Word Wrap">
+                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setWrapEnabled(prev => !prev)} title="Toggle Word Wrap">
                     <WrapText className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant={showLineNumbers ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setShowLineNumbers(v => !v)} title="Toggle Line Numbers">
+                                      <Button size="sm" variant={showLineNumbers ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setShowLineNumbers(prev => !prev)} title="Toggle Line Numbers">
                     <Hash className="w-3 h-3" />
                   </Button>
                   <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleZoomOut} title="Zoom Out">

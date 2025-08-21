@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Download, Copy, Eye, Calendar, HardDrive, Sparkles, ExternalLink, Share2, Lock, AlertCircle, CheckCircle, Image, Video } from "lucide-react"
 import { motion } from "framer-motion"
 import { VideoPlayer } from "@/components/ui/video-player"
+import { ProfessionalDownload } from "@/components/ui/professional-download"
 
 interface DemoSharePageProps {
   params: Promise<{
@@ -301,13 +302,12 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">
-            <Button 
-              onClick={handleDownload}
-              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-medium"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              Download File
-            </Button>
+            <ProfessionalDownload
+              url={demoFile.preview_url || '/demo-file.zip'}
+              filename={demoFile.original_name}
+              fileSize={demoFile.file_size}
+              className="flex-1"
+            />
             <Button 
               onClick={copyToDemo}
               variant="outline"

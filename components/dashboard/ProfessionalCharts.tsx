@@ -229,60 +229,121 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
                 ))}
               </div>
               
-              {/* Chart Line */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 250">
+              {/* Professional Chart Line */}
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 500 300" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
-                    <stop offset="50%" stopColor="#ec4899" stopOpacity="0.6" />
-                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.8" />
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="1" />
+                    <stop offset="25%" stopColor="#a855f7" stopOpacity="0.9" />
+                    <stop offset="50%" stopColor="#ec4899" stopOpacity="0.8" />
+                    <stop offset="75%" stopColor="#f97316" stopOpacity="0.9" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="1" />
                   </linearGradient>
                   <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.05" />
+                    <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.4" />
+                    <stop offset="50%" stopColor="#ec4899" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#06b6d4" stopOpacity="0.05" />
                   </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge> 
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
                 </defs>
                 
-                {/* Area under curve */}
+                {/* Grid Lines */}
+                {[...Array(5)].map((_, i) => (
+                  <line
+                    key={i}
+                    x1="50"
+                    y1={50 + (i * 50)}
+                    x2="450"
+                    y2={50 + (i * 50)}
+                    stroke="#374151"
+                    strokeWidth="1"
+                    opacity="0.3"
+                  />
+                ))}
+                {[...Array(5)].map((_, i) => (
+                  <line
+                    key={i}
+                    x1={50 + (i * 100)}
+                    y1="50"
+                    x2={50 + (i * 100)}
+                    y2="250"
+                    stroke="#374151"
+                    strokeWidth="1"
+                    opacity="0.3"
+                  />
+                ))}
+                
+                {/* Smooth Curved Area */}
                 <path
-                  d={`M 30 ${220 - (currentData[0].value / maxValue) * 180} 
-                      Q 130 ${220 - (currentData[1].value / maxValue) * 180} 200 ${220 - (currentData[2].value / maxValue) * 180}
-                      Q 300 ${220 - (currentData[3].value / maxValue) * 180} 370 ${220 - (currentData[3].value / maxValue) * 180}
-                      L 370 220 L 30 220 Z`}
+                  d={`M 50 ${250 - (currentData[0].value / maxValue) * 180} 
+                      C 120 ${250 - (currentData[0].value / maxValue) * 180} 130 ${250 - (currentData[1].value / maxValue) * 180} 150 ${250 - (currentData[1].value / maxValue) * 180}
+                      C 220 ${250 - (currentData[1].value / maxValue) * 180} 230 ${250 - (currentData[2].value / maxValue) * 180} 250 ${250 - (currentData[2].value / maxValue) * 180}
+                      C 320 ${250 - (currentData[2].value / maxValue) * 180} 330 ${250 - (currentData[3].value / maxValue) * 180} 350 ${250 - (currentData[3].value / maxValue) * 180}
+                      C 380 ${250 - (currentData[3].value / maxValue) * 180} 420 ${250 - (currentData[3].value / maxValue) * 180} 450 ${250 - (currentData[3].value / maxValue) * 180}
+                      L 450 250 L 50 250 Z`}
                   fill="url(#areaGradient)"
                 />
                 
-                {/* Main curve line */}
+                {/* Main Smooth Curve */}
                 <path
-                  d={`M 30 ${220 - (currentData[0].value / maxValue) * 180} 
-                      Q 130 ${220 - (currentData[1].value / maxValue) * 180} 200 ${220 - (currentData[2].value / maxValue) * 180}
-                      Q 300 ${220 - (currentData[3].value / maxValue) * 180} 370 ${220 - (currentData[3].value / maxValue) * 180}`}
+                  d={`M 50 ${250 - (currentData[0].value / maxValue) * 180} 
+                      C 120 ${250 - (currentData[0].value / maxValue) * 180} 130 ${250 - (currentData[1].value / maxValue) * 180} 150 ${250 - (currentData[1].value / maxValue) * 180}
+                      C 220 ${250 - (currentData[1].value / maxValue) * 180} 230 ${250 - (currentData[2].value / maxValue) * 180} 250 ${250 - (currentData[2].value / maxValue) * 180}
+                      C 320 ${250 - (currentData[2].value / maxValue) * 180} 330 ${250 - (currentData[3].value / maxValue) * 180} 350 ${250 - (currentData[3].value / maxValue) * 180}
+                      C 380 ${250 - (currentData[3].value / maxValue) * 180} 420 ${250 - (currentData[3].value / maxValue) * 180} 450 ${250 - (currentData[3].value / maxValue) * 180}`}
                   stroke="url(#chartGradient)"
-                  strokeWidth="4"
+                  strokeWidth="5"
                   fill="none"
                   strokeLinecap="round"
+                  filter="url(#glow)"
                 />
                 
-                {/* Data points */}
+                {/* Professional Data Points */}
                 {currentData.map((item, index) => {
-                  const x = 30 + (index * 113.33)
-                  const y = 220 - (item.value / maxValue) * 180
+                  const x = 50 + (index * 133.33)
+                  const y = 250 - (item.value / maxValue) * 180
                   return (
                     <g key={index}>
+                      {/* Glow effect */}
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="12"
+                        fill="#8b5cf6"
+                        opacity="0.3"
+                        filter="url(#glow)"
+                      />
+                      {/* Main point */}
                       <circle
                         cx={x}
                         cy={y}
                         r="8"
-                        fill="#8b5cf6"
+                        fill="url(#chartGradient)"
                         stroke="white"
                         strokeWidth="3"
                         className="hover:r-10 transition-all cursor-pointer"
                       />
+                      {/* Inner point */}
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="4"
+                        fill="white"
+                        opacity="0.9"
+                      />
+                      {/* Value label */}
                       <text
                         x={x}
-                        y={y - 20}
+                        y={y - 25}
                         textAnchor="middle"
                         className="fill-white text-sm font-bold"
+                        filter="url(#glow)"
                       >
                         {item.value.toLocaleString()}
                       </text>
