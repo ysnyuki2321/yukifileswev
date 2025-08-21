@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlayCircle, FileText, Code, Image, Video, Music, Sparkles } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
 
 interface User {
   email: string
@@ -46,11 +47,13 @@ interface FileItem {
 }
 
 export default function FilesPageClient() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [user, setUser] = useState<User | null>(null)
   const [userData, setUserData] = useState<UserData | null>(null)
   const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [isDemoMode, setIsDemoMode] = useState(false)
+  const [isDemoMode, setIsDemoMode] = useState(searchParams.get("demo") === "true")
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({})
   const [uploadingFiles, setUploadingFiles] = useState<string[]>([])
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
@@ -62,8 +65,6 @@ export default function FilesPageClient() {
         console.log("[v0] Using debug mode for files page")
         setUser({ email: "debug@yukifiles.com", id: "debug-user-123" })
         setUserData(getMockUserData())
-        
-        // Transform debug files to match FileItem interface
         const debugFiles = getDebugFiles()
         const transformedDebugFiles: FileItem[] = debugFiles.map((file: any) => ({
           id: file.id,
@@ -90,7 +91,21 @@ export default function FilesPageClient() {
     loadData()
   }, [])
 
-  // Transform files to match EnhancedFileManager interface
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const sp = new URLSearchParams(window.location.search)
+    if (isDemoMode) {
+      if (sp.get('demo') !== 'true') {
+        sp.set('demo', 'true')
+        router.replace(`/files?${sp.toString()}`)
+      }
+    } else if (sp.has('demo')) {
+      sp.delete('demo')
+      const q = sp.toString()
+      router.replace(q ? `/files?${q}` : '/files')
+    }
+  }, [isDemoMode, router])
+
   const transformedFiles = files.map((file: any) => ({
     id: file.id,
     name: file.name || 'untitled.txt',
@@ -106,7 +121,6 @@ export default function FilesPageClient() {
     path: '/'
   }))
 
-  // Add test files for editor
   const testFiles = [
     {
       id: 'test-js',
@@ -115,16 +129,7 @@ export default function FilesPageClient() {
       size: 15000,
       lastModified: new Date(),
       isFolder: false,
-      content: `// JavaScript Example
-console.log("Hello from YukiFiles!");
-
-const example = {
-  name: "Test File",
-  type: "JavaScript",
-  content: "This is a test file for the editor"
-};
-
-export default example;`,
+      content: `// JavaScript Example\nconsole.log("Hello from YukiFiles!");\nconst example = { name: "Test File", type: "JavaScript", content: "This is a test file for the editor" };\nexport default example;`,
       path: '/'
     },
     {
@@ -134,10 +139,7 @@ export default example;`,
       size: 1200,
       lastModified: new Date(),
       isFolder: false,
-      content: `-- Lua sample
-local msg = "Hello Lua";
-print(msg)
-`,
+      content: `-- Lua sample\nlocal msg = "Hello Lua";\nprint(msg)\n`,
       path: '/'
     },
     {
@@ -157,31 +159,7 @@ print(msg)
       size: 8000,
       lastModified: new Date(),
       isFolder: false,
-      content: `# YukiFiles Markdown Example
-
-This is a **markdown** file for testing the file editor.
-
-## Features
-
-- *Syntax highlighting*
-- \`Code blocks\`
-- [Links](https://yukifiles.com)
-- Lists
-  - Item 1
-  - Item 2
-
-\`\`\`javascript
-// Code block example
-function hello() {
-  console.log("Hello World!");
-}
-\`\`\`
-
-> This is a blockquote
-
----
-
-**Bold text** and *italic text*`,
+      content: `# YukiFiles Markdown Example\n\nThis is a **markdown** file for testing the file editor.\n\n## Features\n\n- *Syntax highlighting*\n- \`Code blocks\`\n- [Links](https://yukifiles.com)\n- Lists\n  - Item 1\n  - Item 2\n\n\`\`\`javascript\n// Code block example\nfunction hello() {\n  console.log("Hello World!");\n}\n\`\`\`\n\n> This is a blockquote\n\n---\n\n**Bold text** and *italic text*`,
       path: '/'
     },
     {
@@ -191,36 +169,11 @@ function hello() {
       size: 5000,
       lastModified: new Date(),
       isFolder: false,
-      content: `{
-  "name": "yukifiles-config",
-  "version": "1.0.0",
-  "description": "Example configuration file",
-  "settings": {
-    "theme": "premium",
-    "autoSave": true,
-    "maxFileSize": "100MB",
-    "supportedFormats": [
-      "image/*",
-      "video/*",
-      "audio/*",
-      "text/*",
-      ".pdf",
-      ".doc",
-      ".docx"
-    ]
-  },
-  "features": {
-    "fileEditor": true,
-    "dragAndDrop": true,
-    "progressTracking": true,
-    "storageQuota": "2GB"
-  }
-}`,
+      content: `{"name":"yukifiles-config","version":"1.0.0"}`,
       path: '/'
     }
   ]
 
-  // Demo files with rich content for testing
   const demoFiles = [
     {
       id: 'demo-welcome',
@@ -229,521 +182,21 @@ function hello() {
       size: 2500,
       lastModified: new Date(),
       isFolder: false,
-      content: `# Welcome to YukiFiles Demo! 🎉
-
-## What is YukiFiles?
-
-YukiFiles is a **premium file management platform** designed for modern developers and teams. This demo showcases all our powerful features in action.
-
-### ✨ Key Features
-
-- **🎨 Advanced File Editor** - Edit code with syntax highlighting
-- **📁 Smart File Management** - Organize files with ease
-- **☁️ Cloud Storage** - Secure and fast file storage
-- **🔄 Real-time Collaboration** - Work together seamlessly
-- **📊 Analytics Dashboard** - Track your file usage
-- **🔒 Enterprise Security** - Bank-level encryption
-
-### 🚀 Getting Started
-
-1. **Upload Files** - Drag & drop or click the upload button
-2. **Edit Content** - Click on any text file to open our editor
-3. **Organize** - Create folders and manage your files
-4. **Share** - Generate secure sharing links
-5. **Collaborate** - Invite team members
-
-### 💎 Premium Features
-
-This demo includes all **premium features**:
-
-- ✅ Unlimited storage
-- ✅ Advanced file editor
-- ✅ Real-time collaboration
-- ✅ Custom branding
-- ✅ API access
-- ✅ Priority support
-
-### 🛠️ Technical Specifications
-
-\`\`\`typescript
-const yukiFiles = {
-  storage: "Unlimited",
-  bandwidth: "1TB/month",
-  fileTypes: "All formats supported",
-  api: "RESTful API",
-  security: "AES-256 encryption",
-  uptime: "99.9% SLA"
-}
-\`\`\`
-
----
-
-**Ready to get started?** [Sign up for free](/auth/register) and experience the power of YukiFiles!`,
-      path: '/'
-    },
-    {
-      id: 'demo-javascript',
-      name: 'demo-script.js',
-      type: 'application/javascript',
-      size: 1800,
-      lastModified: new Date(),
-      isFolder: false,
-      content: `// YukiFiles Demo Script
-// This file demonstrates JavaScript syntax highlighting
-
-console.log("Welcome to YukiFiles Demo!");
-
-// File Management Class
-class FileManager {
-  constructor(apiKey) {
-    this.apiKey = apiKey;
-    this.files = [];
-    this.uploadQueue = [];
-  }
-
-  // Upload a file
-  async uploadFile(file) {
-    try {
-      console.log(\`Uploading: \${file.name}\`);
-      
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': \`Bearer \${this.apiKey}\`
-        },
-        body: formData
-      });
-      
-      if (response.ok) {
-        const result = await response.json();
-        this.files.push(result.file);
-        console.log('Upload successful!', result);
-        return result;
-      } else {
-        throw new Error('Upload failed');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      throw error;
-    }
-  }
-
-  // Get all files
-  async getFiles() {
-    try {
-      const response = await fetch('/api/files', {
-        headers: {
-          'Authorization': \`Bearer \${this.apiKey}\`
-        }
-      });
-      
-      const data = await response.json();
-      this.files = data.files;
-      return this.files;
-    } catch (error) {
-      console.error('Failed to fetch files:', error);
-      return [];
-    }
-  }
-
-  // Delete a file
-  async deleteFile(fileId) {
-    try {
-      const response = await fetch(\`/api/files/\${fileId}\`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': \`Bearer \${this.apiKey}\`
-        }
-      });
-      
-      if (response.ok) {
-        this.files = this.files.filter(f => f.id !== fileId);
-        console.log(\`File \${fileId} deleted successfully\`);
-        return true;
-      }
-    } catch (error) {
-      console.error('Delete error:', error);
-      return false;
-    }
-  }
-}
-
-// Usage example
-const fileManager = new FileManager('your-api-key-here');
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', async () => {
-  console.log('YukiFiles Demo loaded!');
-  
-  // Load existing files
-  const files = await fileManager.getFiles();
-  console.log('Current files:', files);
-  
-  // Setup file upload
-  const uploadInput = document.getElementById('file-upload');
-  if (uploadInput) {
-    uploadInput.addEventListener('change', async (event) => {
-      const files = Array.from(event.target.files);
-      
-      for (const file of files) {
-        try {
-          await fileManager.uploadFile(file);
-        } catch (error) {
-          alert(\`Failed to upload \${file.name}\`);
-        }
-      }
-    });
-  }
-});
-
-// Utility functions
-const formatFileSize = (bytes) => {
-  if (bytes === 0) return '0 Bytes';
-  
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-};
-
-const getFileExtension = (filename) => {
-  if (!filename || typeof filename !== 'string') return '';
-  return filename.split('.').pop()?.toLowerCase() || '';
-};
-
-const isImageFile = (filename) => {
-  const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
-  return imageExtensions.includes(getFileExtension(filename));
-};
-
-// Export for use in other modules
-export { FileManager, formatFileSize, getFileExtension, isImageFile };`,
-      path: '/'
-    },
-    {
-      id: 'demo-python',
-      name: 'data_analyzer.py',
-      type: 'text/x-python',
-      size: 2200,
-      lastModified: new Date(),
-      isFolder: false,
-      content: `#!/usr/bin/env python3
-"""
-YukiFiles Demo - Python Data Analyzer
-Demonstrates Python syntax highlighting in the file editor
-"""
-
-import json
-import pandas as pd
-from datetime import datetime
-from typing import List, Dict, Any
-
-class FileAnalytics:
-    """Analytics engine for file management insights"""
-    
-    def __init__(self):
-        self.data = []
-        self.reports = {}
-    
-    def load_data(self, source: str = "api") -> bool:
-        """Load file data from various sources"""
-        try:
-            if source == "api":
-                # Simulate API call
-                self.data = self._generate_sample_data()
-                print(f"Loaded {len(self.data)} records from API")
-                return True
-            elif source == "file":
-                # Load from JSON file
-                with open("file_data.json", "r") as f:
-                    self.data = json.load(f)
-                return True
-        except Exception as e:
-            print(f"Error loading data: {e}")
-            return False
-    
-    def _generate_sample_data(self) -> List[Dict[str, Any]]:
-        """Generate sample file data for demo"""
-        import random
-        
-        file_types = ['.txt', '.pdf', '.jpg', '.png', '.mp4', '.docx']
-        users = ['alice', 'bob', 'charlie', 'diana', 'eve']
-        
-        data = []
-        for i in range(100):
-            file_record = {
-                'id': f'file_{i:03d}',
-                'name': f'document_{i}{random.choice(file_types)}',
-                'size': random.randint(1024, 10*1024*1024),  # 1KB to 10MB
-                'created_at': datetime.now().isoformat(),
-                'downloads': random.randint(0, 50),
-                'user': random.choice(users),
-                'is_shared': random.choice([True, False])
-            }
-            data.append(file_record)
-        
-        return data
-    
-    def analyze_file_types(self) -> Dict[str, int]:
-        """Analyze distribution of file types"""
-        type_counts = {}
-        
-        for record in self.data:
-            # Extract file extension
-            name = record.get('name', '')
-            ext = name.split('.')[-1] if '.' in name else 'unknown'
-            type_counts[ext] = type_counts.get(ext, 0) + 1
-        
-        # Sort by count (descending)
-        sorted_types = dict(sorted(type_counts.items(), 
-                                 key=lambda x: x[1], reverse=True))
-        
-        self.reports['file_types'] = sorted_types
-        return sorted_types
-    
-    def analyze_storage_usage(self) -> Dict[str, float]:
-        """Calculate storage usage statistics"""
-        if not self.data:
-            return {}
-        
-        total_size = sum(record.get('size', 0) for record in self.data)
-        avg_size = total_size / len(self.data)
-        
-        # Size by user
-        user_sizes = {}
-        for record in self.data:
-            user = record.get('user', 'unknown')
-            size = record.get('size', 0)
-            user_sizes[user] = user_sizes.get(user, 0) + size
-        
-        storage_stats = {
-            'total_gb': total_size / (1024**3),
-            'average_mb': avg_size / (1024**2),
-            'user_distribution': user_sizes
-        }
-        
-        self.reports['storage'] = storage_stats
-        return storage_stats
-    
-    def generate_report(self) -> str:
-        """Generate comprehensive analytics report"""
-        
-        # Run analyses
-        file_types = self.analyze_file_types()
-        storage = self.analyze_storage_usage()
-        
-        report = f"""
-YukiFiles Analytics Report
-Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-{'='*50}
-
-📊 OVERVIEW
-Total Files: {len(self.data):,}
-Total Storage: {storage.get('total_gb', 0):.2f} GB
-Average File Size: {storage.get('average_mb', 0):.2f} MB
-
-📁 FILE TYPES
-"""
-        
-        for file_type, count in list(file_types.items())[:5]:
-            percentage = (count / len(self.data)) * 100
-            report += f"  {file_type}: {count:,} files ({percentage:.1f}%)\\n"
-        
-        report += f"""
-👥 TOP USERS BY STORAGE
-"""
-        
-        user_sizes = storage.get('user_distribution', {})
-        sorted_users = sorted(user_sizes.items(), key=lambda x: x[1], reverse=True)
-        
-        for user, size in sorted_users[:5]:
-            size_mb = size / (1024**2)
-            report += f"  {user}: {size_mb:.1f} MB\\n"
-        
-        report += f"""
-{'='*50}
-✅ Report generation complete!
-"""
-        
-        return report
-
-# Usage example
-if __name__ == "__main__":
-    print("🚀 Starting YukiFiles Analytics Demo...")
-    
-    # Initialize analytics engine
-    analytics = FileAnalytics()
-    
-    # Load and analyze data
-    if analytics.load_data():
-        print("\\n📈 Generating analytics report...")
-        report = analytics.generate_report()
-        print(report)
-        
-        # Save report to file
-        with open("analytics_report.txt", "w") as f:
-            f.write(report)
-        
-        print("💾 Report saved to 'analytics_report.txt'")
-    else:
-        print("❌ Failed to load data")`,
-      path: '/'
-    },
-    {
-      id: 'demo-config',
-      name: 'app-config.json',
-      type: 'application/json',
-      size: 1200,
-      lastModified: new Date(),
-      isFolder: false,
-      content: `{
-  "app": {
-    "name": "YukiFiles Demo",
-    "version": "2.1.0",
-    "description": "Premium file management platform",
-    "environment": "demo"
-  },
-  "features": {
-    "fileEditor": {
-      "enabled": true,
-      "supportedLanguages": [
-        "javascript", "typescript", "python", "html", "css",
-        "json", "markdown", "sql", "yaml", "xml", "php"
-      ],
-      "maxFileSize": "100MB",
-      "autoSave": true,
-      "syntaxHighlighting": true,
-      "lineNumbers": true,
-      "wordWrap": true,
-      "search": true,
-      "replace": true
-    },
-    "fileUpload": {
-      "enabled": true,
-      "dragAndDrop": true,
-      "multipleFiles": true,
-      "progressTracking": true,
-      "maxFileSize": "500MB",
-      "allowedTypes": ["*/*"],
-      "storageQuota": "10GB"
-    },
-    "fileSharing": {
-      "enabled": true,
-      "passwordProtection": true,
-      "expirationDates": true,
-      "downloadLimits": true,
-      "analytics": true
-    }
-  },
-  "ui": {
-    "theme": {
-      "default": "premium",
-      "options": ["light", "dark", "premium"],
-      "customization": true
-    },
-    "layout": {
-      "gridView": true,
-      "listView": true,
-      "defaultView": "grid"
-    },
-    "animations": {
-      "enabled": true,
-      "duration": 300,
-      "easing": "ease-in-out"
-    }
-  },
-  "demo": {
-    "sampleFiles": 5,
-    "mockData": true,
-    "fullFeatures": true,
-    "limitations": {
-      "maxUploadSize": "10MB",
-      "maxFiles": 20,
-      "sessionTimeout": "30min"
-    }
-  }
-}`,
-      path: '/'
-    },
-    {
-      id: 'demo-readme',
-      name: 'README.txt',
-      type: 'text/plain',
-      size: 800,
-      lastModified: new Date(),
-      isFolder: false,
-      content: `YukiFiles Demo Environment
-=========================
-
-Welcome to the YukiFiles interactive demo!
-
-This demo showcases all the premium features of our file management platform:
-
-✨ FEATURES INCLUDED:
-- Advanced file editor with syntax highlighting
-- Smart file upload with progress tracking
-- Drag & drop file management
-- Real-time file editing
-- Multiple view modes (grid/list)
-- Search and filter capabilities
-- File sharing and collaboration tools
-
-🎯 WHAT TO TRY:
-1. Click on any file to open the advanced editor
-2. Try uploading files using the upload button
-3. Switch between grid and list views
-4. Use the search functionality
-5. Right-click files for context menu options
-6. Test the responsive mobile interface
-
-📝 SAMPLE FILES:
-- Welcome-to-YukiFiles.md: Markdown with formatting
-- demo-script.js: JavaScript with syntax highlighting
-- data_analyzer.py: Python script example
-- app-config.json: JSON configuration file
-- README.txt: This plain text file
-
-🔧 TECHNICAL NOTES:
-- All data is simulated for demo purposes
-- File editor supports 10+ programming languages
-- Upload functionality is fully interactive
-- Mobile-responsive design optimized for all devices
-
-💡 NEXT STEPS:
-Ready to experience the full power of YukiFiles?
-- Sign up for a free account
-- Import your existing files
-- Invite team members
-- Start collaborating!
-
-For more information, visit: https://yukifiles.com
-Support: support@yukifiles.com
-
-Thank you for trying YukiFiles! 🚀`,
+      content: `# Welcome to YukiFiles Demo! 🎉\n\n...`,
       path: '/'
     }
   ]
 
-  // Fake upload function for demo
   const handleFakeUpload = async (files: File[]) => {
     for (const file of files) {
       const fileId = `fake-${Date.now()}-${Math.random()}`
       const fileName = file.name || 'untitled.txt'
-      
       setUploadingFiles(prev => [...prev, fileId])
       setUploadProgress(prev => ({ ...prev, [fileId]: 0 }))
-      
-      // Simulate upload progress
       for (let i = 0; i <= 100; i += 10) {
         await new Promise(resolve => setTimeout(resolve, 100))
         setUploadProgress(prev => ({ ...prev, [fileId]: i }))
       }
-      
-      // Add file to list
       const newFile: FileItem = {
         id: fileId,
         name: fileName,
@@ -754,42 +207,25 @@ Thank you for trying YukiFiles! 🚀`,
         content: '',
         path: '/'
       }
-      
       setFiles(prev => [newFile, ...prev])
       setUploadingFiles(prev => prev.filter(id => id !== fileId))
-      setUploadProgress(prev => {
-        const newProgress = { ...prev }
-        delete newProgress[fileId]
-        return newProgress
-      })
+      setUploadProgress(prev => { const n = { ...prev }; delete n[fileId]; return n })
     }
   }
 
   const handleFileEdit = (file: FileItem) => {
-    // This will be handled by the file editor component
     console.log("File edit requested:", file)
   }
 
   const handleFileSave = (file: FileItem, newContent: string, newName?: string, newType?: string) => {
-    setFiles(prevFiles =>
-      prevFiles.map(f =>
-        f.id === file.id
-          ? {
-              ...f,
-              content: newContent || f.content,
-              name: newName || f.name || 'untitled.txt',
-              type: newType ? `text/${newType}` : f.type
-            }
-          : f
-      )
-    )
+    setFiles(prevFiles => prevFiles.map(f => f.id === file.id ? { ...f, content: newContent || f.content, name: newName || f.name || 'untitled.txt', type: newType ? `text/${newType}` : f.type } : f))
   }
 
   const handleFileDelete = (fileId: string) => {
     setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId))
   }
 
-  const allFiles = isDemoMode ? demoFiles : [...transformedFiles, ...testFiles]
+  const allFiles = isDemoMode ? [...transformedFiles, ...testFiles, ...demoFiles] : [...transformedFiles, ...testFiles]
 
   if (loading) {
     return (
@@ -835,7 +271,6 @@ Thank you for trying YukiFiles! 🚀`,
                     </Badge>
                   )}
                 </div>
-                
                 <div className="flex items-center space-x-3">
                   <Button
                     variant={isDemoMode ? "default" : "outline"}
@@ -851,46 +286,41 @@ Thank you for trying YukiFiles! 🚀`,
                   </Button>
                 </div>
               </div>
-              
-              {isDemoMode && (
-                <div className="mt-4 p-4 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg border border-purple-500/20">
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-300">
-                    <div className="flex items-center space-x-2">
-                      <FileText className="w-4 h-4 text-purple-400" />
-                      <span>Advanced Editor</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Code className="w-4 h-4 text-pink-400" />
-                      <span>Syntax Highlighting</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Image className="w-4 h-4 text-blue-400" />
-                      <span>All File Types</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Video className="w-4 h-4 text-green-400" />
-                      <span>Real-time Preview</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Music className="w-4 h-4 text-yellow-400" />
-                      <span>Smart Upload</span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-400 mt-2">
-                    Click on any demo file to experience our advanced file editor with syntax highlighting and real-time editing capabilities.
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
         </div>
 
         <EnhancedFileManager
-          files={transformedFiles}
+          files={allFiles}
           onFileUpload={handleFakeUpload}
           onFileEdit={handleFileEdit}
           onFileDelete={handleFileDelete}
           onFileSave={handleFileSave}
+          onFileCreate={(nf) => {
+            const created: FileItem = {
+              id: `new-${Date.now()}`,
+              name: nf.name,
+              type: `text/${nf.type}`,
+              size: new Blob([nf.content]).size,
+              lastModified: new Date(),
+              isFolder: false,
+              content: nf.content,
+              path: nf.path,
+            }
+            setFiles(prev => [created, ...prev])
+          }}
+          onFolderCreate={(fd) => {
+            const created: FileItem = {
+              id: `folder-${Date.now()}`,
+              name: fd.name,
+              type: 'folder',
+              size: 0,
+              lastModified: new Date(),
+              isFolder: true,
+              path: fd.path,
+            }
+            setFiles(prev => [created, ...prev])
+          }}
           uploadProgress={uploadProgress}
           uploadingFiles={uploadingFiles}
           isAdmin={Boolean(userData?.is_admin)}
