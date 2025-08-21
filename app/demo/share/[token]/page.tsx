@@ -5,8 +5,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Download, Copy, Eye, Calendar, HardDrive, Sparkles, ExternalLink, Share2, Lock, AlertCircle, CheckCircle } from "lucide-react"
+import { Download, Copy, Eye, Calendar, HardDrive, Sparkles, ExternalLink, Share2, Lock, AlertCircle, CheckCircle, Image, Video } from "lucide-react"
 import { motion } from "framer-motion"
+import { VideoPlayer } from "@/components/ui/video-player"
 
 interface DemoSharePageProps {
   params: Promise<{
@@ -33,27 +34,58 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
         return settings.shareLink && settings.shareLink.includes(p.token)
       })
       
-      if (linkSettings) {
-        const settings = JSON.parse(localStorage.getItem(linkSettings) || '{}')
-        setIsPrivate(!settings.isPublic)
-        if (settings.fileName) {
-          demoFile.original_name = settings.fileName
+              // Set demo file based on token
+        const fileData = getDemoFileByToken(p.token)
+        setDemoFile(fileData)
+        
+        if (linkSettings) {
+          const settings = JSON.parse(localStorage.getItem(linkSettings) || '{}')
+          setIsPrivate(!settings.isPublic)
+          if (settings.fileName) {
+            setDemoFile(prev => ({ ...prev, original_name: settings.fileName }))
+          }
+        } else {
+          // Simulate some links being private
+          setIsPrivate(p.token.includes('private') || Math.random() > 0.7)
         }
-      } else {
-        // Simulate some links being private
-        setIsPrivate(p.token.includes('private') || Math.random() > 0.7)
-      }
     })
   }, [params])
 
-  const demoFile = {
-    original_name: "YukiFiles_Demo_Project.zip",
-    file_size: 2547893,
-    created_at: "2024-01-15T10:30:00Z",
-    download_count: 1247,
-    mime_type: "application/zip",
-    owner: "demo@yukifiles.com"
+  const getDemoFileByToken = (token: string) => {
+    // Demo files với different types
+    const demoFiles: { [key: string]: any } = {
+      'abc123': {
+        original_name: "Beautiful_Landscape.jpg",
+        file_size: 2547893,
+        created_at: "2024-01-15T10:30:00Z",
+        download_count: 1247,
+        mime_type: "image/jpeg",
+        owner: "demo@yukifiles.com",
+        preview_url: "https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68a8ba42&is=68a768c2&hm=2cc475eb3894f0b72b9497613b9465e92a4ea89e386f14b890defec176ca97d9&"
+      },
+      'def456': {
+        original_name: "Demo_Video.mp4", 
+        file_size: 15847392,
+        created_at: "2024-01-14T15:20:00Z",
+        download_count: 892,
+        mime_type: "video/mp4",
+        owner: "creator@yukifiles.com",
+        preview_url: "https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68a8ba40&is=68a768c0&hm=6d2fef08de6bd955520298bddd012bf7aaa2f82ab6c081738b80d5e2c2996ca2&"
+      },
+      'default': {
+        original_name: "YukiFiles_Demo_Project.zip",
+        file_size: 2547893,
+        created_at: "2024-01-15T10:30:00Z",
+        download_count: 1247,
+        mime_type: "application/zip",
+        owner: "demo@yukifiles.com"
+      }
+    }
+    
+    return demoFiles[token] || demoFiles['default']
   }
+
+  const [demoFile, setDemoFile] = useState(getDemoFileByToken('default'))
 
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return "0 Bytes"
@@ -224,23 +256,45 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
           </div>
 
           {/* File Preview */}
-          <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 border border-purple-500/20">
-            <h3 className="text-white font-semibold mb-3 flex items-center gap-2">
-              <Eye className="w-5 h-5" />
-              File Preview
-            </h3>
-            <div className="bg-slate-800/50 rounded-lg p-4 font-mono text-sm text-gray-300">
-              <div className="text-green-400">📁 YukiFiles_Demo_Project/</div>
-              <div className="ml-4 text-blue-400">├── 📄 README.md</div>
-              <div className="ml-4 text-yellow-400">├── ⚙️ package.json</div>
-              <div className="ml-4 text-purple-400">├── 🎨 styles/</div>
-              <div className="ml-8 text-pink-400">│   └── globals.css</div>
-              <div className="ml-4 text-cyan-400">├── 📝 components/</div>
-              <div className="ml-8 text-orange-400">│   ├── ui/</div>
-              <div className="ml-8 text-red-400">│   └── dashboard/</div>
-              <div className="ml-4 text-gray-400">└── 📊 demo-data.json</div>
+          {demoFile.preview_url && (
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 border border-purple-500/20">
+              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                File Preview
+              </h3>
+              
+              {demoFile.mime_type.startsWith('image/') ? (
+                <div className="relative rounded-lg overflow-hidden bg-black/20">
+                  <img
+                    src={demoFile.preview_url}
+                    alt={demoFile.original_name}
+                    className="w-full h-auto max-h-96 object-contain rounded-lg"
+                  />
+                  <div className="absolute top-4 right-4">
+                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                      <Image className="w-3 h-3 mr-1" />
+                      Image
+                    </Badge>
+                  </div>
+                </div>
+              ) : demoFile.mime_type.startsWith('video/') ? (
+                <VideoPlayer
+                  src={demoFile.preview_url}
+                  title={demoFile.original_name}
+                  className="w-full h-64 md:h-80"
+                />
+              ) : (
+                <div className="bg-slate-800/50 rounded-lg p-8 text-center">
+                  <HardDrive className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-300 font-medium">{demoFile.original_name}</p>
+                  <p className="text-gray-400 text-sm mt-2">Preview not available for this file type</p>
+                  <Badge variant="outline" className="mt-3 border-gray-500 text-gray-300">
+                    {demoFile.mime_type}
+                  </Badge>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
           {/* Actions */}
           <div className="flex flex-col sm:flex-row gap-3">

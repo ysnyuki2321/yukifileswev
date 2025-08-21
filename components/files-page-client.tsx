@@ -71,6 +71,28 @@ export default function FilesPageClient() {
           { id: 's1', name: 'app.tsx', type: 'text/tsx', size: 1520, lastModified: new Date(), isFolder: false, content: `import React from 'react'\nexport default function App(){\n  return <div>Hello YukiFiles</div>\n}` , path: '/' },
           { id: 's2', name: 'server.js', type: 'application/javascript', size: 2440, lastModified: new Date(), isFolder: false, content: `const http=require('http')\nhttp.createServer((_,res)=>{res.end('OK')}).listen(3000)` , path: '/' },
           { id: 's3', name: 'style.css', type: 'text/css', size: 980, lastModified: new Date(), isFolder: false, content: `body{font-family:system-ui;background:#0b1020;color:#fff}` , path: '/' },
+        { 
+          id: 'demo-image', 
+          name: 'Beautiful_Landscape.jpg', 
+          type: 'image/jpeg', 
+          size: 2547893, 
+          lastModified: new Date(), 
+          isFolder: false, 
+          content: '',
+          thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68a8ba42&is=68a768c2&hm=2cc475eb3894f0b72b9497613b9465e92a4ea89e386f14b890defec176ca97d9&',
+          path: '/' 
+        },
+        { 
+          id: 'demo-video', 
+          name: 'Demo_Video.mp4', 
+          type: 'video/mp4', 
+          size: 15847392, 
+          lastModified: new Date(), 
+          isFolder: false, 
+          content: '',
+          thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68a8ba40&is=68a768c0&hm=6d2fef08de6bd955520298bddd012bf7aaa2f82ab6c081738b80d5e2c2996ca2&',
+          path: '/' 
+        },
           { id: 's4', name: 'README.md', type: 'text/markdown', size: 1200, lastModified: new Date(), isFolder: false, content: `# YukiFiles\n\nDemo file manager samples.` , path: '/' }
         ]
         const transformedDebugFiles: FileItem[] = debugFiles.map((file: any) => ({

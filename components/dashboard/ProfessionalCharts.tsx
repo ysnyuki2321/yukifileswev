@@ -221,7 +221,7 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
             transition={{ duration: 0.5, ease: "easeOut" }}
             className="bg-slate-800/30 rounded-lg p-6 mb-4"
           >
-            <div className="h-64 relative">
+            <div className="h-80 relative">
               {/* Chart Grid */}
               <div className="absolute inset-0 grid grid-rows-4 opacity-20">
                 {[...Array(4)].map((_, i) => (
@@ -230,7 +230,7 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
               </div>
               
               {/* Chart Line */}
-              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 200">
+              <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 250">
                 <defs>
                   <linearGradient id="chartGradient" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.8" />
@@ -245,44 +245,44 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
                 
                 {/* Area under curve */}
                 <path
-                  d={`M 50 ${200 - (currentData[0].value / maxValue) * 150} 
-                      Q 150 ${200 - (currentData[1].value / maxValue) * 150} 200 ${200 - (currentData[2].value / maxValue) * 150}
-                      Q 300 ${200 - (currentData[3].value / maxValue) * 150} 350 ${200 - (currentData[3].value / maxValue) * 150}
-                      L 350 200 L 50 200 Z`}
+                  d={`M 30 ${220 - (currentData[0].value / maxValue) * 180} 
+                      Q 130 ${220 - (currentData[1].value / maxValue) * 180} 200 ${220 - (currentData[2].value / maxValue) * 180}
+                      Q 300 ${220 - (currentData[3].value / maxValue) * 180} 370 ${220 - (currentData[3].value / maxValue) * 180}
+                      L 370 220 L 30 220 Z`}
                   fill="url(#areaGradient)"
                 />
                 
                 {/* Main curve line */}
                 <path
-                  d={`M 50 ${200 - (currentData[0].value / maxValue) * 150} 
-                      Q 150 ${200 - (currentData[1].value / maxValue) * 150} 200 ${200 - (currentData[2].value / maxValue) * 150}
-                      Q 300 ${200 - (currentData[3].value / maxValue) * 150} 350 ${200 - (currentData[3].value / maxValue) * 150}`}
+                  d={`M 30 ${220 - (currentData[0].value / maxValue) * 180} 
+                      Q 130 ${220 - (currentData[1].value / maxValue) * 180} 200 ${220 - (currentData[2].value / maxValue) * 180}
+                      Q 300 ${220 - (currentData[3].value / maxValue) * 180} 370 ${220 - (currentData[3].value / maxValue) * 180}`}
                   stroke="url(#chartGradient)"
-                  strokeWidth="3"
+                  strokeWidth="4"
                   fill="none"
                   strokeLinecap="round"
                 />
                 
                 {/* Data points */}
                 {currentData.map((item, index) => {
-                  const x = 50 + (index * 100)
-                  const y = 200 - (item.value / maxValue) * 150
+                  const x = 30 + (index * 113.33)
+                  const y = 220 - (item.value / maxValue) * 180
                   return (
                     <g key={index}>
                       <circle
                         cx={x}
                         cy={y}
-                        r="6"
+                        r="8"
                         fill="#8b5cf6"
                         stroke="white"
-                        strokeWidth="2"
-                        className="hover:r-8 transition-all cursor-pointer"
+                        strokeWidth="3"
+                        className="hover:r-10 transition-all cursor-pointer"
                       />
                       <text
                         x={x}
-                        y={y - 15}
+                        y={y - 20}
                         textAnchor="middle"
-                        className="fill-white text-xs font-bold"
+                        className="fill-white text-sm font-bold"
                       >
                         {item.value.toLocaleString()}
                       </text>

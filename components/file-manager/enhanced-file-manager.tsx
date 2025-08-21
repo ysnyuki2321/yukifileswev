@@ -137,6 +137,34 @@ export function EnhancedFileManager({
       return <Folder className="w-8 h-8 text-blue-400" />
     }
     
+    // Show thumbnail for images/videos if available
+    if (file.thumbnail && getFileCategory(file.name) === 'images') {
+      return (
+        <div className="w-8 h-8 rounded overflow-hidden">
+          <img 
+            src={file.thumbnail} 
+            alt={file.name}
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )
+    }
+    
+    if (file.thumbnail && getFileCategory(file.name) === 'videos') {
+      return (
+        <div className="w-8 h-8 rounded overflow-hidden relative">
+          <video 
+            src={file.thumbnail} 
+            className="w-full h-full object-cover"
+            muted
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+            <FileVideo className="w-4 h-4 text-white" />
+          </div>
+        </div>
+      )
+    }
+    
     const category = getFileCategory(file.name)
     switch (category) {
       case 'images':
