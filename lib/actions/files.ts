@@ -1,14 +1,14 @@
 "use server"
 
 import { createServerClient } from "@/lib/supabase/server"
-import { writeFile, mkdir } from "fs/promises"
+import { writeFile, mkdir, unlink } from "fs/promises"
 import { join } from "path"
-import { randomBytes } from "crypto"
-import { createHash } from "crypto"
-import { unlink } from "fs/promises"
+import { randomBytes, createHash } from "crypto"
+import zlib from "zlib"
+import { resolvePlanFromUserRow } from "@/lib/services/plans"
 
 export async function uploadFile(formData: FormData) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { error: "Database connection failed" }
   }
@@ -105,7 +105,7 @@ export async function uploadFile(formData: FormData) {
 }
 
 export async function deleteFile(fileId: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { error: "Database connection failed" }
   }
@@ -165,7 +165,7 @@ export async function deleteFile(fileId: string) {
 }
 
 export async function renameFile(fileId: string, newName: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return { error: "Database connection failed" }
   const {
     data: { user },
@@ -182,7 +182,7 @@ export async function renameFile(fileId: string, newName: string) {
 }
 
 export async function toggleFilePublic(fileId: string, makePublic: boolean) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return { error: "Database connection failed" }
   const {
     data: { user },
@@ -199,7 +199,7 @@ export async function toggleFilePublic(fileId: string, makePublic: boolean) {
 }
 
 export async function regenerateShareToken(fileId: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return { error: "Database connection failed" }
   const {
     data: { user },
@@ -217,7 +217,7 @@ export async function regenerateShareToken(fileId: string) {
 }
 
 export async function getUserFiles() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { files: [] }
   }

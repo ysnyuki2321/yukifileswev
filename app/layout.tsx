@@ -1,77 +1,107 @@
-import type React from "react"
 import type { Metadata } from "next"
-import { Outfit } from "next/font/google"
+import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme/theme-provider"
-import { ErrorBoundary } from "@/components/ui/error-boundary"
-import { ToastProvider } from "@/components/ui/toast"
+import { Toaster } from "sonner"
 
-// Helper function to get the current site URL
-function getCurrentSiteUrl(): string {
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+})
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+})
+
+function getCurrentSiteUrl() {
   // Try to get from environment variable first
   if (process.env.NEXT_PUBLIC_SITE_URL) {
     return process.env.NEXT_PUBLIC_SITE_URL
   }
-  
+
   // Try to get from Vercel URL
   if (process.env.VERCEL_URL) {
     return `https://${process.env.VERCEL_URL}`
   }
-  
-  // Fallback to localhost for development
+
+  // Default fallback
   return "http://localhost:3000"
 }
 
 export const metadata: Metadata = {
-  title: {
-    default: "YukiFiles – Secure, Modern File Sharing",
-    template: "%s – YukiFiles",
-  },
+  title: "YukiFiles - Secure File Sharing Platform",
   description:
     "Upload, share, and manage files with premium themes, resilient anti‑abuse, and easy share links. 2GB free, upgrade any time.",
   metadataBase: new URL(getCurrentSiteUrl()),
-  alternates: { canonical: "/" },
-  icons: {
-    icon: "/icon.svg",
-    apple: "/apple-touch-icon.png",
+  keywords: ["file sharing", "secure upload", "cloud storage", "file management", "document sharing"],
+  authors: [{ name: "YukiFiles Team" }],
+  creator: "YukiFiles",
+  publisher: "YukiFiles",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
   openGraph: {
-    title: "YukiFiles – Secure, Modern File Sharing",
-    description:
-      "Upload, share, and manage files with premium themes, resilient anti‑abuse, and easy share links.",
-    url: "/",
+    title: "YukiFiles - Secure File Sharing Platform",
+    description: "Upload, share, and manage files with premium themes, resilient anti‑abuse, and easy share links.",
+    url: getCurrentSiteUrl(),
     siteName: "YukiFiles",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "YukiFiles" }],
-    locale: "en_US",
     type: "website",
+    locale: "en_US",
   },
   twitter: {
     card: "summary_large_image",
-    title: "YukiFiles – Secure, Modern File Sharing",
-    description: "Share files beautifully. 2GB free.",
-    images: ["/og.png"],
+    title: "YukiFiles - Secure File Sharing Platform",
+    description: "Upload, share, and manage files with premium themes, resilient anti‑abuse, and easy share links.",
+    creator: "@yukifiles",
   },
-  robots: { index: true, follow: true },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+  },
 }
 
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" })
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
-    <html lang="en" className={outfit.variable} suppressHydrationWarning>
-      <head />
-      <body style={{ fontFamily: "var(--font-outfit)" }}>
-        <ErrorBoundary>
-          <ThemeProvider>
-            <ToastProvider>
-              {children}
-            </ToastProvider>
-          </ThemeProvider>
-        </ErrorBoundary>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Preload critical resources */}
+        <link rel="preload" href="/fonts/geist-sans.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/geist-mono.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+        <link rel="dns-prefetch" href="//api.supabase.co" />
+        
+        {/* Preconnect to important third-party origins */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   )

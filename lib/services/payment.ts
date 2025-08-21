@@ -45,7 +45,7 @@ interface CryptoConfig {
 }
 
 export async function getPaymentConfig(): Promise<{ paypal: PayPalConfig | null; crypto: CryptoConfig | null }> {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     return { paypal: null, crypto: null }
   }
@@ -90,7 +90,7 @@ export async function getPaymentConfig(): Promise<{ paypal: PayPalConfig | null;
 }
 
 export async function createPayPalOrder(userId: string, amount = 1.0) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     throw new Error("Database connection failed")
   }
@@ -166,7 +166,7 @@ export async function createPayPalOrder(userId: string, amount = 1.0) {
 }
 
 export async function capturePayPalOrder(orderId: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     throw new Error("Database connection failed")
   }
@@ -230,7 +230,7 @@ export async function capturePayPalOrder(orderId: string) {
 }
 
 export async function createCryptoPayment(userId: string, currency: "BTC" | "LTC" | "ETH", amount = 1.0) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     throw new Error("Database connection failed")
   }
@@ -306,7 +306,7 @@ function getWalletAddress(currency: string, config: CryptoConfig): string {
 }
 
 export async function upgradeUserToPremium(userId: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     throw new Error("Database connection failed")
   }
@@ -335,7 +335,7 @@ export async function upgradeUserToPremium(userId: string) {
 }
 
 export async function checkCryptoPayment(transactionId: string) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) {
     throw new Error("Database connection failed")
   }
@@ -388,7 +388,7 @@ export async function getSiteUrl() {
 }
 
 export async function getPaymentSettings() {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return null
   
   try {

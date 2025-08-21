@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,6 +24,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { LucideIcon } from "lucide-react"
+import { toast } from "sonner"
 
 interface FileItem {
   id: string
@@ -219,17 +220,46 @@ export function EnhancedFileManager({
         onFileDelete?.(file.id)
         break
       case 'star':
-        // TODO: Implement star functionality
+        // Implement star functionality
+        setFiles(prev => prev.map(file => 
+          file.id === selectedFiles[0] 
+            ? { ...file, isStarred: !file.isStarred } 
+            : file
+        ))
+        toast.success("File starred!", `${files.find(f => f.id === selectedFiles[0])?.name} has been ${files.find(f => f.id === selectedFiles[0])?.isStarred ? 'unstarred' : 'starred'}.`)
         break
     }
-  }, [onFileDownload, onFileShare, onFileDelete])
+  }, [onFileDownload, onFileShare, onFileDelete, files, selectedFiles])
 
   // Handle file save
   const handleFileSave = useCallback(async (content: string) => {
     if (editingFile) {
-      // TODO: Implement actual save functionality
-      console.log('Saving file:', editingFile.name || 'untitled', content)
-      setEditingFile(null)
+      // Implement actual save functionality
+      try {
+        const response = await fetch('/api/files/update-content', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileId: editingFile.id,
+            content: content,
+            fileName: editingFile.name || 'untitled'
+          })
+        })
+
+        if (response.ok) {
+          console.log('File saved successfully:', editingFile.name || 'untitled', content)
+          toast.success("File saved!", "Your changes have been saved successfully.")
+          setEditingFile(null)
+          // setEditContent('') // This state variable doesn't exist in the original file
+        } else {
+          throw new Error('Failed to save file')
+        }
+      } catch (error) {
+        console.error('Save failed:', error)
+        toast.error("Save failed", "Unable to save your changes. Please try again.")
+      }
     }
   }, [editingFile])
 
@@ -261,9 +291,35 @@ export function EnhancedFileManager({
 
           <div className="flex items-center space-x-2">
             <EnhancedUpload
-              onUpload={(uploadFiles) => {
-                // TODO: Handle actual upload
-                console.log('Upload files:', uploadFiles)
+              onUpload={async (uploadFiles) => {
+                // Handle actual upload
+                try {
+                  const uploadPromises = uploadFiles.map(async (file) => {
+                    const formData = new FormData()
+                    formData.append('file', file)
+                    
+                    const response = await fetch('/api/files/upload', {
+                      method: 'POST',
+                      body: formData
+                    })
+                    
+                    if (!response.ok) {
+                      throw new Error(`Upload failed for ${file.name}`)
+                    }
+                    
+                    return response.json()
+                  })
+                  
+                  const results = await Promise.all(uploadPromises)
+                  console.log('Upload files completed:', results)
+                  toast.success("Upload complete!", `${uploadFiles.length} file(s) uploaded successfully.`)
+                  
+                  // Refresh file list
+                  // You might want to call a refresh function here
+                } catch (error) {
+                  console.error('Upload error:', error)
+                  toast.error("Upload failed", "Some files could not be uploaded. Please try again.")
+                }
               }}
               storageQuota={2 * 1024 * 1024 * 1024} // 2GB
               usedStorage={files.reduce((sum, file) => sum + file.size, 0)}
@@ -495,6 +551,10 @@ export function EnhancedFileManager({
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleFileAction('star', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
+                              <Star className="w-4 h-4 mr-2" />
+                              {file.isStarred ? 'Unstar' : 'Star'}
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -522,6 +582,10 @@ export function EnhancedFileManager({
                     <ContextMenuItem onClick={() => handleFileAction('delete', file)} className="text-red-400 hover:text-red-300 hover:bg-red-500/10">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={() => handleFileAction('star', file)} className="text-gray-300 hover:text-white hover:bg-white/10">
+                      <Star className="w-4 h-4 mr-2" />
+                      {file.isStarred ? 'Unstar' : 'Star'}
                     </ContextMenuItem>
                   </ContextMenuContent>
                 </ContextMenu>

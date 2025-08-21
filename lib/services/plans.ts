@@ -1,59 +1,49 @@
-export type PlanName = "free" | "paid" | "developer" | "team" | "enterprise"
+import { User, PlanName } from "@/lib/types"
 
 export interface PlanConfig {
-  name: PlanName
-  quotaBytes: number | null // null = unlimited (enterprise configurable)
+  name: string
+  quotaBytes: number
   uploadLimitBytes: number | null
-  maxAccounts: number | null
-  defaultExpiryDays: number | null // null = no auto-expire
-  streamQuality: "720p" | "1080p" | "2160p" | "custom"
+  maxAccounts: number
 }
 
 export const PLAN_CONFIG: Record<PlanName, PlanConfig> = {
   free: {
-    name: "free",
-    quotaBytes: 2 * 1024 * 1024 * 1024,
-    uploadLimitBytes: 200 * 1024 * 1024,
+    name: "Free",
+    quotaBytes: 2 * 1024 * 1024 * 1024, // 2GB
+    uploadLimitBytes: 100 * 1024 * 1024, // 100MB per file
     maxAccounts: 1,
-    defaultExpiryDays: 30,
-    streamQuality: "720p",
   },
-  paid: {
-    name: "paid",
-    quotaBytes: 5 * 1024 * 1024 * 1024,
-    uploadLimitBytes: 500 * 1024 * 1024,
-    maxAccounts: 2,
-    defaultExpiryDays: null,
-    streamQuality: "1080p",
+  pro: {
+    name: "Pro",
+    quotaBytes: 50 * 1024 * 1024 * 1024, // 50GB
+    uploadLimitBytes: 500 * 1024 * 1024, // 500MB per file
+    maxAccounts: 1,
   },
   developer: {
-    name: "developer",
-    quotaBytes: 8 * 1024 * 1024 * 1024,
-    uploadLimitBytes: 1024 * 1024 * 1024,
+    name: "Developer",
+    quotaBytes: 200 * 1024 * 1024 * 1024, // 200GB
+    uploadLimitBytes: 1024 * 1024 * 1024, // 1GB per file
     maxAccounts: 3,
-    defaultExpiryDays: null,
-    streamQuality: "1080p",
   },
   team: {
-    name: "team",
-    quotaBytes: 10 * 1024 * 1024 * 1024,
-    uploadLimitBytes: 1024 * 1024 * 1024,
-    maxAccounts: null,
-    defaultExpiryDays: null,
-    streamQuality: "2160p",
+    name: "Team",
+    quotaBytes: 1024 * 1024 * 1024 * 1024, // 1TB
+    uploadLimitBytes: 2 * 1024 * 1024 * 1024, // 2GB per file
+    maxAccounts: 10,
   },
   enterprise: {
-    name: "enterprise",
-    quotaBytes: null,
-    uploadLimitBytes: null,
-    maxAccounts: null,
-    defaultExpiryDays: null,
-    streamQuality: "custom",
+    name: "Enterprise",
+    quotaBytes: 10 * 1024 * 1024 * 1024 * 1024, // 10TB
+    uploadLimitBytes: null, // No limit
+    maxAccounts: 100,
   },
 }
 
-export function resolvePlanFromUserRow(user: any): PlanConfig {
-  const planKey = (user?.plan || user?.subscription_type || "free")?.toLowerCase() || "free"
-  const plan = (PLAN_CONFIG as any)[planKey] || PLAN_CONFIG.free
+export function resolvePlanFromUserRow(user: User | null): PlanConfig {
+  if (!user) return PLAN_CONFIG.free
+  
+  const planKey = (user.plan || user.subscription_type || "free").toLowerCase() as PlanName
+  const plan = PLAN_CONFIG[planKey] || PLAN_CONFIG.free
   return plan
 }

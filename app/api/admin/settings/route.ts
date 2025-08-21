@@ -1,9 +1,9 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { NextResponse, type NextRequest } from "next/server"
 import { createServerClient } from "@/lib/supabase/server"
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createServerClient()
+    const supabase = await createServerClient()
     if (!supabase) {
       return NextResponse.json({ error: "Database connection failed" }, { status: 500 })
     }
@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
 
     // Update each setting
     for (const [key, value] of Object.entries(settings)) {
-      await supabase
-        .from("admin_settings")
-        .upsert({ setting_key: key, setting_value: value as string }, { onConflict: "setting_key" })
+      await supabase.from("admin_settings").upsert([
+        { setting_key: key, setting_value: String(value) }
+      ])
     }
 
     return NextResponse.json({ success: true })

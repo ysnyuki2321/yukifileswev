@@ -4,7 +4,7 @@ import { readFile } from "fs/promises"
 
 // One-shot endpoint to create required tables if missing by executing our SQL scripts
 export async function POST(request: NextRequest) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return NextResponse.json({ error: "Supabase not configured" }, { status: 500 })
 
   // Only allow admin

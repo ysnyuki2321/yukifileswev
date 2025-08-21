@@ -3,7 +3,7 @@ import { createServerClient } from "@/lib/supabase/server"
 import { randomBytes } from "crypto"
 
 export async function POST(request: NextRequest) {
-  const supabase = createServerClient()
+  const supabase = await createServerClient()
   if (!supabase) return NextResponse.json({ error: "DB" }, { status: 500 })
   const {
     data: { user },

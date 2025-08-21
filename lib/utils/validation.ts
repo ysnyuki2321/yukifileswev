@@ -1,3 +1,5 @@
+import { ValidationResult, FormValidationRules } from "@/lib/types"
+
 // Email validation
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -149,29 +151,36 @@ export function isValidCreditCard(cardNumber: string): boolean {
 }
 
 // Form validation helper
-export function validateForm<T extends Record<string, any>>(
+export function validateForm<T extends Record<string, unknown>>(
   data: T,
-  rules: Record<keyof T, (value: any) => { isValid: boolean; errors: string[] }>
+  rules: FormValidationRules<T>
 ): {
   isValid: boolean
   errors: Record<keyof T, string[]>
   allErrors: string[]
 } {
-  const errors: Record<keyof T, string[]> = {} as any
+  const errors: Record<keyof T, string[]> = {} as Record<keyof T, string[]>
   let allErrors: string[] = []
   let isValid = true
-  
-  for (const [field, rule] of Object.entries(rules)) {
-    const result = rule(data[field])
-    errors[field as keyof T] = result.errors
-    
-    if (!result.isValid) {
-      isValid = false
-      allErrors.push(...result.errors)
+
+  for (const [field, value] of Object.entries(data)) {
+    const fieldKey = field as keyof T
+    if (rules[fieldKey]) {
+      const result = rules[fieldKey](value as T[keyof T])
+      
+      if (!result.isValid) {
+        isValid = false
+        errors[fieldKey] = result.errors
+        allErrors = [...allErrors, ...result.errors]
+      }
     }
   }
-  
-  return { isValid, errors, allErrors }
+
+  return {
+    isValid,
+    errors,
+    allErrors
+  }
 }
 
 // Rate limiting helper
