@@ -99,14 +99,42 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
     }
   }
 
-  const toggleFullscreen = () => {
-    const playerContainer = videoRef.current?.closest('.video-player-container')
+  const toggleFullscreen = async () => {
+    const playerContainer = videoRef.current?.closest('.video-player-container') as HTMLElement
+    
     if (!document.fullscreenElement && playerContainer) {
-      playerContainer.requestFullscreen()
-      setIsFullscreen(true)
+      try {
+        await playerContainer.requestFullscreen()
+        setIsFullscreen(true)
+        
+        // Force landscape orientation on mobile
+        if (screen.orientation && /Mobi|Android/i.test(navigator.userAgent)) {
+          try {
+            await screen.orientation.lock('landscape')
+          } catch (e) {
+            // Orientation lock not supported or failed
+            console.log('Orientation lock not supported')
+          }
+        }
+      } catch (e) {
+        console.error('Fullscreen failed:', e)
+      }
     } else if (document.fullscreenElement) {
-      document.exitFullscreen()
-      setIsFullscreen(false)
+      try {
+        await document.exitFullscreen()
+        setIsFullscreen(false)
+        
+        // Unlock orientation when exiting fullscreen
+        if (screen.orientation && /Mobi|Android/i.test(navigator.userAgent)) {
+          try {
+            screen.orientation.unlock()
+          } catch (e) {
+            console.log('Orientation unlock not supported')
+          }
+        }
+      } catch (e) {
+        console.error('Exit fullscreen failed:', e)
+      }
     }
   }
 
@@ -176,9 +204,10 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
 
   return (
     <div 
-      className={cn("relative bg-black rounded-lg overflow-hidden shadow-2xl video-player-container", className)}
+      className={cn("relative bg-black rounded-lg overflow-hidden shadow-2xl video-player-container mx-auto", className)}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
+      style={{ maxWidth: 'fit-content' }}
     >
       {/* Video Element */}
       <div className={getAspectRatioClass()}>
