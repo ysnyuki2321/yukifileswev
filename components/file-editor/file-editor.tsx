@@ -533,8 +533,10 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
 
   return (
     <TooltipProvider>
-      <div className={cn("fixed inset-0 z-50 bg-black/80 backdrop-blur-sm", isFullscreen ? "z-[100]" : "")}>
-        <Card className={cn("h-full flex flex-col bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 border-purple-500/20", isFullscreen ? "rounded-none" : "m-4 rounded-xl")}>
+      <div className={cn("fixed inset-0 z-50 bg-black/80 backdrop-blur-sm", isFullscreen ? "z-[100]" : "")}> 
+        {/* Prevent background page from scrolling when editor is open */}
+        <div className="fixed inset-0 overflow-hidden">
+          <Card className={cn("h-full flex flex-col bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 border-purple-500/20", isFullscreen ? "rounded-none" : "m-4 rounded-xl")}> 
           {/* Header */}
           <CardHeader className="flex-shrink-0 p-4 border-b border-purple-500/20">
             <div className="flex items-center justify-between">
@@ -795,7 +797,7 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
           <CardContent className="flex-1 p-0 overflow-hidden">
             <ContextMenu>
               <ContextMenuTrigger asChild>
-                <div className="relative h-full">
+                <div className="relative h-full overflow-auto">
                   {/* Line Numbers */}
                   {editorState.lineNumbers && (
                     <div className="absolute left-0 top-0 bottom-0 w-12 bg-black/20 border-r border-purple-500/20 text-xs text-gray-400 font-mono overflow-hidden">
@@ -885,7 +887,8 @@ export function FileEditor({ file, onSave, onClose, onRename, readOnly = false }
               </ContextMenuContent>
             </ContextMenu>
           </CardContent>
-        </Card>
+          </Card>
+        </div>
       </div>
     </TooltipProvider>
   )

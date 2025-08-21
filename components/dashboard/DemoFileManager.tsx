@@ -369,7 +369,7 @@ export function DemoFileManager() {
       <Card className="bg-gray-900/50 border-gray-700">
         <CardContent className="p-6">
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-3">
               {filteredFiles.map((file) => {
                 const Icon = getFileIcon(file)
                 return (
@@ -386,11 +386,21 @@ export function DemoFileManager() {
                         selectedFiles.includes(file.id) && "ring-2 ring-purple-500 bg-gray-800/50"
                       )}
                       onContextMenu={(e) => handleContextMenu(e, file.id)}
-                      onClick={() => setSelectedFiles(prev => 
-                        prev.includes(file.id) 
-                          ? prev.filter(id => id !== file.id)
-                          : [...prev, file.id]
-                      )}
+                      onClick={() => {
+                        // If text-like file, open editor via FileEditor demo page
+                        const ext = file.name?.split('.').pop()?.toLowerCase() || ''
+                        const textExt = ['txt','md','js','ts','json','html','css','tsx','jsx','py','java','c','cpp','sql','yml','yaml']
+                        if (textExt.includes(ext)) {
+                          // Navigate to files page where full editor is available
+                          window.location.href = '/files'
+                          return
+                        }
+                        setSelectedFiles(prev => 
+                          prev.includes(file.id) 
+                            ? prev.filter(id => id !== file.id)
+                            : [...prev, file.id]
+                        )
+                      }}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between mb-3">
@@ -458,11 +468,19 @@ export function DemoFileManager() {
                         selectedFiles.includes(file.id) && "ring-2 ring-purple-500 bg-gray-800/50"
                       )}
                       onContextMenu={(e) => handleContextMenu(e, file.id)}
-                      onClick={() => setSelectedFiles(prev => 
-                        prev.includes(file.id) 
-                          ? prev.filter(id => id !== file.id)
-                          : [...prev, file.id]
-                      )}
+                      onClick={() => {
+                        const ext = file.name?.split('.').pop()?.toLowerCase() || ''
+                        const textExt = ['txt','md','js','ts','json','html','css','tsx','jsx','py','java','c','cpp','sql','yml','yaml']
+                        if (textExt.includes(ext)) {
+                          window.location.href = '/files'
+                          return
+                        }
+                        setSelectedFiles(prev => 
+                          prev.includes(file.id) 
+                            ? prev.filter(id => id !== file.id)
+                            : [...prev, file.id]
+                        )
+                      }}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">

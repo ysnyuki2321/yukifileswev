@@ -456,7 +456,7 @@ export function EnhancedFileManager({
         {/* File Grid/List */}
         <div className={cn(
           viewMode === 'grid' 
-            ? "grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4"
+            ? "grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-3"
             : "space-y-2"
         )}>
           <AnimatePresence>

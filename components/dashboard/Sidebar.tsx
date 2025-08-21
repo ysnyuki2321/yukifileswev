@@ -18,15 +18,12 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard", icon: Home },
+    { href: "/files", label: "File Manager", icon: Files },
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
-  // In demo mode, add File Manager to navigation
+  // Detect demo mode (no special sidebar item needed now that File Manager has its own route)
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
-  
-  if (isDemoMode) {
-    navItems.splice(1, 0, { href: "#file-manager", label: "File Manager", icon: Files })
-  }
 
   if (isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: Shield })
