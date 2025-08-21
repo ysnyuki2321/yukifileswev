@@ -11,6 +11,7 @@ import AIToolsDemo from "@/components/dashboard/AIToolsDemo"
 import CollaborationDemo from "@/components/dashboard/CollaborationDemo"
 import PaymentDemo from "@/components/dashboard/PaymentDemo"
 import DiskManagementDemo from "@/components/dashboard/DiskManagementDemo"
+import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
@@ -127,19 +128,29 @@ export default function DashboardClient() {
                     />
                   )}
                   {activeTab === 'analytics' && (
-                    <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
+                    <SafeDemoWrapper fallbackTitle="Loading Analytics...">
+                      <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
+                    </SafeDemoWrapper>
                   )}
                   {activeTab === 'ai' && (
-                    <AIToolsDemo isDemoMode={true} />
+                    <SafeDemoWrapper fallbackTitle="Loading AI Tools...">
+                      <AIToolsDemo isDemoMode={true} />
+                    </SafeDemoWrapper>
                   )}
                   {activeTab === 'collaboration' && (
-                    <CollaborationDemo isDemoMode={true} />
+                    <SafeDemoWrapper fallbackTitle="Loading Collaboration...">
+                      <CollaborationDemo isDemoMode={true} />
+                    </SafeDemoWrapper>
                   )}
                   {activeTab === 'pricing' && (
-                    <PaymentDemo isDemoMode={true} />
+                    <SafeDemoWrapper fallbackTitle="Loading Payment System...">
+                      <PaymentDemo isDemoMode={true} />
+                    </SafeDemoWrapper>
                   )}
                   {activeTab === 'admin' && userData?.is_admin && (
-                    <DiskManagementDemo isDemoMode={true} />
+                    <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
+                      <DiskManagementDemo isDemoMode={true} />
+                    </SafeDemoWrapper>
                   )}
                 </div>
               ) : (
