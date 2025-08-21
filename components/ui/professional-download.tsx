@@ -154,8 +154,12 @@ export function ProfessionalDownload({
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
               <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                animate={{ 
+                  scale: [1, 1.2, 1],
+                  y: [0, -3, 0],
+                  opacity: [1, 0.8, 1]
+                }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
               >
                 <Download className="w-5 h-5 text-white" />
               </motion.div>

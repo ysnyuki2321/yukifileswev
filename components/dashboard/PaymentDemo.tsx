@@ -242,7 +242,7 @@ export default function PaymentDemo({ isDemoMode = true }: PaymentDemoProps) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            {paymentMethods.map((method) => {
+            {paymentMethods.map((method, methodIndex) => {
               const Icon = method.icon
               return (
                 <motion.button
