@@ -124,45 +124,45 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
           </div>
         ) : (
           <ul className="divide-y divide-gray-800">
-            {files.map((file) => {
-              const FileIcon = getFileIcon(file.original_name)
-              const canEdit = isTextFile(file.original_name) && file.content
+            {files.map((fileItem) => {
+              const FileIcon = getFileIcon(fileItem.original_name)
+              const canEdit = isTextFile(fileItem.original_name) && fileItem.content
               
               return (
-                <li key={file.id} className="py-3 flex items-center gap-3 justify-between">
+                <li key={fileItem.id} className="py-3 flex items-center gap-3 justify-between">
                   <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="flex-shrink-0">
                       <FileIcon className="h-5 w-5 text-purple-400" />
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm text-white truncate">{file.original_name}</p>
-                      <p className="text-xs text-gray-500">
-                        {formatBytes(file.file_size)} · {new Date(file.created_at).toLocaleString()}
-                      </p>
+                                          <div className="min-w-0 flex-1">
+                        <p className="text-sm text-white truncate">{fileItem.original_name}</p>
+                        <p className="text-xs text-gray-500">
+                          {formatBytes(fileItem.file_size)} · {new Date(fileItem.created_at).toLocaleString()}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    {canEdit && (
+                    <div className="flex items-center gap-1">
+                      {canEdit && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-gray-300 hover:text-white"
+                          onClick={() => openFile(fileItem)}
+                          title="Edit file"
+                        >
+                          <Edit3 className="h-4 w-4" />
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-gray-300 hover:text-white"
-                        onClick={() => openFile(file)}
-                        title="Edit file"
+                        onClick={() => copyShareLink(fileItem.share_token)}
+                        title="Copy share link"
                       >
-                        <Edit3 className="h-4 w-4" />
+                        <Copy className="h-4 w-4" />
                       </Button>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-gray-300 hover:text-white"
-                      onClick={() => copyShareLink(file.share_token)}
-                      title="Copy share link"
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
-                    <Link href={`/share/${file.share_token}`} target="_blank" rel="noopener noreferrer">
+                      <Link href={`/share/${fileItem.share_token}`} target="_blank" rel="noopener noreferrer">
                       <Button variant="outline" size="sm" className="border-gray-700 text-gray-300">
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -175,21 +175,21 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent className="bg-black/90 border-gray-700">
                         <DropdownMenuItem
-                          onClick={() => handleShare(file)}
+                          onClick={() => handleShare(fileItem)}
                           className="text-gray-300 hover:text-white"
                         >
                           <Share2 className="w-4 h-4 mr-2" />
                           Generate Link
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => copyShareLink(file.share_token)}
+                          onClick={() => copyShareLink(fileItem.share_token)}
                           className="text-gray-300 hover:text-white"
                         >
                           <Copy className="w-4 h-4 mr-2" />
                           Copy Current Link
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          onClick={() => window.open(`/share/${file.share_token}`, '_blank')}
+                          onClick={() => window.open(`/share/${fileItem.share_token}`, '_blank')}
                           className="text-gray-300 hover:text-white"
                         >
                           <ExternalLink className="w-4 h-4 mr-2" />
@@ -208,21 +208,21 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
       {/* File Editor Dialog */}
       <Dialog open={showEditor} onOpenChange={setShowEditor}>
         <DialogContent className="max-w-6xl h-[80vh] p-0 bg-slate-900 border-white/10">
-          {selectedFile && (
-            <FileEditor
-              file={{
-                id: selectedFile.id,
-                name: selectedFile.original_name,
-                content: selectedFile.content || '',
-                type: selectedFile.type || 'text',
-                size: selectedFile.file_size,
-                lastModified: new Date(selectedFile.created_at)
-              }}
-              onSave={() => {}} // No-op for read-only mode
-              onClose={closeEditor}
-              readOnly={true}
-            />
-          )}
+                      {selectedFile && (
+              <FileEditor
+                file={{
+                  id: selectedFile.id,
+                  name: selectedFile.original_name,
+                  content: selectedFile.content || '',
+                  type: selectedFile.type || 'text',
+                  size: selectedFile.file_size,
+                  lastModified: new Date(selectedFile.created_at)
+                }}
+                onSave={() => {}} // No-op for read-only mode
+                onClose={closeEditor}
+                readOnly={true}
+              />
+            )}
         </DialogContent>
       </Dialog>
 
