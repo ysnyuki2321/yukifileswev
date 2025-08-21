@@ -100,8 +100,9 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
   }
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      videoRef.current?.requestFullscreen()
+    const container = videoRef.current?.parentElement?.parentElement
+    if (!document.fullscreenElement && container) {
+      container.requestFullscreen()
       setIsFullscreen(true)
     } else {
       document.exitFullscreen()
@@ -114,6 +115,21 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
     if (!video) return
     video.currentTime = Math.max(0, Math.min(duration, video.currentTime + seconds))
   }
+
+  // Custom skip button component
+  const SkipButton = ({ seconds, direction }: { seconds: number, direction: 'forward' | 'backward' }) => (
+    <Button
+      onClick={() => skip(direction === 'forward' ? seconds : -seconds)}
+      size="sm"
+      variant="ghost"
+      className="text-white hover:bg-white/20 relative"
+    >
+      <div className="flex flex-col items-center">
+        {direction === 'backward' ? <SkipBack className="w-4 h-4" /> : <SkipForward className="w-4 h-4" />}
+        <span className="text-xs font-bold absolute -bottom-1">{seconds}</span>
+      </div>
+    </Button>
+  )
 
   const changePlaybackRate = (rate: number) => {
     const video = videoRef.current
@@ -220,32 +236,18 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
 
             {/* Control Buttons */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => skip(-10)}
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20"
-                >
-                  <SkipBack className="w-4 h-4" />
-                </Button>
-                
-                <Button
-                  onClick={togglePlay}
-                  size="sm"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                >
-                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                </Button>
-                
-                <Button
-                  onClick={() => skip(10)}
-                  size="sm"
-                  variant="ghost"
-                  className="text-white hover:bg-white/20"
-                >
-                  <SkipForward className="w-4 h-4" />
-                </Button>
+                             <div className="flex items-center gap-2">
+                 <SkipButton seconds={5} direction="backward" />
+                 
+                 <Button
+                   onClick={togglePlay}
+                   size="sm"
+                   className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                 >
+                   {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                 </Button>
+                 
+                 <SkipButton seconds={5} direction="forward" />
 
                 <div className="flex items-center gap-2 ml-4">
                   <Button
