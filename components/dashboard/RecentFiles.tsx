@@ -179,6 +179,7 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
                 size: selectedFile.file_size,
                 lastModified: new Date(selectedFile.created_at)
               }}
+              onSave={() => {}} // No-op for read-only mode
               onClose={closeEditor}
               readOnly={true}
             />

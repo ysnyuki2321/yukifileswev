@@ -7,7 +7,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import { 
   FileText, FileCode, Save, X, AlertCircle, CheckCircle,
-  Type, Code, File, Folder, Maximize2, Minimize2, Eye
+  Type, Code, File, Folder, Maximize2, Minimize2, Eye,
+  Search, Replace, WrapText, Copy, Download, Palette,
+  Undo, Redo, ZoomIn, ZoomOut, RotateCcw, Settings,
+  BookOpen, Hash, AlignLeft, FileCheck
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
@@ -38,6 +41,12 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
   const [wrapEnabled, setWrapEnabled] = useState(false)
   const [findQuery, setFindQuery] = useState('')
   const [replaceQuery, setReplaceQuery] = useState('')
+  const [fontSize, setFontSize] = useState(14)
+  const [showLineNumbers, setShowLineNumbers] = useState(true)
+  const [history, setHistory] = useState<string[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [showTools, setShowTools] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(true)
 
   useEffect(() => {
     setFileName(file.name || 'untitled.txt')
@@ -47,6 +56,15 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
 
   const handleContentChange = (newContent: string) => {
     if (readOnly) return
+    
+    // Add to history for undo/redo
+    if (newContent !== content) {
+      const newHistory = history.slice(0, historyIndex + 1)
+      newHistory.push(content)
+      setHistory(newHistory)
+      setHistoryIndex(newHistory.length - 1)
+    }
+    
     setContent(newContent)
     setIsModified(true)
   }
@@ -227,9 +245,118 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
     // No-op for other types (could integrate a formatter later)
   }
 
+  const handleUndo = () => {
+    if (historyIndex > 0) {
+      setHistoryIndex(historyIndex - 1)
+      setContent(history[historyIndex - 1])
+      setIsModified(true)
+    }
+  }
+
+  const handleRedo = () => {
+    if (historyIndex < history.length - 1) {
+      setHistoryIndex(historyIndex + 1)
+      setContent(history[historyIndex + 1])
+      setIsModified(true)
+    }
+  }
+
+  const handleZoomIn = () => {
+    setFontSize(prev => Math.min(prev + 2, 24))
+  }
+
+  const handleZoomOut = () => {
+    setFontSize(prev => Math.max(prev - 2, 10))
+  }
+
+  const handleResetZoom = () => {
+    setFontSize(14)
+  }
+
+  const getWordCount = () => {
+    return content.trim().split(/\s+/).filter(word => word.length > 0).length
+  }
+
+  const getCharCount = () => {
+    return content.length
+  }
+
+  const insertTemplate = () => {
+    const ext = fileName.split('.').pop()?.toLowerCase()
+    let template = ''
+    
+    switch (ext) {
+      case 'html':
+        template = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    
+</body>
+</html>`
+        break
+      case 'css':
+        template = `/* CSS Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}`
+        break
+      case 'js':
+      case 'jsx':
+        template = `// JavaScript/JSX Template
+function main() {
+    console.log('Hello, World!');
+}
+
+main();`
+        break
+      case 'ts':
+      case 'tsx':
+        template = `// TypeScript/TSX Template
+interface Props {
+    name: string;
+}
+
+function greet(props: Props): string {
+    return \`Hello, \${props.name}!\`;
+}
+
+console.log(greet({ name: 'World' }));`
+        break
+      default:
+        template = `# ${fileName}
+
+Created: ${new Date().toLocaleDateString()}
+
+## Description
+Add your content here...`
+    }
+    
+    setContent(template)
+    setIsModified(true)
+  }
+
   // Prevent body scroll when modal is open and add custom scrollbar styles
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    
+    // Check if desktop
+    const checkDesktop = () => {
+      setIsDesktop(window.innerWidth >= 768)
+    }
+    checkDesktop()
+    window.addEventListener('resize', checkDesktop)
     
     // Add custom scrollbar styles
     const style = document.createElement('style')
@@ -258,6 +385,7 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
     return () => {
       document.body.style.overflow = 'unset'
       document.head.removeChild(style)
+      window.removeEventListener('resize', checkDesktop)
     }
   }, [])
 
@@ -360,6 +488,7 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
                     className="bg-slate-800/50 border-purple-500/20 text-white focus:border-purple-400 transition-colors duration-200"
                     placeholder="Enter file name..."
                     disabled={readOnly}
+                    readOnly={readOnly}
                   />
                 </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-400">
@@ -372,53 +501,118 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
               </div>
 
                           {/* Tools */}
-            <div className="mt-3 space-y-3">
-              {/* Find/Replace Row - Mobile Optimized */}
-              {!readOnly && (
-                <div className="flex flex-col sm:flex-row gap-2">
-                  <div className="flex flex-1 gap-2">
-                    <Input
-                      value={findQuery}
-                      onChange={(e) => setFindQuery(e.target.value)}
-                      placeholder="Find..."
-                      className="h-8 bg-slate-800/50 border-purple-500/20 text-white flex-1 min-w-0"
-                    />
-                    <Input
-                      value={replaceQuery}
-                      onChange={(e) => setReplaceQuery(e.target.value)}
-                      placeholder="Replace..."
-                      className="h-8 bg-slate-800/50 border-purple-500/20 text-white flex-1 min-w-0"
-                    />
+            <div className="mt-3 space-y-2">
+              {/* Mobile Toggle Button */}
+              <div className="flex justify-between items-center">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 text-xs px-2 md:hidden"
+                  onClick={() => setShowTools(!showTools)}
+                >
+                  <Settings className="w-3 h-3 mr-1" />
+                  Tools {showTools ? '▲' : '▼'}
+                </Button>
+                <div className="flex items-center gap-2 text-xs text-gray-400">
+                  <span>{getCharCount()} chars</span>
+                  <span>{getWordCount()} words</span>
+                  <span>{content.split('\n').length} lines</span>
+                </div>
+              </div>
+
+              {/* Find/Replace Row - Collapsible on Mobile */}
+              {!readOnly && (showTools || isDesktop) && (
+                <div className="flex flex-col sm:flex-row gap-2 p-2 bg-slate-800/30 rounded-lg">
+                  <div className="flex flex-1 gap-1">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+                      <Input
+                        value={findQuery}
+                        onChange={(e) => setFindQuery(e.target.value)}
+                        placeholder="Find..."
+                        className="h-8 bg-slate-700/50 border-purple-500/20 text-white text-xs pl-7"
+                      />
+                    </div>
+                    <div className="relative flex-1">
+                      <Replace className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
+                      <Input
+                        value={replaceQuery}
+                        onChange={(e) => setReplaceQuery(e.target.value)}
+                        placeholder="Replace..."
+                        className="h-8 bg-slate-700/50 border-purple-500/20 text-white text-xs pl-7"
+                      />
+                    </div>
                   </div>
-                  <div className="flex gap-1 flex-wrap">
-                    <Button size="sm" className="h-8 text-xs px-2" onClick={handleFindNext}>Find</Button>
-                    <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleReplace}>Replace</Button>
-                    <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleReplaceAll}>All</Button>
+                  <div className="flex gap-1">
+                    <Button size="sm" className="h-8 px-2" onClick={handleFindNext} title="Find Next">
+                      <Search className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleReplace} title="Replace">
+                      <Replace className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleReplaceAll} title="Replace All">
+                      <AlignLeft className="w-3 h-3" />
+                    </Button>
                   </div>
                 </div>
               )}
               
-              {/* Action Buttons Row - Mobile Optimized */}
-              <div className="flex flex-wrap items-center gap-1 justify-between">
-                <div className="flex gap-1 flex-wrap">
-                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8 text-xs px-2" onClick={() => setWrapEnabled(v => !v)}>
-                    <span className="hidden sm:inline">{wrapEnabled ? 'Wrap: On' : 'Wrap: Off'}</span>
-                    <span className="sm:hidden">{wrapEnabled ? 'Wrap' : 'NoWrap'}</span>
+              {/* Main Tools Row - Icon-based for Mobile */}
+              <div className={`flex flex-wrap gap-1 p-2 bg-slate-800/20 rounded-lg ${!showTools && 'hidden md:flex'}`}>
+                {/* Edit Tools */}
+                {!readOnly && (
+                  <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleUndo} disabled={historyIndex <= 0} title="Undo">
+                      <Undo className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleRedo} disabled={historyIndex >= history.length - 1} title="Redo">
+                      <Redo className="w-3 h-3" />
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={insertTemplate} title="Insert Template">
+                      <BookOpen className="w-3 h-3" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* View Tools */}
+                <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
+                  <Button size="sm" variant={wrapEnabled ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setWrapEnabled(v => !v)} title="Toggle Word Wrap">
+                    <WrapText className="w-3 h-3" />
                   </Button>
-                  <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleCopy}>Copy</Button>
-                  <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleDownload}>
-                    <span className="hidden sm:inline">Download</span>
-                    <span className="sm:hidden">DL</span>
+                  <Button size="sm" variant={showLineNumbers ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setShowLineNumbers(v => !v)} title="Toggle Line Numbers">
+                    <Hash className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleZoomOut} title="Zoom Out">
+                    <ZoomOut className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleResetZoom} title="Reset Zoom">
+                    <RotateCcw className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleZoomIn} title="Zoom In">
+                    <ZoomIn className="w-3 h-3" />
+                  </Button>
+                </div>
+
+                {/* File Tools */}
+                <div className="flex gap-1">
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleCopy} title="Copy Content">
+                    <Copy className="w-3 h-3" />
+                  </Button>
+                  <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleDownload} title="Download File">
+                    <Download className="w-3 h-3" />
                   </Button>
                   {!readOnly && (
-                    <Button size="sm" variant="outline" className="h-8 text-xs px-2" onClick={handleFormat}>Format</Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleFormat} title="Format Code">
+                      <Palette className="w-3 h-3" />
+                    </Button>
                   )}
                 </div>
+
+                {/* Status Indicator */}
                 {readOnly && (
-                  <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded">
+                  <div className="flex items-center gap-1 text-xs text-amber-400 bg-amber-500/10 px-2 py-1 rounded ml-auto">
                     <Eye className="w-3 h-3" />
                     <span className="hidden sm:inline">Read Only</span>
-                    <span className="sm:hidden">RO</span>
                   </div>
                 )}
               </div>
@@ -430,20 +624,24 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
               <div className="h-full relative overflow-hidden rounded-lg border border-purple-500/20 bg-slate-800/30">
                 <div className="flex h-full">
                   {/* Line numbers */}
-                  <div 
-                    ref={lineNumbersRef}
-                    className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-xs text-gray-500 font-mono leading-6 select-none overflow-y-auto overflow-x-hidden scrollbar-none"
-                    style={{
-                      scrollbarWidth: 'none',
-                      msOverflowStyle: 'none'
-                    }}
-                  >
-                    {content.split('\n').map((_, index) => (
-                      <div key={index} className="h-6 text-right min-w-[2.5rem] pr-2">
-                        {String(index + 1).padStart(3, ' ')}
-                      </div>
-                    ))}
-                  </div>
+                  {showLineNumbers && (
+                    <div 
+                      ref={lineNumbersRef}
+                      className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-gray-500 font-mono select-none overflow-y-auto overflow-x-hidden scrollbar-none"
+                      style={{
+                        fontSize: `${fontSize - 2}px`,
+                        lineHeight: `${fontSize + 6}px`,
+                        scrollbarWidth: 'none',
+                        msOverflowStyle: 'none'
+                      }}
+                    >
+                      {content.split('\n').map((_, index) => (
+                        <div key={index} className="text-right min-w-[2.5rem] pr-2" style={{ height: `${fontSize + 6}px` }}>
+                          {String(index + 1).padStart(3, ' ')}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   
                   {/* Code area */}
                   <div className="flex-1 relative min-w-0">
@@ -453,14 +651,16 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
                       onChange={(e) => handleContentChange(e.target.value)}
                       onScroll={(e) => {
                         // Sync line numbers scroll with textarea scroll
-                        if (lineNumbersRef.current) {
+                        if (lineNumbersRef.current && showLineNumbers) {
                           lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop
                         }
                       }}
-                      className={`w-full h-full bg-transparent border-0 text-white font-mono text-sm resize-none focus:ring-0 focus:outline-none leading-6 p-3 custom-scrollbar ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre overflow-x-auto'}`}
+                      className={`w-full h-full bg-transparent border-0 text-white font-mono resize-none focus:ring-0 focus:outline-none p-3 custom-scrollbar ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre overflow-x-auto'}`}
                       placeholder={readOnly ? "File content (read-only)" : "Start typing your code here..."}
                       style={{ 
                         minHeight: '100%',
+                        fontSize: `${fontSize}px`,
+                        lineHeight: `${fontSize + 6}px`,
                         tabSize: 2,
                         fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
                         scrollbarWidth: 'thin',
@@ -482,16 +682,28 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
               transition={{ delay: 0.5, duration: 0.3 }}
             >
               <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-                <span className="truncate">Last: {file.lastModified.toLocaleDateString()}</span>
+                <span className="truncate">Modified: {file.lastModified.toLocaleDateString()}</span>
                 <span>Size: {(content.length / 1024).toFixed(1)} KB</span>
+                <span>Font: {fontSize}px</span>
+                <span>{getLanguage()}</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <motion.div 
-                  className="w-2 h-2 bg-green-400 rounded-full"
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                />
-                <span>Ready</span>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1">
+                  <span>{getCharCount()}</span>
+                  <span className="text-gray-500">chars</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span>{getWordCount()}</span>
+                  <span className="text-gray-500">words</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <motion.div 
+                    className={`w-2 h-2 rounded-full ${readOnly ? 'bg-amber-400' : 'bg-green-400'}`}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                  <span>{readOnly ? 'Read Only' : 'Ready'}</span>
+                </div>
               </div>
             </motion.div>
           </motion.div>
