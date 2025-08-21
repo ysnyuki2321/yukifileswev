@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,6 +31,8 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
   const [fileName, setFileName] = useState(file.name || 'untitled.txt')
   const [content, setContent] = useState(file.content || '')
   const [isModified, setIsModified] = useState(false)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const lineNumbersRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     setFileName(file.name || 'untitled.txt')
@@ -140,6 +142,14 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
     return langMap[extension || ''] || 'Plain Text'
   }
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
+
   return (
     <AnimatePresence>
       <motion.div
@@ -147,7 +157,7 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm"
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md overflow-hidden"
         onClick={onClose}
       >
         <motion.div
@@ -155,17 +165,17 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, type: "spring", damping: 25, stiffness: 300 }}
-          className="fixed inset-4 bg-gradient-to-br from-slate-900 via-purple-950/50 to-slate-900 border border-purple-500/20 rounded-xl shadow-2xl overflow-hidden"
+          className="fixed inset-2 sm:inset-4 bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl overflow-hidden backdrop-blur-sm"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur-sm">
-            <div className="flex items-center space-x-3">
+          <div className="flex items-center justify-between p-3 sm:p-6 border-b border-purple-500/20 bg-slate-900/50 backdrop-blur-sm">
+            <div className="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
               <motion.div
                 initial={{ rotate: -180, scale: 0 }}
                 animate={{ rotate: 0, scale: 1 }}
                 transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
-                className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center ring-2 ring-purple-500/20"
+                className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center ring-2 ring-purple-500/20 flex-shrink-0"
               >
                 {getFileIcon()}
               </motion.div>
@@ -173,26 +183,29 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 }}
+                className="min-w-0 flex-1"
               >
-                <h2 className="text-xl font-semibold text-white">File Editor</h2>
-                <p className="text-sm text-gray-400">{fileName}</p>
+                <h2 className="text-lg sm:text-xl font-semibold text-white truncate">File Editor</h2>
+                <p className="text-xs sm:text-sm text-gray-400 truncate">{fileName}</p>
               </motion.div>
               {isModified && (
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 }}
+                  className="flex-shrink-0"
                 >
-                  <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
-                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2 animate-pulse"></div>
-                    Modified
+                  <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30 text-xs">
+                    <div className="w-2 h-2 bg-yellow-400 rounded-full mr-1 animate-pulse"></div>
+                    <span className="hidden sm:inline">Modified</span>
+                    <span className="sm:hidden">*</span>
                   </Badge>
                 </motion.div>
               )}
             </div>
             
             <motion.div 
-              className="flex items-center space-x-2"
+              className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0"
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -201,10 +214,10 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                 onClick={handleSave}
                 disabled={!isModified}
                 size="sm"
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-xs sm:text-sm"
               >
-                <Save className="w-4 h-4 mr-2" />
-                Save
+                <Save className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Save</span>
               </Button>
               <Button
                 onClick={onClose}
@@ -219,14 +232,14 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
 
           {/* Content */}
           <motion.div 
-            className="flex flex-col h-[calc(100vh-180px)]"
+            className="flex flex-col h-[calc(100vh-120px)] sm:h-[calc(100vh-180px)] overflow-hidden"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.4 }}
           >
             {/* File Name Input */}
-            <div className="p-6 border-b border-purple-500/10">
-              <div className="flex items-center space-x-4">
+            <div className="p-3 sm:p-6 border-b border-purple-500/10 flex-shrink-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                 <div className="flex-1">
                   <label className="text-sm font-medium text-gray-300 mb-2 block">File Name</label>
                   <Input
@@ -236,51 +249,66 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
                     placeholder="Enter file name..."
                   />
                 </div>
-                <div className="flex items-center space-x-4 text-sm text-gray-400">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-sm text-gray-400">
                   <Badge variant="outline" className="border-purple-500/30 text-purple-300">
                     {getLanguage()}
                   </Badge>
-                  <span>{content.length} chars</span>
-                  <span>{content.split('\n').length} lines</span>
+                  <span className="text-xs sm:text-sm">{content.length} chars</span>
+                  <span className="text-xs sm:text-sm">{content.split('\n').length} lines</span>
                 </div>
               </div>
             </div>
 
             {/* Code Editor */}
-            <div className="flex-1 p-6">
-              <div className="h-full relative">
-                <Textarea
-                  value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  className="w-full h-full bg-slate-800/30 border-purple-500/20 text-white font-mono text-sm resize-none focus:border-purple-400 leading-6 pl-16"
-                  placeholder="Start typing your code here..."
-                  style={{ 
-                    minHeight: '100%',
-                    tabSize: 2,
-                    fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace'
-                  }}
-                />
-                
-                {/* Line numbers overlay */}
-                <div className="absolute left-4 top-4 text-xs text-gray-500 font-mono leading-6 pointer-events-none select-none bg-slate-800/50 px-2 py-1 rounded-l">
-                  {content.split('\n').map((_, index) => (
-                    <div key={index} className="h-6 text-right">
-                      {String(index + 1).padStart(3, ' ')}
-                    </div>
-                  ))}
+            <div className="flex-1 p-3 md:p-6">
+              <div className="h-full relative overflow-hidden rounded-lg border border-purple-500/20">
+                <div className="flex h-full">
+                  {/* Line numbers */}
+                  <div 
+                    ref={lineNumbersRef}
+                    className="flex-shrink-0 bg-slate-800/80 border-r border-purple-500/20 px-2 py-3 text-xs text-gray-500 font-mono leading-6 select-none overflow-hidden"
+                  >
+                    {content.split('\n').map((_, index) => (
+                      <div key={index} className="h-6 text-right min-w-[2rem]">
+                        {String(index + 1).padStart(3, ' ')}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Code area */}
+                  <div className="flex-1 relative">
+                    <Textarea
+                      ref={textareaRef}
+                      value={content}
+                      onChange={(e) => handleContentChange(e.target.value)}
+                      onScroll={(e) => {
+                        // Sync line numbers scroll with textarea scroll
+                        if (lineNumbersRef.current) {
+                          lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop
+                        }
+                      }}
+                      className="w-full h-full bg-slate-800/30 border-0 text-white font-mono text-sm resize-none focus:ring-0 focus:outline-none leading-6 p-3 scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-slate-700"
+                      placeholder="Start typing your code here..."
+                      style={{ 
+                        minHeight: '100%',
+                        tabSize: 2,
+                        fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace'
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Footer */}
             <motion.div 
-              className="p-4 border-t border-purple-500/10 bg-slate-900/30 flex items-center justify-between text-xs text-gray-400"
+              className="p-2 sm:p-4 border-t border-purple-500/10 bg-slate-900/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-400 flex-shrink-0"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.3 }}
             >
-              <div className="flex items-center space-x-4">
-                <span>Last modified: {file.lastModified.toLocaleDateString()} {file.lastModified.toLocaleTimeString()}</span>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                <span className="truncate">Last: {file.lastModified.toLocaleDateString()}</span>
                 <span>Size: {(content.length / 1024).toFixed(1)} KB</span>
               </div>
               <div className="flex items-center space-x-2">
