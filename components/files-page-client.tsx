@@ -4,7 +4,6 @@ import { useEffect, useState } from "react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
 import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
-import { getDebugFiles } from "@/lib/services/debug-user"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -62,7 +61,9 @@ export default function FilesPageClient() {
         setUserData(getMockUserData())
         
         // Transform debug files to match FileItem interface
-        const debugFiles = getDebugFiles()
+        const res = await fetch('/api/debug/files', { cache: 'no-store' })
+        const data = await res.json()
+        const debugFiles = Array.isArray(data.files) ? data.files : []
         const transformedDebugFiles: FileItem[] = debugFiles.map((file: any) => ({
           id: file.id,
           name: file.name || 'untitled.txt',

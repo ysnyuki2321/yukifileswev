@@ -11,7 +11,6 @@ import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
-import { getDebugFiles } from "@/lib/services/debug-user"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { useSearchParams } from "next/navigation"
 
@@ -33,8 +32,17 @@ export default function DashboardClient() {
       if (isDemoMode) {
         setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
         setUserData(getMockUserData())
-        setRecentFiles(getDebugFiles().slice(0, 8))
-        setFilesCount(getDebugFiles().length)
+        try {
+          const res = await fetch('/api/debug/files', { cache: 'no-store' })
+          const data = await res.json()
+          const dbg = Array.isArray(data.files) ? data.files : []
+          setRecentFiles(dbg.slice(0, 8))
+          setFilesCount(dbg.length)
+        } catch (e) {
+          console.error('Failed to load demo files:', e)
+          setRecentFiles([])
+          setFilesCount(0)
+        }
       } else {
         try {
           const supabase = createClientComponentClient()
