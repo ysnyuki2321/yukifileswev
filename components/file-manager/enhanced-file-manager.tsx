@@ -231,6 +231,62 @@ export function EnhancedFileManager({
     }
   }, [onFileDownload, onFileShare, onFileDelete, files, selectedFiles])
 
+  // Handle create file/folder
+  const handleCreate = useCallback(() => {
+    if (!newFileName.trim()) return
+
+    const fileName = createType === 'file' 
+      ? (newFileName.includes('.') ? newFileName : `${newFileName}.${newFileType}`)
+      : newFileName
+
+    const newItem: FileItem = {
+      id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: fileName,
+      type: createType === 'file' ? `text/${newFileType}` : 'folder',
+      size: createType === 'file' ? (newFileContent?.length || 0) : 0,
+      lastModified: new Date(),
+      isFolder: createType === 'folder',
+      content: createType === 'file' ? newFileContent : undefined,
+      path: currentPath,
+      isStarred: false,
+      isShared: false,
+      owner: 'demo@yukifiles.com'
+    }
+
+    // Add to files list (demo mode - will reset on page reload)
+    if (onFileCreate && createType === 'file') {
+      onFileCreate({
+        name: fileName,
+        type: newFileType,
+        content: newFileContent,
+        path: currentPath
+      })
+    } else if (onFolderCreate && createType === 'folder') {
+      onFolderCreate({
+        name: fileName,
+        path: currentPath
+      })
+    }
+
+    // Add to local state for immediate UI update
+    const updatedFiles = [...files, newItem]
+    // Update parent component if callback exists
+    if (onFileUpload) {
+      onFileUpload([])  // Trigger refresh
+    }
+
+    // Reset form and close dialog
+    setShowCreateDialog(false)
+    setNewFileName('')
+    setNewFileContent('')
+    setNewFileType('txt')
+    
+    toast.success(
+      `${createType === 'file' ? 'File' : 'Folder'} created!`, 
+      `${fileName} has been created successfully. Note: This is demo mode - changes will reset on page reload.`
+    )
+  }, [newFileName, createType, newFileType, newFileContent, currentPath, files, onFileCreate, onFolderCreate, onFileUpload])
+
   // Handle file save
   const handleFileSave = useCallback(async (content: string) => {
     if (editingFile) {
@@ -445,8 +501,42 @@ export function EnhancedFileManager({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => window.location.reload()}
-              className="border-purple-500/20 text-purple-300"
+              onClick={() => {
+                setCreateType('file')
+                setShowCreateDialog(true)
+                setNewFileName('')
+                setNewFileContent('')
+              }}
+              className="border-purple-500/20 text-purple-300 hover:border-purple-400 hover:text-purple-200"
+            >
+              <FilePlus className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCreateType('folder')
+                setShowCreateDialog(true)
+                setNewFileName('')
+              }}
+              className="border-purple-500/20 text-purple-300 hover:border-purple-400 hover:text-purple-200"
+            >
+              <FolderPlus className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                // Internal refresh instead of web reload
+                toast.success("Files refreshed", "File list has been updated")
+                // Trigger a re-render by updating a state
+                setSearchQuery("")
+                setSelectedFiles([])
+                setCurrentPath("/")
+              }}
+              className="border-purple-500/20 text-purple-300 hover:border-purple-400 hover:text-purple-200"
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
@@ -614,6 +704,105 @@ export function EnhancedFileManager({
             )}
           </div>
         )}
+
+        {/* Create File/Folder Dialog */}
+        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+          <DialogContent className="bg-slate-900 border-purple-500/20">
+            <DialogHeader>
+              <DialogTitle className="text-white">
+                Create New {createType === 'file' ? 'File' : 'Folder'}
+              </DialogTitle>
+              <DialogDescription className="text-gray-400">
+                {createType === 'file' 
+                  ? 'Create a new file with optional content' 
+                  : 'Create a new folder to organize your files'}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="fileName" className="text-gray-300">
+                  {createType === 'file' ? 'File Name' : 'Folder Name'}
+                </Label>
+                <Input
+                  id="fileName"
+                  value={newFileName}
+                  onChange={(e) => setNewFileName(e.target.value)}
+                  placeholder={createType === 'file' ? 'example.txt' : 'New Folder'}
+                  className="bg-slate-800 border-purple-500/20 text-white"
+                />
+              </div>
+              {createType === 'file' && (
+                <>
+                  <div>
+                    <Label htmlFor="fileType" className="text-gray-300">File Type</Label>
+                    <Select value={newFileType} onValueChange={setNewFileType}>
+                      <SelectTrigger className="bg-slate-800 border-purple-500/20 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-purple-500/20 max-h-60 overflow-y-auto">
+                        <SelectItem value="txt">📄 Plain Text (.txt)</SelectItem>
+                        <SelectItem value="js">🟨 JavaScript (.js)</SelectItem>
+                        <SelectItem value="ts">🔵 TypeScript (.ts)</SelectItem>
+                        <SelectItem value="jsx">⚛️ React JSX (.jsx)</SelectItem>
+                        <SelectItem value="tsx">⚛️ React TSX (.tsx)</SelectItem>
+                        <SelectItem value="html">🌐 HTML (.html)</SelectItem>
+                        <SelectItem value="css">🎨 CSS (.css)</SelectItem>
+                        <SelectItem value="scss">🎨 SCSS (.scss)</SelectItem>
+                        <SelectItem value="json">📋 JSON (.json)</SelectItem>
+                        <SelectItem value="md">📝 Markdown (.md)</SelectItem>
+                        <SelectItem value="py">🐍 Python (.py)</SelectItem>
+                        <SelectItem value="java">☕ Java (.java)</SelectItem>
+                        <SelectItem value="cpp">⚙️ C++ (.cpp)</SelectItem>
+                        <SelectItem value="c">⚙️ C (.c)</SelectItem>
+                        <SelectItem value="cs">🔷 C# (.cs)</SelectItem>
+                        <SelectItem value="php">🐘 PHP (.php)</SelectItem>
+                        <SelectItem value="go">🐹 Go (.go)</SelectItem>
+                        <SelectItem value="rs">🦀 Rust (.rs)</SelectItem>
+                        <SelectItem value="swift">🍎 Swift (.swift)</SelectItem>
+                        <SelectItem value="kt">🟣 Kotlin (.kt)</SelectItem>
+                        <SelectItem value="rb">💎 Ruby (.rb)</SelectItem>
+                        <SelectItem value="sh">🐚 Shell (.sh)</SelectItem>
+                        <SelectItem value="vue">💚 Vue.js (.vue)</SelectItem>
+                        <SelectItem value="svelte">🧡 Svelte (.svelte)</SelectItem>
+                        <SelectItem value="dart">🎯 Dart (.dart)</SelectItem>
+                        <SelectItem value="xml">📄 XML (.xml)</SelectItem>
+                        <SelectItem value="yaml">📄 YAML (.yaml)</SelectItem>
+                        <SelectItem value="sql">🗄️ SQL (.sql)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="fileContent" className="text-gray-300">Initial Content (Optional)</Label>
+                    <Textarea
+                      id="fileContent"
+                      value={newFileContent}
+                      onChange={(e) => setNewFileContent(e.target.value)}
+                      placeholder="Enter initial file content..."
+                      className="bg-slate-800 border-purple-500/20 text-white font-mono"
+                      rows={4}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+            <DialogFooter>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowCreateDialog(false)}
+                className="border-gray-600 text-gray-300"
+              >
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreate}
+                disabled={!newFileName.trim()}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+              >
+                Create {createType === 'file' ? 'File' : 'Folder'}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* File Editor Modal */}
         <AnimatePresence>

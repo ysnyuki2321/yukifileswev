@@ -22,13 +22,9 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
     { href: "/pricing", label: "Pricing", icon: CreditCard },
   ]
 
-  // In demo mode, add File Manager to navigation
+  // Check if we're in demo mode or files page
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
-  
-  if (isDemoMode) {
-    // Keep explicit File Manager anchor in demo landing when needed
-    navItems.splice(2, 0, { href: "#file-manager", label: "File Manager", icon: Files })
-  }
+  const isFilesPage = pathname === '/files'
 
   if (isAdmin) {
     navItems.push({ href: "/admin", label: "Admin", icon: Shield })
@@ -66,32 +62,7 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
         <nav className="flex-1 px-3 py-4 space-y-1">
         {navItems.map((item) => {
           const Icon = item.icon
-          const isActive = pathname === item.href
-          
-          // Handle File Manager in demo mode
-          if (isDemoMode && item.href === "#file-manager") {
-            return (
-              <button
-                key={item.href}
-                onClick={() => {
-                  // Scroll to files section in demo
-                  const filesSection = document.querySelector('[data-section="files"]')
-                  if (filesSection) {
-                    filesSection.scrollIntoView({ behavior: 'smooth' })
-                  }
-                  onClose?.()
-                }}
-                className={`flex items-center px-3 py-2 rounded-md transition-colors w-full text-left ${
-                  activeTab === "files"
-                    ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
-                    : "text-gray-300 hover:text-white hover:bg-white/5"
-                }`}
-              >
-                <Icon className="h-4 w-4 mr-2" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            )
-          }
+          const isActive = pathname === item.href || (activeTab && activeTab === item.label.toLowerCase())
           
           return (
             <Link

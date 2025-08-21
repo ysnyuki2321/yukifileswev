@@ -55,36 +55,89 @@ export function FileEditor({ file, onSave, onClose }: FileEditorProps) {
 
   const getFileIcon = () => {
     const extension = fileName.split('.').pop()?.toLowerCase()
-    const codeExtensions = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'html', 'css', 'json', 'xml', 'yaml', 'sql', 'md']
     
-    if (codeExtensions.includes(extension || '')) {
-      return <FileCode className="w-5 h-5 text-purple-400" />
+    const iconMap: { [key: string]: { icon: any, color: string } } = {
+      'js': { icon: FileCode, color: 'text-yellow-400' },
+      'ts': { icon: FileCode, color: 'text-blue-400' },
+      'jsx': { icon: FileCode, color: 'text-cyan-400' },
+      'tsx': { icon: FileCode, color: 'text-cyan-400' },
+      'py': { icon: FileCode, color: 'text-green-400' },
+      'java': { icon: FileCode, color: 'text-red-400' },
+      'cpp': { icon: FileCode, color: 'text-blue-500' },
+      'c': { icon: FileCode, color: 'text-blue-600' },
+      'cs': { icon: FileCode, color: 'text-purple-400' },
+      'php': { icon: FileCode, color: 'text-indigo-400' },
+      'html': { icon: FileCode, color: 'text-orange-400' },
+      'css': { icon: FileCode, color: 'text-pink-400' },
+      'json': { icon: FileCode, color: 'text-yellow-300' },
+      'xml': { icon: FileCode, color: 'text-orange-300' },
+      'yaml': { icon: FileCode, color: 'text-red-300' },
+      'yml': { icon: FileCode, color: 'text-red-300' },
+      'sql': { icon: FileCode, color: 'text-blue-300' },
+      'md': { icon: FileText, color: 'text-gray-300' },
+      'txt': { icon: FileText, color: 'text-gray-400' },
+      'go': { icon: FileCode, color: 'text-cyan-300' },
+      'rs': { icon: FileCode, color: 'text-orange-500' },
+      'swift': { icon: FileCode, color: 'text-orange-400' },
+      'kt': { icon: FileCode, color: 'text-purple-300' },
+      'rb': { icon: FileCode, color: 'text-red-500' },
+      'sh': { icon: FileCode, color: 'text-green-300' },
+      'bash': { icon: FileCode, color: 'text-green-300' },
     }
-    return <FileText className="w-5 h-5 text-blue-400" />
+    
+    const fileInfo = iconMap[extension || ''] || { icon: FileText, color: 'text-gray-400' }
+    const IconComponent = fileInfo.icon
+    
+    return <IconComponent className={`w-5 h-5 ${fileInfo.color}`} />
   }
 
   const getLanguage = () => {
     const extension = fileName.split('.').pop()?.toLowerCase()
     const langMap: { [key: string]: string } = {
-      'js': 'javascript',
-      'ts': 'typescript',
-      'jsx': 'javascript',
-      'tsx': 'typescript',
-      'py': 'python',
-      'java': 'java',
-      'cpp': 'cpp',
-      'c': 'c',
-      'cs': 'csharp',
-      'php': 'php',
-      'html': 'html',
-      'css': 'css',
-      'json': 'json',
-      'xml': 'xml',
-      'yaml': 'yaml',
-      'sql': 'sql',
-      'md': 'markdown'
+      'js': 'JavaScript',
+      'ts': 'TypeScript',
+      'jsx': 'React JSX',
+      'tsx': 'React TSX',
+      'py': 'Python',
+      'java': 'Java',
+      'cpp': 'C++',
+      'c': 'C',
+      'cs': 'C#',
+      'php': 'PHP',
+      'html': 'HTML',
+      'css': 'CSS',
+      'scss': 'SCSS',
+      'sass': 'Sass',
+      'json': 'JSON',
+      'xml': 'XML',
+      'yaml': 'YAML',
+      'yml': 'YAML',
+      'sql': 'SQL',
+      'md': 'Markdown',
+      'txt': 'Plain Text',
+      'go': 'Go',
+      'rs': 'Rust',
+      'swift': 'Swift',
+      'kt': 'Kotlin',
+      'rb': 'Ruby',
+      'sh': 'Shell',
+      'bash': 'Bash',
+      'zsh': 'Zsh',
+      'fish': 'Fish',
+      'ps1': 'PowerShell',
+      'vue': 'Vue.js',
+      'svelte': 'Svelte',
+      'dart': 'Dart',
+      'scala': 'Scala',
+      'clj': 'Clojure',
+      'elm': 'Elm',
+      'haskell': 'Haskell',
+      'lua': 'Lua',
+      'r': 'R',
+      'matlab': 'MATLAB',
+      'dockerfile': 'Dockerfile'
     }
-    return langMap[extension || ''] || 'text'
+    return langMap[extension || ''] || 'Plain Text'
   }
 
   return (

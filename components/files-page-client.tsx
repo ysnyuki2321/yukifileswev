@@ -774,6 +774,39 @@ Thank you for trying YukiFiles! 🚀`,
     setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId))
   }
 
+  const handleFileCreate = (newFile: { name: string, type: string, content: string, path: string }) => {
+    const fileItem: FileItem = {
+      id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: newFile.name,
+      type: `text/${newFile.type}`,
+      size: newFile.content.length,
+      lastModified: new Date(),
+      isFolder: false,
+      content: newFile.content,
+      path: newFile.path,
+      isStarred: false,
+      isShared: false,
+      owner: 'demo@yukifiles.com'
+    }
+    setFiles(prevFiles => [...prevFiles, fileItem])
+  }
+
+  const handleFolderCreate = (newFolder: { name: string, path: string }) => {
+    const folderItem: FileItem = {
+      id: `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      name: newFolder.name,
+      type: 'folder',
+      size: 0,
+      lastModified: new Date(),
+      isFolder: true,
+      path: newFolder.path,
+      isStarred: false,
+      isShared: false,
+      owner: 'demo@yukifiles.com'
+    }
+    setFiles(prevFiles => [...prevFiles, folderItem])
+  }
+
   const allFiles = isDemoMode ? demoFiles : [...transformedFiles, ...testFiles]
 
   if (loading) {
@@ -877,6 +910,8 @@ Thank you for trying YukiFiles! 🚀`,
               onFileEdit={handleFileEdit}
               onFileDelete={handleFileDelete}
               onFileSave={handleFileSave}
+              onFileCreate={handleFileCreate}
+              onFolderCreate={handleFolderCreate}
               uploadProgress={uploadProgress}
               uploadingFiles={uploadingFiles}
               isAdmin={Boolean(userData?.is_admin)}
