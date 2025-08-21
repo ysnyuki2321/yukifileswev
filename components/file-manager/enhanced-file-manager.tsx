@@ -8,7 +8,13 @@ import { Input } from "@/components/ui/input"
 import { 
   Upload, FolderPlus, FilePlus, Search, Grid, List,
   File, Folder, Star, Share2, MoreHorizontal, Trash2,
-  Download, Eye, Edit3, Copy
+  Download, Eye, Edit3, Copy, Filter, SortAsc, SortDesc,
+  Calendar, Clock, HardDrive, Users, Lock, Unlock,
+  Link, RefreshCw, Archive, FileImage, FileVideo,
+  FileAudio, FileCode, FileText, Image, Video, Music,
+  Zap, Shield, Globe, Settings, BarChart3, TrendingUp,
+  Database, Cloud, CloudUpload, CloudDownload, Wifi,
+  WifiOff, CheckCircle, XCircle, AlertCircle, Info
 } from "lucide-react"
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { formatBytes } from "@/lib/utils"
@@ -57,10 +63,51 @@ export function EnhancedFileManager({
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedFile, setSelectedFile] = useState<FileItem | null>(null)
   const [showEditor, setShowEditor] = useState(false)
+  const [sortBy, setSortBy] = useState<"name" | "size" | "date">("name")
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
+  const [filterType, setFilterType] = useState<"all" | "images" | "videos" | "audio" | "documents" | "code">("all")
+  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
+  const [showUploadProgress, setShowUploadProgress] = useState(false)
+  const [storageStats, setStorageStats] = useState({ used: 0, total: 0 })
+  const [showAnalytics, setShowAnalytics] = useState(false)
 
-  const filteredFiles = files.filter(file =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const getFileCategory = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp']
+    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']
+    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a']
+    const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'rb', 'go', 'rs', 'html', 'css', 'scss']
+    const docExts = ['pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx']
+    
+    if (imageExts.includes(ext)) return 'images'
+    if (videoExts.includes(ext)) return 'videos'
+    if (audioExts.includes(ext)) return 'audio'
+    if (codeExts.includes(ext)) return 'code'
+    if (docExts.includes(ext)) return 'documents'
+    return 'other'
+  }
+
+  const filteredAndSortedFiles = files
+    .filter(file => {
+      const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchesFilter = filterType === 'all' || getFileCategory(file.name) === filterType
+      return matchesSearch && matchesFilter
+    })
+    .sort((a, b) => {
+      let comparison = 0
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name)
+          break
+        case 'size':
+          comparison = a.size - b.size
+          break
+        case 'date':
+          comparison = a.lastModified.getTime() - b.lastModified.getTime()
+          break
+      }
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
 
   const handleFileClick = (file: FileItem) => {
     if (file.isFolder) {
@@ -89,7 +136,22 @@ export function EnhancedFileManager({
     if (file.isFolder) {
       return <Folder className="w-8 h-8 text-blue-400" />
     }
-    return <File className="w-8 h-8 text-gray-400" />
+    
+    const category = getFileCategory(file.name)
+    switch (category) {
+      case 'images':
+        return <FileImage className="w-8 h-8 text-green-400" />
+      case 'videos':
+        return <FileVideo className="w-8 h-8 text-red-400" />
+      case 'audio':
+        return <FileAudio className="w-8 h-8 text-purple-400" />
+      case 'code':
+        return <FileCode className="w-8 h-8 text-yellow-400" />
+      case 'documents':
+        return <FileText className="w-8 h-8 text-blue-400" />
+      default:
+        return <File className="w-8 h-8 text-gray-400" />
+    }
   }
 
   const handleCreateFile = () => {
@@ -116,8 +178,8 @@ export function EnhancedFileManager({
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">File Manager</h1>
-          <p className="text-gray-400">{filteredFiles.length} items</p>
+          <h1 className="text-2xl font-bold text-white">YukiFiles Manager</h1>
+          <p className="text-gray-400">{filteredAndSortedFiles.length} of {files.length} items</p>
         </div>
         
         <div className="flex flex-wrap gap-2">
@@ -129,43 +191,104 @@ export function EnhancedFileManager({
             <FolderPlus className="w-4 h-4 mr-2" />
             New Folder
           </Button>
+          <Button onClick={() => setShowUploadProgress(true)} size="sm" variant="outline">
+            <CloudUpload className="w-4 h-4 mr-2" />
+            Upload
+          </Button>
+          <Button onClick={() => setShowAnalytics(!showAnalytics)} size="sm" variant="outline">
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Analytics
+          </Button>
         </div>
       </div>
 
-      {/* Search and View Controls */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="Search files..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-800/50 border-purple-500/20 text-white"
-          />
+      {/* Search, Filter and View Controls */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search files..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white"
+            />
+          </div>
+          
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              size="sm"
+              variant={viewMode === "grid" ? "default" : "outline"}
+              onClick={() => setViewMode("grid")}
+              title="Grid View"
+            >
+              <Grid className="w-4 h-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant={viewMode === "list" ? "default" : "outline"}
+              onClick={() => setViewMode("list")}
+              title="List View"
+            >
+              <List className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
-        
-        <div className="flex gap-2">
-          <Button
-            size="sm"
-            variant={viewMode === "grid" ? "default" : "outline"}
-            onClick={() => setViewMode("grid")}
-          >
-            <Grid className="w-4 h-4" />
-          </Button>
-          <Button
-            size="sm"
-            variant={viewMode === "list" ? "default" : "outline"}
-            onClick={() => setViewMode("list")}
-          >
-            <List className="w-4 h-4" />
-          </Button>
+
+        {/* Advanced Filters */}
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-gray-400" />
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value as any)}
+              className="bg-slate-800/50 border border-purple-500/20 text-white text-sm rounded px-2 py-1"
+            >
+              <option value="all">All Files</option>
+              <option value="images">Images</option>
+              <option value="videos">Videos</option>
+              <option value="audio">Audio</option>
+              <option value="documents">Documents</option>
+              <option value="code">Code</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-slate-800/50 border border-purple-500/20 text-white text-sm rounded px-2 py-1"
+            >
+              <option value="name">Name</option>
+              <option value="size">Size</option>
+              <option value="date">Date</option>
+            </select>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+              title={`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
+            >
+              {sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2 ml-auto">
+            <Button size="sm" variant="outline" onClick={() => window.location.reload()} title="Refresh">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+            <Button size="sm" variant="outline" title="Storage Info">
+              <HardDrive className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* File Grid/List */}
       <Card className="bg-black/40 border-purple-500/20">
         <CardContent className="p-6">
-          {filteredFiles.length === 0 ? (
+          {filteredAndSortedFiles.length === 0 ? (
             <div className="text-center py-12">
               <File className="w-16 h-16 mx-auto mb-4 text-gray-500" />
               <h3 className="text-xl font-semibold text-white mb-2">No files found</h3>
@@ -178,7 +301,7 @@ export function EnhancedFileManager({
               ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
               : "space-y-2"
             }>
-              {filteredFiles.map((file) => (
+              {filteredAndSortedFiles.map((file) => (
                 <div
                   key={file.id}
                   className={`group cursor-pointer rounded-lg border border-gray-700 hover:border-purple-500/50 transition-all duration-200 ${
@@ -244,6 +367,81 @@ export function EnhancedFileManager({
         </CardContent>
       </Card>
 
+      {/* Analytics Panel */}
+      {showAnalytics && (
+        <Card className="bg-black/40 border-purple-500/20">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <BarChart3 className="w-5 h-5" />
+              File Analytics
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-purple-400">{files.length}</div>
+                <div className="text-sm text-gray-400">Total Files</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-green-400">
+                  {files.filter(f => getFileCategory(f.name) === 'images').length}
+                </div>
+                <div className="text-sm text-gray-400">Images</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-blue-400">
+                  {files.filter(f => getFileCategory(f.name) === 'documents').length}
+                </div>
+                <div className="text-sm text-gray-400">Documents</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-yellow-400">
+                  {files.filter(f => getFileCategory(f.name) === 'code').length}
+                </div>
+                <div className="text-sm text-gray-400">Code Files</div>
+              </div>
+            </div>
+            
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="text-white font-medium mb-2">Storage Usage</h4>
+                <div className="bg-slate-800/50 rounded-lg p-4">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-gray-400">Used</span>
+                    <span className="text-white">{formatBytes(files.reduce((acc, f) => acc + f.size, 0))}</span>
+                  </div>
+                  <div className="w-full bg-gray-700 rounded-full h-2">
+                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style={{ width: '45%' }}></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-white font-medium mb-2">Recent Activity</h4>
+                <div className="bg-slate-800/50 rounded-lg p-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <CheckCircle className="w-4 h-4 text-green-400" />
+                      <span className="text-gray-400">Files uploaded today: {files.filter(f => 
+                        new Date(f.lastModified).toDateString() === new Date().toDateString()
+                      ).length}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <TrendingUp className="w-4 h-4 text-blue-400" />
+                      <span className="text-gray-400">Total downloads: 1,234</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Share2 className="w-4 h-4 text-purple-400" />
+                      <span className="text-gray-400">Shared files: {files.filter(f => f.isShared).length}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* File Editor Modal */}
       {showEditor && selectedFile && (
         <div className="fixed inset-0 z-50">
@@ -261,6 +459,7 @@ export function EnhancedFileManager({
               closeEditor()
             }}
             onClose={closeEditor}
+            readOnly={false}
           />
         </div>
       )}
