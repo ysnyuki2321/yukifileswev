@@ -281,15 +281,15 @@ export function EnhancedFileManager({
     <TooltipProvider>
       <div className={cn("space-y-6", className)}>
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
             <h2 className="text-2xl font-bold text-white">Files</h2>
             <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
               {filteredAndSortedFiles.length} items
             </Badge>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <EnhancedUpload
               onUpload={async (uploadFiles) => {
                 // Handle actual upload
@@ -372,15 +372,15 @@ export function EnhancedFileManager({
         </div>
 
         {/* Toolbar */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div className="flex items-center gap-3 w-full md:w-auto">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="Search files..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-64 bg-black/20 border-purple-500/20 text-white placeholder-gray-400"
+                className="pl-10 w-full md:w-64 bg-black/20 border-purple-500/20 text-white placeholder-gray-400"
               />
             </div>
 
@@ -413,7 +413,7 @@ export function EnhancedFileManager({
             </DropdownMenu>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center gap-2 flex-wrap md:flex-nowrap">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
