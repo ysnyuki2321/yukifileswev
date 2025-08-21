@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react"
 import { createClientComponentClient } from "@supabase/ssr"
 import DashboardHeader from "@/components/dashboard/DashboardHeader"
-import QuickActions from "@/components/dashboard/QuickActions"
+import ProfessionalCharts from "@/components/dashboard/ProfessionalCharts"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
 import { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
@@ -76,7 +76,7 @@ export default function DashboardClient() {
     loadData()
   }, [isDemoMode])
 
-  const brandName = isDemoMode ? "YukiFiles Demo" : "YukiFiles"
+  const brandName = "YukiFiles"
 
   const recentActivity: ActivityItem[] = [
     { id: '1', type: 'upload', fileName: 'document.pdf', timestamp: '2 hours ago', fileType: 'document' },
@@ -121,7 +121,7 @@ export default function DashboardClient() {
               ) : (
                 <div className="grid gap-6 lg:grid-cols-3">
                   <div className="lg:col-span-2 space-y-6">
-                    <QuickActions isPremium={userData?.subscription_type === "paid"} />
+                    <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
                     <ActivityFeed activities={recentActivity} />
                   </div>
                   <div className="order-first lg:order-last">

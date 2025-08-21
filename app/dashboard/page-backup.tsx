@@ -77,7 +77,7 @@ function DashboardContent() {
   }, [isDemoMode])
 
   // Get brand name
-  const brandName = isDemoMode ? "YukiFiles Demo" : "YukiFiles"
+  const brandName = "YukiFiles"
 
   // Mock recent activity for now
   const recentActivity: ActivityItem[] = [

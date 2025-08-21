@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import QuickActions from "@/components/dashboard/QuickActions"
+import ProfessionalCharts from "@/components/dashboard/ProfessionalCharts"
 import ActivityFeed, { ActivityItem } from "@/components/dashboard/ActivityFeed"
 import RecentFiles from "@/components/dashboard/RecentFiles"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
@@ -33,7 +33,7 @@ export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: E
     <div className="space-y-8">
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-6">
-          <QuickActions isPremium={userData?.subscription_type === "paid"} />
+          <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
           <ActivityFeed activities={recentActivity} />
         </div>
         <div className="order-first lg:order-last">

@@ -687,41 +687,7 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
     }
   }, [])
 
-  // Mobile tooltip component
-  const MobileTooltipButton = ({ 
-    children, 
-    tooltip, 
-    className = "", 
-    ...props 
-  }: { 
-    children: React.ReactNode
-    tooltip: string
-    className?: string
-    [key: string]: any 
-  }) => (
-    <div className="relative">
-      <Button
-        {...props}
-        className={className}
-        onTouchStart={() => setMobileTooltip(tooltip)}
-        onTouchEnd={() => setTimeout(() => setMobileTooltip(null), 1500)}
-        onMouseLeave={() => setMobileTooltip(null)}
-      >
-        {children}
-      </Button>
-      {mobileTooltip === tooltip && (
-        <motion.div
-          initial={{ opacity: 0, y: 10, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.8 }}
-          className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-3 py-2 rounded-lg shadow-lg border border-purple-500/30 z-50 whitespace-nowrap"
-        >
-          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black/90 border-r border-b border-purple-500/30 rotate-45"></div>
-          {tooltip}
-        </motion.div>
-      )}
-    </div>
-  )
+
 
   return (
     <AnimatePresence>
@@ -909,26 +875,70 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                 {/* Edit Tools */}
                 {!readOnly && (
                   <div className="flex gap-1 border-r border-gray-600 pr-2 mr-1">
-                    <MobileTooltipButton size="sm" variant="outline" className="h-8 px-2" onClick={handleUndo} disabled={historyIndex <= 0} tooltip="Undo (Ctrl+Z)">
-                      <Undo className="w-3 h-3" />
-                      <span className="hidden md:inline ml-1 text-xs">Undo</span>
-                    </MobileTooltipButton>
-                    <MobileTooltipButton size="sm" variant="outline" className="h-8 px-2" onClick={handleRedo} disabled={historyIndex >= history.length - 1} tooltip="Redo (Ctrl+Y)">
-                      <Redo className="w-3 h-3" />
-                      <span className="hidden md:inline ml-1 text-xs">Redo</span>
-                    </MobileTooltipButton>
-                    <MobileTooltipButton size="sm" variant="outline" className="h-8 px-2" onClick={handleCut} tooltip="Cut (Ctrl+X)">
+                    <div className="relative">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8 px-2" 
+                        onClick={handleUndo} 
+                        disabled={historyIndex <= 0}
+                        onTouchStart={() => setMobileTooltip('Undo (Ctrl+Z)')}
+                        onTouchEnd={() => setTimeout(() => setMobileTooltip(null), 1500)}
+                        onMouseLeave={() => setMobileTooltip(null)}
+                      >
+                        <Undo className="w-3 h-3" />
+                        <span className="hidden md:inline ml-1 text-xs">Undo</span>
+                      </Button>
+                      {mobileTooltip === 'Undo (Ctrl+Z)' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                          className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-3 py-2 rounded-lg shadow-lg border border-purple-500/30 z-50 whitespace-nowrap"
+                        >
+                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black/90 border-r border-b border-purple-500/30 rotate-45"></div>
+                          Undo (Ctrl+Z)
+                        </motion.div>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="h-8 px-2" 
+                        onClick={handleRedo} 
+                        disabled={historyIndex >= history.length - 1}
+                        onTouchStart={() => setMobileTooltip('Redo (Ctrl+Y)')}
+                        onTouchEnd={() => setTimeout(() => setMobileTooltip(null), 1500)}
+                        onMouseLeave={() => setMobileTooltip(null)}
+                      >
+                        <Redo className="w-3 h-3" />
+                        <span className="hidden md:inline ml-1 text-xs">Redo</span>
+                      </Button>
+                      {mobileTooltip === 'Redo (Ctrl+Y)' && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                          className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-3 py-2 rounded-lg shadow-lg border border-purple-500/30 z-50 whitespace-nowrap"
+                        >
+                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-black/90 border-r border-b border-purple-500/30 rotate-45"></div>
+                          Redo (Ctrl+Y)
+                        </motion.div>
+                      )}
+                    </div>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleCut} title="Cut (Ctrl+X)">
                       <Scissors className="w-3 h-3" />
                       <span className="hidden md:inline ml-1 text-xs">Cut</span>
-                    </MobileTooltipButton>
-                    <MobileTooltipButton size="sm" variant="outline" className="h-8 px-2" onClick={handlePaste} tooltip="Paste (Ctrl+V)">
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handlePaste} title="Paste (Ctrl+V)">
                       <Clipboard className="w-3 h-3" />
                       <span className="hidden md:inline ml-1 text-xs">Paste</span>
-                    </MobileTooltipButton>
-                    <MobileTooltipButton size="sm" variant="outline" className="h-8 px-2" onClick={handleSelectAll} tooltip="Select All (Ctrl+A)">
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-8 px-2" onClick={handleSelectAll} title="Select All (Ctrl+A)">
                       <MousePointer className="w-3 h-3" />
                       <span className="hidden md:inline ml-1 text-xs">Select</span>
-                    </MobileTooltipButton>
+                    </Button>
                   </div>
                 )}
 
