@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { Sun, Moon, Monitor, Sparkles, ChevronDown } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { useTheme } from "@/components/theme/theme-provider"
+import { useTheme } from "next-themes"
 
 interface ThemeSwitcherProps {
   className?: string
