@@ -37,17 +37,52 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      generateNewLink()
+      // Load existing settings or generate new link
+      const existingSettings = localStorage.getItem(`share-${file.id}`)
+      if (existingSettings) {
+        const settings = JSON.parse(existingSettings)
+        setShareLink(settings.shareLink || '')
+        setIsPublic(settings.isPublic || false)
+        setHasPassword(settings.hasPassword || false)
+        setPassword(settings.password || '')
+        setExpiresIn(settings.expiresIn || 'never')
+      } else {
+        generateNewLink()
+      }
     }
-  }, [isOpen])
+  }, [isOpen, file.id])
 
   const generateNewLink = async () => {
     setIsGenerating(true)
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1000))
     const newToken = Math.random().toString(36).substring(7)
-    setShareLink(`${window.location.origin}/demo/share/${newToken}`)
+    const newLink = `${window.location.origin}/demo/share/${newToken}`
+    setShareLink(newLink)
+    
+    // Save settings
+    const settings = {
+      shareLink: newLink,
+      isPublic,
+      hasPassword,
+      password,
+      expiresIn,
+      fileName: file.original_name
+    }
+    localStorage.setItem(`share-${file.id}`, JSON.stringify(settings))
     setIsGenerating(false)
+  }
+
+  const saveSettings = () => {
+    const settings = {
+      shareLink,
+      isPublic,
+      hasPassword,
+      password,
+      expiresIn,
+      fileName: file.original_name
+    }
+    localStorage.setItem(`share-${file.id}`, JSON.stringify(settings))
   }
 
   const copyToClipboard = async () => {
@@ -190,7 +225,10 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
                 </div>
                 <Switch
                   checked={isPublic}
-                  onCheckedChange={setIsPublic}
+                  onCheckedChange={(checked) => {
+                    setIsPublic(checked)
+                    setTimeout(saveSettings, 100)
+                  }}
                 />
               </div>
 
@@ -205,7 +243,10 @@ export function ShareModal({ isOpen, onClose, file }: ShareModalProps) {
                 </div>
                 <Switch
                   checked={hasPassword}
-                  onCheckedChange={setHasPassword}
+                  onCheckedChange={(checked) => {
+                    setHasPassword(checked)
+                    setTimeout(saveSettings, 100)
+                  }}
                 />
               </div>
 

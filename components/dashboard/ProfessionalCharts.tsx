@@ -19,6 +19,7 @@ import {
   Calendar,
   Clock
 } from "lucide-react"
+import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
 interface ProfessionalChartsProps {
@@ -52,6 +53,8 @@ const mockShareLinks: ShareLink[] = [
 export default function ProfessionalCharts({ isPremium, isDemoMode = false }: ProfessionalChartsProps) {
   const [selectedMetric, setSelectedMetric] = useState<'views' | 'downloads' | 'uploads' | 'shares'>('views')
   const [showDropdown, setShowDropdown] = useState(false)
+  const [selectedTimeRange, setSelectedTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
+  const [showTimeDropdown, setShowTimeDropdown] = useState(false)
 
   const chartData: Record<string, ChartData[]> = {
     views: [
@@ -167,13 +170,60 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
             {/* Chart Header */}
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-white font-medium">{getMetricTitle()} Analytics</h3>
-              <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
-                Last 30 days
-              </Badge>
+              <div className="flex items-center gap-2">
+                <div className="relative">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowTimeDropdown(!showTimeDropdown)}
+                    className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
+                  >
+                    <Calendar className="w-3 h-3 mr-1" />
+                    {selectedTimeRange === '7d' ? 'Last 7 days' :
+                     selectedTimeRange === '30d' ? 'Last 30 days' :
+                     selectedTimeRange === '90d' ? 'Last 90 days' : 'Last year'}
+                    <ChevronDown className="w-3 h-3 ml-1" />
+                  </Button>
+                  
+                  {showTimeDropdown && (
+                    <div className="absolute top-full right-0 mt-2 w-40 bg-slate-900 border border-purple-500/20 rounded-lg shadow-xl z-10">
+                      {[
+                        { key: '7d' as const, label: 'Last 7 days' },
+                        { key: '30d' as const, label: 'Last 30 days' },
+                        { key: '90d' as const, label: 'Last 90 days' },
+                        { key: '1y' as const, label: 'Last year' }
+                      ].map(({ key, label }) => (
+                        <button
+                          key={key}
+                          onClick={() => {
+                            setSelectedTimeRange(key)
+                            setShowTimeDropdown(false)
+                          }}
+                          className={cn(
+                            "w-full px-3 py-2 text-left hover:bg-purple-500/20 text-sm",
+                            selectedTimeRange === key ? "text-purple-400 bg-purple-500/10" : "text-gray-300"
+                          )}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <Badge variant="secondary" className="bg-purple-500/20 text-purple-300">
+                  Live Data
+                </Badge>
+              </div>
             </div>
             
-            {/* Main Chart - Curved Line Chart */}
-            <div className="bg-slate-800/30 rounded-lg p-6 mb-4">
+                          {/* Main Chart - Curved Line Chart */}
+              <motion.div 
+                key={selectedMetric + selectedTimeRange}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="bg-slate-800/30 rounded-lg p-6 mb-4"
+              >
               <div className="h-64 relative">
                 {/* Chart Grid */}
                 <div className="absolute inset-0 grid grid-rows-4 opacity-20">
@@ -258,7 +308,7 @@ export default function ProfessionalCharts({ isPremium, isDemoMode = false }: Pr
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             </div>
 
             {/* Stats Cards */}

@@ -25,8 +25,24 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
   useEffect(() => {
     params.then(p => {
       setToken(p.token)
-      // Simulate some links being private
-      setIsPrivate(p.token.includes('private') || Math.random() > 0.7)
+      
+      // Check if this link has settings
+      const allSettings = Object.keys(localStorage).filter(key => key.startsWith('share-'))
+      const linkSettings = allSettings.find(key => {
+        const settings = JSON.parse(localStorage.getItem(key) || '{}')
+        return settings.shareLink && settings.shareLink.includes(p.token)
+      })
+      
+      if (linkSettings) {
+        const settings = JSON.parse(localStorage.getItem(linkSettings) || '{}')
+        setIsPrivate(!settings.isPublic)
+        if (settings.fileName) {
+          demoFile.original_name = settings.fileName
+        }
+      } else {
+        // Simulate some links being private
+        setIsPrivate(p.token.includes('private') || Math.random() > 0.7)
+      }
     })
   }, [params])
 
