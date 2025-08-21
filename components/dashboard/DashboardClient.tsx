@@ -28,6 +28,7 @@ export default function DashboardClient() {
   const [loading, setLoading] = useState(true)
 
   const isDemoMode = searchParams?.get('demo') === 'true'
+  const activeTab = searchParams?.get('tab') || 'dashboard'
 
   useEffect(() => {
     const loadData = async () => {
@@ -117,11 +118,30 @@ export default function DashboardClient() {
                 recentActivity={recentActivity}
               />
               {isDemoMode ? (
-                <EnhancedDemoManager 
-                  userData={userData}
-                  recentFiles={recentFiles}
-                  recentActivity={recentActivity}
-                />
+                <div className="space-y-6">
+                  {activeTab === 'dashboard' && (
+                    <EnhancedDemoManager 
+                      userData={userData}
+                      recentFiles={recentFiles}
+                      recentActivity={recentActivity}
+                    />
+                  )}
+                  {activeTab === 'analytics' && (
+                    <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
+                  )}
+                  {activeTab === 'ai' && (
+                    <AIToolsDemo isDemoMode={true} />
+                  )}
+                  {activeTab === 'collaboration' && (
+                    <CollaborationDemo isDemoMode={true} />
+                  )}
+                  {activeTab === 'pricing' && (
+                    <PaymentDemo isDemoMode={true} />
+                  )}
+                  {activeTab === 'admin' && userData?.is_admin && (
+                    <DiskManagementDemo isDemoMode={true} />
+                  )}
+                </div>
               ) : (
                 <div className="grid gap-6 lg:grid-cols-3">
                   <div className="lg:col-span-2 space-y-6">

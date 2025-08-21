@@ -14,18 +14,18 @@ interface EnhancedDemoManagerProps {
 
 export function EnhancedDemoManager({ userData, recentFiles, recentActivity }: EnhancedDemoManagerProps) {
   // Map demo recent files to FileItem shape expected by EnhancedFileManager
-  const mappedFiles = recentFiles.map((f: any) => ({
-    id: f.id,
-    name: f.original_name || f.name || 'untitled.txt',
-    type: f.mime_type || 'application/octet-stream',
-    size: f.file_size || f.size || 0,
-    lastModified: new Date(f.created_at || Date.now()),
+  const mappedFiles = (recentFiles || []).map((fileItem: any) => ({
+    id: fileItem.id,
+    name: fileItem.original_name || fileItem.name || 'untitled.txt',
+    type: fileItem.mime_type || 'application/octet-stream',
+    size: fileItem.file_size || fileItem.size || 0,
+    lastModified: new Date(fileItem.created_at || Date.now()),
     isFolder: false,
-    content: f.content || '',
-    thumbnail: f.thumbnail,
-    isStarred: Boolean(f.is_starred || f.isStarred),
-    isShared: Boolean(f.is_public || f.isShared),
-    owner: f.owner,
+    content: fileItem.content || '',
+    thumbnail: fileItem.thumbnail,
+    isStarred: Boolean(fileItem.is_starred || fileItem.isStarred),
+    isShared: Boolean(fileItem.is_public || fileItem.isShared),
+    owner: fileItem.owner,
     path: '/'
   }))
 
