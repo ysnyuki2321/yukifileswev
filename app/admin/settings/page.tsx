@@ -19,6 +19,8 @@ function getCurrentSiteUrl(): string {
   return "http://localhost:3000"
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function AdminSettingsPage() {
   // Enforce admin access
   await requireAdmin()
