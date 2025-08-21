@@ -4,6 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import { ToastProvider } from "@/components/ui/toast"
 import { Toaster } from "sonner"
+import { ErrorOverlay } from "@/components/ui/error-overlay"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -99,6 +100,7 @@ export default function RootLayout({
           <ToastProvider>
             {children}
             <Toaster />
+            <ErrorOverlay />
           </ToastProvider>
         </ThemeProvider>
       </body>
