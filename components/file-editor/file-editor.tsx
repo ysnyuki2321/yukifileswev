@@ -59,6 +59,7 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
   const [useRegex, setUseRegex] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
   const [autoSave, setAutoSave] = useState(false)
+  const [syntaxHighlight, setSyntaxHighlight] = useState(true)
 
   useEffect(() => {
     setFileName(file.name || 'untitled.txt')
@@ -556,6 +557,52 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
     }
   }
 
+  // Simple syntax highlighting
+  const applySyntaxHighlighting = (code: string): string => {
+    if (!syntaxHighlight) return code
+    
+    const ext = fileName.split('.').pop()?.toLowerCase()
+    
+    // Keywords for different languages
+    const keywords: { [key: string]: string[] } = {
+      'js': ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export', 'default', 'async', 'await', 'try', 'catch'],
+      'jsx': ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export', 'default', 'async', 'await', 'try', 'catch', 'React', 'useState', 'useEffect'],
+      'ts': ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export', 'default', 'async', 'await', 'try', 'catch', 'interface', 'type', 'enum'],
+      'tsx': ['function', 'const', 'let', 'var', 'if', 'else', 'for', 'while', 'return', 'class', 'import', 'export', 'default', 'async', 'await', 'try', 'catch', 'interface', 'type', 'enum', 'React', 'useState', 'useEffect'],
+      'py': ['def', 'class', 'if', 'elif', 'else', 'for', 'while', 'return', 'import', 'from', 'as', 'try', 'except', 'finally', 'with', 'lambda'],
+      'css': ['color', 'background', 'margin', 'padding', 'border', 'width', 'height', 'display', 'position', 'font-family', 'font-size'],
+      'html': ['html', 'head', 'body', 'div', 'span', 'p', 'a', 'img', 'ul', 'li', 'table', 'tr', 'td']
+    }
+    
+    let highlighted = code
+    
+    // Apply syntax highlighting based on file type
+    if (keywords[ext || '']) {
+      keywords[ext || ''].forEach(keyword => {
+        const regex = new RegExp(`\\b${keyword}\\b`, 'g')
+        highlighted = highlighted.replace(regex, `<span class="syntax-keyword">${keyword}</span>`)
+      })
+    }
+    
+    // Highlight strings
+    highlighted = highlighted.replace(/(["'])((?:\\.|(?!\1)[^\\])*?)\1/g, '<span class="syntax-string">$&</span>')
+    
+    // Highlight comments
+    if (['js', 'jsx', 'ts', 'tsx', 'css'].includes(ext || '')) {
+      highlighted = highlighted.replace(/\/\*[\s\S]*?\*\//g, '<span class="syntax-comment">$&</span>')
+      highlighted = highlighted.replace(/\/\/.*$/gm, '<span class="syntax-comment">$&</span>')
+    } else if (ext === 'py') {
+      highlighted = highlighted.replace(/#.*$/gm, '<span class="syntax-comment">$&</span>')
+    } else if (ext === 'html') {
+      highlighted = highlighted.replace(/<!--[\s\S]*?-->/g, '<span class="syntax-comment">$&</span>')
+    }
+    
+    // Highlight numbers
+    highlighted = highlighted.replace(/\b\d+(\.\d+)?\b/g, '<span class="syntax-number">$&</span>')
+    
+    return highlighted
+  }
+
   // Prevent body scroll when modal is open and add custom scrollbar styles
   useEffect(() => {
     document.body.style.overflow = 'hidden'
@@ -571,7 +618,7 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
     checkWindows()
     window.addEventListener('resize', checkDesktop)
     
-    // Add custom scrollbar styles
+    // Add custom scrollbar styles and syntax highlighting
     const style = document.createElement('style')
     style.textContent = `
       .custom-scrollbar::-webkit-scrollbar {
@@ -591,6 +638,43 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
       }
       .custom-scrollbar::-webkit-scrollbar-corner {
         background: rgba(55, 65, 81, 0.5);
+      }
+      
+      .syntax-keyword {
+        color: #c678dd;
+        font-weight: 600;
+      }
+      .syntax-string {
+        color: #98c379;
+      }
+      .syntax-comment {
+        color: #5c6370;
+        font-style: italic;
+      }
+      .syntax-number {
+        color: #d19a66;
+      }
+      .syntax-highlight-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 12px;
+        font-family: ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+        white-space: pre;
+        overflow: scroll;
+        pointer-events: none;
+        z-index: 1;
+        color: transparent;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+      .syntax-highlight-overlay::-webkit-scrollbar {
+        display: none;
+      }
+      .syntax-highlight-overlay span {
+        color: inherit;
       }
     `
     document.head.appendChild(style)
@@ -890,6 +974,9 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                       <Palette className="w-3 h-3" />
                     </Button>
                   )}
+                  <Button size="sm" variant={syntaxHighlight ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setSyntaxHighlight(!syntaxHighlight)} title="Toggle Syntax Highlighting">
+                    <Code className="w-3 h-3" />
+                  </Button>
                   <Button size="sm" variant={darkMode ? 'default' : 'outline'} className="h-8 px-2" onClick={() => setDarkMode(!darkMode)} title="Toggle Theme">
                     {darkMode ? <Moon className="w-3 h-3" /> : <Sun className="w-3 h-3" />}
                   </Button>
@@ -933,6 +1020,21 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                   
                   {/* Code area */}
                   <div className="flex-1 relative min-w-0 overflow-hidden">
+                    {/* Syntax highlighting overlay */}
+                    {syntaxHighlight && (
+                      <div 
+                        className="syntax-highlight-overlay"
+                        style={{
+                          fontSize: `${fontSize}px`,
+                          lineHeight: `${fontSize + 6}px`,
+                          whiteSpace: wrapEnabled ? 'pre-wrap' : 'pre'
+                        }}
+                        dangerouslySetInnerHTML={{
+                          __html: applySyntaxHighlighting(content)
+                        }}
+                      />
+                    )}
+                    
                     <Textarea
                       ref={textareaRef}
                       value={content}
@@ -941,6 +1043,12 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                         // Sync line numbers scroll with textarea scroll
                         if (lineNumbersRef.current && showLineNumbers) {
                           lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop
+                        }
+                        // Sync syntax highlighting overlay scroll
+                        const overlay = e.currentTarget.parentElement?.querySelector('.syntax-highlight-overlay') as HTMLElement
+                        if (overlay) {
+                          overlay.scrollTop = e.currentTarget.scrollTop
+                          overlay.scrollLeft = e.currentTarget.scrollLeft
                         }
                       }}
                       onKeyUp={updateCursorPosition}
@@ -979,7 +1087,7 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                         }
                         updateCursorPosition()
                       }}
-                      className={`w-full h-full bg-transparent border-0 text-white font-mono resize-none focus:ring-0 focus:outline-none p-3 custom-scrollbar ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}
+                      className={`w-full h-full bg-transparent border-0 font-mono resize-none focus:ring-0 focus:outline-none p-3 custom-scrollbar relative z-10 ${syntaxHighlight ? 'text-transparent caret-white' : 'text-white'} ${wrapEnabled ? 'whitespace-pre-wrap break-words' : 'whitespace-pre'}`}
                       placeholder={readOnly ? "File content (read-only)" : "Start typing your code here..."}
                       style={{ 
                         height: '100%',
@@ -991,7 +1099,8 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                         tabSize: 2,
                         fontFamily: 'ui-monospace, SFMono-Regular, "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
                         scrollbarWidth: 'thin',
-                        scrollbarColor: '#8b5cf6 #374151'
+                        scrollbarColor: '#8b5cf6 #374151',
+                        caretColor: syntaxHighlight ? 'white' : 'inherit'
                       }}
                       disabled={readOnly}
                       readOnly={readOnly}
