@@ -3,37 +3,17 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-// import { NavigationWrapper } from "@/components/ui/navigation-wrapper" // Removed old navigation
 import { 
   Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users, 
   CheckCircle, ArrowRight, FileText, HardDrive, Lock, Share2,
-  Download, Eye, Clock, BarChart3, Award, Globe2, Sparkles,
+  Download, Eye, BarChart3, Award, Globe2, Sparkles,
   Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi,
   Crown, Rocket, Building, Server, Infinity, Check, X, Folder
 } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
-// import { isDebugModeEnabled } from "@/lib/services/debug-context" // Disabled to prevent errors
-
 
 export default async function HomePage() {
-  // Disabled Supabase to prevent "Unknown error" issues
-  // const supabase = await createServerClient()
-
-  // Check debug mode first
-  // const debugMode = await isDebugModeEnabled()
-  
-  // if (supabase && !debugMode) {
-  //   const {
-  //     data: { user },
-  //   } = await supabase.auth.getUser()
-
-  //   // If user is logged in, redirect to dashboard
-  //   if (user) {
-  //     redirect("/dashboard")
-  //   }
-  // }
-
   const features = [
     {
       icon: <Upload className="w-6 h-6" />,
@@ -100,98 +80,41 @@ export default async function HomePage() {
       icon: <Crown className="w-6 h-6" />,
       color: "from-purple-500 to-pink-500",
       features: [
-        "50GB Storage",
-        "Advanced sharing controls",
+        "100GB Storage",
+        "Advanced sharing",
         "Priority support",
         "Enhanced security",
-        "Advanced analytics",
-        "Custom branding",
+        "Full analytics",
         "API access",
+        "Custom branding",
         "Team collaboration"
       ],
       limitations: [
-        "1GB max file size",
-        "5 team members",
-        "Standard integrations"
+        "2GB max file size",
+        "No custom domain"
       ],
       popular: true,
       cta: "Start Pro Trial",
-      href: "/pricing"
-    },
-    {
-      name: "Developer",
-      price: "$19.99",
-      period: "per month",
-      description: "For developers and startups",
-      icon: <Code2 className="w-6 h-6" />,
-      color: "from-emerald-500 to-teal-500",
-      features: [
-        "200GB Storage",
-        "Full API access",
-        "Webhook integrations",
-        "Advanced security",
-        "Detailed analytics",
-        "Custom domains",
-        "Unlimited team members",
-        "Priority support"
-      ],
-      limitations: [
-        "5GB max file size",
-        "Rate limits apply",
-        "Community support"
-      ],
-      popular: false,
-      cta: "Start Developer Plan",
-      href: "/pricing"
-    },
-    {
-      name: "Team",
-      price: "$39.99",
-      period: "per month",
-      description: "For growing teams",
-      icon: <Users className="w-6 h-6" />,
-      color: "from-orange-500 to-red-500",
-      features: [
-        "1TB Storage",
-        "Team management",
-        "Advanced permissions",
-        "SSO integration",
-        "Advanced analytics",
-        "Custom branding",
-        "Dedicated support",
-        "SLA guarantee"
-      ],
-      limitations: [
-        "10GB max file size",
-        "25 team members",
-        "Business hours support"
-      ],
-      popular: false,
-      cta: "Start Team Plan",
-      href: "/pricing"
+      href: "/auth/register"
     },
     {
       name: "Enterprise",
       price: "Custom",
-      period: "per month",
+      period: "",
       description: "For large organizations",
       icon: <Building className="w-6 h-6" />,
       color: "from-indigo-500 to-purple-500",
       features: [
         "Unlimited Storage",
-        "Advanced security & compliance",
-        "24/7 phone support",
         "Custom integrations",
-        "Advanced analytics",
-        "White-label solution",
-        "Dedicated account manager",
+        "Dedicated support",
+        "Advanced security",
+        "Custom branding",
+        "Team management",
+        "Audit logs",
         "SLA guarantee"
       ],
-      limitations: [
-        "Unlimited file size",
-        "Unlimited team members",
-        "Custom contract terms"
-      ],
+      limitations: [],
       popular: false,
       cta: "Contact Sales",
       href: "/contact"
@@ -230,64 +153,46 @@ export default async function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen theme-premium">
-      {/* Navigation */}
-      {/* <NavigationWrapper /> */}
-
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
       {/* Hero Section */}
-      <section className="pt-24 pb-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-5xl mx-auto">
+      <section className="pt-24 pb-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center">
             <div className="flex items-center justify-center mb-6">
-              <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2 dark:bg-gradient-to-r dark:from-purple-500/20 dark:to-pink-500/20 dark:text-purple-300 dark:border-purple-500/30 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 border-purple-500/20">
+              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Trusted by 500K+ users worldwide
               </Badge>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
               Share Files with
-              <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent"> Confidence</span>
+              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Confidence</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed px-4">
+            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
               The most secure and user-friendly file sharing platform. Upload, share, and collaborate with enterprise-grade security, lightning-fast speeds, and beautiful analytics.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              {/* debugMode ? (
-                <Link href="/dashboard">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
-                  >
-                    Enter Debug Mode
-                  </Button>
-                </Link>
-              ) : ( */}
-                <>
-                  <Link href="/auth/register">
-                    <Button
-                      size="lg"
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
-                    >
-                      <span className="hidden sm:inline">Start Free Trial</span>
-                      <span className="sm:hidden">Get Started</span>
-                    </Button>
-                  </Link>
-                  <Link href="/demo">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-transparent w-full sm:w-auto"
-                    >
-                      <PlayCircle className="w-5 h-5 mr-2" />
-                      <span className="hidden sm:inline">Try Demo</span>
-                      <span className="sm:hidden">Demo</span>
-                    </Button>
-                  </Link>
-                </>
-              {/* ) */}
+              <Link href="/auth/register">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4 w-full sm:w-auto"
+                >
+                  Start Free Trial
+                </Button>
+              </Link>
+              <Link href="/demo">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent w-full sm:w-auto"
+                >
+                  <PlayCircle className="w-5 h-5 mr-2" />
+                  Try Demo
+                </Button>
+              </Link>
             </div>
 
             {/* Stats */}
@@ -295,7 +200,7 @@ export default async function HomePage() {
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">
                   <div className="flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center mr-2">
+                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-2">
                       {stat.icon}
                     </div>
                   </div>
@@ -310,7 +215,7 @@ export default async function HomePage() {
 
       {/* Features Section */}
       <section id="features" className="py-20 bg-black/20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Everything you need to share files securely</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
@@ -320,9 +225,9 @@ export default async function HomePage() {
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105">
+              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
@@ -336,7 +241,7 @@ export default async function HomePage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Simple, transparent pricing</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
@@ -344,12 +249,12 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {plans.map((plan, index) => (
               <Card 
                 key={index} 
-                className={`relative bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 hover:scale-105 ${
-                  plan.popular ? 'border-purple-500/60 scale-105 ring-2 ring-purple-500/20' : ''
+                className={`relative bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 ${
+                  plan.popular ? 'border-purple-500/60 ring-2 ring-purple-500/20' : ''
                 }`}
               >
                 {plan.popular && (
@@ -422,7 +327,7 @@ export default async function HomePage() {
 
       {/* Testimonials Section */}
       <section className="py-20 bg-black/20">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Loved by teams worldwide</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
@@ -430,7 +335,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
                 <CardContent className="p-6">
@@ -441,7 +346,7 @@ export default async function HomePage() {
                   </div>
                   <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
                       <span className="text-purple-300 font-semibold">
                         {testimonial.name.split(' ').map(n => n[0]).join('')}
                       </span>
@@ -460,45 +365,30 @@ export default async function HomePage() {
 
       {/* CTA Section */}
       <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-4xl mx-auto">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="text-center">
             <h2 className="text-4xl font-bold text-white mb-4">Ready to get started?</h2>
             <p className="text-xl text-gray-300 mb-8">
               Join thousands of teams already using YukiFiles to share and collaborate on files securely.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {/* debugMode ? (
-                <Link href="/dashboard">
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
-                  >
-                    Enter Debug Mode
-                  </Button>
-                </Link>
-              ) : ( */}
-                <>
-                  <Link href="/auth/register">
-                    <Button
-                      size="lg"
-                      className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 w-full sm:w-auto"
-                    >
-                      <span className="hidden sm:inline">Start Free Trial</span>
-                      <span className="sm:hidden">Get Started</span>
-                    </Button>
-                  </Link>
-                  <Link href="/pricing">
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-base sm:text-lg px-6 sm:px-8 py-3 sm:py-4 bg-transparent w-full sm:w-auto"
-                    >
-                      <span className="hidden sm:inline">View All Plans</span>
-                      <span className="sm:hidden">Pricing</span>
-                    </Button>
-                  </Link>
-                </>
-              {/* ) */}
+              <Link href="/auth/register">
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4 w-full sm:w-auto"
+                >
+                  Start Free Trial
+                </Button>
+              </Link>
+              <Link href="/pricing">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent w-full sm:w-auto"
+                >
+                  View All Plans
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -506,7 +396,7 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="py-12 border-t border-gray-800">
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
               <div className="flex items-center space-x-2 mb-4">
@@ -516,14 +406,6 @@ export default async function HomePage() {
               <p className="text-gray-400 mb-4">
                 The most secure and user-friendly file sharing platform for modern teams.
               </p>
-              <div className="flex space-x-4">
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Globe className="w-5 h-5" />
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white transition-colors">
-                  <Users className="w-5 h-5" />
-                </a>
-              </div>
             </div>
             
             <div>
@@ -559,7 +441,7 @@ export default async function HomePage() {
           
           <div className="border-t border-gray-800 mt-8 pt-8 text-center">
             <p className="text-gray-400">
-              © 2024 YukiFiles. All rights reserved. | Privacy Policy | Terms of Service
+              © 2024 YukiFiles. All rights reserved.
             </p>
           </div>
         </div>
