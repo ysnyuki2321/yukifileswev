@@ -19,6 +19,7 @@ import {
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
+import { useProfessionalModal } from "@/components/ui/professional-modal"
 import { formatBytes } from "@/lib/utils"
 
 export interface FileItem {
@@ -78,6 +79,9 @@ export function EnhancedFileManager({
   const [multiSelectMode, setMultiSelectMode] = useState(false)
   const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
   const [showMultiActions, setShowMultiActions] = useState(false)
+  
+  // Professional modal system
+  const { showInput, showConfirm, Modal } = useProfessionalModal()
 
   const getFileCategory = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -221,18 +225,76 @@ export function EnhancedFileManager({
     }
   }
 
-  // Context menu actions
+  // Context menu actions with professional modals
   const handleContextAction = {
-    share: (file: FileItem) => console.log('Share:', file.name),
-    rename: (file: FileItem) => console.log('Rename:', file.name),
-    delete: (file: FileItem) => console.log('Delete:', file.name),
-    download: (file: FileItem) => console.log('Download:', file.name),
-    copy: (file: FileItem) => console.log('Copy link:', file.name),
+    share: (file: FileItem) => {
+      showInput("Share File", {
+        description: `Generate a share link for "${file.name}"`,
+        placeholder: "Optional: Custom link name",
+        onConfirm: (customName) => {
+          console.log('Sharing:', file.name, 'with custom name:', customName)
+          // Generate share link logic here
+        }
+      })
+    },
+    rename: (file: FileItem) => {
+      showInput("Rename File", {
+        description: `Enter a new name for "${file.name}"`,
+        placeholder: "New file name",
+        defaultValue: file.name,
+        onConfirm: (newName) => {
+          if (newName && newName !== file.name) {
+            console.log('Renaming:', file.name, 'to:', newName)
+            // Rename logic here
+          }
+        }
+      })
+    },
+    delete: (file: FileItem) => {
+      showConfirm("Delete File", {
+        description: `Are you sure you want to delete "${file.name}"? This action cannot be undone.`,
+        confirmText: "Delete",
+        cancelText: "Cancel",
+        destructive: true,
+        onConfirm: () => {
+          console.log('Deleting:', file.name)
+          // Delete logic here
+        }
+      })
+    },
+    download: (file: FileItem) => {
+      console.log('Downloading:', file.name)
+      // Download logic here
+    },
+    copy: (file: FileItem) => {
+      navigator.clipboard.writeText(`https://yukifiles.com/share/${file.id}`)
+      console.log('Copied link for:', file.name)
+    },
     view: (file: FileItem) => handleFileClick(file),
-    toggleStar: (file: FileItem) => console.log('Toggle star:', file.name),
-    togglePrivacy: (file: FileItem) => console.log('Toggle privacy:', file.name),
-    moveToFolder: (file: FileItem) => console.log('Move to folder:', file.name),
-    archive: (file: FileItem) => console.log('Archive:', file.name),
+    toggleStar: (file: FileItem) => {
+      console.log('Toggle star:', file.name)
+      // Star toggle logic here
+    },
+    togglePrivacy: (file: FileItem) => {
+      console.log('Toggle privacy:', file.name)
+      // Privacy toggle logic here
+    },
+    moveToFolder: (file: FileItem) => {
+      showInput("Move to Folder", {
+        description: `Move "${file.name}" to a different folder`,
+        placeholder: "Folder path (e.g., /Documents/Projects)",
+        onConfirm: (folderPath) => {
+          if (folderPath) {
+            console.log('Moving:', file.name, 'to:', folderPath)
+            // Move logic here
+          }
+        }
+      })
+    },
+    archive: (file: FileItem) => {
+      console.log('Archive:', file.name)
+      // Archive logic here
+    },
     select: (file: FileItem) => {
       setMultiSelectMode(true)
       toggleMultiSelect(file.id)
@@ -464,9 +526,49 @@ export function EnhancedFileManager({
                 </Button>
               </>
             )}
-            <Button size="sm" variant="outline" title="Storage Info">
-              <HardDrive className="w-4 h-4" />
-            </Button>
+                          <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => {
+                  showInput("Create New File", {
+                    description: "Enter a name for the new file",
+                    placeholder: "filename.txt",
+                    onConfirm: (fileName) => {
+                      if (fileName) {
+                        console.log('Creating file:', fileName)
+                        onFileCreate?.({ name: fileName, isFolder: false })
+                      }
+                    }
+                  })
+                }}
+                title="New File"
+              >
+                <FilePlus className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">File</span>
+              </Button>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => {
+                  showInput("Create New Folder", {
+                    description: "Enter a name for the new folder",
+                    placeholder: "New Folder",
+                    onConfirm: (folderName) => {
+                      if (folderName) {
+                        console.log('Creating folder:', folderName)
+                        onFileCreate?.({ name: folderName, isFolder: true })
+                      }
+                    }
+                  })
+                }}
+                title="New Folder"
+              >
+                <FolderPlus className="w-4 h-4" />
+                <span className="hidden sm:inline ml-1">Folder</span>
+              </Button>
+              <Button size="sm" variant="outline" title="Storage Info">
+                <HardDrive className="w-4 h-4" />
+              </Button>
           </div>
         </div>
       </div>
@@ -714,6 +816,9 @@ export function EnhancedFileManager({
         onArchive={handleContextAction.archive}
         onSelect={handleContextAction.select}
       />
+
+      {/* Professional Modal */}
+      <Modal />
 
       {/* Multi-select Actions Bar */}
       {showMultiActions && (

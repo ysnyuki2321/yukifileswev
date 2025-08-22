@@ -73,6 +73,80 @@ input[type="number"] {
   }
 }
 
+/* Mobile UX optimizations */
+@media (max-width: 768px) {
+  /* Touch-friendly buttons */
+  button, .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    touch-action: manipulation;
+  }
+  
+  /* Better touch feedback */
+  .touch-manipulation {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(147, 51, 234, 0.2);
+  }
+  
+  /* Improved form inputs on mobile */
+  input, textarea, select {
+    font-size: 16px; /* Prevent zoom on iOS */
+    -webkit-appearance: none;
+    border-radius: 8px;
+  }
+  
+  /* Mobile-friendly modals */
+  .mobile-modal {
+    margin: 16px;
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+  }
+  
+  /* Better mobile scrolling */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Mobile-optimized cards */
+  .mobile-card {
+    margin: 8px;
+    padding: 16px;
+    border-radius: 12px;
+  }
+}
+
+/* Desktop UX optimizations */
+@media (min-width: 769px) {
+  /* Desktop hover states */
+  .desktop-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Desktop tooltips */
+  .desktop-tooltip {
+    position: relative;
+  }
+  
+  .desktop-tooltip:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.9);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 1;
+    pointer-events: none;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

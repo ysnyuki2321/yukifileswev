@@ -82,11 +82,23 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
             <Link
               key={item.href}
               href={item.href}
-              onClick={onClose}
-              className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+              onClick={(e) => {
+                // Ensure mobile sidebar closes on navigation
+                if (typeof onClose === 'function') {
+                  onClose()
+                }
+                // For demo tabs, prevent default navigation and handle client-side
+                if (item.href.includes('tab=')) {
+                  e.preventDefault()
+                  const url = new URL(item.href, window.location.origin)
+                  window.history.pushState({}, '', url.pathname + url.search)
+                  window.location.reload()
+                }
+              }}
+              className={`flex items-center px-3 py-2 rounded-md transition-colors touch-manipulation ${
                 isActive
                   ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
-                  : "text-gray-300 hover:text-white hover:bg-white/5"
+                  : "text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
               }`}
             >
               <Icon className="h-4 w-4 mr-2" />

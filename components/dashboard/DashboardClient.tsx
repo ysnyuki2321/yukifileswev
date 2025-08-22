@@ -39,7 +39,11 @@ export default function DashboardClient() {
 
       if (isDemoMode) {
         setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
-        setUserData(getMockUserData())
+        const mockData = getMockUserData()
+        // Ensure admin access in demo mode
+        mockData.is_admin = true
+        mockData.subscription_type = "paid"
+        setUserData(mockData)
         
         // Use beautiful mock data instead of API calls
         const mockFiles = [

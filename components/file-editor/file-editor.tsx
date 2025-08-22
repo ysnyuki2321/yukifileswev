@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { useProfessionalModal } from "@/components/ui/professional-modal"
 import { 
   FileText, FileCode, Save, X, AlertCircle, CheckCircle,
   Type, Code, File, Folder, Maximize2, Minimize2, Eye,
@@ -61,6 +62,9 @@ export function FileEditor({ file, onSave, onClose, readOnly = false }: FileEdit
   const [autoSave, setAutoSave] = useState(false)
   const [syntaxHighlight, setSyntaxHighlight] = useState(true)
   const [mobileTooltip, setMobileTooltip] = useState<string | null>(null)
+  
+  // Professional modal system
+  const { showInput, showConfirm, Modal } = useProfessionalModal()
 
   useEffect(() => {
     setFileName(file.name || 'untitled.txt')
@@ -395,16 +399,21 @@ Add your content here...`
   }
 
   const handleGoToLine = () => {
-    const lineNumber = prompt("Go to line number:")
-    if (!lineNumber || !textareaRef.current) return
-    const lineNum = parseInt(lineNumber)
-    const lines = content.split('\n')
-    if (lineNum > 0 && lineNum <= lines.length) {
-      const position = lines.slice(0, lineNum - 1).join('\n').length + (lineNum > 1 ? 1 : 0)
-      textareaRef.current.focus()
-      textareaRef.current.setSelectionRange(position, position)
-      textareaRef.current.scrollTop = textareaRef.current.scrollHeight * ((lineNum - 1) / lines.length)
-    }
+    showInput("Go to Line", {
+      description: "Enter the line number you want to navigate to",
+      placeholder: "Line number (1-" + content.split('\n').length + ")",
+      onConfirm: (value) => {
+        if (!value || !textareaRef.current) return
+        const lineNum = parseInt(value)
+        const lines = content.split('\n')
+        if (lineNum > 0 && lineNum <= lines.length) {
+          const position = lines.slice(0, lineNum - 1).join('\n').length + (lineNum > 1 ? 1 : 0)
+          textareaRef.current.focus()
+          textareaRef.current.setSelectionRange(position, position)
+          textareaRef.current.scrollTop = textareaRef.current.scrollHeight * ((lineNum - 1) / lines.length)
+        }
+      }
+    })
   }
 
   const handleDuplicateLine = () => {
@@ -1198,6 +1207,9 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
           </motion.div>
         </motion.div>
       </motion.div>
+      
+      {/* Professional Modal */}
+      <Modal />
     </AnimatePresence>
   )
 }
