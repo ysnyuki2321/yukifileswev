@@ -681,97 +681,84 @@ export function EnhancedFileManager({
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // Helper functions
-  const getFileCategory = (filename: string): string => {
-    const ext = filename.split('.').pop()?.toLowerCase() || ''
-    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp']
-    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']
-    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a']
-    const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'rb', 'go', 'rs', 'html', 'css', 'scss']
-    const docExts = ['pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx']
-    
-    if (imageExts.includes(ext)) return 'images'
-    if (videoExts.includes(ext)) return 'videos'
-    if (audioExts.includes(ext)) return 'audio'
-    if (codeExts.includes(ext)) return 'code'
-    if (docExts.includes(ext)) return 'documents'
-    return 'other'
-  }
-
-  const filteredAndSortedFiles = (files || [])
-    .filter(file => {
-      const matchesSearch = file?.name?.toLowerCase()?.includes(searchQuery.toLowerCase()) || false
-      const matchesFilter = filterType === 'all' || getFileCategory(file?.name || '') === filterType
-      return matchesSearch && matchesFilter
-    })
-    .sort((a, b) => {
-      let comparison = 0
-      switch (sortBy) {
-        case 'name':
-          comparison = (a?.name || '').localeCompare(b?.name || '')
-          break
-        case 'size':
-          comparison = (a?.size || 0) - (b?.size || 0)
-          break
-        case 'date':
-          comparison = (a?.lastModified?.getTime() || 0) - (b?.lastModified?.getTime() || 0)
-          break
+  // File creation handlers
+  const handleCreateFile = () => {
+    const name = prompt("Enter file name:")
+    if (name && onFileCreate) {
+      const newFile = {
+        name,
+        type: "text",
+        content: "",
+        path: "/"
       }
-      return sortOrder === 'asc' ? comparison : -comparison
+      onFileCreate(newFile)
+    }
+  }
+
+  const handleCreateFolder = () => {
+    const name = prompt("Enter folder name:")
+    if (name) {
+      // Assuming onFileCreate can handle folder creation
+      const newFolder = {
+        name,
+        type: "folder",
+        content: "",
+        path: "/"
+      }
+      onFileCreate(newFolder)
+    }
+  }
+
+  // Multi-select handlers
+  const clearSelection = () => {
+    setSelectedMultiFiles(new Set())
+    setShowMultiActions(false)
+    setMultiSelectMode(false)
+  }
+
+  const handleMultiAction = {
+    compress: () => {
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      setCompressionOverlay({ isOpen: true, files: selectedFiles })
+      clearSelection()
+    },
+    delete: () => {
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      console.log('Deleting files:', selectedFiles.map(f => f?.name).filter(Boolean))
+      clearSelection()
+    },
+    move: () => {
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      console.log('Moving files:', selectedFiles.map(f => f?.name).filter(Boolean))
+      clearSelection()
+    },
+    share: () => {
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      console.log('Sharing files:', selectedFiles.map(f => f?.name).filter(Boolean))
+      clearSelection()
+    }
+  }
+
+  // Multi-select and context menu handlers
+  const toggleMultiSelect = (fileId: string) => {
+    setSelectedMultiFiles(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId)
+      } else {
+        newSet.add(fileId)
+      }
+      setShowMultiActions(newSet.size > 0)
+      return newSet
     })
-
-  const handleFileClick = (file: any) => {
-    if (file.isFolder) {
-      // Handle folder navigation
-      return
-    }
-    
-    if (isDatabaseFile(file.name)) {
-      setDatabaseEditor({ isOpen: true, file })
-    } else if (isArchiveFile(file.name)) {
-      setArchiveViewer({ isOpen: true, file })
-    } else if (isTextFile(file.name)) {
-      setSelectedFile(file)
-      setShowEditor(true)
-      onFileUpdate?.(file)
-    } else if (isMediaFile(file.name)) {
-      setSelectedFile(file)
-      setShowMediaPreview(true)
-      onFileUpdate?.(file)
-    }
   }
 
-  const isDatabaseFile = (filename: string): boolean => {
-    const dbExtensions = ['db', 'sqlite', 'sqlite3', 'sql']
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return dbExtensions.includes(ext || '')
-  }
-
-  const isArchiveFile = (filename: string): boolean => {
-    const archiveExtensions = ['zip', 'tar', 'gz', 'tar.gz', '7z', 'rar']
-    const ext = filename.split('.').pop()?.toLowerCase()
-    const fullExt = filename.toLowerCase()
-    return archiveExtensions.includes(ext || '') || fullExt.endsWith('.tar.gz')
-  }
-
-  const isTextFile = (filename: string): boolean => {
-    const textExtensions = [
-      'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss',
-      'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt',
-      'xml', 'yaml', 'yml', 'sql', 'csv', 'log'
-    ]
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return textExtensions.includes(ext || '')
-  }
-
-  const isMediaFile = (filename: string): boolean => {
-    const mediaExtensions = [
-      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
-      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
-      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
-    ]
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return mediaExtensions.includes(ext || '')
+  const handleRightClick = (file: any, event: React.MouseEvent) => {
+    event.preventDefault()
+    setContextMenu({
+      file,
+      position: { x: event.clientX, y: event.clientY }
+    })
   }
 
   // Long press handlers for mobile context menu
@@ -802,61 +789,130 @@ export function EnhancedFileManager({
     }
   }
 
-  const handleRightClick = (file: any, event: React.MouseEvent) => {
-    event.preventDefault()
-    setContextMenu({
-      file,
-      position: { x: event.clientX, y: event.clientY }
-    })
+  // Helper functions
+  const getFileCategory = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
+    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp']
+    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']
+    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a']
+    const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'rb', 'go', 'rs', 'html', 'css', 'scss']
+    const docExts = ['pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx']
+    
+    if (imageExts.includes(ext)) return 'images'
+    if (videoExts.includes(ext)) return 'videos'
+    if (audioExts.includes(ext)) return 'audio'
+    if (codeExts.includes(ext)) return 'code'
+    if (docExts.includes(ext)) return 'documents'
+    return 'other'
   }
 
-  // Multi-select handlers
-  const toggleMultiSelect = (fileId: string) => {
-    setSelectedMultiFiles(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(fileId)) {
-        newSet.delete(fileId)
-      } else {
-        newSet.add(fileId)
-      }
-      setShowMultiActions(newSet.size > 0)
-      return newSet
-    })
+  const isMediaFile = (filename: string): boolean => {
+    const mediaExtensions = [
+      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
+      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
+      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return mediaExtensions.includes(ext || '')
   }
 
-  const selectAllFiles = () => {
-    const allFileIds = new Set((filteredAndSortedFiles || []).map(f => f?.id).filter(Boolean))
-    setSelectedMultiFiles(allFileIds)
-    setShowMultiActions(true)
-  }
-
-  const clearSelection = () => {
-    setSelectedMultiFiles(new Set())
-    setShowMultiActions(false)
-    setMultiSelectMode(false)
-  }
-
-  const handleMultiAction = {
-    compress: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      setCompressionOverlay({ isOpen: true, files: selectedFiles })
-      clearSelection()
-    },
-    delete: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      console.log('Deleting files:', selectedFiles.map(f => f?.name).filter(Boolean))
-      clearSelection()
-    },
-    move: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      console.log('Moving files:', selectedFiles.map(f => f?.name).filter(Boolean))
-      clearSelection()
-    },
-    share: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      console.log('Sharing files:', selectedFiles.map(f => f?.name).filter(Boolean))
-      clearSelection()
+  const getFileIcon = (file: any) => {
+    if (file.isFolder) {
+      return (
+        <div className="relative">
+          <Folder className="w-full h-full text-blue-400 drop-shadow-2xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-lg blur-lg"></div>
+        </div>
+      )
     }
+    
+    // Show thumbnail for images/videos if available
+    if (file.thumbnail && getFileCategory(file.name) === 'images') {
+      return (
+        <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 relative">
+          <img 
+            src={file.thumbnail} 
+            alt={file.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/20"></div>
+        </div>
+      )
+    }
+    
+    if (file.thumbnail && getFileCategory(file.name) === 'videos') {
+      return (
+        <div className="w-full h-full rounded-xl overflow-hidden relative shadow-2xl border-2 border-white/20">
+          <video 
+            src={file.thumbnail} 
+            className="w-full h-full object-cover"
+            muted
+          />
+          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+            <div className="w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+              <FileVideo className="w-3 h-3 text-white" />
+            </div>
+          </div>
+        </div>
+      )
+    }
+    
+    const category = getFileCategory(file.name)
+    switch (category) {
+      case 'images':
+        return (
+          <div className="relative">
+            <FileImage className="w-full h-full text-green-400 drop-shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg"></div>
+          </div>
+        )
+      case 'videos':
+        return (
+          <div className="relative">
+            <FileVideo className="w-full h-full text-red-400 drop-shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
+          </div>
+        )
+      case 'audio':
+        return (
+          <div className="relative">
+            <FileAudio className="w-full h-full text-purple-400 drop-shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg animate-pulse"></div>
+          </div>
+        )
+      case 'code':
+        return (
+          <div className="relative">
+            <FileCode className="w-full h-full text-yellow-400 drop-shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
+          </div>
+        )
+      case 'documents':
+        return (
+          <div className="relative">
+            <FileText className="w-full h-full text-blue-400 drop-shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
+          </div>
+        )
+      default:
+        return (
+          <div className="relative">
+            <File className="w-full h-full text-gray-400 drop-shadow-2xl" />
+            <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
+          </div>
+        )
+    }
+  }
+
+  // Modal close handlers
+  const closeEditor = () => {
+    setShowEditor(false)
+    setSelectedFile(null)
+  }
+
+  const closeMediaPreview = () => {
+    setShowMediaPreview(false)
+    setSelectedFile(null)
   }
 
   // Context menu actions with professional modals
@@ -972,129 +1028,70 @@ export function EnhancedFileManager({
     }
   }
 
-  const getFileIcon = (file: any) => {
+  const filteredAndSortedFiles = (files || [])
+    .filter(file => {
+      const matchesSearch = file?.name?.toLowerCase()?.includes(searchQuery.toLowerCase()) || false
+      const matchesFilter = filterType === 'all' || getFileCategory(file?.name || '') === filterType
+      return matchesSearch && matchesFilter
+    })
+    .sort((a, b) => {
+      let comparison = 0
+      switch (sortBy) {
+        case 'name':
+          comparison = (a?.name || '').localeCompare(b?.name || '')
+          break
+        case 'size':
+          comparison = (a?.size || 0) - (b?.size || 0)
+          break
+        case 'date':
+          comparison = (a?.lastModified?.getTime() || 0) - (b?.lastModified?.getTime() || 0)
+          break
+      }
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+
+  const handleFileClick = (file: any) => {
     if (file.isFolder) {
-      return (
-        <div className="relative">
-          <Folder className="w-full h-full text-blue-400 drop-shadow-2xl" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-lg blur-lg"></div>
-        </div>
-      )
+      // Handle folder navigation
+      return
     }
     
-    // Show thumbnail for images/videos if available
-    if (file.thumbnail && getFileCategory(file.name) === 'images') {
-      return (
-        <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 relative">
-          <img 
-            src={file.thumbnail} 
-            alt={file.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/20"></div>
-        </div>
-      )
-    }
-    
-    if (file.thumbnail && getFileCategory(file.name) === 'videos') {
-      return (
-        <div className="w-full h-full rounded-xl overflow-hidden relative shadow-2xl border-2 border-white/20">
-          <video 
-            src={file.thumbnail} 
-            className="w-full h-full object-cover"
-            muted
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-              <FileVideo className="w-3 h-3 text-white" />
-            </div>
-          </div>
-        </div>
-      )
-    }
-    
-    const category = getFileCategory(file.name)
-    switch (category) {
-      case 'images':
-        return (
-          <div className="relative">
-            <FileImage className="w-full h-full text-green-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'videos':
-        return (
-          <div className="relative">
-            <FileVideo className="w-full h-full text-red-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'audio':
-        return (
-          <div className="relative">
-            <FileAudio className="w-full h-full text-purple-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg animate-pulse"></div>
-          </div>
-        )
-      case 'code':
-        return (
-          <div className="relative">
-            <FileCode className="w-full h-full text-yellow-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'documents':
-        return (
-          <div className="relative">
-            <FileText className="w-full h-full text-blue-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      default:
-        return (
-          <div className="relative">
-            <File className="w-full h-full text-gray-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
+    if (isDatabaseFile(file.name)) {
+      setDatabaseEditor({ isOpen: true, file })
+    } else if (isArchiveFile(file.name)) {
+      setArchiveViewer({ isOpen: true, file })
+    } else if (isTextFile(file.name)) {
+      setSelectedFile(file)
+      setShowEditor(true)
+      onFileUpdate?.(file)
+    } else if (isMediaFile(file.name)) {
+      setSelectedFile(file)
+      setShowMediaPreview(true)
+      onFileUpdate?.(file)
     }
   }
 
-  const handleCreateFile = () => {
-    const name = prompt("Enter file name:")
-    if (name && onFileCreate) {
-      const newFile = {
-        name,
-        type: "text",
-        content: "",
-        path: "/"
-      }
-      onFileCreate(newFile)
-    }
+  const isDatabaseFile = (filename: string): boolean => {
+    const dbExtensions = ['db', 'sqlite', 'sqlite3', 'sql']
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return dbExtensions.includes(ext || '')
   }
 
-  const handleCreateFolder = () => {
-    const name = prompt("Enter folder name:")
-    if (name) {
-      // Assuming onFileCreate can handle folder creation
-      const newFolder = {
-        name,
-        type: "folder",
-        content: "",
-        path: "/"
-      }
-      onFileCreate(newFolder)
-    }
+  const isArchiveFile = (filename: string): boolean => {
+    const archiveExtensions = ['zip', 'tar', 'gz', 'tar.gz', '7z', 'rar']
+    const ext = filename.split('.').pop()?.toLowerCase()
+    const fullExt = filename.toLowerCase()
+    return archiveExtensions.includes(ext || '') || fullExt.endsWith('.tar.gz')
   }
 
-  const closeEditor = () => {
-    setShowEditor(false)
-    setSelectedFile(null)
-  }
-
-  const closeMediaPreview = () => {
-    setShowMediaPreview(false)
-    setSelectedFile(null)
+  const isTextFile = (filename: string): boolean => {
+    const textExtensions = [
+      'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss',
+      'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt',
+      'xml', 'yaml', 'yml', 'sql', 'csv', 'log'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return textExtensions.includes(ext || '')
   }
 
   return (

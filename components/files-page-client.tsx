@@ -874,14 +874,11 @@ Thank you for trying YukiFiles! 🚀`,
               {/* Enhanced File Manager */}
               <EnhancedFileManager
                 files={files}
-                onFileUpload={handleFakeUpload}
-                onFileEdit={handleFileEdit}
-                onFileDelete={handleFileDelete}
-                onFileSave={handleFileSave}
                 onFileCreate={handleFileCreate}
-                onFolderCreate={handleFolderCreate}
-                uploadProgress={uploadProgress}
-                uploadingFiles={uploadingFiles}
+                onFileUpdate={handleFileEdit}
+                onFileDelete={handleFileDelete}
+                onFileUpload={handleFakeUpload}
+                isDemoMode={isDemoMode}
                 isAdmin={Boolean(userData?.is_admin)}
               />
             </div>
