@@ -62,15 +62,15 @@ export function MobileSidebar({ isOpen, onClose, isAdmin = false, brandName = "Y
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Backdrop */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-            onClick={onClose}
-          />
+                     {/* Backdrop */}
+           <motion.div
+             initial={{ opacity: 0 }}
+             animate={{ opacity: 1 }}
+             exit={{ opacity: 0 }}
+             transition={{ duration: 0.2 }}
+             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] mobile-stable"
+             onClick={onClose}
+           />
           
           {/* Sidebar */}
           <motion.aside
@@ -78,7 +78,7 @@ export function MobileSidebar({ isOpen, onClose, isAdmin = false, brandName = "Y
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-slate-900/95 via-purple-950/60 to-slate-900/95 border-r border-purple-500/20 backdrop-blur-xl shadow-2xl"
+                         className="fixed inset-y-0 left-0 z-[9999] w-64 bg-gradient-to-b from-slate-900/95 via-purple-950/60 to-slate-900/95 border-r border-purple-500/20 backdrop-blur-xl shadow-2xl mobile-stable"
           >
             {/* Header */}
             <div className="h-16 px-6 flex items-center justify-between border-b border-purple-500/10">

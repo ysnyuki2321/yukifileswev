@@ -122,7 +122,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative"
+              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative touch-manipulation"
             >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
@@ -139,11 +139,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-50"
-                  style={{ 
-                    right: typeof window !== 'undefined' && window.innerWidth < 768 ? '0.5rem' : '0',
-                    maxWidth: typeof window !== 'undefined' && window.innerWidth < 768 ? 'calc(100vw - 1rem)' : 'auto'
-                  }}
+                  className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-[9999] mobile-stable"
                 >
                   <div className="p-3 sm:p-4 border-b border-purple-500/10">
                     <div className="flex items-center justify-between">
@@ -202,7 +198,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
           <div className="relative">
             <button 
               onClick={() => setShowProfile(!showProfile)}
-              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative"
+              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative touch-manipulation"
             >
               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
                 <User className="w-4 h-4 text-white" />
@@ -216,7 +212,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-64 bg-gradient-to-br from-slate-900 via-purple-950/60 to-slate-900 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl z-50"
+                                     className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-purple-950/60 to-slate-900 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl z-[9999] mobile-stable"
                 >
                   {/* Balance */}
                   <div className="p-4 border-b border-purple-500/10">
@@ -317,8 +313,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-md flex items-center justify-center p-4"
-            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
+            className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-md flex items-center justify-center p-4 mobile-stable"
             onClick={() => setSelectedNotification(null)}
           >
             <motion.div
@@ -326,8 +321,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl max-w-md w-full mx-auto p-6"
-              style={{ margin: 'auto' }}
+              className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl max-w-md w-full mx-auto p-6 mobile-container"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start gap-4 mb-4">

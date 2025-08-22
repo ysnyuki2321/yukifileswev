@@ -41,6 +41,17 @@ export interface FileItem {
   isShared?: boolean
   owner?: string
   path?: string
+  hasPassword?: boolean
+  inArchive?: boolean
+  category?: string
+  encryptedName?: string
+  accessLimits?: {
+    views: number
+    downloads: number
+    maxViews: number
+    maxDownloads: number
+  }
+  expiresAt?: Date
 }
 
 interface EnhancedFileManagerProps {

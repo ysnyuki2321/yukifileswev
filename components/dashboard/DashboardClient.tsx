@@ -127,8 +127,8 @@ export default function DashboardClient() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-      <div className="flex">
+    <div className="min-h-screen mobile-viewport-fix bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+      <div className="flex mobile-stable">
         {/* Desktop Sidebar */}
         <div className="hidden md:block">
           <Sidebar 
