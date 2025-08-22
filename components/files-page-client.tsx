@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
 import Sidebar from "@/components/dashboard/Sidebar"
-import Topbar from "@/components/dashboard/Topbar"
+import { Topbar } from "@/components/dashboard/Topbar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 import { Button } from "@/components/ui/button"
@@ -849,9 +849,8 @@ Thank you for trying YukiFiles! 🚀`,
         
         <div className="flex-1 min-w-0">
           <Topbar 
-            userEmail={user?.email || 'demo@yukifiles.com'}
-            isPremium={userData?.subscription_type === "paid"}
-            brandName={brandName}
+            user={user}
+            userData={userData}
             isDemoMode={isDemoMode}
             onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           />

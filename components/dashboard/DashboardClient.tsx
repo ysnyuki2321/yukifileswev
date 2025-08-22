@@ -15,7 +15,7 @@ import { UltimateFileManagerDemo } from "@/components/demo/UltimateFileManagerDe
 import { SimpleErrorScreen } from "@/components/ui/simple-error-screen"
 import Sidebar from "@/components/dashboard/Sidebar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
-import Topbar from "@/components/dashboard/Topbar"
+import { Topbar } from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { useSearchParams } from "next/navigation"

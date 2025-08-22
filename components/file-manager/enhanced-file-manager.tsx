@@ -17,7 +17,7 @@ import {
   WifiOff, CheckCircle, XCircle, AlertCircle, Info, X,
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
-import { FileEditor } from "@/components/file-editor/file-editor"
+import { FileEditor } from "@/components/file-editor/FileEditor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -655,7 +655,7 @@ export function EnhancedFileManager({
   const [storageStats, setStorageStats] = useState({ used: 0, total: 0 })
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ file: any; position: { x: number; y: number } } | null>(null)
-  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
+  const [longPressTimer, setLongPressTimer] = useState<number | null>(null)
   const [multiSelectMode, setMultiSelectMode] = useState(false)
   const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
   const [showMultiActions, setShowMultiActions] = useState(false)
@@ -763,7 +763,7 @@ export function EnhancedFileManager({
 
   // Long press handlers for mobile context menu
   const handleLongPressStart = (file: any, event: React.TouchEvent | React.MouseEvent) => {
-    const timer = setTimeout(() => {
+    const timer: number = window.setTimeout(() => {
       const rect = (event.target as HTMLElement).getBoundingClientRect()
       setContextMenu({
         file,
