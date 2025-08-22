@@ -1,112 +1,188 @@
-"use client"
+'use client'
 
-import React, { Component, ErrorInfo, ReactNode } from "react"
-import { Button } from "@/components/ui/button"
+import React, { useState } from 'react'
+import { AlertTriangle, RefreshCw, Home, Copy, ChevronDown, ChevronUp, Download } from 'lucide-react'
 
-interface Props {
-  children: ReactNode
+interface SimpleErrorScreenProps {
+  error?: Error
+  errorInfo?: { componentStack?: string }
+  resetError?: () => void
 }
 
-interface State {
-  hasError: boolean
-  error: Error | null
-  errorId: string
-}
+export function SimpleErrorScreen({ 
+  error, 
+  errorInfo,
+  resetError 
+}: SimpleErrorScreenProps) {
+  const [showFullLog, setShowFullLog] = useState(false)
+  const [copied, setCopied] = useState(false)
+  
+  const errorId = `ERR_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  
+  const fullErrorLog = {
+    id: errorId,
+    timestamp: new Date().toISOString(),
+    error: error?.message || 'Unknown error',
+    stack: error?.stack || 'No stack trace available',
+    componentStack: errorInfo?.componentStack || 'No component stack available',
+    url: typeof window !== 'undefined' ? window.location.href : 'Unknown',
+    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown'
+  }
 
-export class SimpleErrorScreen extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = {
-      hasError: false,
-      error: null,
-      errorId: ''
+  const copyErrorLog = async () => {
+    try {
+      const logText = JSON.stringify(fullErrorLog, null, 2)
+      await navigator.clipboard.writeText(logText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy error log:', err)
     }
   }
 
-  static getDerivedStateFromError(error: Error): Partial<State> {
-    return {
-      hasError: true,
-      error,
-      errorId: `ERR_${Date.now()}`
+  const downloadErrorLog = () => {
+    const logText = JSON.stringify(fullErrorLog, null, 2)
+    const blob = new Blob([logText], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `error-log-${errorId}.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  const handleRefresh = () => {
+    if (resetError) {
+      resetError()
+    } else {
+      window.location.reload()
     }
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.group('🚨 YukiFiles Error')
-    console.error('Error:', error.message)
-    console.error('Stack:', error.stack)
-    console.error('Component:', errorInfo.componentStack)
-    console.groupEnd()
+  const goToDashboard = () => {
+    window.location.href = '/dashboard'
   }
 
-  render() {
-    if (this.state.hasError) {
-      const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
-      
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-red-950 to-slate-900 flex items-center justify-center p-4">
-          <div className="max-w-md w-full mx-auto">
-            <div className="bg-gradient-to-br from-red-950/80 via-slate-900/95 to-red-950/80 border border-red-500/30 rounded-xl shadow-2xl p-6 text-center">
-              {/* Error Icon */}
-              <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                </svg>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-2xl">
+        {/* Main Error Card */}
+        <div className="bg-white rounded-2xl shadow-2xl border border-red-100 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6 text-white">
+            <div className="flex items-center space-x-4">
+              <div className="bg-white/20 p-3 rounded-full">
+                <AlertTriangle className="w-8 h-8" />
               </div>
-              
-              {/* Title */}
-              <h1 className="text-xl font-bold text-white mb-2">Something went wrong</h1>
-              <p className="text-gray-400 text-sm mb-4">YukiFiles encountered an error</p>
-              
-              {/* Error Details */}
-              <div className="bg-black/30 rounded-lg p-3 mb-4 text-left">
-                <p className="text-red-300 text-xs font-mono">
-                  {this.state.error?.message}
-                </p>
-                <p className="text-gray-400 text-xs mt-2">
-                  ID: {this.state.errorId}
-                </p>
-              </div>
-              
-              {/* Actions */}
-              <div className="space-y-2">
-                <Button
-                  onClick={() => window.location.reload()}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                >
-                  Refresh Page
-                </Button>
-                
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => window.location.href = '/dashboard'}
-                    variant="outline"
-                    className="flex-1 border-gray-600 text-gray-300 text-sm"
-                  >
-                    Dashboard
-                  </Button>
-                  
-                  <Button
-                    onClick={() => {
-                      navigator.clipboard.writeText(JSON.stringify({
-                        id: this.state.errorId,
-                        error: this.state.error?.message,
-                        url: window.location.href
-                      }, null, 2))
-                    }}
-                    variant="outline"
-                    className="flex-1 border-gray-600 text-gray-300 text-sm"
-                  >
-                    Copy Error
-                  </Button>
-                </div>
+              <div>
+                <h1 className="text-2xl font-bold">Oops! Something went wrong</h1>
+                <p className="text-red-100 mt-1">We encountered an unexpected error</p>
               </div>
             </div>
           </div>
-        </div>
-      )
-    }
 
-    return this.props.children
-  }
+          {/* Content */}
+          <div className="p-6 space-y-6">
+            {/* Error Message */}
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="flex items-start space-x-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h3 className="font-semibold text-red-800 mb-1">Error Details</h3>
+                  <p className="text-red-700 font-mono text-sm break-all">
+                    {error?.message || 'Unknown error occurred'}
+                  </p>
+                  <p className="text-red-600 text-xs mt-2">
+                    Error ID: <span className="font-mono">{errorId}</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={handleRefresh}
+                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Refresh Page</span>
+              </button>
+              
+              <button
+                onClick={goToDashboard}
+                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+              >
+                <Home className="w-4 h-4" />
+                <span>Go to Dashboard</span>
+              </button>
+            </div>
+
+            {/* Full Log Section */}
+            <div className="border-t pt-6">
+              <button
+                onClick={() => setShowFullLog(!showFullLog)}
+                className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <span className="font-medium text-gray-700">View Full Error Log</span>
+                {showFullLog ? (
+                  <ChevronUp className="w-5 h-5 text-gray-500" />
+                ) : (
+                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                )}
+              </button>
+
+              {showFullLog && (
+                <div className="mt-4 space-y-4">
+                  {/* Copy and Download Buttons */}
+                  <div className="flex gap-3">
+                    <button
+                      onClick={copyErrorLog}
+                      className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <Copy className="w-4 h-4" />
+                      <span>{copied ? 'Copied!' : 'Copy Log'}</span>
+                    </button>
+                    
+                    <button
+                      onClick={downloadErrorLog}
+                      className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>Download Log</span>
+                    </button>
+                  </div>
+
+                  {/* Full Error Log Display */}
+                  <div className="bg-gray-900 rounded-lg p-4 max-h-96 overflow-auto">
+                    <pre className="text-green-400 text-xs font-mono whitespace-pre-wrap break-all">
+                      {JSON.stringify(fullErrorLog, null, 2)}
+                    </pre>
+                  </div>
+
+                  {/* Additional Info */}
+                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
+                    <p className="font-medium mb-1">How to use this information:</p>
+                    <ul className="list-disc list-inside space-y-1 text-xs">
+                      <li>Copy the log and share it with the development team</li>
+                      <li>The error ID helps track this specific issue</li>
+                      <li>The stack trace shows where the error occurred</li>
+                      <li>Component stack shows which React component failed</li>
+                    </ul>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center mt-6 text-gray-500 text-sm">
+          <p>If this problem persists, please contact support with the error ID above.</p>
+        </div>
+      </div>
+    </div>
+  )
 }
