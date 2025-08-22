@@ -1,0 +1,26 @@
+
+> my-v0-project@0.1.0 dev /workspace
+> node scripts/dev.js
+
+🚀 YukiFiles Development Server
+
+⚡ Quick development start (use --fancy for full startup sequence)
+
+   ▲ Next.js 15.2.4
+   - Local:        http://localhost:3000
+   - Network:      http://172.30.0.2:3000
+
+ ✓ Starting...
+ ✓ Ready in 1174ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 596ms (171 modules)
+[Middleware] Supabase environment variables not found, skipping auth middleware
+ ○ Compiling /dashboard ...
+<w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
+ ✓ Compiled /dashboard in 6.8s (2250 modules)
+ GET /dashboard?demo=true 200 in 7307ms
+[Middleware] Supabase environment variables not found, skipping auth middleware
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 748ms (2245 modules)
+ GET /test-j-error.html 404 in 881ms
+ ✓ Compiled in 343ms (1001 modules)
