@@ -21,8 +21,11 @@ import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
 import { SimpleShareModal } from "@/components/ui/simple-share-modal"
+import { AdvancedShareModal } from "@/components/ui/advanced-share-modal"
 import { BreadcrumbPath } from "@/components/ui/breadcrumb-path"
 import { CompressionOverlay } from "@/components/ui/compression-overlay"
+import { DatabaseEditor } from "@/components/file-editor/database-editor"
+import { ArchiveViewer } from "@/components/ui/archive-viewer"
 import { formatBytes } from "@/lib/utils"
 
 export interface FileItem {
@@ -83,8 +86,11 @@ export function EnhancedFileManager({
   const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
   const [showMultiActions, setShowMultiActions] = useState(false)
   const [shareModal, setShareModal] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
+  const [advancedShareModal, setAdvancedShareModal] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
   const [currentPath, setCurrentPath] = useState<string[]>([])
   const [compressionOverlay, setCompressionOverlay] = useState<{ isOpen: boolean; files: FileItem[] }>({ isOpen: false, files: [] })
+  const [databaseEditor, setDatabaseEditor] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
+  const [archiveViewer, setArchiveViewer] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
   
   // Professional modal system
   const { showInput, showConfirm, Modal } = useProfessionalModal()
@@ -133,7 +139,11 @@ export function EnhancedFileManager({
       return
     }
     
-    if (isTextFile(file.name)) {
+    if (isDatabaseFile(file.name)) {
+      setDatabaseEditor({ isOpen: true, file })
+    } else if (isArchiveFile(file.name)) {
+      setArchiveViewer({ isOpen: true, file })
+    } else if (isTextFile(file.name)) {
       setSelectedFile(file)
       setShowEditor(true)
       onFileEdit?.(file)
@@ -142,6 +152,19 @@ export function EnhancedFileManager({
       setShowMediaPreview(true)
       onFileEdit?.(file)
     }
+  }
+
+  const isDatabaseFile = (filename: string): boolean => {
+    const dbExtensions = ['db', 'sqlite', 'sqlite3', 'sql']
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return dbExtensions.includes(ext || '')
+  }
+
+  const isArchiveFile = (filename: string): boolean => {
+    const archiveExtensions = ['zip', 'tar', 'gz', 'tar.gz', '7z', 'rar']
+    const ext = filename.split('.').pop()?.toLowerCase()
+    const fullExt = filename.toLowerCase()
+    return archiveExtensions.includes(ext || '') || fullExt.endsWith('.tar.gz')
   }
 
   // Long press handlers for mobile context menu
@@ -232,7 +255,7 @@ export function EnhancedFileManager({
   // Context menu actions with professional modals
   const handleContextAction = {
     share: (file: FileItem) => {
-      setShareModal({ isOpen: true, file })
+      setAdvancedShareModal({ isOpen: true, file })
       setContextMenu(null)
     },
     rename: (file: FileItem) => {
@@ -401,6 +424,13 @@ export function EnhancedFileManager({
 
   return (
     <div className="space-y-6">
+      {/* Breadcrumb Path */}
+      <BreadcrumbPath 
+        currentPath={currentPath}
+        onNavigate={setCurrentPath}
+        className="mb-4"
+      />
+      
       {/* Header */}
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
@@ -818,7 +848,7 @@ export function EnhancedFileManager({
       {/* Professional Modal */}
       <Modal />
 
-      {/* Simple Share Modal */}
+            {/* Simple Share Modal */}
       {shareModal.file && (
         <SimpleShareModal
           isOpen={shareModal.isOpen}
@@ -831,7 +861,47 @@ export function EnhancedFileManager({
         />
       )}
 
-              {/* Multi-select Actions Bar */}
+      {/* Advanced Share Modal */}
+      {advancedShareModal.file && (
+        <AdvancedShareModal
+          isOpen={advancedShareModal.isOpen}
+          onClose={() => setAdvancedShareModal({ isOpen: false, file: null })}
+          file={{
+            id: advancedShareModal.file.id,
+            name: advancedShareModal.file.name,
+            size: advancedShareModal.file.size
+          }}
+        />
+      )}
+
+             {/* Database Editor */}
+       {databaseEditor.file && (
+         <DatabaseEditor
+           file={{
+             id: databaseEditor.file.id,
+             name: databaseEditor.file.name,
+             size: databaseEditor.file.size
+           }}
+           onClose={() => setDatabaseEditor({ isOpen: false, file: null })}
+           readOnly={false}
+         />
+       )}
+
+       {/* Archive Viewer */}
+       {archiveViewer.file && (
+         <ArchiveViewer
+           isOpen={archiveViewer.isOpen}
+           onClose={() => setArchiveViewer({ isOpen: false, file: null })}
+           archiveFile={{
+             id: archiveViewer.file.id,
+             name: archiveViewer.file.name,
+             size: archiveViewer.file.size || 0,
+             type: archiveViewer.file.type || 'archive'
+           }}
+         />
+       )}
+
+       {/* Multi-select Actions Bar */}
         {showMultiActions && (
           <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-4">
             <div className="bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 shadow-2xl max-w-[calc(100vw-2rem)]">
