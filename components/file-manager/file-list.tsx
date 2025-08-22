@@ -54,7 +54,10 @@ export default function FileList({ files, onDelete, onShare }: FileListProps) {
   }
 
   const rename = async (fileId: string) => {
-    const newName = prompt("Rename file to:")
+    // TODO: Replace with ProfessionalInputModal
+    console.log("Rename functionality needs professional input modal")
+    // Temporary fallback - should be replaced with proper modal
+    const newName = window.prompt("Enter new name:")
     if (!newName) return
     const res = await fetch("/api/files/rename", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ fileId, newName }) })
     if (res.ok) window.location.reload()

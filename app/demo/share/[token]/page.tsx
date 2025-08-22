@@ -14,6 +14,7 @@ import {
   Home, ArrowLeft, Timer, Shield
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/professional-toast'
 
 interface ShareData {
   token: string
@@ -41,6 +42,7 @@ interface ShareData {
 export default function DemoSharePage() {
   const params = useParams()
   const router = useRouter()
+  const { addToast } = useToast()
   const [shareData, setShareData] = useState<ShareData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -174,17 +176,29 @@ export default function DemoSharePage() {
       // Check if already saved
       const alreadySaved = existingFiles.find((f: any) => f.originalShareToken === token)
       if (alreadySaved) {
-        alert('File already saved to your storage!')
+        addToast({
+          type: 'warning',
+          title: 'Already Saved',
+          description: 'File already saved to your storage!'
+        })
         return
       }
       
       existingFiles.push(fileToSave)
       localStorage.setItem(savedFilesKey, JSON.stringify(existingFiles))
       
-      alert('File saved to your storage successfully!')
+      addToast({
+        type: 'success',
+        title: 'File Saved',
+        description: 'File saved to your storage successfully!'
+      })
     } catch (error) {
       console.error('Error saving to storage:', error)
-      alert('Failed to save file to storage. Please try again.')
+      addToast({
+        type: 'error',
+        title: 'Save Failed',
+        description: 'Failed to save file to storage. Please try again.'
+      })
     }
   }
 
