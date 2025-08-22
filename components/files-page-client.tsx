@@ -62,10 +62,8 @@ export default function FilesPageClient() {
         setUser({ email: "debug@yukifiles.com", id: "debug-user-123" })
         setUserData(getMockUserData())
         
-        // Transform debug files to match FileItem interface
-        const res = await fetch('/api/debug/files', { cache: 'no-store' })
-        const data = await res.json()
-        const debugFiles = Array.isArray(data.files) ? data.files : []
+        // Use mock data instead of deleted debug API
+        const debugFiles: any[] = []
         // Replace untitled placeholders with curated sample files
         const samples: FileItem[] = [
           { id: 's1', name: 'app.tsx', type: 'text/tsx', size: 1520, lastModified: new Date(), isFolder: false, content: `import React from 'react'\nexport default function App(){\n  return <div>Hello YukiFiles</div>\n}` , path: '/' },

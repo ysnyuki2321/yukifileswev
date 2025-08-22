@@ -39,17 +39,60 @@ export default function DashboardClient() {
       if (isDemoMode) {
         setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
         setUserData(getMockUserData())
-        try {
-          const res = await fetch('/api/debug/files', { cache: 'no-store' })
-          const data = await res.json()
-          const dbg = Array.isArray(data.files) ? data.files : []
-          setRecentFiles(dbg.slice(0, 8))
-          setFilesCount(dbg.length)
-        } catch (e) {
-          console.error('Failed to load demo files:', e)
-          setRecentFiles([])
-          setFilesCount(0)
-        }
+        // Use mock data instead of deleted debug API
+        const mockFiles = [
+          {
+            id: 'demo-1',
+            original_name: 'project-proposal.pdf',
+            name: 'project-proposal.pdf',
+            mime_type: 'application/pdf',
+            file_size: 2547893,
+            size: 2547893,
+            created_at: new Date().toISOString(),
+            content: 'Mock PDF content',
+            thumbnail: null,
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            isShared: true,
+            owner: 'demo@yukifiles.com'
+          },
+          {
+            id: 'demo-2',
+            original_name: 'app.tsx',
+            name: 'app.tsx',
+            mime_type: 'text/tsx',
+            file_size: 1520,
+            size: 1520,
+            created_at: new Date().toISOString(),
+            content: 'import React from "react"\nexport default function App() {\n  return <div>Hello YukiFiles</div>\n}',
+            thumbnail: null,
+            is_starred: true,
+            isStarred: true,
+            is_public: false,
+            isShared: false,
+            owner: 'demo@yukifiles.com'
+          },
+          {
+            id: 'demo-3',
+            original_name: 'Beautiful_Landscape.jpg',
+            name: 'Beautiful_Landscape.jpg',
+            mime_type: 'image/jpeg',
+            file_size: 3247891,
+            size: 3247891,
+            created_at: new Date().toISOString(),
+            content: 'https://cdn.discordapp.com/attachments/1234567890/demo-image.jpg',
+            thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/demo-thumb.jpg',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            isShared: true,
+            owner: 'demo@yukifiles.com'
+          }
+        ]
+        
+        setRecentFiles(mockFiles)
+        setFilesCount(mockFiles.length)
       } else {
         try {
           const supabase = createClientComponentClient()
