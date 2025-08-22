@@ -102,7 +102,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
   }
   return (
     <header className="h-16 w-full border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
-      <div className="h-full container mx-auto px-2 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
+      <div className="h-full container mx-auto px-3 sm:px-4 flex items-center justify-between gap-3 sm:gap-4">
         <div className="flex items-center gap-3">
           <button 
             onClick={onMenuToggle}
@@ -224,7 +224,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
           </div>
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-2">
+        <div className="flex items-center gap-2 sm:gap-3">
           {isDemoMode && (
             <span className="hidden sm:inline-block bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs px-2 py-1 rounded animate-pulse">
               DEMO
@@ -235,16 +235,16 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
               PRO
             </span>
           )}
-          <span className="hidden lg:inline text-gray-300 text-sm truncate max-w-[150px]">{userEmail}</span>
+          <span className="hidden lg:inline text-gray-300 text-sm truncate max-w-[120px]">{userEmail}</span>
           <div className="relative">
             <button 
               onClick={() => setShowNotifications(!showNotifications)}
-              className="inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-300 hover:text-white hover:bg-white/5 relative"
+              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative"
             >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">{unreadCount}</span>
+                <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
                 </div>
               )}
             </button>
@@ -256,7 +256,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-50"
+                  className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-50"
                 >
                   <div className="p-3 sm:p-4 border-b border-purple-500/10">
                     <div className="flex items-center justify-between">
@@ -272,12 +272,12 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                     </div>
                   </div>
                   
-                  <div className="max-h-80 sm:max-h-96 overflow-y-auto mobile-scroll">
+                  <div className="max-h-64 sm:max-h-80 overflow-y-auto mobile-scroll">
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
-                        className={`p-3 sm:p-4 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors touch-manipulation ${
+                        className={`p-2 sm:p-3 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors touch-manipulation ${
                           !notification.read ? 'bg-purple-500/5' : ''
                         }`}
                       >

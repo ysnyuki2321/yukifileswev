@@ -25,6 +25,7 @@ export function SimpleShareModal({ isOpen, onClose, file }: SimpleShareModalProp
   const [copied, setCopied] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [shareType, setShareType] = useState<'public' | 'private'>('public')
+  const [password, setPassword] = useState('')
 
   useEffect(() => {
     if (isOpen) {
@@ -131,10 +132,25 @@ export function SimpleShareModal({ isOpen, onClose, file }: SimpleShareModalProp
                 </div>
                 <p className="text-xs text-gray-400 mt-1">Password required</p>
               </button>
-            </div>
+                         </div>
 
-            {/* Share Link */}
-            <div className="space-y-3">
+             {/* Password Input for Private */}
+             {shareType === 'private' && (
+               <div className="space-y-2">
+                 <label className="text-sm font-medium text-white">Password Protection</label>
+                 <Input
+                   type="password"
+                   value={password}
+                   onChange={(e) => setPassword(e.target.value)}
+                   placeholder="Enter password for this file"
+                   className="bg-black/30 border-gray-700 focus:border-purple-500/50 allow-select"
+                 />
+                 <p className="text-xs text-gray-400">Users will need this password to access the file</p>
+               </div>
+             )}
+
+             {/* Share Link */}
+             <div className="space-y-3">
               <label className="text-sm font-medium text-white">Share Link</label>
               
               {isGenerating ? (

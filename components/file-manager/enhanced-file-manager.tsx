@@ -829,57 +829,54 @@ export function EnhancedFileManager({
         />
       )}
 
-      {/* Multi-select Actions Bar */}
-      {showMultiActions && (
-        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-xl p-4 flex items-center gap-3 shadow-2xl">
-            <span className="text-white text-sm font-medium">
-              {selectedMultiFiles.size} selected
-            </span>
-            <div className="w-px h-6 bg-gray-600" />
-            <Button
-              size="sm"
-              onClick={handleMultiAction.compress}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              <Archive className="w-4 h-4 mr-2" />
-              Compress (.tar.gz)
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleMultiAction.share}
-              className="border-gray-600 text-gray-300"
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              Share
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleMultiAction.move}
-              className="border-gray-600 text-gray-300"
-            >
-              <FolderPlus className="w-4 h-4 mr-2" />
-              Move
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleMultiAction.delete}
-              className="border-red-600 text-red-400 hover:bg-red-600/10"
-            >
-              <Trash2 className="w-4 h-4 mr-2" />
-              Delete
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={clearSelection}
-              className="text-gray-400 hover:text-white"
-            >
-              Cancel
-            </Button>
+              {/* Multi-select Actions Bar */}
+        {showMultiActions && (
+          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-4">
+            <div className="bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 shadow-2xl max-w-[calc(100vw-2rem)]">
+                          <div className="text-center sm:text-left">
+                <span className="text-white text-sm font-medium">
+                  {selectedMultiFiles.size} selected
+                </span>
+              </div>
+              
+              <div className="hidden sm:block w-px h-6 bg-gray-600" />
+              
+              <div className="flex flex-wrap justify-center gap-2">
+                <Button
+                  size="sm"
+                  onClick={handleMultiAction.compress}
+                  className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-3"
+                >
+                  <Archive className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Compress</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleMultiAction.share}
+                  className="border-gray-600 text-gray-300 h-8 px-3"
+                >
+                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Share</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleMultiAction.delete}
+                  className="border-red-600 text-red-400 hover:bg-red-600/10 h-8 px-3"
+                >
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">Delete</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={clearSelection}
+                  className="text-gray-400 hover:text-white h-8 px-3"
+                >
+                  Cancel
+                </Button>
+              </div>
           </div>
         </div>
       )}

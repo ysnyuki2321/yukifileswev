@@ -291,111 +291,58 @@ export function ResponsiveVideoPlayer({
               </div>
             </div>
 
-            {/* Mobile Controls */}
+            {/* Mobile Controls - Compact & Clean */}
             {isMobile ? (
-              <div className="px-3 pb-3 space-y-3">
-                {/* Main playback controls */}
-                <div className="flex items-center justify-center gap-6">
+              <div className="px-2 pb-2">
+                {/* Single row with essential controls only */}
+                <div className="flex items-center justify-between">
+                  {/* Left: Skip back */}
                   <Button
                     onClick={() => skip(-10)}
                     size="sm"
                     variant="ghost"
-                    className="text-white hover:bg-white/20 w-10 h-10 p-0 rounded-full"
+                    className="text-white hover:bg-white/20 w-8 h-8 p-0 rounded-full"
                   >
-                    <SkipBack className="w-4 h-4" />
+                    <SkipBack className="w-3 h-3" />
                   </Button>
                   
+                  {/* Center: Play button */}
                   <Button
                     onClick={togglePlay}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 w-12 h-12 p-0 rounded-full"
+                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 w-10 h-10 p-0 rounded-full"
                   >
-                    {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+                    {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
                   </Button>
                   
+                  {/* Right: Skip forward */}
                   <Button
                     onClick={() => skip(10)}
                     size="sm"
                     variant="ghost"
-                    className="text-white hover:bg-white/20 w-10 h-10 p-0 rounded-full"
+                    className="text-white hover:bg-white/20 w-8 h-8 p-0 rounded-full"
                   >
-                    <SkipForward className="w-4 h-4" />
+                    <SkipForward className="w-3 h-3" />
                   </Button>
-                </div>
-
-                {/* Secondary controls */}
-                <div className="flex items-center justify-between">
-                  {/* Volume controls */}
-                  <div className="flex items-center gap-2 flex-1">
-                    <Button
-                      onClick={toggleMute}
-                      size="sm"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20 w-8 h-8 p-0"
-                    >
-                      {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-                    </Button>
-                    <div className="flex-1 max-w-20">
-                      <Slider
-                        value={isMuted ? [0] : volume}
-                        onValueChange={handleVolumeChange}
-                        max={1}
-                        min={0}
-                        step={0.1}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Settings and fullscreen */}
-                  <div className="flex items-center gap-1">
-                    <div className="relative">
-                      <Button
-                        onClick={() => setShowSettings(!showSettings)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-white hover:bg-white/20 w-8 h-8 p-0"
-                      >
-                        <Settings className="w-4 h-4" />
-                      </Button>
-                      
-                      {/* Mobile Settings Panel */}
-                      <AnimatePresence>
-                        {showSettings && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                            className="absolute bottom-full right-0 mb-2 bg-black/95 border border-purple-500/20 rounded-lg p-3 min-w-40 shadow-2xl z-50"
-                          >
-                            <div className="text-white text-xs font-medium mb-2">Playback Speed</div>
-                            <div className="space-y-1">
-                              {[0.5, 0.75, 1, 1.25, 1.5, 2].map((rate) => (
-                                <button
-                                  key={rate}
-                                  onClick={() => changePlaybackRate(rate)}
-                                  className={`w-full text-left px-2 py-1 text-xs rounded transition-colors ${
-                                    playbackRate === rate 
-                                      ? 'bg-purple-600 text-white' 
-                                      : 'text-gray-300 hover:bg-white/10'
-                                  }`}
-                                >
-                                  {rate}x
-                                </button>
-                              ))}
-                            </div>
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                    
-                    <Button
-                      onClick={toggleFullscreen}
-                      size="sm"
-                      variant="ghost"
-                      className="text-white hover:bg-white/20 w-8 h-8 p-0"
-                    >
-                      {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                    </Button>
-                  </div>
+                  
+                  {/* Volume */}
+                  <Button
+                    onClick={toggleMute}
+                    size="sm"
+                    variant="ghost"
+                    className="text-white hover:bg-white/20 w-8 h-8 p-0"
+                  >
+                    {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
+                  </Button>
+                  
+                  {/* Fullscreen */}
+                  <Button
+                    onClick={toggleFullscreen}
+                    size="sm"
+                    variant="ghost"
+                    className="text-white hover:bg-white/20 w-8 h-8 p-0"
+                  >
+                    {isFullscreen ? <Minimize className="w-3 h-3" /> : <Maximize className="w-3 h-3" />}
+                  </Button>
                 </div>
               </div>
             ) : (
