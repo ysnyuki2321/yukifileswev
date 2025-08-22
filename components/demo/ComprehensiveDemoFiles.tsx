@@ -82,7 +82,7 @@ export const comprehensiveDemoFiles: DemoFileItem[] = [
   },
   {
     id: 'demo-4',
-    name: 'background-music.mp3',
+    name: 'NAKISO_-_.mp3',
     size: 4194304,
     type: 'audio/mpeg',
     lastModified: new Date('2024-01-12T13:20:00Z'),
@@ -93,7 +93,22 @@ export const comprehensiveDemoFiles: DemoFileItem[] = [
     inArchive: false,
     category: 'audio',
     path: ['Media', 'Audio'],
+    thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
     accessLimits: { views: 25, downloads: 8, maxViews: 100, maxDownloads: 25 }
+  },
+  {
+    id: 'demo-4b',
+    name: 'background-music.mp3',
+    size: 3145728,
+    type: 'audio/mpeg',
+    lastModified: new Date('2024-01-11T13:20:00Z'),
+    isFolder: false,
+    isStarred: true,
+    isShared: false,
+    hasPassword: false,
+    inArchive: false,
+    category: 'audio',
+    path: ['Media', 'Audio']
   },
   {
     id: 'demo-5',
@@ -109,6 +124,35 @@ export const comprehensiveDemoFiles: DemoFileItem[] = [
     category: 'image',
     path: ['Photos', 'Profile'],
     thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/profile-pic.jpg'
+  },
+  {
+    id: 'demo-5b',
+    name: 'screenshot.png',
+    size: 2097152,
+    type: 'image/png',
+    lastModified: new Date('2024-01-10T14:30:00Z'),
+    isFolder: false,
+    isStarred: false,
+    isShared: false,
+    hasPassword: false,
+    inArchive: false,
+    category: 'image',
+    path: ['Photos', 'Screenshots'],
+    thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/screenshot.png'
+  },
+  {
+    id: 'demo-5c',
+    name: 'banner.svg',
+    size: 65536,
+    type: 'image/svg+xml',
+    lastModified: new Date('2024-01-09T11:15:00Z'),
+    isFolder: false,
+    isStarred: true,
+    isShared: true,
+    hasPassword: false,
+    inArchive: false,
+    category: 'image',
+    path: ['Design', 'Assets']
   },
   
   // Code Files

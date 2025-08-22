@@ -327,6 +327,49 @@ export function EnhancedFileManager({
       console.log('Archive:', file.name)
       // Archive logic here
     },
+    unarchive: (file: FileItem) => {
+      showConfirm("Extract Archive", {
+        description: `Extract all files from "${file.name}"? This will add the extracted files to your file manager.`,
+        confirmText: "Extract",
+        cancelText: "Cancel",
+        onConfirm: () => {
+          console.log('Extracting archive:', file.name)
+          // Mock extraction - add extracted files
+          const extractedFiles = [
+            {
+              id: `extracted-${Date.now()}-1`,
+              name: 'document.pdf',
+              size: 1048576,
+              type: 'application/pdf',
+              lastModified: new Date(),
+              isFolder: false,
+              isStarred: false,
+              isShared: false,
+              hasPassword: false,
+              inArchive: false
+            },
+            {
+              id: `extracted-${Date.now()}-2`,
+              name: 'image.jpg',
+              size: 512000,
+              type: 'image/jpeg',
+              lastModified: new Date(),
+              isFolder: false,
+              isStarred: false,
+              isShared: false,
+              hasPassword: false,
+              inArchive: false
+            }
+          ]
+          
+          extractedFiles.forEach(extractedFile => {
+            if (onFileCreate) {
+              onFileCreate(extractedFile)
+            }
+          })
+        }
+      })
+    },
     select: (file: FileItem) => {
       setMultiSelectMode(true)
       toggleMultiSelect(file.id)
@@ -542,7 +585,19 @@ export function EnhancedFileManager({
           </div>
 
           <div className="flex items-center gap-2 ml-auto">
-            <Button size="sm" variant="outline" onClick={() => window.location.reload()} title="Refresh">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => {
+                console.log('Refreshing file list...')
+                // Internal refresh - reload files only, not the entire page
+                if (onFileUpload) {
+                  // Trigger file list refresh
+                  window.dispatchEvent(new CustomEvent('refreshFileList'))
+                }
+              }} 
+              title="Refresh Files"
+            >
               <RefreshCw className="w-4 h-4" />
             </Button>
             {!multiSelectMode && (
@@ -853,6 +908,7 @@ export function EnhancedFileManager({
         onTogglePrivacy={handleContextAction.togglePrivacy}
         onMoveToFolder={handleContextAction.moveToFolder}
         onArchive={handleContextAction.archive}
+        onUnarchive={handleContextAction.unarchive}
         onSelect={handleContextAction.select}
       />
 
@@ -971,7 +1027,29 @@ export function EnhancedFileManager({
         files={compressionOverlay.files}
         onComplete={(archiveName, compressionType) => {
           console.log('Archive created:', archiveName, compressionType)
-          // Add archive to file list with "In Archive" badge
+          
+          // Add new archive file to the list
+          const newArchiveFile = {
+            id: `archive-${Date.now()}`,
+            name: `${archiveName}.${compressionType}`,
+            size: compressionOverlay.files.reduce((acc, f) => acc + (f.size || 0), 0) * 0.4, // 40% compression
+            type: compressionType === 'zip' ? 'application/zip' : 
+                  compressionType === '7z' ? 'application/x-7z-compressed' :
+                  'application/gzip',
+            lastModified: new Date(),
+            isFolder: false,
+            isStarred: false,
+            isShared: false,
+            hasPassword: false,
+            inArchive: true,
+            thumbnail: undefined
+          }
+          
+          // Add to files list
+          if (onFileCreate) {
+            onFileCreate(newArchiveFile)
+          }
+          
           setCompressionOverlay({ isOpen: false, files: [] })
         }}
       />

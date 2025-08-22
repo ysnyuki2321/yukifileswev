@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { 
   Share2, Edit3, Trash2, Download, Copy, Eye, 
   Star, StarOff, Lock, Unlock, MoreVertical,
-  FolderOpen, Link, Archive, CheckCircle
+  FolderOpen, Link, Archive, CheckCircle, Package
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +23,7 @@ interface FileContextMenuProps {
   onTogglePrivacy?: (file: any) => void
   onMoveToFolder?: (file: any) => void
   onArchive?: (file: any) => void
+  onUnarchive?: (file: any) => void
   onSelect?: (file: any) => void
 }
 
@@ -40,6 +41,7 @@ export function FileContextMenu({
   onTogglePrivacy,
   onMoveToFolder,
   onArchive,
+  onUnarchive,
   onSelect
 }: FileContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
@@ -143,6 +145,14 @@ export function FileContextMenu({
       color: "text-gray-400",
       shortcut: "A"
     },
+    // Show unarchive for archive files
+    ...(file?.name?.match(/\.(zip|tar\.gz|7z|rar)$/i) ? [{
+      icon: Package,
+      label: "Extract Archive",
+      action: () => onUnarchive?.(file),
+      color: "text-cyan-400",
+      shortcut: "Ctrl+E"
+    }] : []),
     { type: 'separator' },
     {
       icon: Trash2,

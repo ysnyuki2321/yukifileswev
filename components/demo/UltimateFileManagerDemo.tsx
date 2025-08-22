@@ -21,23 +21,43 @@ export function UltimateFileManagerDemo() {
 
   const stats = getFileStats(demoFiles)
 
-  const handleFileCreate = (fileData: { name: string; isFolder: boolean }) => {
-    const newFile: DemoFileItem = {
-      id: `new-${Date.now()}`,
-      name: fileData.name,
-      size: fileData.isFolder ? 0 : Math.floor(Math.random() * 1000000),
-      type: fileData.isFolder ? 'folder' : 'text/plain',
-      lastModified: new Date(),
-      isFolder: fileData.isFolder,
-      isStarred: false,
-      isShared: false,
-      hasPassword: false,
-      inArchive: false,
-      category: fileData.isFolder ? 'folder' : 'document',
-      path: []
+  const handleFileCreate = (fileData: any) => {
+    // Handle both new file creation and archive file addition
+    if (fileData.name && typeof fileData.isFolder !== 'undefined') {
+      // New file/folder creation
+      const newFile: DemoFileItem = {
+        id: `new-${Date.now()}`,
+        name: fileData.name,
+        size: fileData.isFolder ? 0 : Math.floor(Math.random() * 1000000),
+        type: fileData.isFolder ? 'folder' : 'text/plain',
+        lastModified: new Date(),
+        isFolder: fileData.isFolder,
+        isStarred: false,
+        isShared: false,
+        hasPassword: false,
+        inArchive: false,
+        category: fileData.isFolder ? 'folder' : 'document',
+        path: []
+      }
+      setDemoFiles(prev => [...prev, newFile])
+    } else {
+      // Archive file or extracted file addition
+      const newFile: DemoFileItem = {
+        id: fileData.id || `file-${Date.now()}`,
+        name: fileData.name,
+        size: fileData.size || 0,
+        type: fileData.type || 'application/octet-stream',
+        lastModified: fileData.lastModified || new Date(),
+        isFolder: fileData.isFolder || false,
+        isStarred: fileData.isStarred || false,
+        isShared: fileData.isShared || false,
+        hasPassword: fileData.hasPassword || false,
+        inArchive: fileData.inArchive || false,
+        category: fileData.category || 'document',
+        path: fileData.path || []
+      }
+      setDemoFiles(prev => [...prev, newFile])
     }
-    
-    setDemoFiles(prev => [...prev, newFile])
   }
 
   const handleFileEdit = (file: any) => {
