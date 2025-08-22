@@ -908,11 +908,15 @@ export function EnhancedFileManager({
   const closeEditor = () => {
     setShowEditor(false)
     setSelectedFile(null)
+    // Auto scroll to top after closing editor
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const closeMediaPreview = () => {
     setShowMediaPreview(false)
     setSelectedFile(null)
+    // Auto scroll to top after closing media preview
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   // Context menu actions with professional modals
