@@ -200,9 +200,9 @@ export default async function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+    <div className="min-h-screen theme-premium">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-purple-500/20">
+      <nav className="fixed top-0 left-0 right-0 z-50 glass-effect border-b border-purple-500/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -221,7 +221,7 @@ export default async function HomePage() {
                 </Button>
               </Link>
               <Link href="/auth/register">
-                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                <Button className="btn-gradient-primary">
                   Get Started
                 </Button>
               </Link>
@@ -230,7 +230,7 @@ export default async function HomePage() {
             {/* Mobile menu button */}
             <div className="md:hidden">
               <Link href="/demo">
-                <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500">
+                <Button size="sm" className="btn-gradient-primary">
                   Demo
                 </Button>
               </Link>
@@ -240,22 +240,22 @@ export default async function HomePage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-32 pb-20 px-4 page-transition">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center">
             <div className="flex items-center justify-center mb-6">
-              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 px-4 py-2">
+              <Badge className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-300 border-purple-500/30 px-4 py-2 premium-float">
                 <Sparkles className="w-4 h-4 mr-2" />
                 Trusted by 500K+ users worldwide
               </Badge>
             </div>
             
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-mobile-h1 font-bold text-white mb-6 leading-tight">
               Share Files with
-              <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent"> Confidence</span>
+              <span className="gradient-text"> Confidence</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-mobile-body text-gray-300 mb-8 max-w-3xl mx-auto leading-relaxed">
               The most secure and user-friendly file sharing platform. Upload, share, and collaborate with enterprise-grade security, lightning-fast speeds, and beautiful analytics.
             </p>
 
@@ -263,7 +263,7 @@ export default async function HomePage() {
               <Link href="/auth/register">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4 w-full sm:w-auto"
+                  className="btn-gradient-primary text-lg px-8 py-4 w-full sm:w-auto hover-lift"
                 >
                   Start Free Trial
                 </Button>
@@ -272,7 +272,7 @@ export default async function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent w-full sm:w-auto"
+                  className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent w-full sm:w-auto hover-glow"
                 >
                   <PlayCircle className="w-5 h-5 mr-2" />
                   Try Demo
@@ -283,9 +283,9 @@ export default async function HomePage() {
             {/* Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
               {stats.map((stat, index) => (
-                <div key={index} className="text-center">
+                <div key={index} className="text-center premium-float" style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="flex items-center justify-center mb-2">
-                    <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center mr-2">
+                    <div className="w-8 h-8 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center mr-2">
                       {stat.icon}
                     </div>
                   </div>
@@ -302,17 +302,17 @@ export default async function HomePage() {
       <section id="features" className="py-20 bg-black/20">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Everything you need to share files securely</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <h2 className="text-mobile-h2 font-bold text-white mb-4">Everything you need to share files securely</h2>
+            <p className="text-mobile-body text-gray-300 max-w-2xl mx-auto">
               From simple file sharing to enterprise collaboration, we've got you covered with powerful features designed for modern teams.
             </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+              <Card key={index} className="glass-card hover-lift">
                 <CardContent className="p-6">
-                  <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center mb-4">
                     {feature.icon}
                   </div>
                   <h3 className="text-xl font-semibold text-white mb-2">{feature.title}</h3>
@@ -328,8 +328,8 @@ export default async function HomePage() {
       <section id="pricing" className="py-20">
         <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Simple, transparent pricing</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <h2 className="text-mobile-h2 font-bold text-white mb-4">Simple, transparent pricing</h2>
+            <p className="text-mobile-body text-gray-300 max-w-2xl mx-auto">
               Choose the plan that fits your needs. All plans include our core features with no hidden fees.
             </p>
           </div>
@@ -338,7 +338,7 @@ export default async function HomePage() {
             {plans.map((plan, index) => (
               <Card 
                 key={index} 
-                className={`relative bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 ${
+                className={`premium-gradient-card hover-lift ${
                   plan.popular ? 'border-purple-500/60 ring-2 ring-purple-500/20 scale-105' : ''
                 }`}
               >
@@ -395,8 +395,8 @@ export default async function HomePage() {
                     <Button 
                       className={`w-full ${
                         plan.popular 
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600' 
-                          : `bg-gradient-to-r ${plan.color} hover:opacity-90`
+                          ? 'btn-gradient-primary hover-lift' 
+                          : `bg-gradient-to-r ${plan.color} hover:opacity-90 hover-lift`
                       }`}
                     >
                       {plan.cta}
@@ -414,15 +414,15 @@ export default async function HomePage() {
       <section className="py-20 bg-black/20">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Loved by teams worldwide</h2>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto">
+            <h2 className="text-mobile-h2 font-bold text-white mb-4">Loved by teams worldwide</h2>
+            <p className="text-mobile-body text-gray-300 max-w-2xl mx-auto">
               See what our customers have to say about their experience with YukiFiles.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+              <Card key={index} className="glass-card hover-lift">
                 <CardContent className="p-6">
                   <div className="flex items-center mb-4">
                     {[...Array(testimonial.rating)].map((_, i) => (
@@ -431,7 +431,7 @@ export default async function HomePage() {
                   </div>
                   <p className="text-gray-300 mb-4 italic">"{testimonial.content}"</p>
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-500/20 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full flex items-center justify-center">
                       <span className="text-purple-300 font-semibold">
                         {testimonial.name.split(' ').map(n => n[0]).join('')}
                       </span>
@@ -452,15 +452,15 @@ export default async function HomePage() {
       <section className="py-20">
         <div className="container mx-auto px-4 max-w-4xl">
           <div className="text-center">
-            <h2 className="text-4xl font-bold text-white mb-4">Ready to get started?</h2>
-            <p className="text-xl text-gray-300 mb-8">
+            <h2 className="text-mobile-h2 font-bold text-white mb-4">Ready to get started?</h2>
+            <p className="text-mobile-body text-gray-300 mb-8">
               Join thousands of teams already using YukiFiles to share and collaborate on files securely.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/auth/register">
                 <Button
                   size="lg"
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-lg px-8 py-4 w-full sm:w-auto"
+                  className="btn-gradient-primary text-lg px-8 py-4 w-full sm:w-auto hover-lift"
                 >
                   Start Free Trial
                 </Button>
@@ -469,7 +469,7 @@ export default async function HomePage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent w-full sm:w-auto"
+                  className="border-purple-500 text-purple-300 hover:bg-purple-500/10 text-lg px-8 py-4 bg-transparent w-full sm:w-auto hover-glow"
                 >
                   View All Plans
                 </Button>
@@ -537,7 +537,7 @@ export default async function HomePage() {
         <Link href="/demo">
           <Button
             size="lg"
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 shadow-2xl shadow-purple-500/25 text-white font-semibold px-6 py-3 rounded-full flex items-center space-x-2 transition-all duration-300 hover:scale-105"
+            className="btn-gradient-primary shadow-2xl shadow-purple-500/25 text-white font-semibold px-6 py-3 rounded-full flex items-center space-x-2 transition-all duration-300 hover:scale-105 hover-lift"
           >
             <PlayCircle className="w-5 h-5" />
             <span className="hidden sm:inline">Try Demo</span>
