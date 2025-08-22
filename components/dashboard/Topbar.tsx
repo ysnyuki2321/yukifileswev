@@ -10,7 +10,7 @@ import {
 import { signOut } from "@/lib/actions/auth"
 import { motion, AnimatePresence } from "framer-motion"
 import { EnhancedSearch } from "@/components/ui/enhanced-search"
-import { ProfileScreen } from "@/components/profile/ProfileScreen"
+import { DetailedProfileScreen } from "@/components/profile/DetailedProfileScreen"
 
 interface TopbarProps {
   userEmail: string
@@ -256,11 +256,11 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                         profileScreen.id = 'profile-screen-mount'
                         document.body.appendChild(profileScreen)
                         
-                        import('@/components/profile/ProfileScreen').then(({ ProfileScreen }) => {
+                        import('@/components/profile/DetailedProfileScreen').then(({ DetailedProfileScreen }) => {
                           const { createRoot } = require('react-dom/client')
                           const root = createRoot(profileScreen)
                           root.render(
-                            <ProfileScreen 
+                            <DetailedProfileScreen 
                               isOpen={true}
                               onClose={() => {
                                 root.unmount()
