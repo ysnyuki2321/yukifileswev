@@ -177,7 +177,6 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
             artist={file.artist}
             album={file.album}
             albumArt={file.albumArt || file.thumbnail || undefined}
-            onClose={onClose}
             onDownload={onDownload}
             onShare={onShare}
             onLike={onLike}

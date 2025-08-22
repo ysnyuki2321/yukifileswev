@@ -157,8 +157,41 @@ export default function DemoSharePage() {
     document.body.removeChild(link)
   }
 
+  const handleSaveToStorage = () => {
+    if (!shareData) return
+    
+    // Demo: Save to localStorage as "saved files"
+    const savedFilesKey = 'demo_saved_files'
+    const existingFiles = JSON.parse(localStorage.getItem(savedFilesKey) || '[]')
+    
+    const fileToSave = {
+      ...shareData.file,
+      savedAt: new Date().toISOString(),
+      originalShareToken: token
+    }
+    
+    // Check if already saved
+    const alreadySaved = existingFiles.find((f: any) => f.originalShareToken === token)
+    if (alreadySaved) {
+      alert('File already saved to your storage!')
+      return
+    }
+    
+    existingFiles.push(fileToSave)
+    localStorage.setItem(savedFilesKey, JSON.stringify(existingFiles))
+    
+    alert('File saved to your storage successfully!')
+  }
+
+  const handleViewOnline = () => {
+    if (!shareData) return
+    
+    // Open file in new tab for online viewing
+    window.open(shareData.file.content, '_blank')
+  }
+
   const getFileIcon = () => {
-    if (!shareData) return File
+    if (!shareData || !shareData.file || !shareData.file.type) return File
     
     const { type } = shareData.file
     if (type.startsWith('image/')) return Image
@@ -368,38 +401,60 @@ export default function DemoSharePage() {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 mt-6">
-            {shareData.allowPreview && (
+                      {/* Actions */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+              {shareData.allowPreview && (
+                <Button
+                  onClick={handlePreview}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                  disabled={shareData.maxViews ? views >= shareData.maxViews : false}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Preview
+                </Button>
+              )}
+              
+              {shareData.allowDownload && (
+                <Button
+                  onClick={handleDownload}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                  disabled={shareData.maxDownloads ? downloads >= shareData.maxDownloads : false}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+              )}
+              
               <Button
-                onClick={handlePreview}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
-                disabled={shareData.maxViews ? views >= shareData.maxViews : false}
+                onClick={handleViewOnline}
+                variant="outline"
+                className="border-green-500/30 text-green-400 hover:bg-green-500/20"
               >
                 <Eye className="w-4 h-4 mr-2" />
-                Preview File
+                View Online
               </Button>
-            )}
-            
-            {shareData.allowDownload && (
+              
               <Button
-                onClick={handleDownload}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                disabled={shareData.maxDownloads ? downloads >= shareData.maxDownloads : false}
+                onClick={handleSaveToStorage}
+                variant="outline"
+                className="border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
               >
                 <Download className="w-4 h-4 mr-2" />
-                Download
+                Save to Storage
               </Button>
-            )}
+            </div>
             
-            <Button
-              onClick={() => navigator.share?.({ url: window.location.href })}
-              variant="outline"
-              className="border-purple-500/30 text-purple-400 hover:bg-purple-500/20"
-            >
-              <Share2 className="w-4 h-4" />
-            </Button>
-          </div>
+            {/* Share Button */}
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={() => navigator.share?.({ url: window.location.href })}
+                variant="outline"
+                className="border-purple-500/30 text-purple-400 hover:bg-purple-500/20"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share This Link
+              </Button>
+            </div>
         </motion.div>
       </div>
 

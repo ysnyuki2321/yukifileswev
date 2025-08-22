@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { motion, AnimatePresence } from "framer-motion"
 import { 
   FileText, FileCode, Save, X, AlertCircle, CheckCircle,
-  Type, Code, File, Folder, Music, Image, Video, Database, Info
+  Type, Code, File, Folder, Music, Image, Video, Database, Info,
+  Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
+  Indent, Outdent, Link, Image as ImageIcon, Table, Code2, Palette, Eye, EyeOff
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -66,6 +68,9 @@ export function FileEditor({
   const [errors, setErrors] = useState<string[]>([])
   const [isValid, setIsValid] = useState(false)
   const [iconKey, setIconKey] = useState(0)
+  const [showPreview, setShowPreview] = useState(false)
+  const [fontSize, setFontSize] = useState(14)
+  const [theme, setTheme] = useState<'light' | 'dark' | 'auto'>('dark')
 
   useEffect(() => {
     setFileName(initialFileName)
@@ -259,18 +264,79 @@ export function FileEditor({
             )}
           </div>
 
-          {/* Content Editor */}
-          {selectedType !== 'folder' && (
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">Content</label>
-              <Textarea
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder={`Enter ${FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]} content...`}
-                className="min-h-[200px] font-mono text-sm"
-              />
-            </div>
-          )}
+                                {/* Content Editor */}
+                      {selectedType !== 'folder' && (
+                        <div className="space-y-4">
+                          {/* Editor Toolbar */}
+                          <div className="flex items-center justify-between">
+                            <label className="text-sm font-medium text-gray-700">Content</label>
+                            <div className="flex items-center gap-2">
+                              {/* Font Size */}
+                              <select
+                                value={fontSize}
+                                onChange={(e) => setFontSize(Number(e.target.value))}
+                                className="px-2 py-1 text-sm border border-gray-300 rounded"
+                              >
+                                <option value={12}>12px</option>
+                                <option value={14}>14px</option>
+                                <option value={16}>16px</option>
+                                <option value={18}>18px</option>
+                                <option value={20}>20px</option>
+                              </select>
+                              
+                              {/* Theme */}
+                              <select
+                                value={theme}
+                                onChange={(e) => setTheme(e.target.value as any)}
+                                className="px-2 py-1 text-sm border border-gray-300 rounded"
+                              >
+                                <option value="light">Light</option>
+                                <option value="dark">Dark</option>
+                                <option value="auto">Auto</option>
+                              </select>
+                              
+                              {/* Preview Toggle */}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setShowPreview(!showPreview)}
+                                className="flex items-center gap-2"
+                              >
+                                {showPreview ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                {showPreview ? 'Hide Preview' : 'Show Preview'}
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Editor/Preview Toggle */}
+                          {!showPreview ? (
+                            <Textarea
+                              value={content}
+                              onChange={(e) => setContent(e.target.value)}
+                              placeholder={`Enter ${FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]} content...`}
+                              className="min-h-[200px] font-mono text-sm"
+                              style={{ fontSize: `${fontSize}px` }}
+                            />
+                          ) : (
+                            <div className="min-h-[200px] p-4 border border-gray-300 rounded-lg bg-gray-50 overflow-auto">
+                              {selectedType === 'markdown' ? (
+                                <div className="prose max-w-none">
+                                  {/* Markdown preview would go here */}
+                                  <pre className="whitespace-pre-wrap">{content}</pre>
+                                </div>
+                              ) : selectedType === 'code' ? (
+                                <pre className="text-sm" style={{ fontSize: `${fontSize}px` }}>
+                                  <code>{content}</code>
+                                </pre>
+                              ) : (
+                                <div style={{ fontSize: `${fontSize}px` }}>
+                                  {content}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
 
           {/* File Type Info */}
           <div className="p-3 bg-gray-50 rounded-lg">
