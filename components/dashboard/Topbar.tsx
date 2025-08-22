@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { 
   Bell, LogOut, Menu, User, Settings, CreditCard,
-  X, CheckCircle, AlertCircle, Info, Wallet
+  X, CheckCircle, AlertCircle, Info, Wallet, Search
 } from "lucide-react"
 import { signOut } from "@/lib/actions/auth"
 import { motion, AnimatePresence } from "framer-motion"
@@ -52,6 +52,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
   const [showProfile, setShowProfile] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState<typeof mockNotifications[0] | null>(null)
   const [notifications, setNotifications] = useState(mockNotifications)
+  const [showSearchResults, setShowSearchResults] = useState(false)
 
   const unreadCount = notifications.filter(n => !n.read).length
 
@@ -79,18 +80,26 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
 
   return (
     <header className="h-16 w-full border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
-      <div className="h-full container mx-auto px-3 sm:px-4 flex items-center justify-between gap-3 sm:gap-4">
+      <div className="h-full container mx-auto px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
         {/* Left Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={onMenuToggle}
             className="md:hidden mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
           >
             <Menu className="h-5 w-5" />
           </button>
+          
+          {/* Mobile Search Button */}
+          <button 
+            onClick={() => setShowSearchResults(!showSearchResults)}
+            className="md:hidden mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
+          >
+            <Search className="h-5 w-5" />
+          </button>
         </div>
 
-        {/* Enhanced Search Bar */}
+        {/* Enhanced Search Bar - Desktop */}
         <div className="flex-1 max-w-xl hidden md:block">
           <EnhancedSearch 
             placeholder="Search files, folders, features..."
@@ -105,8 +114,38 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
           />
         </div>
 
+        {/* Mobile Search Overlay */}
+        {showSearchResults && (
+          <div className="md:hidden fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md">
+            <div className="p-4">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="flex-1">
+                  <EnhancedSearch 
+                    placeholder="Search files, folders, features..."
+                    onResultClick={(result) => {
+                      setShowSearchResults(false)
+                      console.log('Mobile search result clicked:', result)
+                      if (result.type === 'feature') {
+                        window.location.href = `/dashboard?demo=true&tab=${result.name.toLowerCase().replace(' ', '')}`
+                      } else {
+                        window.location.href = `/files?path=${result.path.join('/')}&highlight=${result.name}`
+                      }
+                    }}
+                  />
+                </div>
+                <button 
+                  onClick={() => setShowSearchResults(false)}
+                  className="mobile-menu-button text-gray-300 hover:text-white"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1 sm:gap-3">
           {isDemoMode && (
             <span className="hidden sm:inline-block bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs px-2 py-1 rounded animate-pulse">
               DEMO
@@ -139,7 +178,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-[9999] mobile-stable"
+                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-[9999] mobile-stable"
                 >
                   <div className="p-3 sm:p-4 border-b border-purple-500/10">
                     <div className="flex items-center justify-between">
@@ -160,35 +199,28 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                       <div
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
-                        className={`p-2 sm:p-3 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors touch-manipulation ${
+                        className={`p-3 sm:p-4 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors touch-manipulation ${
                           !notification.read ? 'bg-purple-500/5' : ''
                         }`}
                       >
-                        <div className="flex items-start gap-2 sm:gap-3">
-                          <div className="flex-shrink-0 mt-0.5">
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
                             {getNotificationIcon(notification.type)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="text-white text-xs sm:text-sm font-medium leading-tight">{notification.title}</p>
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="text-white text-sm font-medium leading-tight">{notification.title}</p>
                               {!notification.read && (
                                 <div className="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0"></div>
                               )}
                             </div>
-                            <p className="text-gray-400 text-xs mt-1 line-clamp-2 leading-relaxed">{notification.message}</p>
-                            <p className="text-gray-500 text-xs mt-1.5">{notification.time}</p>
+                            <p className="text-gray-400 text-xs leading-relaxed line-clamp-2">{notification.message}</p>
+                            <p className="text-gray-500 text-xs mt-2">{notification.time}</p>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
-                  
-                  {notifications.length === 0 && (
-                    <div className="p-6 text-center">
-                      <Bell className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                      <p className="text-gray-400 text-sm">No notifications</p>
-                    </div>
-                  )}
                 </motion.div>
               )}
             </AnimatePresence>

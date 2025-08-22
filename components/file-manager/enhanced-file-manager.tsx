@@ -486,119 +486,50 @@ export function EnhancedFileManager({
       />
       
       {/* Header */}
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-        <div>
+      <div className="flex flex-col gap-4 items-start justify-between">
+        <div className="w-full">
           <h1 className="text-2xl font-bold text-white">YukiFiles Manager</h1>
           <p className="text-gray-400">{filteredAndSortedFiles?.length || 0} of {files?.length || 0} items</p>
         </div>
         
-        <div className="flex flex-wrap gap-2">
-          <Button onClick={handleCreateFile} size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500">
-            <FilePlus className="w-4 h-4 mr-2" />
-            New File
-          </Button>
-          <Button onClick={handleCreateFolder} size="sm" variant="outline">
-            <FolderPlus className="w-4 h-4 mr-2" />
-            New Folder
-          </Button>
-          <Button onClick={() => setShowUploadProgress(true)} size="sm" variant="outline">
-            <CloudUpload className="w-4 h-4 mr-2" />
-            Upload
-          </Button>
-          <Button onClick={() => setShowAnalytics(!showAnalytics)} size="sm" variant="outline">
-            <BarChart3 className="w-4 h-4 mr-2" />
-            Analytics
-          </Button>
-        </div>
-      </div>
-
-      {/* Search, Filter and View Controls */}
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search files..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white"
-            />
+        {/* Mobile-First Action Buttons */}
+        <div className="w-full">
+          {/* Primary Actions - Always Visible */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <Button onClick={handleCreateFile} size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 min-h-[44px] flex-1 sm:flex-none">
+              <FilePlus className="w-4 h-4 mr-2" />
+              <span className="text-sm">New File</span>
+            </Button>
+            <Button onClick={handleCreateFolder} size="sm" variant="outline" className="min-h-[44px] flex-1 sm:flex-none">
+              <FolderPlus className="w-4 h-4 mr-2" />
+              <span className="text-sm">New Folder</span>
+            </Button>
+            <Button onClick={() => setShowUploadProgress(true)} size="sm" variant="outline" className="min-h-[44px] flex-1 sm:flex-none">
+              <CloudUpload className="w-4 h-4 mr-2" />
+              <span className="text-sm">Upload</span>
+            </Button>
           </div>
           
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              size="sm"
-              variant={viewMode === "grid" ? "default" : "outline"}
-              onClick={() => setViewMode("grid")}
-              title="Grid View"
-            >
-              <Grid className="w-4 h-4" />
+          {/* Secondary Actions - Collapsible on Mobile */}
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => setShowAnalytics(!showAnalytics)} size="sm" variant="outline" className="min-h-[44px]">
+              <BarChart3 className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Analytics</span>
             </Button>
-            <Button
-              size="sm"
-              variant={viewMode === "list" ? "default" : "outline"}
-              onClick={() => setViewMode("list")}
-              title="List View"
-            >
-              <List className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Advanced Filters */}
-        <div className="flex flex-wrap gap-2 items-center">
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select
-              value={filterType}
-              onChange={(e) => setFilterType(e.target.value as any)}
-              className="bg-slate-800/50 border border-purple-500/20 text-white text-sm rounded px-2 py-1"
-            >
-              <option value="all">All Files</option>
-              <option value="images">Images</option>
-              <option value="videos">Videos</option>
-              <option value="audio">Audio</option>
-              <option value="documents">Documents</option>
-              <option value="code">Code</option>
-            </select>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-gray-400">Sort by:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as any)}
-              className="bg-slate-800/50 border border-purple-500/20 text-white text-sm rounded px-2 py-1"
-            >
-              <option value="name">Name</option>
-              <option value="size">Size</option>
-              <option value="date">Date</option>
-            </select>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-              title={`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
-            >
-              {sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-2 ml-auto">
             <Button 
               size="sm" 
               variant="outline" 
               onClick={() => {
                 console.log('Refreshing file list...')
-                // Internal refresh - reload files only, not the entire page
                 if (onFileUpload) {
-                  // Trigger file list refresh
                   window.dispatchEvent(new CustomEvent('refreshFileList'))
                 }
               }} 
               title="Refresh Files"
+              className="min-h-[44px]"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4 sm:mr-2" />
+              <span className="hidden sm:inline">Refresh</span>
             </Button>
             {!multiSelectMode && (
               <Button 
@@ -606,63 +537,106 @@ export function EnhancedFileManager({
                 variant="outline" 
                 onClick={() => setMultiSelectMode(true)}
                 title="Multi-select"
+                className="min-h-[44px]"
               >
-                <CheckCircle className="w-4 h-4" />
+                <CheckCircle className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Select</span>
               </Button>
             )}
             {multiSelectMode && (
               <>
-                <Button size="sm" variant="outline" onClick={selectAllFiles} title="Select All">
-                  Select All
+                <Button size="sm" variant="outline" onClick={selectAllFiles} title="Select All" className="min-h-[44px]">
+                  <span className="text-sm">Select All</span>
                 </Button>
-                <Button size="sm" variant="outline" onClick={clearSelection} title="Cancel">
-                  Cancel
+                <Button size="sm" variant="outline" onClick={clearSelection} title="Cancel" className="min-h-[44px]">
+                  <span className="text-sm">Cancel</span>
                 </Button>
               </>
             )}
-                          <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => {
-                  showInput("Create New File", {
-                    description: "Enter a name for the new file",
-                    placeholder: "filename.txt",
-                    onConfirm: (fileName) => {
-                      if (fileName) {
-                        console.log('Creating file:', fileName)
-                        onFileCreate?.({ name: fileName, isFolder: false })
-                      }
-                    }
-                  })
-                }}
-                title="New File"
+          </div>
+        </div>
+      </div>
+
+      {/* Search, Filter and View Controls */}
+      <div className="space-y-4">
+        <div className="flex flex-col gap-4">
+          {/* Mobile Search Bar */}
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Search files..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white min-h-[44px] text-base"
+            />
+          </div>
+          
+          {/* View and Filter Controls */}
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            {/* View Mode */}
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant={viewMode === "grid" ? "default" : "outline"}
+                onClick={() => setViewMode("grid")}
+                title="Grid View"
+                className="min-h-[44px] flex-1 sm:flex-none"
               >
-                <FilePlus className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">File</span>
+                <Grid className="w-4 h-4 mr-2" />
+                <span className="text-sm">Grid</span>
               </Button>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => {
-                  showInput("Create New Folder", {
-                    description: "Enter a name for the new folder",
-                    placeholder: "New Folder",
-                    onConfirm: (folderName) => {
-                      if (folderName) {
-                        console.log('Creating folder:', folderName)
-                        onFileCreate?.({ name: folderName, isFolder: true })
-                      }
-                    }
-                  })
-                }}
-                title="New Folder"
+              <Button
+                size="sm"
+                variant={viewMode === "list" ? "default" : "outline"}
+                onClick={() => setViewMode("list")}
+                title="List View"
+                className="min-h-[44px] flex-1 sm:flex-none"
               >
-                <FolderPlus className="w-4 h-4" />
-                <span className="hidden sm:inline ml-1">Folder</span>
+                <List className="w-4 h-4 mr-2" />
+                <span className="text-sm">List</span>
               </Button>
-              <Button size="sm" variant="outline" title="Storage Info">
-                <HardDrive className="w-4 h-4" />
-              </Button>
+            </div>
+
+            {/* Filters - Mobile Optimized */}
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-1">
+              <div className="flex items-center gap-2 flex-1">
+                <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value as any)}
+                  className="bg-slate-800/50 border border-purple-500/20 text-white text-base rounded px-3 py-2 flex-1 min-h-[44px]"
+                >
+                  <option value="all">All Files</option>
+                  <option value="images">Images</option>
+                  <option value="videos">Videos</option>
+                  <option value="audio">Audio</option>
+                  <option value="documents">Documents</option>
+                  <option value="code">Code</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-400 flex-shrink-0">Sort:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value as any)}
+                  className="bg-slate-800/50 border border-purple-500/20 text-white text-base rounded px-3 py-2 flex-1 min-h-[44px]"
+                >
+                  <option value="name">Name</option>
+                  <option value="size">Size</option>
+                  <option value="date">Date</option>
+                </select>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+                  title={`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
+                  className="min-h-[44px] min-w-[44px]"
+                >
+                  {sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -680,34 +654,32 @@ export function EnhancedFileManager({
             </div>
           ) : (
             <div className={viewMode === "grid" 
-              ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
+              ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4"
               : "space-y-2"
             }>
               {(filteredAndSortedFiles || []).map((file) => file && (
                 <div
                   key={file.id}
-                  className={`group cursor-pointer rounded-lg border transition-all duration-200 relative ${
+                  className={`group cursor-pointer rounded-lg border transition-all duration-200 relative touch-manipulation ${
                     selectedMultiFiles.has(file.id) 
                       ? "border-purple-500 bg-purple-500/10" 
                       : "border-gray-700 hover:border-purple-500/50"
                   } ${
                     viewMode === "grid"
-                      ? "p-4 text-center bg-slate-800/30 hover:bg-slate-800/50"
-                      : "p-3 flex items-center gap-3 bg-slate-800/20 hover:bg-slate-800/40"
+                      ? "p-4 sm:p-4 text-center bg-slate-800/30 hover:bg-slate-800/50 min-h-[120px] sm:min-h-[140px]"
+                      : "p-4 flex items-center gap-3 bg-slate-800/20 hover:bg-slate-800/40 min-h-[60px]"
                   }`}
                   onClick={(e) => {
                     if (multiSelectMode) {
                       e.preventDefault()
                       toggleMultiSelect(file.id)
-                    } else {
-                      handleFileClick(file)
+                      return
                     }
+                    handleFileClick(file)
                   }}
                   onContextMenu={(e) => handleRightClick(file, e)}
                   onTouchStart={(e) => handleLongPressStart(file, e)}
                   onTouchEnd={handleLongPressEnd}
-                  onMouseDown={(e) => e.button === 2 ? handleLongPressStart(file, e) : undefined}
-                  onMouseUp={handleLongPressEnd}
                   onMouseLeave={handleLongPressEnd}
                 >
                   {/* Multi-select checkbox */}
