@@ -36,3 +36,9 @@ Import trace for requested module:
  ✓ Compiled in 292ms (999 modules)
  ✓ Compiled in 233ms (999 modules)
  ✓ Compiled in 266ms (999 modules)
+ ✓ Compiled in 767ms (999 modules)
+ ✓ Compiled in 239ms (999 modules)
+ ✓ Compiled in 286ms (1001 modules)
+ ✓ Compiled in 360ms (1001 modules)
+❌ Dev server exited with code null
+[?25h

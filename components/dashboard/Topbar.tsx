@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 
-import { Bell, LogOut, Menu, Sparkles, X, CheckCircle, AlertCircle, Info } from "lucide-react"
+import { Bell, LogOut, Menu, Sparkles, X, CheckCircle, AlertCircle, Info, Search, File, Folder, Image, Video, Music } from "lucide-react"
 import { signOut } from "@/lib/actions/auth"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -48,8 +48,41 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
   const [showNotifications, setShowNotifications] = useState(false)
   const [selectedNotification, setSelectedNotification] = useState<typeof mockNotifications[0] | null>(null)
   const [notifications, setNotifications] = useState(mockNotifications)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [showSearchResults, setShowSearchResults] = useState(false)
+  const [searchResults, setSearchResults] = useState<any[]>([])
 
   const unreadCount = notifications.filter(n => !n.read).length
+
+  // Mock search data
+  const mockSearchData = [
+    { id: '1', name: 'project-proposal.pdf', type: 'document', size: '2.5 MB', icon: File, path: '/documents' },
+    { id: '2', name: 'vacation-photos', type: 'folder', size: '45 files', icon: Folder, path: '/photos' },
+    { id: '3', name: 'presentation.pptx', type: 'presentation', size: '8.1 MB', icon: File, path: '/work' },
+    { id: '4', name: 'demo-video.mp4', type: 'video', size: '125 MB', icon: Video, path: '/media' },
+    { id: '5', name: 'background-music.mp3', type: 'audio', size: '4.2 MB', icon: Music, path: '/media' },
+    { id: '6', name: 'profile-picture.jpg', type: 'image', size: '1.8 MB', icon: Image, path: '/photos' },
+    { id: '7', name: 'app-source-code', type: 'folder', size: '23 files', icon: Folder, path: '/development' },
+    { id: '8', name: 'financial-report.xlsx', type: 'spreadsheet', size: '3.7 MB', icon: File, path: '/reports' }
+  ]
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query)
+    
+    if (query.trim().length > 0) {
+      // Filter results based on query
+      const filtered = mockSearchData.filter(item => 
+        item.name.toLowerCase().includes(query.toLowerCase()) ||
+        item.type.toLowerCase().includes(query.toLowerCase()) ||
+        item.path.toLowerCase().includes(query.toLowerCase())
+      )
+      setSearchResults(filtered.slice(0, 6)) // Limit to 6 results
+      setShowSearchResults(true)
+    } else {
+      setSearchResults([])
+      setShowSearchResults(false)
+    }
+  }
 
   const handleNotificationClick = (notification: typeof mockNotifications[0]) => {
     setSelectedNotification(notification)
@@ -80,8 +113,115 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
 
         </div>
 
-        <div className="flex-1 max-w-xl hidden sm:block">
-          <Input placeholder="Search files, shares..." className="bg-black/30 border-gray-700" />
+        {/* Search Bar with Dropdown */}
+        <div className="flex-1 max-w-xl hidden sm:block relative">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input 
+              placeholder="Search files, folders, shares..." 
+              className="bg-black/30 border-gray-700 pl-10 focus:border-purple-500/50 focus:bg-black/50 transition-all"
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              onFocus={() => {
+                if (searchQuery.trim().length > 0) {
+                  setShowSearchResults(true)
+                }
+              }}
+              onBlur={() => {
+                // Delay hiding to allow clicking on results
+                setTimeout(() => setShowSearchResults(false), 150)
+              }}
+            />
+            
+            {/* Search Results Dropdown */}
+            <AnimatePresence>
+              {showSearchResults && searchResults.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl z-50 overflow-hidden"
+                >
+                  <div className="p-2">
+                    <div className="text-xs text-gray-400 px-3 py-2 border-b border-purple-500/20">
+                      Found {searchResults.length} result{searchResults.length !== 1 ? 's' : ''}
+                    </div>
+                    
+                    {searchResults.map((result, index) => {
+                      const Icon = result.icon
+                      return (
+                        <motion.button
+                          key={result.id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          whileHover={{ backgroundColor: 'rgba(147, 51, 234, 0.1)' }}
+                          onClick={() => {
+                            setSearchQuery("")
+                            setShowSearchResults(false)
+                            // Navigate to file or open
+                            console.log('Opening:', result.name)
+                          }}
+                          className="w-full flex items-center space-x-3 px-3 py-2.5 text-left rounded-lg hover:bg-purple-500/10 transition-colors"
+                        >
+                          <div className="w-8 h-8 bg-purple-600/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Icon className="w-4 h-4 text-purple-400" />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white font-medium truncate">{result.name}</p>
+                            <p className="text-gray-400 text-xs truncate">
+                              {result.path} • {result.size}
+                            </p>
+                          </div>
+                          
+                          <div className="text-xs text-gray-500 capitalize">
+                            {result.type}
+                          </div>
+                        </motion.button>
+                      )
+                    })}
+                    
+                    {searchQuery.trim().length > 0 && (
+                      <div className="border-t border-purple-500/20 mt-2 pt-2">
+                        <button
+                          onClick={() => {
+                            setSearchQuery("")
+                            setShowSearchResults(false)
+                            // Navigate to advanced search
+                            window.location.href = `/files?search=${encodeURIComponent(searchQuery)}`
+                          }}
+                          className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-purple-300 hover:text-white hover:bg-purple-500/10 rounded-lg transition-colors"
+                        >
+                          <Search className="w-4 h-4" />
+                          <span className="text-sm">View all results for "{searchQuery}"</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            {/* No Results */}
+            <AnimatePresence>
+              {showSearchResults && searchResults.length === 0 && searchQuery.trim().length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="absolute top-full left-0 right-0 mt-2 bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl z-50 p-4 text-center"
+                >
+                  <div className="w-12 h-12 bg-gray-600/20 rounded-lg flex items-center justify-center mx-auto mb-3">
+                    <Search className="w-6 h-6 text-gray-400" />
+                  </div>
+                  <p className="text-gray-300 font-medium mb-1">No results found</p>
+                  <p className="text-gray-500 text-sm">Try a different search term</p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
