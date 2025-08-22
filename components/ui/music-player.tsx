@@ -16,10 +16,12 @@ interface MusicPlayerProps {
   title?: string
   artist?: string
   album?: string
-  cover?: string
+  albumArt?: string
   className?: string
   onDownload?: () => void
   onShare?: () => void
+  onLike?: () => void
+  onPopout?: () => void
 }
 
 export function MusicPlayer({ 
@@ -27,10 +29,12 @@ export function MusicPlayer({
   title = "Unknown Track", 
   artist = "Unknown Artist", 
   album = "Unknown Album",
-  cover,
+  albumArt,
   className,
   onDownload,
-  onShare
+  onShare,
+  onLike,
+  onPopout
 }: MusicPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -152,8 +156,8 @@ export function MusicPlayer({
       >
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-            {cover ? (
-              <img src={cover} alt={title} className="w-full h-full object-cover rounded-lg" />
+            {albumArt ? (
+              <img src={albumArt} alt={title} className="w-full h-full object-cover rounded-lg" />
             ) : (
               <Music className="w-5 h-5 text-white" />
             )}
@@ -223,8 +227,8 @@ export function MusicPlayer({
         <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6 mb-6">
           <div className="relative">
             <div className="w-32 h-32 md:w-40 md:h-40 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-2xl">
-              {cover ? (
-                <img src={cover} alt={title} className="w-full h-full object-cover rounded-lg" />
+              {albumArt ? (
+                <img src={albumArt} alt={title} className="w-full h-full object-cover rounded-lg" />
               ) : (
                 <Disc className={cn("w-16 h-16 text-white", isPlaying ? "animate-spin" : "")} />
               )}
@@ -260,6 +264,10 @@ export function MusicPlayer({
                   "text-white hover:bg-white/10",
                   isLiked ? "text-red-400" : "text-gray-400"
                 )}
+                onClick={() => {
+                  setIsLiked(!isLiked)
+                  onLike?.()
+                }}
               >
                 {isLiked ? <Heart className="w-4 h-4 fill-current" /> : <HeartOff className="w-4 h-4" />}
               </Button>
@@ -283,6 +291,18 @@ export function MusicPlayer({
                   className="text-gray-400 hover:text-white hover:bg-white/10"
                 >
                   <Download className="w-4 h-4" />
+                </Button>
+              )}
+              
+              {onPopout && (
+                <Button
+                  onClick={onPopout}
+                  size="sm"
+                  variant="ghost"
+                  className="text-gray-400 hover:text-white hover:bg-white/10"
+                  title="Open in popout player"
+                >
+                  <Maximize2 className="w-4 h-4" />
                 </Button>
               )}
             </div>

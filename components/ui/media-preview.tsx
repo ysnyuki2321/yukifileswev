@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ResponsiveVideoPlayer } from './responsive-video-player'
-import { MobileVideoPlayer } from './mobile-video-player'
+import { MusicPlayer } from './music-player'
 import { PopoutMusicPlayer } from './popout-music-player'
 import { Download, Share2, RotateCcw, ZoomIn, ZoomOut, Star } from 'lucide-react'
 
@@ -28,7 +28,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
   const [imageRotation, setImageRotation] = useState(0)
   const [imageZoom, setImageZoom] = useState(1)
   const [isMobile, setIsMobile] = useState(false)
-  const [showMusicPlayer, setShowMusicPlayer] = useState(false)
+  const [showPopoutPlayer, setShowPopoutPlayer] = useState(false)
 
   useEffect(() => {
     const checkMobile = () => {
@@ -126,86 +126,43 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
   }
 
   if (file.mime_type.startsWith('video/')) {
-    // Use MobileVideoPlayer for mobile, ResponsiveVideoPlayer for desktop
-    if (isMobile) {
-      return (
-        <MobileVideoPlayer
-          src={file.content}
-          title={file.name}
-          thumbnail={file.thumbnail || undefined}
-          aspectRatio={getAspectRatio() as '16:9' | '9:16' | '1:1' | '4:3'}
-          onDownload={onDownload}
-          onShare={onShare}
-          onLike={onLike}
-          className={className}
-        />
-      )
-    } else {
-      return (
-        <ResponsiveVideoPlayer
-          src={file.content}
-          title={file.name}
-          thumbnail={file.thumbnail || undefined}
-          aspectRatio={getAspectRatio() as '16:9' | '9:16' | '1:1' | '4:3'}
-          onDownload={onDownload}
-          onShare={onShare}
-          className={className}
-        />
-      )
-    }
+    // Use original ResponsiveVideoPlayer - the beautiful one
+    return (
+      <ResponsiveVideoPlayer
+        src={file.content}
+        title={file.name}
+        poster={file.thumbnail || undefined}
+        aspectRatio={getAspectRatio() as '16:9' | '9:16' | '1:1' | '4:3'}
+        onEnded={() => console.log('Video ended')}
+      />
+    )
   }
 
   if (file.mime_type.startsWith('audio/')) {
     return (
       <>
-        {/* Audio Preview Card */}
-        <div className={`bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-white/10 text-center ${className}`}>
-          <div className="text-gray-400 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-              </svg>
-            </div>
-            <p className="text-white font-medium mb-2">{file.name}</p>
-            <p className="text-sm mb-1">{file.artist || 'Unknown Artist'}</p>
-            <p className="text-sm text-gray-500">{file.album || 'Unknown Album'}</p>
-          </div>
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={() => setShowMusicPlayer(true)}
-              className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center space-x-2"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="14.828 14.828a4 4 0 01-5.656 0M9 10h1.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293H15a2 2 0 012 2v0a2 2 0 01-2 2h-1.586a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 0010 14H9a2 2 0 01-2-2v0a2 2 0 012-2z" />
-              </svg>
-              <span>Play</span>
-            </button>
-            <button
-              onClick={onDownload}
-              className="px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center space-x-2"
-            >
-              <Download className="w-4 h-4" />
-              <span>Download</span>
-            </button>
-            <button
-              onClick={onShare}
-              className="px-4 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center space-x-2"
-            >
-              <Share2 className="w-4 h-4" />
-              <span>Share</span>
-            </button>
-          </div>
-        </div>
+        {/* Use original MusicPlayer for inline, PopoutMusicPlayer for popout */}
+        <MusicPlayer
+          src={file.content}
+          title={file.name}
+          artist={file.artist || 'Unknown Artist'}
+          albumArt={file.albumArt || file.thumbnail || undefined}
+          onDownload={onDownload}
+          onShare={onShare}
+          onLike={onLike}
+          onPopout={() => setShowPopoutPlayer(true)}
+          className={className}
+        />
 
         {/* Popout Music Player */}
-        {showMusicPlayer && (
+        {showPopoutPlayer && (
           <PopoutMusicPlayer
             src={file.content}
             title={file.name}
             artist={file.artist}
             album={file.album}
             albumArt={file.albumArt || file.thumbnail || undefined}
-            onClose={() => setShowMusicPlayer(false)}
+            onClose={() => setShowPopoutPlayer(false)}
             onDownload={onDownload}
             onShare={onShare}
             onLike={onLike}

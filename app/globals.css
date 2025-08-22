@@ -82,8 +82,8 @@ input[type="number"] {
     -webkit-tap-highlight-color: transparent;
   }
   
-  /* Touch-friendly buttons - Apple HIG Compliant */
-  button, .touch-target {
+  /* Touch-friendly buttons - Apple HIG Compliant - Only for interactive elements */
+  .mobile-button, .touch-target {
     min-height: 44px !important;
     min-width: 44px !important;
     touch-action: manipulation;
