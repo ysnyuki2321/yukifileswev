@@ -15,6 +15,7 @@ import { AdminDemo } from "@/components/dashboard/AdminDemo"
 import { SettingsDemo } from "@/components/dashboard/SettingsDemo"
 import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { UltimateFileManagerDemo } from "@/components/demo/UltimateFileManagerDemo"
+import { AdvancedErrorBoundary } from "@/components/ui/advanced-error-boundary"
 import Sidebar from "@/components/dashboard/Sidebar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import Topbar from "@/components/dashboard/Topbar"
@@ -174,17 +175,25 @@ export default function DashboardClient() {
                       />
                       <div className="grid gap-6 lg:grid-cols-3">
                         <div className="lg:col-span-2 space-y-6">
-                          <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                          <ActivityFeed activities={recentActivity} />
+                          <AdvancedErrorBoundary fallbackTitle="Charts Error">
+                            <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                          </AdvancedErrorBoundary>
+                          <AdvancedErrorBoundary fallbackTitle="Activity Feed Error">
+                            <ActivityFeed activities={recentActivity} />
+                          </AdvancedErrorBoundary>
                         </div>
                         <div className="order-first lg:order-last">
-                          <RecentFiles files={recentFiles} />
+                          <AdvancedErrorBoundary fallbackTitle="Recent Files Error">
+                            <RecentFiles files={recentFiles} />
+                          </AdvancedErrorBoundary>
                         </div>
                       </div>
                     </div>
                   )}
                   {activeTab === 'filemanager' && (
-                    <UltimateFileManagerDemo />
+                    <AdvancedErrorBoundary fallbackTitle="File Manager Error">
+                      <UltimateFileManagerDemo />
+                    </AdvancedErrorBoundary>
                   )}
                   {activeTab === 'analytics' && (
                     <SafeDemoWrapper fallbackTitle="Loading Analytics...">
