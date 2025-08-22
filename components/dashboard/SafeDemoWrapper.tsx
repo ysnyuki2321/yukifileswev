@@ -1,7 +1,7 @@
 "use client"
 
 import React, { Suspense } from "react"
-import { ErrorBoundary } from "@/components/ui/error-boundary"
+import { AdvancedErrorBoundary } from "@/components/ui/advanced-error-boundary"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 
@@ -46,10 +46,10 @@ function DemoErrorFallback({ error, resetError }: { error?: Error; resetError: (
 
 export function SafeDemoWrapper({ children, fallbackTitle }: SafeDemoWrapperProps) {
   return (
-    <ErrorBoundary fallback={DemoErrorFallback}>
+    <AdvancedErrorBoundary fallbackTitle={fallbackTitle}>
       <Suspense fallback={<DemoLoadingFallback title={fallbackTitle} />}>
         {children}
       </Suspense>
-    </ErrorBoundary>
+    </AdvancedErrorBoundary>
   )
 }

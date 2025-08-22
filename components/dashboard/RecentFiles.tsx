@@ -9,7 +9,7 @@ import Link from "next/link"
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { ShareModal } from "@/components/ui/share-modal"
+import { AdvancedShareModal } from "@/components/ui/advanced-share-modal"
 import { LucideIcon } from "lucide-react"
 
 export interface RecentFileItem {
@@ -228,15 +228,19 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
         </DialogContent>
       </Dialog>
 
-      {/* Share Modal */}
+      {/* Advanced Share Modal */}
       {shareFile && (
-        <ShareModal
+        <AdvancedShareModal
           isOpen={showShareModal}
           onClose={() => {
             setShowShareModal(false)
             setShareFile(null)
           }}
-          file={shareFile}
+          file={{
+            id: shareFile.id,
+            name: shareFile.original_name,
+            size: shareFile.file_size
+          }}
         />
       )}
     </Card>

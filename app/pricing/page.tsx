@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
+// import { NavigationWrapper } from "@/components/ui/navigation-wrapper" // Removed old navigation
 import { 
   Crown, Rocket, Code2, Users, Building, Star, Check, X, ArrowRight,
   Zap, Shield, Globe, BarChart3, Eye, Share2, Upload, Lock, Infinity,
@@ -223,7 +223,7 @@ export default async function PricingPage() {
   return (
     <div className="min-h-screen theme-premium">
       {/* Navigation */}
-      <NavigationWrapper />
+      {/* <NavigationWrapper /> */}
 
       {/* Hero Section */}
       <section className="pt-24 pb-20">

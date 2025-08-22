@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Download, Copy, Eye, Calendar, HardDrive, Sparkles, ExternalLink, Share2, Lock, AlertCircle, CheckCircle, Image, Video } from "lucide-react"
 import { motion } from "framer-motion"
-import { VideoPlayer } from "@/components/ui/video-player"
+import { ResponsiveVideoPlayer } from "@/components/ui/responsive-video-player"
 import { ProfessionalDownload } from "@/components/ui/professional-download"
 
 interface DemoSharePageProps {
@@ -280,11 +280,10 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
                 </div>
                              ) : demoFile.mime_type.startsWith('video/') ? (
                 <div className="flex justify-center">
-                  <VideoPlayer
+                  <ResponsiveVideoPlayer
                     src={demoFile.preview_url}
                     title={demoFile.original_name}
-                    className="max-w-md w-full"
-                    aspectRatio="auto"
+                    aspectRatio="16:9"
                   />
                 </div>
                ) : (
