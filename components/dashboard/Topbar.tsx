@@ -119,7 +119,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input 
               placeholder="Search files, folders, shares..." 
-              className="bg-black/30 border-gray-700 pl-10 focus:border-purple-500/50 focus:bg-black/50 transition-all"
+              className="bg-black/30 border-gray-700 pl-10 focus:border-purple-500/50 focus:bg-black/50 transition-all allow-select"
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               onFocus={() => {

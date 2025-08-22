@@ -2,6 +2,77 @@
 @import "tw-animate-css";
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
+/* Anti-select for entire website except editors */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in specific elements */
+input,
+textarea,
+[contenteditable="true"],
+.allow-select,
+.file-editor-content,
+pre,
+code,
+.code-editor,
+.text-editor,
+.monaco-editor {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Allow selection in form elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="url"],
+input[type="tel"],
+input[type="number"] {
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+  user-select: text !important;
+}
+
+/* Custom scrollbar for mobile context menus */
+.context-menu-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(147, 51, 234, 0.5) rgba(55, 65, 81, 0.2);
+}
+
+.context-menu-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.context-menu-scroll::-webkit-scrollbar-track {
+  background: rgba(55, 65, 81, 0.2);
+  border-radius: 3px;
+}
+
+.context-menu-scroll::-webkit-scrollbar-thumb {
+  background: rgba(147, 51, 234, 0.5);
+  border-radius: 3px;
+}
+
+.context-menu-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(147, 51, 234, 0.7);
+}
+
+/* Smooth scroll behavior for mobile */
+@media (max-width: 768px) {
+  .context-menu-scroll {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 :root {

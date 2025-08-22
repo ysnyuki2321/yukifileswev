@@ -178,7 +178,7 @@ export function FileContextMenu({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: -10 }}
         transition={{ duration: 0.15, ease: "easeOut" }}
-        className="fixed z-50 bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl min-w-[240px]"
+        className="fixed z-50 bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl min-w-[240px] max-h-[80vh] overflow-y-auto overscroll-contain context-menu-scroll"
         style={{
           left: adjustedPosition.x,
           top: adjustedPosition.y,

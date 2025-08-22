@@ -1091,6 +1091,7 @@ Paragraphs: ${content.split(/\n\s*\n/).length}`)
                       ref={textareaRef}
                       value={content}
                       onChange={(e) => handleContentChange(e.target.value)}
+                      className="allow-select file-editor-content text-editor"
                       onScroll={(e) => {
                         // Sync line numbers scroll with textarea scroll
                         if (lineNumbersRef.current && showLineNumbers) {

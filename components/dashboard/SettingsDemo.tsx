@@ -123,9 +123,9 @@ export function SettingsDemo() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm text-gray-400 mb-2">Full Name</label>
-              <Input 
-                defaultValue="John Doe" 
-                className="bg-black/30 border-gray-700"
+                             <Input 
+                 defaultValue="John Doe" 
+                 className="bg-black/30 border-gray-700 allow-select"
               />
             </div>
             <div>
