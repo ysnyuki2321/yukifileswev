@@ -10,7 +10,7 @@ interface MediaPreviewProps {
   file: {
     id: string
     name: string
-    mime_type: string
+    type: string
     content: string
     thumbnail?: string | null
     size: number
@@ -41,7 +41,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
   }, [])
 
   const getAspectRatio = () => {
-    if (file.mime_type.startsWith('video/')) {
+    if (file.type.startsWith('video/')) {
       // Detect vertical video (TikTok style)
       if (file.name.toLowerCase().includes('tiktok') || file.name.toLowerCase().includes('vertical')) {
         return '9:16'
@@ -51,7 +51,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
     return '16:9'
   }
 
-  if (file.mime_type.startsWith('image/')) {
+  if (file.type.startsWith('image/')) {
     return (
       <div className={`bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 ${className}`}>
         {/* Image Container */}
@@ -125,7 +125,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
     )
   }
 
-  if (file.mime_type.startsWith('video/')) {
+  if (file.type.startsWith('video/')) {
     // Use original ResponsiveVideoPlayer - the beautiful one
     return (
       <ResponsiveVideoPlayer
@@ -138,7 +138,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
     )
   }
 
-  if (file.mime_type.startsWith('audio/')) {
+  if (file.type.startsWith('audio/')) {
     return (
       <>
         {/* Use original MusicPlayer for inline, PopoutMusicPlayer for popout */}

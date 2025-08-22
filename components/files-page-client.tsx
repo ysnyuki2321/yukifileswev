@@ -83,7 +83,16 @@ export default function FilesPageClient() {
           isStarred: file.is_starred || file.isStarred,
           isShared: file.is_public || file.isShared,
           owner: file.owner,
-          path: '/'
+          path: '/',
+          hasPassword: file.hasPassword,
+          inArchive: file.inArchive,
+          category: file.category,
+          encryptedName: file.encryptedName,
+          accessLimits: file.accessLimits,
+          expiresAt: file.expiresAt ? new Date(file.expiresAt) : undefined,
+          artist: file.artist,
+          album: file.album,
+          albumArt: file.albumArt
         }))
         
         setFiles(transformedFiles)

@@ -51,7 +51,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'application/pdf',
     file_size: 2547893,
     size: 2547893,
-    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    created_at: new Date(Date.now() - 864000000).toISOString(), // 1 day ago
     content: 'Mock PDF content - Financial Report Q4 2024',
     thumbnail: null,
     is_starred: true,
@@ -69,7 +69,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     file_size: 156789,
     size: 156789,
-    created_at: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    created_at: new Date(Date.now() - 1728000000).toISOString(), // 2 days ago
     content: 'Mock Word document content',
     thumbnail: null,
     is_starred: false,
@@ -92,7 +92,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     file_size: 5234567,
     size: 5234567,
-    created_at: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+    created_at: new Date(Date.now() - 2592000000).toISOString(), // 3 days ago
     content: 'Mock PowerPoint presentation',
     thumbnail: null,
     is_starred: false,
@@ -111,7 +111,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'image/jpeg',
     file_size: 3247891,
     size: 3247891,
-    created_at: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+    created_at: new Date(Date.now() - 3456000000).toISOString(), // 4 days ago
     content: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
     thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=150&fit=crop',
     is_starred: true,
@@ -128,7 +128,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'image/png',
     file_size: 1234567,
     size: 1234567,
-    created_at: new Date(Date.now() - 432000000).toISOString(), // 5 days ago
+    created_at: new Date(Date.now() - 4320000000).toISOString(), // 5 days ago
     content: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
     thumbnail: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
     is_starred: false,
@@ -146,7 +146,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'image/svg+xml',
     file_size: 45678,
     size: 45678,
-    created_at: new Date(Date.now() - 518400000).toISOString(), // 6 days ago
+    created_at: new Date(Date.now() - 5184000000).toISOString(), // 6 days ago
     content: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#8B5CF6"/></svg>',
     thumbnail: null,
     is_starred: false,
@@ -165,7 +165,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'video/mp4',
     file_size: 45678901,
     size: 45678901,
-    created_at: new Date(Date.now() - 604800000).toISOString(), // 7 days ago
+    created_at: new Date(Date.now() - 6048000000).toISOString(), // 7 days ago
     content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
     thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=200&fit=crop',
     is_starred: true,
@@ -188,7 +188,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'video/mp4',
     file_size: 12345678,
     size: 12345678,
-    created_at: new Date(Date.now() - 691200000).toISOString(), // 8 days ago
+    created_at: new Date(Date.now() - 6912000000).toISOString(), // 8 days ago
     content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_360x640_1mb.mp4',
     thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=200&h=350&fit=crop',
     is_starred: false,
@@ -205,7 +205,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'video/quicktime',
     file_size: 89012345,
     size: 89012345,
-    created_at: new Date(Date.now() - 777600000).toISOString(), // 9 days ago
+    created_at: new Date(Date.now() - 7776000000).toISOString(), // 9 days ago
     content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
     thumbnail: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop',
     is_starred: true,
@@ -226,7 +226,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'audio/mpeg',
     file_size: 8765432,
     size: 8765432,
-    created_at: new Date(Date.now() - 777600000).toISOString(), // 9 days ago
+    created_at: new Date(Date.now() - 7776000000).toISOString(), // 9 days ago
     content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
     thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
     is_starred: true,
@@ -247,7 +247,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'audio/wav',
     file_size: 23456789,
     size: 23456789,
-    created_at: new Date(Date.now() - 864000000).toISOString(), // 10 days ago
+    created_at: new Date(Date.now() - 8640000000).toISOString(), // 10 days ago
     content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
     thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop',
     is_starred: false,
@@ -268,7 +268,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'audio/mpeg',
     file_size: 15678901,
     size: 15678901,
-    created_at: new Date(Date.now() - 950400000).toISOString(), // 11 days ago
+    created_at: new Date(Date.now() - 9504000000).toISOString(), // 11 days ago
     content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
     thumbnail: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=300&h=300&fit=crop',
     is_starred: false,
@@ -296,7 +296,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'text/x-python',
     file_size: 12345,
     size: 12345,
-    created_at: new Date(Date.now() - 950400000).toISOString(), // 11 days ago
+    created_at: new Date(Date.now() - 9504000000).toISOString(), // 11 days ago
     content: `import pandas as pd
 import numpy as np
 
@@ -323,7 +323,7 @@ if __name__ == "__main__":
     mime_type: 'text/tsx',
     file_size: 5678,
     size: 5678,
-    created_at: new Date(Date.now() - 1036800000).toISOString(), // 12 days ago
+    created_at: new Date(Date.now() - 10368000000).toISOString(), // 12 days ago
     content: `import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Dashboard from './components/Dashboard'
@@ -356,7 +356,7 @@ export default function App() {
     mime_type: 'application/json',
     file_size: 2345,
     size: 2345,
-    created_at: new Date(Date.now() - 1123200000).toISOString(), // 13 days ago
+    created_at: new Date(Date.now() - 11232000000).toISOString(), // 13 days ago
     content: `{
   "app": {
     "name": "YukiFiles",
@@ -391,7 +391,7 @@ export default function App() {
     mime_type: 'application/zip',
     file_size: 34567890,
     size: 34567890,
-    created_at: new Date(Date.now() - 1209600000).toISOString(), // 14 days ago
+    created_at: new Date(Date.now() - 12096000000).toISOString(), // 14 days ago
     content: 'Mock ZIP archive content',
     thumbnail: null,
     is_starred: true,
@@ -409,7 +409,7 @@ export default function App() {
     mime_type: 'application/gzip',
     file_size: 23456789,
     size: 23456789,
-    created_at: new Date(Date.now() - 1296000000).toISOString(), // 15 days ago
+    created_at: new Date(Date.now() - 12960000000).toISOString(), // 15 days ago
     content: 'Mock TAR.GZ archive content',
     thumbnail: null,
     is_starred: false,
@@ -428,7 +428,7 @@ export default function App() {
     mime_type: 'application/x-sqlite3',
     file_size: 5678901,
     size: 5678901,
-    created_at: new Date(Date.now() - 1382400000).toISOString(), // 16 days ago
+    created_at: new Date(Date.now() - 13824000000).toISOString(), // 16 days ago
     content: 'Mock SQLite database content',
     thumbnail: null,
     is_starred: false,
@@ -446,7 +446,7 @@ export default function App() {
     mime_type: 'application/sql',
     file_size: 12345,
     size: 12345,
-    created_at: new Date(Date.now() - 1468800000).toISOString(), // 17 days ago
+    created_at: new Date(Date.now() - 14688000000).toISOString(), // 17 days ago
     content: `-- Analytics Query
 SELECT 
   DATE(created_at) as date,
@@ -473,7 +473,7 @@ ORDER BY date DESC;`,
     mime_type: 'text/markdown',
     file_size: 3456,
     size: 3456,
-    created_at: new Date(Date.now() - 1555200000).toISOString(), // 18 days ago
+    created_at: new Date(Date.now() - 15552000000).toISOString(), // 18 days ago
     content: `# YukiFiles Demo
 
 ## Features
@@ -505,7 +505,7 @@ Upload files, share with team, collaborate in real-time.`,
     mime_type: 'application/x-pem-file',
     file_size: 1234,
     size: 1234,
-    created_at: new Date(Date.now() - 1641600000).toISOString(), // 19 days ago
+    created_at: new Date(Date.now() - 16416000000).toISOString(), // 19 days ago
     content: '-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKZ...\n-----END CERTIFICATE-----',
     thumbnail: null,
     is_starred: false,
@@ -524,7 +524,7 @@ Upload files, share with team, collaborate in real-time.`,
     mime_type: 'application/figma',
     file_size: 12345678,
     size: 12345678,
-    created_at: new Date(Date.now() - 1728000000).toISOString(), // 20 days ago
+    created_at: new Date(Date.now() - 17280000000).toISOString(), // 20 days ago
     content: 'Mock Figma file content',
     thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=300&h=200&fit=crop',
     is_starred: true,
@@ -541,7 +541,7 @@ Upload files, share with team, collaborate in real-time.`,
     mime_type: 'text/plain',
     file_size: 2345,
     size: 2345,
-    created_at: new Date(Date.now() - 1814400000).toISOString(), // 21 days ago
+    created_at: new Date(Date.now() - 18144000000).toISOString(), // 21 days ago
     content: `Meeting Notes - Q4 Planning
 Date: December 15, 2024
 Attendees: John, Sarah, Mike, Lisa
@@ -574,7 +574,7 @@ Next Meeting: December 22, 2024`,
     mime_type: 'application/xml',
     file_size: 5678,
     size: 5678,
-    created_at: new Date(Date.now() - 1900800000).toISOString(), // 22 days ago
+    created_at: new Date(Date.now() - 19008000000).toISOString(), // 22 days ago
     content: `<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <backup>
@@ -606,7 +606,7 @@ export const demoFolders = [
     id: 'folder-1',
     name: 'Project 2024',
     type: 'folder',
-    created_at: new Date(Date.now() - 86400000).toISOString(),
+    created_at: new Date(Date.now() - 864000000).toISOString(),
     file_count: 15,
     total_size: 125000000
   },
@@ -614,7 +614,7 @@ export const demoFolders = [
     id: 'folder-2', 
     name: 'Images',
     type: 'folder',
-    created_at: new Date(Date.now() - 172800000).toISOString(),
+    created_at: new Date(Date.now() - 1728000000).toISOString(),
     file_count: 8,
     total_size: 45000000
   },
@@ -622,7 +622,7 @@ export const demoFolders = [
     id: 'folder-3',
     name: 'Important Documents',
     type: 'folder', 
-    created_at: new Date(Date.now() - 259200000).toISOString(),
+    created_at: new Date(Date.now() - 2592000000).toISOString(),
     file_count: 12,
     total_size: 78000000
   }
@@ -733,10 +733,10 @@ export function getFileStats(files: FileItem[] = []) {
   const safeFiles = files || []
   const stats = {
     total: safeFiles.length,
-    folders: safeFiles.filter(f => f?.mime_type === 'folder').length,
-    files: safeFiles.filter(f => f?.mime_type !== 'folder').length,
-    shared: safeFiles.filter(f => f?.is_public || f?.isShared).length,
-    starred: safeFiles.filter(f => f?.is_starred || f?.isStarred).length,
+    folders: safeFiles.filter(f => f?.type === 'folder' || f?.isFolder).length,
+    files: safeFiles.filter(f => f?.type !== 'folder' && !f?.isFolder).length,
+    shared: safeFiles.filter(f => f?.isShared).length,
+    starred: safeFiles.filter(f => f?.isStarred).length,
     protected: safeFiles.filter(f => f?.hasPassword).length,
     archived: safeFiles.filter(f => f?.inArchive).length,
     totalSize: safeFiles.reduce((acc, f) => acc + (f?.size || 0), 0),

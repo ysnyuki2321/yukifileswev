@@ -52,6 +52,10 @@ export interface FileItem {
     maxDownloads: number
   }
   expiresAt?: Date
+  // Audio metadata
+  artist?: string
+  album?: string
+  albumArt?: string
 }
 
 interface EnhancedFileManagerProps {
@@ -402,7 +406,6 @@ export function EnhancedFileManager({
         <div className="relative">
           <Folder className="w-12 h-12 text-blue-400 drop-shadow-2xl" />
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-lg blur-lg"></div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
         </div>
       )
     }
@@ -434,7 +437,6 @@ export function EnhancedFileManager({
               <FileVideo className="w-3 h-3 text-white" />
             </div>
           </div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10"></div>
         </div>
       )
     }
@@ -446,7 +448,6 @@ export function EnhancedFileManager({
           <div className="relative">
             <FileImage className="w-12 h-12 text-green-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
           </div>
         )
       case 'videos':
@@ -454,7 +455,6 @@ export function EnhancedFileManager({
           <div className="relative">
             <FileVideo className="w-12 h-12 text-red-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
           </div>
         )
       case 'audio':
@@ -462,7 +462,6 @@ export function EnhancedFileManager({
           <div className="relative">
             <FileAudio className="w-12 h-12 text-purple-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg animate-pulse"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
           </div>
         )
       case 'code':
@@ -470,7 +469,6 @@ export function EnhancedFileManager({
           <div className="relative">
             <FileCode className="w-12 h-12 text-yellow-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
           </div>
         )
       case 'documents':
@@ -478,7 +476,6 @@ export function EnhancedFileManager({
           <div className="relative">
             <FileText className="w-12 h-12 text-blue-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
           </div>
         )
       default:
@@ -486,7 +483,6 @@ export function EnhancedFileManager({
           <div className="relative">
             <File className="w-12 h-12 text-gray-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
-            <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/10 rounded-lg"></div>
           </div>
         )
     }
@@ -701,19 +697,19 @@ export function EnhancedFileManager({
           ) : (
             <div className={
               viewMode === "grid" 
-                ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 : "space-y-2"
             }>
               {(filteredAndSortedFiles || []).map((file) => file && (
                 <div
                   key={file.id}
-                  className={`group cursor-pointer rounded-xl border transition-all duration-300 relative touch-manipulation hover:scale-105 hover:shadow-2xl ${
+                  className={`group cursor-pointer rounded-xl border transition-all duration-300 relative hover:scale-105 hover:shadow-2xl ${
                     selectedMultiFiles.has(file.id) 
                       ? "border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/10 shadow-lg shadow-purple-500/25" 
                       : "border-gray-700/30 hover:border-purple-500/50 hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-slate-900/60"
                   } ${
                     viewMode === "grid"
-                      ? "p-6 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[180px] flex flex-col items-center justify-center backdrop-blur-sm"
+                      ? "p-6 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm"
                       : "p-4 flex items-center gap-4 bg-slate-800/20 min-h-[72px]"
                   }`}
                   onClick={(e) => {
@@ -747,17 +743,17 @@ export function EnhancedFileManager({
                   {/* File status badges - Floating */}
                   <div className="absolute top-3 right-3 flex flex-col gap-2">
                     {file.isStarred && (
-                      <div className="w-7 h-7 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                      <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-xl animate-pulse">
                         <Star className="w-4 h-4 text-white fill-current" />
                       </div>
                     )}
                     {file.hasPassword && (
-                      <div className="w-7 h-7 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                      <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
                         <Lock className="w-4 h-4 text-white" />
                       </div>
                     )}
                     {file.isShared && (
-                      <div className="w-7 h-7 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-xl">
                         <Share2 className="w-4 h-4 text-white" />
                       </div>
                     )}
@@ -767,11 +763,11 @@ export function EnhancedFileManager({
                     // Grid View - Premium Beautiful Design
                     <>
                       <div className="mb-4 relative">
-                        <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
+                        <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
                           {getFileIcon(file)}
                         </div>
                         {/* File type indicator with glow */}
-                        <div className="absolute -bottom-2 -right-2 w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
                           <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
                         </div>
                       </div>
@@ -782,10 +778,10 @@ export function EnhancedFileManager({
                         <p className="text-gray-400 text-xs">
                           {formatBytes(file.size)}
                         </p>
-                        <div className="flex justify-center items-center gap-1 mt-2">
-                          <div className="w-1 h-1 bg-purple-400 rounded-full animate-pulse"></div>
-                          <div className="w-1 h-1 bg-pink-400 rounded-full animate-pulse delay-100"></div>
-                          <div className="w-1 h-1 bg-purple-400 rounded-full animate-pulse delay-200"></div>
+                        <div className="flex justify-center items-center gap-1 mt-3">
+                          <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                          <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-100"></div>
+                          <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-200"></div>
                         </div>
                       </div>
                     </>
@@ -950,10 +946,13 @@ export function EnhancedFileManager({
           file={{
             id: selectedFile.id,
             name: selectedFile.name,
-            mime_type: selectedFile.type,
+            type: selectedFile.type,
             content: selectedFile.content || selectedFile.thumbnail || '',
             thumbnail: selectedFile.thumbnail,
-            size: selectedFile.size
+            size: selectedFile.size,
+            artist: selectedFile.artist,
+            album: selectedFile.album,
+            albumArt: selectedFile.albumArt
           }}
           onDownload={() => {
             console.log('Downloading:', selectedFile.name)
