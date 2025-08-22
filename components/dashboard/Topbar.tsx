@@ -313,35 +313,42 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-md flex items-center justify-center p-4 mobile-stable"
+            className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-md mobile-stable"
             onClick={() => setSelectedNotification(null)}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl max-w-md w-full mx-auto p-6 mobile-container"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-start gap-4 mb-4">
-                {getNotificationIcon(selectedNotification.type)}
-                <div className="flex-1">
-                  <h3 className="text-white font-semibold mb-2">{selectedNotification.title}</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed mb-3">{selectedNotification.message}</p>
-                  <p className="text-gray-500 text-xs">{selectedNotification.time}</p>
+            {/* Mobile/Desktop responsive container */}
+            <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl w-full max-w-md mx-auto p-6"
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  maxHeight: 'calc(100vh - 2rem)',
+                  overflowY: 'auto'
+                }}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  {getNotificationIcon(selectedNotification.type)}
+                  <div className="flex-1">
+                    <h3 className="text-white font-semibold mb-2">{selectedNotification.title}</h3>
+                    <p className="text-gray-300 text-sm leading-relaxed mb-3">{selectedNotification.message}</p>
+                    <p className="text-gray-500 text-xs">{selectedNotification.time}</p>
+                  </div>
                 </div>
-              </div>
-              
-              <div className="flex justify-end">
-                <Button
-                  onClick={() => setSelectedNotification(null)}
-                  className="bg-purple-600 hover:bg-purple-700"
-                >
-                  Got it
-                </Button>
-              </div>
-            </motion.div>
+                
+                <div className="flex justify-end">
+                  <Button
+                    onClick={() => setSelectedNotification(null)}
+                    className="bg-purple-600 hover:bg-purple-700 min-h-[44px] px-6"
+                  >
+                    Đã hiểu
+                  </Button>
+                </div>
+              </motion.div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

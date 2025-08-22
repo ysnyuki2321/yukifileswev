@@ -10,309 +10,491 @@ import {
   Package, Zap, Globe, AlertTriangle, CheckCircle
 } from "lucide-react"
 
-export interface DemoFileItem {
+export interface FileItem {
   id: string
   name: string
+  original_name: string
+  mime_type: string
+  file_size: number
   size: number
-  type: string
-  lastModified: Date
-  isFolder: boolean
+  created_at: string
+  content: string
+  thumbnail?: string | null
+  is_starred: boolean
   isStarred: boolean
+  is_public: boolean
   isShared: boolean
-  hasPassword: boolean
-  inArchive: boolean
-  thumbnail?: string
-  category: 'document' | 'image' | 'video' | 'audio' | 'code' | 'database' | 'archive' | 'folder'
-  path: string[]
+  owner: string
+  hasPassword?: boolean
+  inArchive?: boolean
+  category?: 'document' | 'media' | 'code' | 'archive' | 'database' | 'other'
   encryptedName?: string
-  accessLimits?: { views: number; downloads: number; maxViews: number; maxDownloads: number }
-  expiresAt?: Date
+  accessLimits?: {
+    maxViews: number
+    maxDownloads: number
+    currentViews: number
+    currentDownloads: number
+  }
+  expiresAt?: string
 }
 
-export const comprehensiveDemoFiles: DemoFileItem[] = [
+export const comprehensiveDemoFiles: FileItem[] = [
   // Documents
   {
-    id: 'demo-1',
-    name: 'project-proposal.pdf',
-    size: 2048576,
-    type: 'application/pdf',
-    lastModified: new Date('2024-01-15T10:30:00Z'),
-    isFolder: false,
+    id: 'demo-doc-1',
+    name: 'Báo cáo tài chính Q4 2024.pdf',
+    original_name: 'Báo cáo tài chính Q4 2024.pdf',
+    mime_type: 'application/pdf',
+    file_size: 2547893,
+    size: 2547893,
+    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    content: 'Mock PDF content - Financial Report Q4 2024',
+    thumbnail: null,
+    is_starred: true,
     isStarred: true,
-    isShared: true,
-    hasPassword: false,
-    inArchive: false,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
     category: 'document',
-    path: ['Documents', 'Projects'],
-    thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/pdf-thumbnail.jpg',
-    accessLimits: { views: 15, downloads: 3, maxViews: 50, maxDownloads: 10 },
-    expiresAt: new Date('2024-02-15T10:30:00Z')
+    hasPassword: true
   },
   {
-    id: 'demo-2',
-    name: 'presentation.pptx',
-    size: 8388608,
-    type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    lastModified: new Date('2024-01-14T15:45:00Z'),
-    isFolder: false,
+    id: 'demo-doc-2',
+    name: 'Hợp đồng thuê nhà.docx',
+    original_name: 'Hợp đồng thuê nhà.docx',
+    mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    file_size: 156789,
+    size: 156789,
+    created_at: new Date(Date.now() - 172800000).toISOString(), // 2 days ago
+    content: 'Mock Word document content',
+    thumbnail: null,
+    is_starred: false,
     isStarred: false,
+    is_public: true,
     isShared: true,
-    hasPassword: true,
-    inArchive: false,
+    owner: 'demo@yukifiles.com',
     category: 'document',
-    path: ['Documents', 'Work'],
-    accessLimits: { views: 8, downloads: 2, maxViews: 20, maxDownloads: 5 }
-  },
-  
-  // Media Files
-  {
-    id: 'demo-3',
-    name: 'demo-video.mp4',
-    size: 52428800,
-    type: 'video/mp4',
-    lastModified: new Date('2024-01-13T09:20:00Z'),
-    isFolder: false,
-    isStarred: true,
-    isShared: false,
-    hasPassword: false,
-    inArchive: false,
-    category: 'video',
-    path: ['Media', 'Videos'],
-    thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/video-thumbnail.jpg'
+    accessLimits: {
+      maxViews: 100,
+      maxDownloads: 50,
+      currentViews: 23,
+      currentDownloads: 8
+    }
   },
   {
-    id: 'demo-4',
-    name: 'NAKISO_-_.mp3',
-    size: 4194304,
-    type: 'audio/mpeg',
-    lastModified: new Date('2024-01-12T13:20:00Z'),
-    isFolder: false,
+    id: 'demo-doc-3',
+    name: 'Presentation_Marketing.pptx',
+    original_name: 'Presentation_Marketing.pptx',
+    mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    file_size: 5234567,
+    size: 5234567,
+    created_at: new Date(Date.now() - 259200000).toISOString(), // 3 days ago
+    content: 'Mock PowerPoint presentation',
+    thumbnail: null,
+    is_starred: false,
     isStarred: false,
+    is_public: true,
     isShared: true,
-    hasPassword: false,
-    inArchive: false,
-    category: 'audio',
-    path: ['Media', 'Audio'],
-    thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
-    accessLimits: { views: 25, downloads: 8, maxViews: 100, maxDownloads: 25 }
+    owner: 'demo@yukifiles.com',
+    category: 'document'
   },
+
+  // Images
   {
-    id: 'demo-4b',
-    name: 'background-music.mp3',
-    size: 3145728,
-    type: 'audio/mpeg',
-    lastModified: new Date('2024-01-11T13:20:00Z'),
-    isFolder: false,
+    id: 'demo-img-1',
+    name: 'Sunset_Beach_4K.jpg',
+    original_name: 'Sunset_Beach_4K.jpg',
+    mime_type: 'image/jpeg',
+    file_size: 3247891,
+    size: 3247891,
+    created_at: new Date(Date.now() - 345600000).toISOString(), // 4 days ago
+    content: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop',
+    thumbnail: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=150&fit=crop',
+    is_starred: true,
     isStarred: true,
-    isShared: false,
-    hasPassword: false,
-    inArchive: false,
-    category: 'audio',
-    path: ['Media', 'Audio']
-  },
-  {
-    id: 'demo-5',
-    name: 'profile-picture.jpg',
-    size: 1048576,
-    type: 'image/jpeg',
-    lastModified: new Date('2024-01-11T16:45:00Z'),
-    isFolder: false,
-    isStarred: true,
+    is_public: true,
     isShared: true,
-    hasPassword: false,
-    inArchive: false,
-    category: 'image',
-    path: ['Photos', 'Profile'],
-    thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/profile-pic.jpg'
+    owner: 'demo@yukifiles.com',
+    category: 'media'
   },
   {
-    id: 'demo-5b',
-    name: 'screenshot.png',
-    size: 2097152,
-    type: 'image/png',
-    lastModified: new Date('2024-01-10T14:30:00Z'),
-    isFolder: false,
+    id: 'demo-img-2',
+    name: 'Profile_Photo.png',
+    original_name: 'Profile_Photo.png',
+    mime_type: 'image/png',
+    file_size: 1234567,
+    size: 1234567,
+    created_at: new Date(Date.now() - 432000000).toISOString(), // 5 days ago
+    content: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face',
+    thumbnail: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
+    is_starred: false,
     isStarred: false,
+    is_public: false,
     isShared: false,
-    hasPassword: false,
-    inArchive: false,
-    category: 'image',
-    path: ['Photos', 'Screenshots'],
-    thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/screenshot.png'
+    owner: 'demo@yukifiles.com',
+    category: 'media',
+    hasPassword: true
   },
   {
-    id: 'demo-5c',
-    name: 'banner.svg',
-    size: 65536,
-    type: 'image/svg+xml',
-    lastModified: new Date('2024-01-09T11:15:00Z'),
-    isFolder: false,
-    isStarred: true,
+    id: 'demo-img-3',
+    name: 'Company_Logo.svg',
+    original_name: 'Company_Logo.svg',
+    mime_type: 'image/svg+xml',
+    file_size: 45678,
+    size: 45678,
+    created_at: new Date(Date.now() - 518400000).toISOString(), // 6 days ago
+    content: '<svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="#8B5CF6"/></svg>',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
     isShared: true,
-    hasPassword: false,
-    inArchive: false,
-    category: 'image',
-    path: ['Design', 'Assets']
+    owner: 'demo@yukifiles.com',
+    category: 'media'
   },
-  
+
+  // Videos
+  {
+    id: 'demo-video-1',
+    name: 'Demo_Tutorial.mp4',
+    original_name: 'Demo_Tutorial.mp4',
+    mime_type: 'video/mp4',
+    file_size: 45678901,
+    size: 45678901,
+    created_at: new Date(Date.now() - 604800000).toISOString(), // 7 days ago
+    content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    thumbnail: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=200&fit=crop',
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'media',
+    accessLimits: {
+      maxViews: 500,
+      maxDownloads: 100,
+      currentViews: 156,
+      currentDownloads: 34
+    }
+  },
+  {
+    id: 'demo-video-2',
+    name: 'TikTok_Vertical.mp4',
+    original_name: 'TikTok_Vertical.mp4',
+    mime_type: 'video/mp4',
+    file_size: 12345678,
+    size: 12345678,
+    created_at: new Date(Date.now() - 691200000).toISOString(), // 8 days ago
+    content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_360x640_1mb.mp4',
+    thumbnail: 'https://images.unsplash.com/photo-1611162618071-b39a2ec055fb?w=200&h=350&fit=crop',
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'media'
+  },
+
+  // Audio
+  {
+    id: 'demo-audio-1',
+    name: 'Chill_Music.mp3',
+    original_name: 'Chill_Music.mp3',
+    mime_type: 'audio/mpeg',
+    file_size: 8765432,
+    size: 8765432,
+    created_at: new Date(Date.now() - 777600000).toISOString(), // 9 days ago
+    content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+    thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+    is_starred: true,
+    isStarred: true,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
+    category: 'media'
+  },
+  {
+    id: 'demo-audio-2',
+    name: 'Podcast_Episode_01.wav',
+    original_name: 'Podcast_Episode_01.wav',
+    mime_type: 'audio/wav',
+    file_size: 23456789,
+    size: 23456789,
+    created_at: new Date(Date.now() - 864000000).toISOString(), // 10 days ago
+    content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'media',
+    hasPassword: true
+  },
+
   // Code Files
   {
-    id: 'demo-6',
-    name: 'app.js',
-    size: 131072,
-    type: 'application/javascript',
-    lastModified: new Date('2024-01-10T11:15:00Z'),
-    isFolder: false,
-    isStarred: false,
+    id: 'demo-code-1',
+    name: 'main.py',
+    original_name: 'main.py',
+    mime_type: 'text/x-python',
+    file_size: 12345,
+    size: 12345,
+    created_at: new Date(Date.now() - 950400000).toISOString(), // 11 days ago
+    content: `import pandas as pd
+import numpy as np
+
+def analyze_data(file_path):
+    """Analyze data from CSV file"""
+    df = pd.read_csv(file_path)
+    return df.describe()
+
+if __name__ == "__main__":
+    result = analyze_data("data.csv")
+    print(result)`,
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: false,
     isShared: false,
-    hasPassword: false,
-    inArchive: false,
-    category: 'code',
-    path: ['Development', 'Frontend']
+    owner: 'demo@yukifiles.com',
+    category: 'code'
   },
   {
-    id: 'demo-7',
+    id: 'demo-code-2',
+    name: 'App.tsx',
+    original_name: 'App.tsx',
+    mime_type: 'text/tsx',
+    file_size: 5678,
+    size: 5678,
+    created_at: new Date(Date.now() - 1036800000).toISOString(), // 12 days ago
+    content: `import React from 'react'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Dashboard from './components/Dashboard'
+import FileManager from './components/FileManager'
+
+export default function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-gray-900">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/files" element={<FileManager />} />
+        </Routes>
+      </div>
+    </Router>
+  )
+}`,
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'code'
+  },
+  {
+    id: 'demo-code-3',
     name: 'config.json',
-    size: 8192,
-    type: 'application/json',
-    lastModified: new Date('2024-01-09T14:30:00Z'),
-    isFolder: false,
-    isStarred: false,
-    isShared: false,
-    hasPassword: true,
-    inArchive: false,
-    category: 'code',
-    path: ['Development', 'Config']
+    original_name: 'config.json',
+    mime_type: 'application/json',
+    file_size: 2345,
+    size: 2345,
+    created_at: new Date(Date.now() - 1123200000).toISOString(), // 13 days ago
+    content: `{
+  "app": {
+    "name": "YukiFiles",
+    "version": "1.0.0",
+    "port": 3000
   },
-  
-  // Database Files
-  {
-    id: 'demo-8',
-    name: 'user-data.sqlite',
-    size: 12582912,
-    type: 'application/x-sqlite3',
-    lastModified: new Date('2024-01-08T12:00:00Z'),
-    isFolder: false,
-    isStarred: true,
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "name": "yukifiles_db"
+  },
+  "features": {
+    "fileSharing": true,
+    "encryption": true,
+    "analytics": true
+  }
+}`,
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: false,
     isShared: false,
-    hasPassword: true,
-    inArchive: false,
+    owner: 'demo@yukifiles.com',
+    category: 'code'
+  },
+
+  // Archives
+  {
+    id: 'demo-archive-1',
+    name: 'Project_Backup.zip',
+    original_name: 'Project_Backup.zip',
+    mime_type: 'application/zip',
+    file_size: 34567890,
+    size: 34567890,
+    created_at: new Date(Date.now() - 1209600000).toISOString(), // 14 days ago
+    content: 'Mock ZIP archive content',
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
+    category: 'archive',
+    inArchive: false
+  },
+  {
+    id: 'demo-archive-2',
+    name: 'Documents.tar.gz',
+    original_name: 'Documents.tar.gz',
+    mime_type: 'application/gzip',
+    file_size: 23456789,
+    size: 23456789,
+    created_at: new Date(Date.now() - 1296000000).toISOString(), // 15 days ago
+    content: 'Mock TAR.GZ archive content',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'archive'
+  },
+
+  // Database
+  {
+    id: 'demo-db-1',
+    name: 'users.db',
+    original_name: 'users.db',
+    mime_type: 'application/x-sqlite3',
+    file_size: 5678901,
+    size: 5678901,
+    created_at: new Date(Date.now() - 1382400000).toISOString(), // 16 days ago
+    content: 'Mock SQLite database content',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
     category: 'database',
-    path: ['Data', 'Production']
+    hasPassword: true
   },
   {
-    id: 'demo-9',
-    name: 'analytics.db',
-    size: 25165824,
-    type: 'application/x-sqlite3',
-    lastModified: new Date('2024-01-07T09:45:00Z'),
-    isFolder: false,
+    id: 'demo-db-2',
+    name: 'analytics.sql',
+    original_name: 'analytics.sql',
+    mime_type: 'application/sql',
+    file_size: 12345,
+    size: 12345,
+    created_at: new Date(Date.now() - 1468800000).toISOString(), // 17 days ago
+    content: `-- Analytics Query
+SELECT 
+  DATE(created_at) as date,
+  COUNT(*) as total_files,
+  SUM(file_size) as total_size
+FROM files 
+WHERE created_at >= DATE('now', '-30 days')
+GROUP BY DATE(created_at)
+ORDER BY date DESC;`,
+    thumbnail: null,
+    is_starred: false,
     isStarred: false,
+    is_public: true,
     isShared: true,
-    hasPassword: false,
-    inArchive: false,
-    category: 'database',
-    path: ['Data', 'Analytics'],
-    accessLimits: { views: 5, downloads: 1, maxViews: 10, maxDownloads: 3 }
+    owner: 'demo@yukifiles.com',
+    category: 'database'
   },
-  
-  // Archive Files với "In Archive" badges
+
+  // Other types
   {
-    id: 'demo-10',
-    name: 'project-backup.tar.gz',
-    size: 104857600,
-    type: 'application/gzip',
-    lastModified: new Date('2024-01-06T18:30:00Z'),
-    isFolder: false,
+    id: 'demo-other-1',
+    name: 'README.md',
+    original_name: 'README.md',
+    mime_type: 'text/markdown',
+    file_size: 3456,
+    size: 3456,
+    created_at: new Date(Date.now() - 1555200000).toISOString(), // 18 days ago
+    content: `# YukiFiles Demo
+
+## Features
+- Secure file sharing
+- Real-time collaboration
+- Advanced analytics
+- Mobile-first design
+
+## Installation
+\`\`\`bash
+npm install
+npm run dev
+\`\`\`
+
+## Usage
+Upload files, share with team, collaborate in real-time.`,
+    thumbnail: null,
+    is_starred: true,
     isStarred: true,
+    is_public: true,
     isShared: true,
-    hasPassword: false,
-    inArchive: true,
-    category: 'archive',
-    path: ['Backups'],
-    encryptedName: 'cHJvamVjdC1iYWNrdXA',
-    accessLimits: { views: 12, downloads: 4, maxViews: 30, maxDownloads: 10 }
+    owner: 'demo@yukifiles.com',
+    category: 'other'
   },
   {
-    id: 'demo-11',
-    name: 'website-assets.zip',
-    size: 15728640,
-    type: 'application/zip',
-    lastModified: new Date('2024-01-05T14:20:00Z'),
-    isFolder: false,
+    id: 'demo-other-2',
+    name: 'certificate.pem',
+    original_name: 'certificate.pem',
+    mime_type: 'application/x-pem-file',
+    file_size: 1234,
+    size: 1234,
+    created_at: new Date(Date.now() - 1641600000).toISOString(), // 19 days ago
+    content: '-----BEGIN CERTIFICATE-----\nMIIBkTCB+wIJAKZ...\n-----END CERTIFICATE-----',
+    thumbnail: null,
+    is_starred: false,
     isStarred: false,
+    is_public: false,
     isShared: false,
+    owner: 'demo@yukifiles.com',
+    category: 'other',
     hasPassword: true,
-    inArchive: true,
-    category: 'archive',
-    path: ['Web', 'Assets']
-  },
-  {
-    id: 'demo-12',
-    name: 'documents-archive.7z',
-    size: 7340032,
-    type: 'application/x-7z-compressed',
-    lastModified: new Date('2024-01-04T16:10:00Z'),
-    isFolder: false,
-    isStarred: false,
-    isShared: true,
-    hasPassword: true,
-    inArchive: true,
-    category: 'archive',
-    path: ['Archives'],
-    encryptedName: 'ZG9jdW1lbnRzLWFyY2hpdmU',
-    expiresAt: new Date('2024-02-04T16:10:00Z')
-  },
-  
-  // Folders
-  {
-    id: 'folder-1',
-    name: 'Documents',
-    size: 0,
-    type: 'folder',
-    lastModified: new Date('2024-01-15T10:00:00Z'),
-    isFolder: true,
-    isStarred: false,
-    isShared: false,
-    hasPassword: false,
-    inArchive: false,
-    category: 'folder',
-    path: []
-  },
-  {
-    id: 'folder-2',
-    name: 'Media',
-    size: 0,
-    type: 'folder',
-    lastModified: new Date('2024-01-14T10:00:00Z'),
-    isFolder: true,
-    isStarred: true,
-    isShared: false,
-    hasPassword: false,
-    inArchive: false,
-    category: 'folder',
-    path: []
-  },
-  {
-    id: 'folder-3',
-    name: 'Development',
-    size: 0,
-    type: 'folder',
-    lastModified: new Date('2024-01-13T10:00:00Z'),
-    isFolder: true,
-    isStarred: false,
-    isShared: true,
-    hasPassword: true,
-    inArchive: false,
-    category: 'folder',
-    path: []
+    encryptedName: '***********'
   }
 ]
 
-export function getFileIcon(file: DemoFileItem, size: 'sm' | 'md' | 'lg' = 'md') {
+// Demo folders
+export const demoFolders = [
+  {
+    id: 'folder-1',
+    name: 'Dự án 2024',
+    type: 'folder',
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    file_count: 15,
+    total_size: 125000000
+  },
+  {
+    id: 'folder-2', 
+    name: 'Hình ảnh',
+    type: 'folder',
+    created_at: new Date(Date.now() - 172800000).toISOString(),
+    file_count: 8,
+    total_size: 45000000
+  },
+  {
+    id: 'folder-3',
+    name: 'Tài liệu quan trọng',
+    type: 'folder', 
+    created_at: new Date(Date.now() - 259200000).toISOString(),
+    file_count: 12,
+    total_size: 78000000
+  }
+]
+
+export function getFileIcon(file: FileItem, size: 'sm' | 'md' | 'lg' = 'md') {
   const iconSize = size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'
   
-  if (file.isFolder) {
+  if (file.is_folder) {
     return <Folder className={`${iconSize} text-purple-400`} />
   }
   
@@ -336,7 +518,7 @@ export function getFileIcon(file: DemoFileItem, size: 'sm' | 'md' | 'lg' = 'md')
   }
 }
 
-export function getFileBadges(file: DemoFileItem) {
+export function getFileBadges(file: FileItem) {
   const badges = []
   
   if (file.inArchive) {
@@ -375,7 +557,7 @@ export function getFileBadges(file: DemoFileItem) {
   }
   
   if (file.expiresAt) {
-    const isExpiringSoon = file.expiresAt.getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000 // 7 days
+    const isExpiringSoon = new Date(file.expiresAt).getTime() - Date.now() < 7 * 24 * 60 * 60 * 1000 // 7 days
     badges.push(
       <Badge key="expires" className={`text-xs ${isExpiringSoon ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'}`}>
         <AlertTriangle className="w-3 h-3 mr-1" />
@@ -385,9 +567,9 @@ export function getFileBadges(file: DemoFileItem) {
   }
   
   if (file.accessLimits) {
-    const { views, maxViews, downloads, maxDownloads } = file.accessLimits
-    const viewsUsed = (views / maxViews) * 100
-    const downloadsUsed = (downloads / maxDownloads) * 100
+    const { maxViews, maxDownloads, currentViews, currentDownloads } = file.accessLimits
+    const viewsUsed = (currentViews / maxViews) * 100
+    const downloadsUsed = (currentDownloads / maxDownloads) * 100
     
     if (viewsUsed > 80 || downloadsUsed > 80) {
       badges.push(
@@ -410,12 +592,12 @@ export function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-export function getFileStats(files: DemoFileItem[] = []) {
+export function getFileStats(files: FileItem[] = []) {
   const safeFiles = files || []
   const stats = {
     total: safeFiles.length,
-    folders: safeFiles.filter(f => f?.isFolder).length,
-    files: safeFiles.filter(f => !f?.isFolder).length,
+    folders: safeFiles.filter(f => f?.is_folder).length,
+    files: safeFiles.filter(f => !f?.is_folder).length,
     shared: safeFiles.filter(f => f?.isShared).length,
     protected: safeFiles.filter(f => f?.hasPassword).length,
     archived: safeFiles.filter(f => f?.inArchive).length,
