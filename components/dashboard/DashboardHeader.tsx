@@ -31,14 +31,18 @@ interface DashboardHeaderProps {
 export default function DashboardHeader({
   userData,
   filesCount,
-  recentActivity = [], // Default empty array
+  recentActivity = [],
   isDemoMode = false
 }: DashboardHeaderProps) {
   const toast = useToastHelpers()
   const [isUploading, setIsUploading] = useState(false)
 
   if (!userData) {
-    return <div>Loading...</div>
+    return (
+      <div className="animate-pulse">
+        <div className="h-32 bg-gray-800 rounded-lg"></div>
+      </div>
+    )
   }
 
   const getGreeting = () => {
@@ -48,194 +52,212 @@ export default function DashboardHeader({
     return "Good evening"
   }
 
-  const quotaUsedGB = (userData.quota_used / (1024 * 1024 * 1024)).toFixed(2)
-  const quotaLimitGB = (userData.quota_limit / (1024 * 1024 * 1024)).toFixed(0)
-  const quotaPercentage = Math.round((userData.quota_used / userData.quota_limit) * 100)
-
-  const getStorageColor = () => {
-    if (quotaPercentage > 80) return "text-red-400"
-    if (quotaPercentage > 60) return "text-yellow-400"
-    return "text-green-400"
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
-  const getStorageProgressColor = () => {
-    if (quotaPercentage > 80) return "bg-red-500"
-    if (quotaPercentage > 60) return "bg-yellow-500"
-    return "bg-green-500"
-  }
+  const usagePercentage = userData.quota_limit > 0 ? 
+    Math.round((userData.quota_used / userData.quota_limit) * 100) : 0
 
   const handleUpload = () => {
+    if (isDemoMode) {
+      toast.success("Upload Demo", "This is a demo - files would be uploaded here")
+      return
+    }
     setIsUploading(true)
-    // Simulate upload process
-    setTimeout(() => {
-      setIsUploading(false)
-      toast.success("Files uploaded successfully!", "Your files have been uploaded and are ready to share.")
-    }, 2000)
+    // Real upload logic would go here
+    setTimeout(() => setIsUploading(false), 2000)
   }
 
-  const handleUpgrade = () => {
-    toast.info("Upgrade to Premium", "Get more storage and advanced features!", {
-      action: {
-        label: "View Plans",
-        onClick: () => window.location.href = "/pricing"
-      }
-    })
+  const handleCreateFolder = () => {
+    if (isDemoMode) {
+      toast.success("Create Folder Demo", "This is a demo - folder would be created here")
+      return
+    }
+    // Real folder creation logic
+  }
+
+  const handleShare = () => {
+    if (isDemoMode) {
+      toast.success("Share Demo", "This is a demo - sharing features available here")
+      return
+    }
+    // Real sharing logic
   }
 
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="space-y-2">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white">
-            {getGreeting()}, {userData?.email?.split('@')[0] || 'User'}! 👋
-          </h1>
-          <p className="text-gray-400">
-            Welcome back to your file management dashboard
+      <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-white mb-2">
+              {getGreeting()}, {userData.email.split('@')[0]}!
+            </h1>
+            <p className="text-gray-300">
+              {isDemoMode ? 
+                "Exploring YukiFiles Demo - All features available for testing" : 
+                "Welcome back to your secure file management dashboard"
+              }
+            </p>
             {userData.is_admin && (
-              <span className="ml-2 px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded-full">
-                Admin
-              </span>
+              <div className="flex items-center gap-2 mt-2">
+                <Star className="w-4 h-4 text-yellow-400" />
+                <span className="text-yellow-400 text-sm font-medium">Admin Access</span>
+              </div>
             )}
-          </p>
-        </div>
-        
-        <div className="flex flex-wrap gap-3">
-          <Button 
-            onClick={handleUpload}
-            disabled={isUploading}
-            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
-          >
-            {isUploading ? (
-              <>
-                <div className="w-4 h-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Uploading...
-              </>
-            ) : (
-              <>
-                <Upload className="w-4 h-4 mr-2" />
-                Upload Files
-              </>
-            )}
-          </Button>
-          <Button variant="outline" className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
-            <Share2 className="w-4 h-4 mr-2" />
-            Share
-          </Button>
-          {userData.subscription_type === "free" && (
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button 
-              onClick={handleUpgrade}
-              variant="outline" 
-              className="border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/10"
+              onClick={handleUpload}
+              disabled={isUploading}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
             >
-              <Star className="w-4 h-4 mr-2" />
-              Upgrade
+              <Upload className="w-4 h-4 mr-2" />
+              {isUploading ? "Uploading..." : "Upload Files"}
             </Button>
-          )}
+            <Button 
+              onClick={handleCreateFolder}
+              variant="outline"
+              className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Folder
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Quick Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20 hover:border-purple-500/40 transition-all duration-300">
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Storage Usage */}
+        <Card className="bg-black/40 border-purple-500/20">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Total Files</p>
-                <p className="text-2xl font-bold text-white">{filesCount}</p>
-                <p className="text-xs text-gray-500">Files uploaded</p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <HardDrive className="w-5 h-5 text-blue-400" />
+                <h3 className="font-semibold text-white">Storage</h3>
               </div>
-              <div className="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-purple-400" />
+              <span className="text-sm text-gray-400">
+                {userData.subscription_type === "paid" ? "Pro Plan" : "Free Plan"}
+              </span>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Used</span>
+                <span className="text-white">
+                  {formatFileSize(userData.quota_used)} / {formatFileSize(userData.quota_limit)}
+                </span>
+              </div>
+              <Progress value={usagePercentage} className="h-2" />
+              <div className="text-xs text-gray-500">
+                {usagePercentage}% used
               </div>
             </div>
+            
+            {usagePercentage > 80 && (
+              <div className="flex items-center mt-3 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded">
+                <AlertTriangle className="w-4 h-4 text-yellow-400 mr-2" />
+                <span className="text-xs text-yellow-400">Storage almost full</span>
+              </div>
+            )}
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border-blue-500/20 hover:border-blue-500/40 transition-all duration-300">
+        {/* Files Count */}
+        <Card className="bg-black/40 border-purple-500/20">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Storage Used</p>
-                <p className="text-2xl font-bold text-white">{quotaUsedGB} GB</p>
-                <p className="text-xs text-gray-500">of {quotaLimitGB} GB</p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <FileText className="w-5 h-5 text-green-400" />
+                <h3 className="font-semibold text-white">Files</h3>
               </div>
-              <div className="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                <HardDrive className="w-6 h-6 text-blue-400" />
-              </div>
+              <Share2 className="w-4 h-4 text-gray-400" />
             </div>
-            <div className="mt-3">
-              <Progress 
-                value={quotaPercentage} 
-                className="h-2"
-                style={{
-                  '--progress-background': getStorageProgressColor()
-                } as React.CSSProperties}
-              />
-              <p className={`text-xs mt-1 ${getStorageColor()}`}>
-                {quotaPercentage}% used
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 border-green-500/20 hover:border-green-500/40 transition-all duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Plan</p>
-                <p className="text-2xl font-bold text-white capitalize">{userData.subscription_type}</p>
-                <p className="text-xs text-gray-500">
-                  {userData.subscription_type === "paid" ? "Premium features" : "Free plan"}
-                </p>
-              </div>
-              <div className="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center">
-                <Zap className="w-6 h-6 text-green-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-gradient-to-br from-orange-500/10 to-red-500/10 border-orange-500/20 hover:border-orange-500/40 transition-all duration-300">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-400 mb-1">Recent Activity</p>
-                <p className="text-2xl font-bold text-white">{recentActivity.length}</p>
-                <p className="text-xs text-gray-500">This week</p>
-              </div>
-              <div className="w-12 h-12 bg-orange-500/20 rounded-lg flex items-center justify-center">
-                <Users className="w-6 h-6 text-orange-400" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Storage Warning */}
-      {quotaPercentage > 80 && (
-        <Card className="bg-red-500/10 border-red-500/20">
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-red-500/20 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-4 h-4 text-red-400" />
-              </div>
-              <div className="flex-1">
-                <p className="text-red-300 font-medium">Storage almost full</p>
-                <p className="text-red-400 text-sm">
-                  You're using {quotaPercentage}% of your storage. Consider upgrading to get more space.
-                </p>
-              </div>
-              <Button 
-                onClick={handleUpgrade}
-                size="sm" 
-                className="bg-red-500 hover:bg-red-600 text-white"
+            
+            <div className="space-y-2">
+              <div className="text-2xl font-bold text-white">{filesCount}</div>
+              <div className="text-sm text-gray-400">Total files managed</div>
+              
+              <Button
+                onClick={handleShare}
+                variant="ghost"
+                size="sm"
+                className="w-full mt-2 text-green-400 hover:text-green-300 hover:bg-green-500/10"
               >
-                Upgrade Now
+                <Share2 className="w-4 h-4 mr-2" />
+                Share Files
               </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Recent Activity */}
+        <Card className="bg-black/40 border-purple-500/20">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Zap className="w-5 h-5 text-purple-400" />
+                <h3 className="font-semibold text-white">Activity</h3>
+              </div>
+              <Users className="w-4 h-4 text-gray-400" />
+            </div>
+            
+            <div className="space-y-3">
+              {recentActivity.length > 0 ? (
+                <>
+                  <div className="text-2xl font-bold text-white">{recentActivity.length}</div>
+                  <div className="text-sm text-gray-400">Recent actions</div>
+                  <div className="space-y-1">
+                    {recentActivity.slice(0, 2).map((activity) => (
+                      <div key={activity.id} className="text-xs text-gray-500 truncate">
+                        {activity.type === 'upload' && '📤 '}
+                        {activity.type === 'download' && '📥 '}
+                        {activity.type === 'share' && '🔗 '}
+                        {activity.type === 'delete' && '🗑️ '}
+                        {activity.fileName}
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="text-2xl font-bold text-gray-500">0</div>
+                  <div className="text-sm text-gray-400">No recent activity</div>
+                  <div className="text-xs text-gray-500">Start uploading files to see activity</div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Demo Mode Banner */}
+      {isDemoMode && (
+        <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                <Zap className="w-4 h-4 text-blue-400" />
+              </div>
+              <div>
+                <h4 className="font-medium text-white">Demo Mode Active</h4>
+                <p className="text-sm text-gray-400">
+                  All features are simulated for demonstration purposes
+                </p>
+              </div>
+            </div>
+            <div className="text-xs text-blue-400 bg-blue-500/10 px-2 py-1 rounded">
+              DEMO
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

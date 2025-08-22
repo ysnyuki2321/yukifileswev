@@ -28,64 +28,30 @@ import { DatabaseEditor } from "@/components/file-editor/database-editor"
 import { ArchiveViewer } from "@/components/ui/archive-viewer"
 import { formatBytes } from "@/lib/utils"
 
-export interface FileItem {
-  id: string
-  name: string
-  type: string
-  size: number
-  lastModified: Date
-  isFolder: boolean
-  content?: string
-  thumbnail?: string
-  isStarred?: boolean
-  isShared?: boolean
-  owner?: string
-  path?: string
-  hasPassword?: boolean
-  inArchive?: boolean
-  category?: string
-  encryptedName?: string
-  accessLimits?: {
-    views: number
-    downloads: number
-    maxViews: number
-    maxDownloads: number
-  }
-  expiresAt?: Date
-  // Audio metadata
-  artist?: string
-  album?: string
-  albumArt?: string
-}
-
-interface EnhancedFileManagerProps {
-  files: FileItem[]
-  onFileUpload?: (files: File[]) => void
-  onFileEdit?: (file: FileItem) => void
+export interface EnhancedFileManagerProps {
+  files: any[]
+  folders?: any[]
+  onFileCreate?: (fileData: any) => void
+  onFileUpdate?: (updatedFile: any) => void
   onFileDelete?: (fileId: string) => void
-  onFileSave?: (file: FileItem, content: string, name?: string) => void
-  onFileCreate?: (newFile: { name: string, type: string, content: string, path: string }) => void
-  onFolderCreate?: (name: string) => void
-  uploadProgress?: { [key: string]: number }
-  uploadingFiles?: string[]
+  onFileUpload?: (files: File[]) => void
+  isDemoMode?: boolean
   isAdmin?: boolean
 }
 
 export function EnhancedFileManager({
   files = [],
-  onFileUpload,
-  onFileEdit,
-  onFileDelete,
-  onFileSave,
+  folders = [],
   onFileCreate,
-  onFolderCreate,
-  uploadProgress = {},
-  uploadingFiles = [],
+  onFileUpdate,
+  onFileDelete,
+  onFileUpload,
+  isDemoMode = false,
   isAdmin = false
 }: EnhancedFileManagerProps) {
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [selectedFile, setSelectedFile] = useState<FileItem | null>(null)
+  const [selectedFile, setSelectedFile] = useState<any | null>(null)
   const [showEditor, setShowEditor] = useState(false)
   const [showMediaPreview, setShowMediaPreview] = useState(false)
   const [sortBy, setSortBy] = useState<"name" | "size" | "date">("name")
@@ -95,17 +61,17 @@ export function EnhancedFileManager({
   const [showUploadProgress, setShowUploadProgress] = useState(false)
   const [storageStats, setStorageStats] = useState({ used: 0, total: 0 })
   const [showAnalytics, setShowAnalytics] = useState(false)
-  const [contextMenu, setContextMenu] = useState<{ file: FileItem; position: { x: number; y: number } } | null>(null)
+  const [contextMenu, setContextMenu] = useState<{ file: any; position: { x: number; y: number } } | null>(null)
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
   const [multiSelectMode, setMultiSelectMode] = useState(false)
   const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
   const [showMultiActions, setShowMultiActions] = useState(false)
-  const [shareModal, setShareModal] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
-  const [advancedShareModal, setAdvancedShareModal] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
+  const [shareModal, setShareModal] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
+  const [advancedShareModal, setAdvancedShareModal] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
   const [currentPath, setCurrentPath] = useState<string[]>([])
-  const [compressionOverlay, setCompressionOverlay] = useState<{ isOpen: boolean; files: FileItem[] }>({ isOpen: false, files: [] })
-  const [databaseEditor, setDatabaseEditor] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
-  const [archiveViewer, setArchiveViewer] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
+  const [compressionOverlay, setCompressionOverlay] = useState<{ isOpen: boolean; files: any[] }>({ isOpen: false, files: [] })
+  const [databaseEditor, setDatabaseEditor] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
+  const [archiveViewer, setArchiveViewer] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
   
   // Professional modal system
   const { showInput, showConfirm, Modal } = useProfessionalModal()
@@ -148,7 +114,7 @@ export function EnhancedFileManager({
       return sortOrder === 'asc' ? comparison : -comparison
     })
 
-  const handleFileClick = (file: FileItem) => {
+  const handleFileClick = (file: any) => {
     if (file.isFolder) {
       // Handle folder navigation
       return
@@ -161,11 +127,11 @@ export function EnhancedFileManager({
     } else if (isTextFile(file.name)) {
       setSelectedFile(file)
       setShowEditor(true)
-      onFileEdit?.(file)
+      onFileUpdate?.(file)
     } else if (isMediaFile(file.name)) {
       setSelectedFile(file)
       setShowMediaPreview(true)
-      onFileEdit?.(file)
+      onFileUpdate?.(file)
     }
   }
 
@@ -183,7 +149,7 @@ export function EnhancedFileManager({
   }
 
   // Long press handlers for mobile context menu
-  const handleLongPressStart = (file: FileItem, event: React.TouchEvent | React.MouseEvent) => {
+  const handleLongPressStart = (file: any, event: React.TouchEvent | React.MouseEvent) => {
     const timer = setTimeout(() => {
       const rect = (event.target as HTMLElement).getBoundingClientRect()
       setContextMenu({
@@ -210,7 +176,7 @@ export function EnhancedFileManager({
     }
   }
 
-  const handleRightClick = (file: FileItem, event: React.MouseEvent) => {
+  const handleRightClick = (file: any, event: React.MouseEvent) => {
     event.preventDefault()
     setContextMenu({
       file,
@@ -269,11 +235,11 @@ export function EnhancedFileManager({
 
   // Context menu actions with professional modals
   const handleContextAction = {
-    share: (file: FileItem) => {
+    share: (file: any) => {
       setAdvancedShareModal({ isOpen: true, file })
       setContextMenu(null)
     },
-    rename: (file: FileItem) => {
+    rename: (file: any) => {
       showInput("Rename File", {
         description: `Enter a new name for "${file.name}"`,
         placeholder: "New file name",
@@ -286,7 +252,7 @@ export function EnhancedFileManager({
         }
       })
     },
-    delete: (file: FileItem) => {
+    delete: (file: any) => {
       showConfirm("Delete File", {
         description: `Are you sure you want to delete "${file.name}"? This action cannot be undone.`,
         confirmText: "Delete",
@@ -298,24 +264,24 @@ export function EnhancedFileManager({
         }
       })
     },
-    download: (file: FileItem) => {
+    download: (file: any) => {
       console.log('Downloading:', file.name)
       // Download logic here
     },
-    copy: (file: FileItem) => {
+    copy: (file: any) => {
       navigator.clipboard.writeText(`https://yukifiles.com/share/${file.id}`)
       console.log('Copied link for:', file.name)
     },
-    view: (file: FileItem) => handleFileClick(file),
-    toggleStar: (file: FileItem) => {
+    view: (file: any) => handleFileClick(file),
+    toggleStar: (file: any) => {
       console.log('Toggle star:', file.name)
       // Star toggle logic here
     },
-    togglePrivacy: (file: FileItem) => {
+    togglePrivacy: (file: any) => {
       console.log('Toggle privacy:', file.name)
       // Privacy toggle logic here
     },
-    moveToFolder: (file: FileItem) => {
+    moveToFolder: (file: any) => {
       showInput("Move to Folder", {
         description: `Move "${file.name}" to a different folder`,
         placeholder: "Folder path (e.g., /Documents/Projects)",
@@ -327,11 +293,11 @@ export function EnhancedFileManager({
         }
       })
     },
-    archive: (file: FileItem) => {
+    archive: (file: any) => {
       console.log('Archive:', file.name)
       // Archive logic here
     },
-    unarchive: (file: FileItem) => {
+    unarchive: (file: any) => {
       showConfirm("Extract Archive", {
         description: `Extract all files from "${file.name}"? This will add the extracted files to your file manager.`,
         confirmText: "Extract",
@@ -374,7 +340,7 @@ export function EnhancedFileManager({
         }
       })
     },
-    select: (file: FileItem) => {
+    select: (file: any) => {
       setMultiSelectMode(true)
       toggleMultiSelect(file.id)
     }
@@ -400,7 +366,7 @@ export function EnhancedFileManager({
     return mediaExtensions.includes(ext || '')
   }
 
-  const getFileIcon = (file: FileItem) => {
+  const getFileIcon = (file: any) => {
     if (file.isFolder) {
       return (
         <div className="relative">
@@ -504,7 +470,14 @@ export function EnhancedFileManager({
   const handleCreateFolder = () => {
     const name = prompt("Enter folder name:")
     if (name) {
-      onFolderCreate?.(name)
+      // Assuming onFileCreate can handle folder creation
+      const newFolder = {
+        name,
+        type: "folder",
+        content: "",
+        path: "/"
+      }
+      onFileCreate(newFolder)
     }
   }
 
@@ -929,8 +902,8 @@ export function EnhancedFileManager({
               lastModified: selectedFile.lastModified
             }}
             onSave={(file, content, name) => {
-              if (onFileSave) {
-                onFileSave(selectedFile, content, name)
+              if (onFileUpdate) {
+                onFileUpdate({ ...file, content, name })
               }
               closeEditor()
             }}

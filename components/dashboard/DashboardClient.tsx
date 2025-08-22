@@ -1,11 +1,9 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-// YukiFiles J-Safe Mode was here but removed after successful testing
 import DashboardHeader from "@/components/dashboard/DashboardHeader"
 import ProfessionalCharts from "@/components/dashboard/ProfessionalCharts"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
-type ActivityItem = any
 import RecentFiles from "@/components/dashboard/RecentFiles"
 import AIToolsDemo from "@/components/dashboard/AIToolsDemo"
 import CollaborationDemo from "@/components/dashboard/CollaborationDemo"
@@ -13,7 +11,6 @@ import PaymentDemo from "@/components/dashboard/PaymentDemo"
 import DiskManagementDemo from "@/components/dashboard/DiskManagementDemo"
 import { AdminDemo } from "@/components/dashboard/AdminDemo"
 import { SettingsDemo } from "@/components/dashboard/SettingsDemo"
-import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { UltimateFileManagerDemo } from "@/components/demo/UltimateFileManagerDemo"
 import { SimpleErrorScreen } from "@/components/ui/simple-error-screen"
 import Sidebar from "@/components/dashboard/Sidebar"
@@ -66,6 +63,7 @@ export default function DashboardClient() {
   const [userData, setUserData] = useState<any>(null)
   const [recentFiles, setRecentFiles] = useState<any[]>([])
   const [filesCount, setFilesCount] = useState(0)
+  const [recentActivity, setRecentActivity] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   const isDemoMode = searchParams?.get('demo') === 'true'
@@ -98,193 +96,207 @@ export default function DashboardClient() {
               thumbnail: null,
               is_starred: false,
               isStarred: false,
-              is_public: true,
-              isShared: true,
-              owner: 'demo@yukifiles.com'
-            },
-            {
-              id: 'demo-2',
-              original_name: 'app.tsx',
-              name: 'app.tsx',
-              mime_type: 'text/tsx',
-              file_size: 1520,
-              size: 1520,
-              created_at: new Date().toISOString(),
-              content: 'import React from "react"\nexport default function App() {\n  return <div>Hello YukiFiles</div>\n}',
-              thumbnail: null,
-              is_starred: true,
-              isStarred: true,
               is_public: false,
               isShared: false,
               owner: 'demo@yukifiles.com'
             },
             {
-              id: 'demo-3',
-              original_name: 'Beautiful_Landscape.jpg',
-              name: 'Beautiful_Landscape.jpg',
-              mime_type: 'image/jpeg',
-              file_size: 3247891,
-              size: 3247891,
-              created_at: new Date().toISOString(),
-              content: 'https://cdn.discordapp.com/attachments/1234567890/demo-image.jpg',
-              thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/demo-thumb.jpg',
-              is_starred: false,
-              isStarred: false,
+              id: 'demo-2',
+              original_name: 'presentation.pptx',
+              name: 'presentation.pptx',
+              mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+              file_size: 5892103,
+              size: 5892103,
+              created_at: new Date(Date.now() - 86400000).toISOString(),
+              content: 'Mock PowerPoint content',
+              thumbnail: null,
+              is_starred: true,
+              isStarred: true,
               is_public: true,
               isShared: true,
+              owner: 'demo@yukifiles.com'
+            },
+            {
+              id: 'demo-3',
+              original_name: 'team-photo.jpg',
+              name: 'team-photo.jpg',
+              mime_type: 'image/jpeg',
+              file_size: 1234567,
+              size: 1234567,
+              created_at: new Date(Date.now() - 172800000).toISOString(),
+              content: 'Mock image content',
+              thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzFFMUUyRSIvPgo8cGF0aCBkPSJNMTIgMTZIMjhWMjRIMTJWMTZaIiBmaWxsPSIjNkM3Mjg1Ii8+CjxwYXRoIGQ9Ik0xNiAyMEMyMC40MTgzIDIwIDI0IDIzLjU4MTcgMjQgMjhIMTZWMjBaIiBmaWxsPSIjOEI1Q0Y2Ii8+Cjwvc3ZnPgo=',
+              is_starred: false,
+              isStarred: false,
+              is_public: false,
+              isShared: false,
               owner: 'demo@yukifiles.com'
             }
           ]
           
+          const mockActivity = [
+            { id: '1', type: 'upload', fileName: 'project-proposal.pdf', timestamp: new Date().toISOString() },
+            { id: '2', type: 'share', fileName: 'presentation.pptx', timestamp: new Date(Date.now() - 3600000).toISOString() },
+            { id: '3', type: 'download', fileName: 'team-photo.jpg', timestamp: new Date(Date.now() - 7200000).toISOString() }
+          ]
+          
           setRecentFiles(mockFiles)
           setFilesCount(mockFiles.length)
+          setRecentActivity(mockActivity)
         } else {
-          // For non-demo mode, use simple mock data too (no Supabase to prevent j error)
-          const authUser = { email: "user@yukifiles.com", id: "user-123" }
-          setUser(authUser)
-          setUserData(getMockUserData())
+          // Regular mode - would load from API
+          setUser({ email: "user@example.com", id: "user-123" })
+          setUserData({ 
+            id: "user-123",
+            email: "user@example.com",
+            subscription_type: "free",
+            quota_used: 0,
+            quota_limit: 2000000000,
+            is_admin: false
+          })
           setRecentFiles([])
           setFilesCount(0)
+          setRecentActivity([])
         }
-
-        setLoading(false)
       } catch (error) {
-        console.error('Dashboard loading error:', error)
+        console.error('Error loading dashboard data:', error)
+      } finally {
         setLoading(false)
-        throw error // Let error boundary catch it
       }
     }
 
     loadData()
   }, [isDemoMode])
 
-  const brandName = "YukiFiles"
+  if (loading) {
+    return <PageSkeleton />
+  }
 
-  const recentActivity: ActivityItem[] = [
-    { id: '1', type: 'upload', fileName: 'document.pdf', timestamp: '2 hours ago', fileType: 'document' },
-    { id: '2', type: 'share', fileName: 'presentation.pptx', timestamp: '1 day ago', fileType: 'presentation' },
-    { id: '3', type: 'download', fileName: 'image.jpg', timestamp: '3 days ago', fileType: 'image' }
-  ]
+  const renderTabContent = () => {
+    if (!isDemoMode) {
+      return (
+        <div className="space-y-6">
+          <DashboardHeader 
+            userData={userData}
+            filesCount={filesCount}
+            recentActivity={recentActivity}
+          />
+          <div className="grid gap-6 lg:grid-cols-3">
+            <div className="lg:col-span-2 space-y-6">
+              <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={false} />
+              <ActivityFeed activities={recentActivity || []} />
+            </div>
+            <div className="order-first lg:order-last">
+              <RecentFiles files={recentFiles || []} />
+            </div>
+          </div>
+        </div>
+      )
+    }
 
-  if (loading) return <PageSkeleton />
-  if (!user) return null
+    switch (activeTab) {
+      case 'dashboard':
+        return (
+          <div className="space-y-6">
+            <DashboardHeader 
+              userData={userData}
+              filesCount={filesCount}
+              recentActivity={recentActivity}
+              isDemoMode={isDemoMode}
+            />
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-6">
+                <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                <ActivityFeed activities={recentActivity || []} />
+              </div>
+              <div className="order-first lg:order-last">
+                <RecentFiles files={recentFiles || []} />
+              </div>
+            </div>
+          </div>
+        )
+      
+      case 'filemanager':
+        return <UltimateFileManagerDemo />
+        
+      case 'analytics':
+        return <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
+        
+      case 'ai':
+        return <AIToolsDemo isDemoMode={true} />
+        
+      case 'collaboration':
+        return <CollaborationDemo isDemoMode={true} />
+        
+      case 'pricing':
+        return <PaymentDemo isDemoMode={true} />
+        
+      case 'admin':
+        return <AdminDemo />
+        
+      case 'settings':
+        return <SettingsDemo />
+        
+      case 'infrastructure':
+        return userData?.is_admin ? <DiskManagementDemo isDemoMode={true} /> : null
+        
+      default:
+        return (
+          <div className="space-y-6">
+            <DashboardHeader 
+              userData={userData}
+              filesCount={filesCount}
+              recentActivity={recentActivity}
+              isDemoMode={isDemoMode}
+            />
+            <div className="grid gap-6 lg:grid-cols-3">
+              <div className="lg:col-span-2 space-y-6">
+                <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                <ActivityFeed activities={recentActivity || []} />
+              </div>
+              <div className="order-first lg:order-last">
+                <RecentFiles files={recentFiles || []} />
+              </div>
+            </div>
+          </div>
+        )
+    }
+  }
 
   return (
-    <DashboardErrorBoundary fallbackTitle="Dashboard Error">
-      <div className="min-h-screen mobile-viewport-fix bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-        <div className="flex mobile-stable">
+    <DashboardErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+        <div className="flex h-screen">
           {/* Desktop Sidebar */}
-          <div className="hidden md:block">
+          <div className="hidden md:flex md:w-64 md:flex-col">
             <Sidebar 
-              isAdmin={Boolean(userData?.is_admin)}
-              brandName={brandName}
-              isOpen={true}
-              onClose={() => {}}
-              activeTab={isDemoMode ? "overview" : undefined}
+              isAdmin={userData?.is_admin} 
+              activeTab={activeTab}
             />
           </div>
-          
+
           {/* Mobile Sidebar */}
-          <MobileSidebar
+          <MobileSidebar 
             isOpen={isSidebarOpen}
             onClose={() => setIsSidebarOpen(false)}
-            isAdmin={Boolean(userData?.is_admin)}
-            brandName={brandName}
+            isAdmin={userData?.is_admin}
+            activeTab={activeTab}
           />
-          
-          <div className="flex-1 min-w-0">
+
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col overflow-hidden">
             <Topbar 
-              userEmail={user?.email || 'user@yukifiles.com'}
-              isPremium={userData?.subscription_type === "paid"}
-              brandName={brandName}
+              user={user}
+              userData={userData}
               isDemoMode={isDemoMode}
               onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
-            <main className="container mx-auto px-4 py-6">
-              <div className="space-y-8">
-                <DashboardHeader 
-                  userData={userData}
-                  filesCount={filesCount}
-                  recentActivity={recentActivity}
-                />
-                {isDemoMode ? (
-                  <div className="space-y-6">
-                    {activeTab === 'dashboard' && (
-                      <div className="space-y-6">
-                        <DashboardHeader 
-                          userData={userData}
-                          filesCount={filesCount}
-                          isDemoMode={isDemoMode}
-                        />
-                        <div className="grid gap-6 lg:grid-cols-3">
-                          <div className="lg:col-span-2 space-y-6">
-                            <DashboardErrorBoundary fallbackTitle="Charts Error">
-                              <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                            </DashboardErrorBoundary>
-                            <DashboardErrorBoundary fallbackTitle="Activity Feed Error">
-                              <ActivityFeed activities={recentActivity || []} />
-                            </DashboardErrorBoundary>
-                          </div>
-                          <div className="order-first lg:order-last">
-                            <DashboardErrorBoundary fallbackTitle="Recent Files Error">
-                              <RecentFiles files={recentFiles || []} />
-                            </DashboardErrorBoundary>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                    {activeTab === 'filemanager' && (
-                      <DashboardErrorBoundary fallbackTitle="File Manager Error">
-                        <UltimateFileManagerDemo />
-                      </DashboardErrorBoundary>
-                    )}
-                    {activeTab === 'analytics' && (
-                      <SafeDemoWrapper fallbackTitle="Loading Analytics...">
-                        <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
-                      </SafeDemoWrapper>
-                    )}
-                    {activeTab === 'ai' && (
-                      <SafeDemoWrapper fallbackTitle="Loading AI Tools...">
-                        <AIToolsDemo isDemoMode={true} />
-                      </SafeDemoWrapper>
-                    )}
-                    {activeTab === 'collaboration' && (
-                      <SafeDemoWrapper fallbackTitle="Loading Collaboration...">
-                        <CollaborationDemo isDemoMode={true} />
-                      </SafeDemoWrapper>
-                    )}
-                    {activeTab === 'pricing' && (
-                      <SafeDemoWrapper fallbackTitle="Loading Payment System...">
-                        <PaymentDemo isDemoMode={true} />
-                      </SafeDemoWrapper>
-                    )}
-                    {activeTab === 'admin' && (
-                      <SafeDemoWrapper fallbackTitle="Loading Admin Panel...">
-                        <AdminDemo />
-                      </SafeDemoWrapper>
-                    )}
-                    {activeTab === 'settings' && (
-                      <SafeDemoWrapper fallbackTitle="Loading Settings...">
-                        <SettingsDemo />
-                      </SafeDemoWrapper>
-                    )}
-                    {activeTab === 'infrastructure' && userData?.is_admin && (
-                      <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
-                        <DiskManagementDemo isDemoMode={true} />
-                      </SafeDemoWrapper>
-                    )}
-                  </div>
-                ) : (
-                  <div className="grid gap-6 lg:grid-cols-3">
-                    <div className="lg:col-span-2 space-y-6">
-                      <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                      <ActivityFeed activities={recentActivity || []} />
-                    </div>
-                    <div className="order-first lg:order-last">
-                      <RecentFiles files={recentFiles || []} />
-                    </div>
-                  </div>
-                )}
+            
+            <main className="flex-1 overflow-auto">
+              <div className="container mx-auto px-4 py-6 max-w-7xl">
+                <Suspense fallback={<PageSkeleton />}>
+                  {renderTabContent()}
+                </Suspense>
               </div>
             </main>
           </div>

@@ -10,7 +10,6 @@ import {
   Smartphone, Monitor, Tablet, Cloud, Database, Cpu, Wifi,
   Crown, Rocket, Building, Server, Infinity, Check, X, Folder
 } from "lucide-react"
-import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
 
 export default async function HomePage() {
@@ -18,7 +17,7 @@ export default async function HomePage() {
     {
       icon: <Upload className="w-6 h-6" />,
       title: "Drag & Drop Upload",
-      description: "Upload files instantly with our intuitive drag & drop interface"
+      description: "Intuitive file upload interface with drag and drop support"
     },
     {
       icon: <Shield className="w-6 h-6" />,
@@ -80,22 +79,70 @@ export default async function HomePage() {
       icon: <Crown className="w-6 h-6" />,
       color: "from-purple-500 to-pink-500",
       features: [
-        "100GB Storage",
-        "Advanced sharing",
+        "50GB Storage",
+        "Advanced sharing controls",
         "Priority support",
         "Enhanced security",
-        "Full analytics",
-        "API access",
+        "Advanced analytics",
         "Custom branding",
+        "API access",
         "Team collaboration"
       ],
       limitations: [
-        "2GB max file size",
-        "No custom domain"
+        "1GB max file size",
+        "5 team members"
       ],
       popular: true,
       cta: "Start Pro Trial",
       href: "/auth/register"
+    },
+    {
+      name: "Developer",
+      price: "$19.99", 
+      period: "per month",
+      description: "For developers and startups",
+      icon: <Code2 className="w-6 h-6" />,
+      color: "from-emerald-500 to-teal-500",
+      features: [
+        "200GB Storage",
+        "Full API access", 
+        "Webhook integrations",
+        "Advanced security",
+        "Detailed analytics",
+        "Custom domains",
+        "Unlimited team members",
+        "Priority support"
+      ],
+      limitations: [
+        "5GB max file size"
+      ],
+      popular: false,
+      cta: "Start Developer Plan",
+      href: "/auth/register"
+    },
+    {
+      name: "Team",
+      price: "$39.99",
+      period: "per month", 
+      description: "For growing teams",
+      icon: <Users className="w-6 h-6" />,
+      color: "from-orange-500 to-red-500",
+      features: [
+        "1TB Storage",
+        "Team management",
+        "Advanced permissions",
+        "SSO integration", 
+        "Advanced analytics",
+        "Custom branding",
+        "Dedicated support",
+        "SLA guarantee"
+      ],
+      limitations: [
+        "10GB max file size"
+      ],
+      popular: false,
+      cta: "Start Team Plan", 
+      href: "/contact"
     },
     {
       name: "Enterprise",
@@ -108,10 +155,10 @@ export default async function HomePage() {
         "Unlimited Storage",
         "Custom integrations",
         "Dedicated support",
-        "Advanced security",
-        "Custom branding",
-        "Team management",
-        "Audit logs",
+        "Advanced security & compliance",
+        "White-label solution",
+        "Dedicated account manager",
+        "Custom contract terms",
         "SLA guarantee"
       ],
       limitations: [],
@@ -154,8 +201,46 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
+      {/* Navigation */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-lg border-b border-purple-500/20">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg"></div>
+              <span className="text-xl font-bold text-white">YukiFiles</span>
+            </div>
+            
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-300 hover:text-white transition-colors">Features</a>
+              <a href="#pricing" className="text-gray-300 hover:text-white transition-colors">Pricing</a>
+              <a href="#about" className="text-gray-300 hover:text-white transition-colors">About</a>
+              <Link href="/demo">
+                <Button variant="ghost" className="text-purple-300 hover:text-white hover:bg-purple-500/10">
+                  <PlayCircle className="w-4 h-4 mr-2" />
+                  Try Demo
+                </Button>
+              </Link>
+              <Link href="/auth/register">
+                <Button className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Link href="/demo">
+                <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500">
+                  Demo
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Hero Section */}
-      <section className="pt-24 pb-20 px-4">
+      <section className="pt-32 pb-20 px-4">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center">
             <div className="flex items-center justify-center mb-6">
@@ -241,7 +326,7 @@ export default async function HomePage() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-20">
-        <div className="container mx-auto px-4 max-w-6xl">
+        <div className="container mx-auto px-4 max-w-7xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-white mb-4">Simple, transparent pricing</h2>
             <p className="text-xl text-gray-300 max-w-2xl mx-auto">
@@ -249,12 +334,12 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
             {plans.map((plan, index) => (
               <Card 
                 key={index} 
                 className={`relative bg-black/40 backdrop-blur-lg border-purple-500/20 hover:border-purple-500/40 transition-all duration-300 ${
-                  plan.popular ? 'border-purple-500/60 ring-2 ring-purple-500/20' : ''
+                  plan.popular ? 'border-purple-500/60 ring-2 ring-purple-500/20 scale-105' : ''
                 }`}
               >
                 {plan.popular && (
@@ -395,7 +480,7 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-gray-800">
+      <footer id="about" className="py-12 border-t border-gray-800">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
@@ -413,18 +498,18 @@ export default async function HomePage() {
               <ul className="space-y-2">
                 <li><a href="#features" className="text-gray-400 hover:text-white transition-colors">Features</a></li>
                 <li><a href="#pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
+                <li><Link href="/demo" className="text-gray-400 hover:text-white transition-colors">Demo</Link></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">API</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Integrations</a></li>
               </ul>
             </div>
             
             <div>
               <h3 className="text-white font-semibold mb-4">Company</h3>
               <ul className="space-y-2">
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">About</a></li>
+                <li><a href="#about" className="text-gray-400 hover:text-white transition-colors">About</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Blog</a></li>
                 <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="text-gray-400 hover:text-white transition-colors">Contact</a></li>
+                <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
               </ul>
             </div>
             
