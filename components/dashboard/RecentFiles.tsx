@@ -117,16 +117,18 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
         <CardTitle className="text-white">Recent Files</CardTitle>
       </CardHeader>
       <CardContent>
-        {files.length === 0 ? (
+        {(files?.length || 0) === 0 ? (
           <div className="text-center py-8 text-gray-400">
             <p>No files yet</p>
             <p className="text-sm">Upload your first file to generate a share link.</p>
           </div>
         ) : (
           <ul className="divide-y divide-gray-800">
-            {files.map((fileItem) => {
-              const FileIcon = getFileIcon(fileItem.original_name)
-              const canEdit = isTextFile(fileItem.original_name) && fileItem.content
+            {(files || []).map((fileItem) => {
+              if (!fileItem) return null
+              
+              const FileIcon = getFileIcon(fileItem?.original_name || '')
+              const canEdit = isTextFile(fileItem?.original_name || '') && fileItem?.content
               
               return (
                 <li key={fileItem.id} className="py-3 flex items-center gap-3 justify-between">

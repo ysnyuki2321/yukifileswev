@@ -322,7 +322,7 @@ export default function CollaborationDemo({ isDemoMode = true }: CollaborationDe
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {recentActivity.map((activity) => (
+              {(recentActivity || []).map((activity) => activity && (
                 <div key={activity.id} className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-lg">
                   <div className="flex-shrink-0">
                     {getActivityIcon(activity.type)}
