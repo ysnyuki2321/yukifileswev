@@ -19,37 +19,9 @@ const nextConfig = {
     },
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Prevent 'j' variable conflicts by customizing minification
+    // Disable minification completely để debug undefined length errors
     if (!dev && !isServer) {
-      config.optimization.minimizer.forEach((minimizer) => {
-        if (minimizer.constructor.name === 'TerserPlugin') {
-          minimizer.options.terserOptions = {
-            ...minimizer.options.terserOptions,
-            mangle: {
-              ...minimizer.options.terserOptions?.mangle,
-              // Reserve 'j' to prevent conflicts
-              reserved: ['j', 'J', '$j', '_j', 'jData', 'jVar', 'jTemp'],
-              // Use longer variable names
-              properties: {
-                ...minimizer.options.terserOptions?.mangle?.properties,
-                reserved: ['j', 'J', '$j', '_j']
-              }
-            },
-            compress: {
-              ...minimizer.options.terserOptions?.compress,
-              // Prevent aggressive variable renaming that might create 'j'
-              keep_fnames: /j|J/,
-              keep_classnames: /j|J/
-            }
-          }
-        }
-      })
-    }
-
-    // Add alias to prevent import conflicts
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@j-safe': require('path').resolve(__dirname, 'lib/utils/yuki-j-safe-mode.ts')
+      config.optimization.minimize = false
     }
 
     return config

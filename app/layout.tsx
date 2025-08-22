@@ -4,7 +4,7 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { ToastProvider } from "@/components/ui/toast"
 import { Toaster } from "sonner"
-import { AdvancedErrorBoundary } from "@/components/ui/advanced-error-boundary"
+import { SimpleErrorScreen } from "@/components/ui/simple-error-screen"
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -99,9 +99,9 @@ export default function RootLayout({
           disableTransitionOnChange={false}
         >
           <ToastProvider>
-            <AdvancedErrorBoundary fallbackTitle="Application Error">
+            <SimpleErrorScreen>
               {children}
-            </AdvancedErrorBoundary>
+            </SimpleErrorScreen>
             <Toaster />
           </ToastProvider>
         </ThemeProvider>
