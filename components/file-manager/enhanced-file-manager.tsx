@@ -42,7 +42,119 @@ export interface EnhancedFileManagerProps {
   isAdmin?: boolean
 }
 
-// Helper functions
+// Helper functions - moved outside component to avoid hoisting issues
+const getFileCategory = (filename: string): string => {
+  if (!filename) return 'other'
+  const ext = filename.split('.').pop()?.toLowerCase() || ''
+  const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp', 'ico', 'tiff']
+  const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv', 'm4v', '3gp']
+  const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a', 'wma', 'opus']
+  const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt', 'html', 'css', 'scss', 'sass', 'json', 'xml', 'yaml', 'yml', 'sql', 'sh', 'bash', 'zsh', 'fish', 'ps1', 'bat', 'cmd']
+  const docExts = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'md', 'rtf', 'odt', 'ods', 'odp']
+  
+  if (imageExts.includes(ext)) return 'images'
+  if (videoExts.includes(ext)) return 'videos'
+  if (audioExts.includes(ext)) return 'audio'
+  if (codeExts.includes(ext)) return 'code'
+  if (docExts.includes(ext)) return 'documents'
+  return 'other'
+}
+
+const getFileIcon = (file: any) => {
+  if (file.isFolder) {
+    return (
+      <div className="relative">
+        <Folder className="w-full h-full text-blue-400 drop-shadow-2xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-lg blur-lg"></div>
+      </div>
+    )
+  }
+  
+  // Show thumbnail for images/videos if available
+  if (file.thumbnail && getFileCategory(file.name) === 'images') {
+    return (
+      <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 relative">
+        <img 
+          src={file.thumbnail} 
+          alt={file.name}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/20"></div>
+      </div>
+    )
+  }
+  
+  if (file.thumbnail && getFileCategory(file.name) === 'videos') {
+    return (
+      <div className="w-full h-full rounded-xl overflow-hidden relative shadow-2xl border-2 border-white/20">
+        <video 
+          src={file.thumbnail} 
+          className="w-full h-full object-cover"
+          muted
+        />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+            <FileVideo className="w-3 h-3 text-white" />
+          </div>
+        </div>
+      </div>
+    )
+  }
+  
+  // Return appropriate icon based on file type
+  const category = getFileCategory(file.name)
+  switch (category) {
+    case 'images':
+      return (
+        <div className="relative">
+          <Image className="w-full h-full text-blue-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
+        </div>
+      )
+    case 'videos':
+      return (
+        <div className="relative">
+          <Video className="w-full h-full text-red-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/30 to-pink-500/30 rounded-lg blur-lg"></div>
+        </div>
+      )
+    case 'audio':
+      return (
+        <div className="relative">
+          <Music className="w-full h-full text-green-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg animate-pulse"></div>
+        </div>
+      )
+    case 'code':
+      return (
+        <div className="relative">
+          <FileCode className="w-full h-full text-purple-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
+        </div>
+      )
+    case 'documents':
+      return (
+        <div className="relative">
+          <FileText className="w-full h-full text-yellow-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
+        </div>
+      )
+    case 'database':
+      return (
+        <div className="relative">
+          <Database className="w-full h-full text-cyan-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/30 to-blue-400/30 rounded-lg blur-lg"></div>
+        </div>
+      )
+    default:
+      return (
+        <div className="relative">
+          <File className="w-full h-full text-gray-400 drop-shadow-lg" />
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
+        </div>
+      )
+  }
+}
 
 
 
