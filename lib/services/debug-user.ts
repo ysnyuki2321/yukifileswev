@@ -69,3 +69,24 @@ export function getMockSession() {
     user: getMockUser()
   }
 }
+
+export function getDebugStats() {
+  return {
+    totalUsers: 1250,
+    totalFiles: 8473,
+    totalTransactions: 2341,
+    pendingTransactions: 23,
+    suspiciousIPs: 7,
+    totalStorageUsed: 2.5 * 1024 * 1024 * 1024, // 2.5 GB
+    recentUsers: [
+      { id: '1', email: 'user1@example.com', created_at: new Date().toISOString() },
+      { id: '2', email: 'user2@example.com', created_at: new Date().toISOString() },
+      { id: '3', email: 'user3@example.com', created_at: new Date().toISOString() }
+    ],
+    recentTransactions: [
+      { id: '1', amount: 29.99, status: 'completed', created_at: new Date().toISOString() },
+      { id: '2', amount: 19.99, status: 'pending', created_at: new Date().toISOString() },
+      { id: '3', amount: 49.99, status: 'completed', created_at: new Date().toISOString() }
+    ]
+  }
+}
