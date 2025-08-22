@@ -15,9 +15,10 @@ interface FileManagerClientProps {
   userData: any
   initialFiles: any[]
   showHeader?: boolean
+  isDemo?: boolean
 }
 
-export default function FileManagerClient({ userData, initialFiles, showHeader = true }: FileManagerClientProps) {
+export default function FileManagerClient({ userData, initialFiles, showHeader = true, isDemo = false }: FileManagerClientProps) {
   const [files, setFiles] = useState(initialFiles)
   const [quotaUsed, setQuotaUsed] = useState(userData?.quota_used || 0)
 
@@ -50,7 +51,7 @@ export default function FileManagerClient({ userData, initialFiles, showHeader =
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
-                <Link href="/dashboard">
+                <Link href={isDemo ? "/dashboard?demo=true" : "/dashboard"}>
                   <Button variant="ghost" className="text-gray-300 hover:text-white">
                     <ArrowLeft className="h-4 w-4 mr-2" />
                     Back to Dashboard

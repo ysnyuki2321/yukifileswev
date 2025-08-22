@@ -70,7 +70,7 @@ export function FileEditor({
       const extension = fileName.substring(fileName.lastIndexOf('.'))
       const allowedExtensions = ALLOWED_EXTENSIONS[selectedType]
       
-      if (allowedExtensions.length > 0 && !allowedExtensions.includes(extension.toLowerCase())) {
+      if (allowedExtensions && allowedExtensions.length > 0 && !allowedExtensions.includes(extension.toLowerCase())) {
         newErrors.push(`Invalid extension for ${FILE_TYPE_NAMES[selectedType]}. Allowed: ${allowedExtensions.join(', ')}`)
       }
     } else {

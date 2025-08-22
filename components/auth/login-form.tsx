@@ -182,7 +182,7 @@ export default function LoginForm() {
                   placeholder="Enter your password"
                   value={formData.password}
                   onChange={(e) => handleInputChange("password", e.target.value)}
-                  className={`pl-10 pr-10 bg-black/30 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-500 ${
+                  className={`pl-10 pr-12 bg-black/30 border-gray-600 text-white placeholder-gray-400 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-500 ${
                     errors.password ? "border-red-500 focus:border-red-500" : ""
                   }`}
                   disabled={isLoading}
@@ -190,7 +190,7 @@ export default function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-1"
                   disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

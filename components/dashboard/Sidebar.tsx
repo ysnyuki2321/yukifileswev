@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Files, Home, CreditCard, Shield, Settings, X } from "lucide-react"
+import { Files, Home, CreditCard, Shield, Settings, X, Sparkles, BarChart3, Users, Server } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
@@ -16,19 +16,32 @@ interface SidebarProps {
 export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOpen = false, onClose, activeTab }: SidebarProps) {
   const pathname = usePathname()
 
-  const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: Home },
-    { href: "/files", label: "Files", icon: Files },
-    { href: "/pricing", label: "Pricing", icon: CreditCard },
-  ]
-
-  // Check if we're in demo mode or files page
+  // Check if we're in demo mode or files page - MOVED UP to prevent hoisting
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
   const isFilesPage = pathname === '/files'
 
-  if (isAdmin) {
-    navItems.push({ href: "/admin", label: "Admin", icon: Shield })
-    navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings })
+  const navItems = [
+    { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home },
+    { href: isDemoMode ? "/files?demo=true" : "/files", label: "Files", icon: Files },
+  ]
+
+  // Demo mode: Add all features to dashboard
+  if (isDemoMode) {
+    navItems.push({ href: "/dashboard?demo=true&tab=filemanager", label: "File Manager", icon: Files })
+    navItems.push({ href: "/dashboard?demo=true&tab=analytics", label: "Analytics", icon: BarChart3 })
+    navItems.push({ href: "/dashboard?demo=true&tab=collaboration", label: "Collaboration", icon: Users })
+    navItems.push({ href: "/dashboard?demo=true&tab=ai", label: "AI Tools", icon: Sparkles })
+    navItems.push({ href: "/dashboard?demo=true&tab=security", label: "Security", icon: Shield })
+    navItems.push({ href: "/dashboard?demo=true&tab=pricing", label: "Pricing", icon: CreditCard })
+    navItems.push({ href: "/dashboard?demo=true&tab=admin", label: "Admin", icon: Settings })
+    navItems.push({ href: "/dashboard?demo=true&tab=settings", label: "Settings", icon: Settings })
+    navItems.push({ href: "/dashboard?demo=true&tab=infrastructure", label: "Infrastructure", icon: Server })
+  } else {
+    navItems.push({ href: "/pricing", label: "Pricing", icon: CreditCard })
+    if (isAdmin) {
+      navItems.push({ href: "/admin", label: "Admin", icon: Shield })
+      navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings })
+    }
   }
 
   return (
@@ -49,7 +62,9 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
       )}>
         <div className="h-16 px-6 flex items-center justify-between border-b border-purple-500/20">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-2"></div>
+            <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg mr-2 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
             <span className="text-white font-bold text-lg">{brandName}</span>
           </div>
           <button 
@@ -68,11 +83,23 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
             <Link
               key={item.href}
               href={item.href}
-              onClick={onClose}
-              className={`flex items-center px-3 py-2 rounded-md transition-colors ${
+              onClick={(e) => {
+                // Ensure mobile sidebar closes on navigation
+                if (typeof onClose === 'function') {
+                  onClose()
+                }
+                // For demo tabs, prevent default navigation and handle client-side
+                if (item.href.includes('tab=')) {
+                  e.preventDefault()
+                  const url = new URL(item.href, window.location.origin)
+                  window.history.pushState({}, '', url.pathname + url.search)
+                  window.location.reload()
+                }
+              }}
+              className={`flex items-center px-3 py-2 rounded-md transition-colors touch-manipulation ${
                 isActive
                   ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30"
-                  : "text-gray-300 hover:text-white hover:bg-white/5"
+                  : "text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
               }`}
             >
               <Icon className="h-4 w-4 mr-2" />

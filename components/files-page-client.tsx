@@ -4,11 +4,13 @@ import { useEffect, useState } from "react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
+import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlayCircle, FileText, Code, Image, Video, Music, Sparkles } from "lucide-react"
+import { comprehensiveDemoFiles } from "@/components/demo/ComprehensiveDemoFiles"
 
 interface User {
   email: string
@@ -57,44 +59,50 @@ export default function FilesPageClient() {
   useEffect(() => {
     async function loadData() {
       try {
-        // For now, always use debug mode
-        console.log("[v0] Using debug mode for files page")
-        setUser({ email: "debug@yukifiles.com", id: "debug-user-123" })
-        setUserData(getMockUserData())
+        // Check if demo mode
+        const urlParams = new URLSearchParams(window.location.search)
+        const isDemo = urlParams.get('demo') === 'true'
+        setIsDemoMode(isDemo)
         
-        // Transform debug files to match FileItem interface
-        const res = await fetch('/api/debug/files', { cache: 'no-store' })
-        const data = await res.json()
-        const debugFiles = Array.isArray(data.files) ? data.files : []
-        // Replace untitled placeholders with curated sample files
-        const samples: FileItem[] = [
-          { id: 's1', name: 'app.tsx', type: 'text/tsx', size: 1520, lastModified: new Date(), isFolder: false, content: `import React from 'react'\nexport default function App(){\n  return <div>Hello YukiFiles</div>\n}` , path: '/' },
-          { id: 's2', name: 'server.js', type: 'application/javascript', size: 2440, lastModified: new Date(), isFolder: false, content: `const http=require('http')\nhttp.createServer((_,res)=>{res.end('OK')}).listen(3000)` , path: '/' },
-          { id: 's3', name: 'style.css', type: 'text/css', size: 980, lastModified: new Date(), isFolder: false, content: `body{font-family:system-ui;background:#0b1020;color:#fff}` , path: '/' },
-          { id: 's4', name: 'README.md', type: 'text/markdown', size: 1200, lastModified: new Date(), isFolder: false, content: `# YukiFiles\n\nDemo file manager samples.` , path: '/' }
-        ]
-        const transformedDebugFiles: FileItem[] = debugFiles.map((file: any) => ({
+        console.log("[v0] Loading files page data")
+        setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
+        const mockData = getMockUserData()
+        mockData.is_admin = true
+        setUserData(mockData)
+        
+        // Use comprehensive demo files for consistent experience
+        const transformedFiles: FileItem[] = comprehensiveDemoFiles.map((file: any) => ({
           id: file.id,
-          name: file.original_name || file.name || 'sample.txt',
-          type: file.mime_type || 'application/octet-stream',
-          size: file.file_size || file.size || 0,
-          lastModified: new Date(file.created_at || file.uploaded_at || Date.now()),
-          isFolder: false,
-          content: file.content || '',
-          thumbnail: file.thumbnail,
-          isStarred: Boolean(file.is_starred),
-          isShared: Boolean(file.is_public),
-          owner: file.owner || 'debug@yukifiles.com',
-          path: '/'
+          name: file.name,
+          type: file.mime_type,
+          size: file.size,
+          lastModified: new Date(file.created_at),
+          isFolder: file.mime_type === 'folder',
+          content: file.content,
+          thumbnail: file.thumbnail || file.content,
+          isStarred: file.is_starred || file.isStarred,
+          isShared: file.is_public || file.isShared,
+          owner: file.owner,
+          path: '/',
+          hasPassword: file.hasPassword,
+          inArchive: file.inArchive,
+          category: file.category,
+          encryptedName: file.encryptedName,
+          accessLimits: file.accessLimits,
+          expiresAt: file.expiresAt ? new Date(file.expiresAt) : undefined,
+          artist: file.artist,
+          album: file.album,
+          albumArt: file.albumArt
         }))
-        setFiles([...samples, ...transformedDebugFiles])
+        
+        setFiles(transformedFiles)
+        setLoading(false)
       } catch (error) {
-        console.error("Error loading data:", error)
-      } finally {
+        console.error("Error loading files:", error)
         setLoading(false)
       }
     }
-
+    
     loadData()
   }, [])
 
@@ -406,7 +414,7 @@ const isImageFile = (filename) => {
 };
 
 // Export for use in other modules
-export { FileManager, formatFileSize, getFileExtension, isImageFile };`,
+// export { FileManager, formatFileSize, getFileExtension, isImageFile };`,
       path: '/'
     },
     {
@@ -791,9 +799,9 @@ Thank you for trying YukiFiles! 🚀`,
     setFiles(prevFiles => [...prevFiles, fileItem])
   }
 
-  const handleFolderCreate = (newFolder: { name: string, path: string }) => {
+  const handleFolderCreate = (newFolder: { name: string; path: string }) => {
     const folderItem: FileItem = {
-      id: `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `folder-${Date.now()}`,
       name: newFolder.name,
       type: 'folder',
       size: 0,
@@ -807,8 +815,6 @@ Thank you for trying YukiFiles! 🚀`,
     setFiles(prevFiles => [...prevFiles, folderItem])
   }
 
-  const allFiles = isDemoMode ? demoFiles : [...transformedFiles, ...testFiles]
-
   if (loading) {
     return (
       <div className="min-h-screen theme-premium flex items-center justify-center">
@@ -817,43 +823,68 @@ Thank you for trying YukiFiles! 🚀`,
     )
   }
 
-  const brandName = isDemoMode ? "YukiFiles Demo" : "YukiFiles"
+  const brandName = "YukiFiles"
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-      <div className="flex">
-        <Sidebar 
-          isAdmin={Boolean(userData?.is_admin)}
-          brandName={brandName}
+    <div className="min-h-screen mobile-viewport-fix bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+      <div className="flex mobile-stable">
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block">
+          <Sidebar 
+            isAdmin={Boolean(userData?.is_admin)}
+            brandName={brandName}
+            isOpen={true}
+            onClose={() => {}}
+            activeTab="files"
+          />
+        </div>
+        
+        {/* Mobile Sidebar */}
+        <MobileSidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          activeTab="files"
+          isAdmin={Boolean(userData?.is_admin)}
+          brandName={brandName}
         />
+        
         <div className="flex-1 min-w-0">
           <Topbar 
-            user={user}
-            userData={userData}
-            onMenuClick={() => setIsSidebarOpen(true)}
-            showUpgrade={false}
+            userEmail={user?.email || 'demo@yukifiles.com'}
+            isPremium={userData?.subscription_type === "paid"}
+            brandName={brandName}
+            isDemoMode={isDemoMode}
+            onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           />
-          <main className="p-6">
-            <EnhancedFileManager
-              files={transformedFiles}
-              onFileUpload={handleFakeUpload}
-              onFileEdit={handleFileEdit}
-              onFileDelete={handleFileDelete}
-              onFileSave={handleFileSave}
-              onFileCreate={handleFileCreate}
-              onFolderCreate={handleFolderCreate}
-              uploadProgress={uploadProgress}
-              uploadingFiles={uploadingFiles}
-              isAdmin={Boolean(userData?.is_admin)}
-              userQuota={{
-                used: userData?.quota_used || 0,
-                limit: userData?.quota_limit || 0
-              }}
-              isDemoMode={isDemoMode}
-            />
+          <main className="container mx-auto px-4 py-6">
+            <div className="space-y-6">
+              {/* Page Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white">File Manager</h1>
+                  <p className="text-gray-400">Manage and organize your files</p>
+                </div>
+                {isDemoMode && (
+                  <Badge className="bg-gradient-to-r from-green-500 to-blue-500 text-white w-fit">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    DEMO MODE
+                  </Badge>
+                )}
+              </div>
+
+              {/* Enhanced File Manager */}
+              <EnhancedFileManager
+                files={files}
+                onFileUpload={handleFakeUpload}
+                onFileEdit={handleFileEdit}
+                onFileDelete={handleFileDelete}
+                onFileSave={handleFileSave}
+                onFileCreate={handleFileCreate}
+                onFolderCreate={handleFolderCreate}
+                uploadProgress={uploadProgress}
+                uploadingFiles={uploadingFiles}
+                isAdmin={Boolean(userData?.is_admin)}
+              />
+            </div>
           </main>
         </div>
       </div>

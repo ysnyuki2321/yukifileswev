@@ -19,18 +19,20 @@ interface UserData {
 interface DashboardHeaderProps {
   userData: UserData | null
   filesCount: number
-  recentActivity: Array<{
+  recentActivity?: Array<{
     id: string
     type: "upload" | "download" | "share" | "delete"
     fileName: string
     timestamp: string
   }>
+  isDemoMode?: boolean
 }
 
 export default function DashboardHeader({
   userData,
   filesCount,
-  recentActivity
+  recentActivity = [], // Default empty array
+  isDemoMode = false
 }: DashboardHeaderProps) {
   const toast = useToastHelpers()
   const [isUploading, setIsUploading] = useState(false)
@@ -86,7 +88,7 @@ export default function DashboardHeader({
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="space-y-2">
           <h1 className="text-2xl sm:text-3xl font-bold text-white">
-            {getGreeting()}, {userData.email.split('@')[0]}! 👋
+            {getGreeting()}, {userData?.email?.split('@')[0] || 'User'}! 👋
           </h1>
           <p className="text-gray-400">
             Welcome back to your file management dashboard

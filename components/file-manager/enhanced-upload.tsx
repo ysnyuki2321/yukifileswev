@@ -135,7 +135,7 @@ export function EnhancedUpload({
       validFiles.push(file)
     })
 
-    if (errors.length > 0) {
+    if (errors && errors.length > 0) {
       setErrorMessage(errors.join(', '))
       setShowError(true)
       setTimeout(() => setShowError(false), 5000)
@@ -333,7 +333,7 @@ export function EnhancedUpload({
         ref={fileInputRef}
         type="file"
         multiple
-        accept={allowedTypes.join(',')}
+        accept={allowedTypes ? allowedTypes.join(',') : '*'}
         onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
         className="hidden"
       />

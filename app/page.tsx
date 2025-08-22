@@ -1,9 +1,9 @@
-import { createServerClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+// import { createServerClient } from "@/lib/supabase/server" // Disabled to prevent errors
+// import { redirect } from "next/navigation" // Disabled since we're not using auth
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { NavigationWrapper } from "@/components/ui/navigation-wrapper"
+// import { NavigationWrapper } from "@/components/ui/navigation-wrapper" // Removed old navigation
 import { 
   Upload, Shield, Zap, Globe, PlayCircle, Star, Code2, Users, 
   CheckCircle, ArrowRight, FileText, HardDrive, Lock, Share2,
@@ -13,25 +13,26 @@ import {
 } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 import Link from "next/link"
-import { isDebugModeEnabled } from "@/lib/services/debug-context"
+// import { isDebugModeEnabled } from "@/lib/services/debug-context" // Disabled to prevent errors
 
 
 export default async function HomePage() {
-  const supabase = await createServerClient()
+  // Disabled Supabase to prevent "Unknown error" issues
+  // const supabase = await createServerClient()
 
   // Check debug mode first
-  const debugMode = await isDebugModeEnabled()
+  // const debugMode = await isDebugModeEnabled()
   
-  if (supabase && !debugMode) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+  // if (supabase && !debugMode) {
+  //   const {
+  //     data: { user },
+  //   } = await supabase.auth.getUser()
 
-    // If user is logged in, redirect to dashboard
-    if (user) {
-      redirect("/dashboard")
-    }
-  }
+  //   // If user is logged in, redirect to dashboard
+  //   if (user) {
+  //     redirect("/dashboard")
+  //   }
+  // }
 
   const features = [
     {
@@ -231,7 +232,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen theme-premium">
       {/* Navigation */}
-      <NavigationWrapper />
+      {/* <NavigationWrapper /> */}
 
       {/* Hero Section */}
       <section className="pt-24 pb-20">
@@ -254,7 +255,7 @@ export default async function HomePage() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-              {debugMode ? (
+              {/* debugMode ? (
                 <Link href="/dashboard">
                   <Button
                     size="lg"
@@ -263,7 +264,7 @@ export default async function HomePage() {
                     Enter Debug Mode
                   </Button>
                 </Link>
-              ) : (
+              ) : ( */}
                 <>
                   <Link href="/auth/register">
                     <Button
@@ -286,7 +287,7 @@ export default async function HomePage() {
                     </Button>
                   </Link>
                 </>
-              )}
+              {/* ) */}
             </div>
 
             {/* Stats */}
@@ -466,7 +467,7 @@ export default async function HomePage() {
               Join thousands of teams already using YukiFiles to share and collaborate on files securely.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {debugMode ? (
+              {/* debugMode ? (
                 <Link href="/dashboard">
                   <Button
                     size="lg"
@@ -475,7 +476,7 @@ export default async function HomePage() {
                     Enter Debug Mode
                   </Button>
                 </Link>
-              ) : (
+              ) : ( */}
                 <>
                   <Link href="/auth/register">
                     <Button
@@ -497,7 +498,7 @@ export default async function HomePage() {
                     </Button>
                   </Link>
                 </>
-              )}
+              {/* ) */}
             </div>
           </div>
         </div>

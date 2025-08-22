@@ -183,12 +183,12 @@ export default function RegisterForm() {
                         setFormData(prev => ({ ...prev, password: e.target.value }))
                         checkPasswordStrength(e.target.value)
                       }}
-                      className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                      className="pl-9 pr-12 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
                     />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-1"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -248,12 +248,12 @@ export default function RegisterForm() {
                       minLength={6}
                       value={formData.password2}
                       onChange={(e) => setFormData(prev => ({ ...prev, password2: e.target.value }))}
-                      className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                      className="pl-9 pr-12 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
                     />
                   <button
                     type="button"
                     onClick={() => setShowPassword2(!showPassword2)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-1"
                   >
                     {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -267,7 +267,7 @@ export default function RegisterForm() {
                   onChange={setTermsAccepted}
                   required
                   variant="gradient"
-                  size="md"
+                  size="sm"
                 >
                   <div className="text-sm">
                     I agree to the{" "}
@@ -285,7 +285,7 @@ export default function RegisterForm() {
                   checked={newsletterSubscribed}
                   onChange={setNewsletterSubscribed}
                   variant="default"
-                  size="md"
+                  size="sm"
                 >
                   <div className="text-sm">
                     Send me product updates and security notifications

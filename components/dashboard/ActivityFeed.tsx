@@ -90,7 +90,7 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {activities.length === 0 ? (
+          {(activities?.length || 0) === 0 ? (
             <div className="text-center py-8">
               <div className="w-16 h-16 bg-gray-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Clock className="w-8 h-8 text-gray-400" />
@@ -99,7 +99,7 @@ export default function ActivityFeed({ activities }: ActivityFeedProps) {
               <p className="text-sm text-gray-500">Your file activities will appear here</p>
             </div>
           ) : (
-            activities.map((activity) => (
+            (activities || []).map((activity) => activity && (
               <div
                 key={activity.id}
                 className={`flex items-center gap-4 p-4 rounded-lg border ${getActivityColor(activity.type)} hover:bg-white/5 transition-colors`}
