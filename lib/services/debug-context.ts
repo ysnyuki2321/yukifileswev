@@ -1,125 +1,111 @@
-import { createClient } from "@supabase/supabase-js"
+// Mock data for demo mode without Supabase
+export interface MockUserData {
+  id: string
+  email: string
+  subscription_type: "free" | "paid"
+  quota_used: number
+  quota_limit: number
+  is_admin: boolean
+  is_verified: boolean
+  created_at: string
+  updated_at: string
+}
 
-// Global debug state
-let debugModeCache: boolean | null = null
-let debugModeCacheTime = 0
-const CACHE_DURATION = 30000 // 30 seconds
-
-export async function isDebugModeEnabled(): Promise<boolean> {
-  // Check cache first
-  const now = Date.now()
-  if (debugModeCache !== null && (now - debugModeCacheTime) < CACHE_DURATION) {
-    return debugModeCache
+export function getMockUserData(): MockUserData {
+  return {
+    id: "demo-user-123",
+    email: "demo@yukifiles.com",
+    subscription_type: "paid",
+    quota_used: 1024 * 1024 * 1024 * 2.5, // 2.5GB
+    quota_limit: 1024 * 1024 * 1024 * 50,  // 50GB
+    is_admin: true,
+    is_verified: true,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
   }
+}
 
-  try {
-    // In production, never enable debug by default
-    const isProd = process.env.NODE_ENV === 'production'
-    // If Supabase env missing:
-    // - In dev: default to true to ease local development
-    // - In prod: default to false to avoid accidental bypass
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
-      debugModeCache = isProd ? false : true
-      debugModeCacheTime = now
-      return debugModeCache
+export function getMockFiles() {
+  return [
+    {
+      id: "file-1",
+      original_name: "project-proposal.pdf",
+      file_size: 2547893,
+      mime_type: "application/pdf",
+      share_token: "demo-token-1",
+      created_at: new Date().toISOString()
+    },
+    {
+      id: "file-2", 
+      original_name: "presentation.pptx",
+      file_size: 5892103,
+      mime_type: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      share_token: "demo-token-2",
+      created_at: new Date(Date.now() - 86400000).toISOString()
+    },
+    {
+      id: "file-3",
+      original_name: "team-photo.jpg", 
+      file_size: 1234567,
+      mime_type: "image/jpeg",
+      share_token: "demo-token-3",
+      created_at: new Date(Date.now() - 172800000).toISOString()
     }
+  ]
+}
 
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    )
+export function getMockActivity() {
+  return [
+    {
+      id: "1",
+      type: "upload",
+      fileName: "project-proposal.pdf",
+      timestamp: new Date().toISOString(),
+      fileType: "document"
+    },
+    {
+      id: "2", 
+      type: "share",
+      fileName: "presentation.pptx",
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      fileType: "presentation"
+    },
+    {
+      id: "3",
+      type: "download", 
+      fileName: "team-photo.jpg",
+      timestamp: new Date(Date.now() - 7200000).toISOString(),
+      fileType: "image"
+    }
+  ]
+}
 
-    const { data: settings } = await supabase
-      .from("admin_settings")
-      .select("setting_key, setting_value")
-      .eq("setting_key", "debug_mode")
-      .single()
-
-    const isDebug = settings?.setting_value === "true" && !isProd
-    
-    // Update cache
-    debugModeCache = isDebug
-    debugModeCacheTime = now
-    
-    return isDebug
-  } catch (error) {
-    console.warn("[Debug] Failed to check debug mode:", error)
-    // Fail-closed in production, fail-open in dev
-    debugModeCache = process.env.NODE_ENV === 'production' ? false : true
-    debugModeCacheTime = now
-    return debugModeCache
-  }
+// Debug mode functions
+export async function isDebugModeEnabled(): Promise<boolean> {
+  // Always return true for demo mode
+  return true
 }
 
 export function clearDebugCache() {
-  debugModeCache = null
-  debugModeCacheTime = 0
+  // No-op for demo mode
 }
 
-// Mock user data for debug mode
-export function getMockUser() {
+export function getDebugStats() {
   return {
-    id: "debug-user-123",
-    email: "debug@yukifiles.com",
-    email_confirmed_at: new Date().toISOString(),
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    aud: "authenticated",
-    role: "authenticated",
-    app_metadata: {
-      provider: "email",
-      providers: ["email"]
-    },
-    user_metadata: {},
-    identities: [],
-    phone: null,
-    confirmation_sent_at: null,
-    recovery_sent_at: null,
-    email_change_sent_at: null,
-    new_email: null,
-    invited_at: null,
-    action_link: null,
-    last_sign_in_at: new Date().toISOString(),
-    phone_confirmed_at: null,
-    email_change_confirm_status: 0,
-    banned_until: null,
-    reauthentication_sent_at: null,
-    reauthentication_confirm_status: 0
-  }
-}
-
-// Mock user data from users table
-export function getMockUserData() {
-  return {
-    id: "debug-user-123",
-    email: "debug@yukifiles.com",
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    subscription_type: "paid",
-    subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
-    quota_used: 1024 * 1024 * 500, // 500MB used
-    quota_limit: 1024 * 1024 * 1024 * 5, // 5GB limit
-    password_hash: null,
-    twofa_secret: null,
-    is_verified: true,
-    supabase_id: "debug-user-123",
-    auth_provider: "email",
-    is_admin: true,
-    device_fingerprint: "debug-fingerprint",
-    last_ip: "127.0.0.1",
-    registration_ip: "127.0.0.1",
-    is_active: true
-  }
-}
-
-// Mock session data
-export function getMockSession() {
-  return {
-    access_token: "debug-access-token",
-    refresh_token: "debug-refresh-token",
-    expires_in: 3600,
-    expires_at: Math.floor(Date.now() / 1000) + 3600,
-    token_type: "bearer",
-    user: getMockUser()
+    totalUsers: 156,
+    totalFiles: 892,
+    totalTransactions: 45,
+    pendingTransactions: 3,
+    suspiciousIPs: 12,
+    totalStorageUsed: 2.3 * 1024 * 1024 * 1024 * 1024, // 2.3TB
+    recentUsers: [
+      { email: "user1@example.com", created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
+      { email: "user2@example.com", created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() },
+      { email: "user3@example.com", created_at: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString() }
+    ],
+    recentTransactions: [
+      { id: "tx-1", amount: 1.00, status: "completed", created_at: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString() },
+      { id: "tx-2", amount: 0.001, status: "pending", created_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString() }
+    ]
   }
 }
