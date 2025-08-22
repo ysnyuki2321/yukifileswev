@@ -11,16 +11,22 @@
    - Network:      http://172.30.0.2:3000
 
  ✓ Starting...
- ✓ Ready in 1174ms
+ ✓ Ready in 1471ms
  ○ Compiling /middleware ...
- ✓ Compiled /middleware in 596ms (171 modules)
+ ✓ Compiled /middleware in 594ms (171 modules)
 [Middleware] Supabase environment variables not found, skipping auth middleware
  ○ Compiling /dashboard ...
 <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
- ✓ Compiled /dashboard in 6.8s (2250 modules)
- GET /dashboard?demo=true 200 in 7307ms
-[Middleware] Supabase environment variables not found, skipping auth middleware
- ○ Compiling /_not-found ...
- ✓ Compiled /_not-found in 748ms (2245 modules)
- GET /test-j-error.html 404 in 881ms
- ✓ Compiled in 343ms (1001 modules)
+ ✓ Compiled /dashboard in 6.4s (2250 modules)
+ GET /dashboard?demo=true 200 in 6876ms
+ ✓ Compiled in 430ms (1000 modules)
+ ✓ Compiled in 269ms (1000 modules)
+ ⨯ ./components/ui/j-error-guard.tsx
+Error: Failed to read source code from /workspace/components/ui/j-error-guard.tsx
+
+Caused by:
+    No such file or directory (os error 2)
+
+Import trace for requested module:
+./components/ui/j-error-guard.tsx
+./components/dashboard/DashboardClient.tsx
