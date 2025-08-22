@@ -359,16 +359,27 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                   </div>
 
                   {/* Expiry Date */}
-                                                  <div className="space-y-2">
-                                  <ProfessionalDatePicker
-                                    label="Expiry Date (Optional)"
-                                    value={expiryDate}
-                                    onChange={setExpiryDate}
-                                    placeholder="Select expiry date and time..."
-                                    minDate={new Date()}
-                                    includeTime={true}
-                                  />
-                                </div>
+                  <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-purple-500/20">
+                    <div className="flex items-center gap-3">
+                      <Timer className="w-5 h-5 text-purple-400" />
+                      <div>
+                        <p className="font-medium text-white">Expiry Date</p>
+                        <p className="text-sm text-gray-400">
+                          Set when this link expires (optional)
+                        </p>
+                      </div>
+                    </div>
+                    <div className="w-64">
+                      <ProfessionalDatePicker
+                        label=""
+                        value={expiryDate}
+                        onChange={setExpiryDate}
+                        placeholder="Select expiry date and time..."
+                        minDate={new Date()}
+                        includeTime={true}
+                      />
+                    </div>
+                  </div>
 
                   {/* View/Download Limits */}
                   <div className="grid grid-cols-2 gap-4">
