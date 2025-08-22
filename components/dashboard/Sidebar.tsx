@@ -27,6 +27,7 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
 
   // Demo mode: Add all features to dashboard
   if (isDemoMode) {
+    navItems.push({ href: "/dashboard?demo=true&tab=filemanager", label: "File Manager", icon: Files })
     navItems.push({ href: "/dashboard?demo=true&tab=analytics", label: "Analytics", icon: BarChart3 })
     navItems.push({ href: "/dashboard?demo=true&tab=collaboration", label: "Collaboration", icon: Users })
     navItems.push({ href: "/dashboard?demo=true&tab=ai", label: "AI Tools", icon: Sparkles })

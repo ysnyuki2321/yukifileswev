@@ -15,6 +15,7 @@ import { AdminDemo } from "@/components/dashboard/AdminDemo"
 import { SettingsDemo } from "@/components/dashboard/SettingsDemo"
 import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
+import { UltimateFileManagerDemo } from "@/components/demo/UltimateFileManagerDemo"
 import Sidebar from "@/components/dashboard/Sidebar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import Topbar from "@/components/dashboard/Topbar"
@@ -166,11 +167,25 @@ export default function DashboardClient() {
               {isDemoMode ? (
                 <div className="space-y-6">
                   {activeTab === 'dashboard' && (
-                    <EnhancedDemoManager 
-                      userData={userData}
-                      recentFiles={recentFiles}
-                      recentActivity={recentActivity}
-                    />
+                    <div className="space-y-6">
+                      <DashboardHeader 
+                        userData={userData}
+                        filesCount={filesCount}
+                        isDemoMode={isDemoMode}
+                      />
+                      <div className="grid gap-6 lg:grid-cols-3">
+                        <div className="lg:col-span-2 space-y-6">
+                          <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                          <ActivityFeed activities={recentActivity} />
+                        </div>
+                        <div className="order-first lg:order-last">
+                          <RecentFiles files={recentFiles} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {activeTab === 'filemanager' && (
+                    <UltimateFileManagerDemo />
                   )}
                   {activeTab === 'analytics' && (
                     <SafeDemoWrapper fallbackTitle="Loading Analytics...">
