@@ -42,6 +42,11 @@ export interface EnhancedFileManagerProps {
   isAdmin?: boolean
 }
 
+// Helper functions
+
+
+
+
 // Mobile-specific layout component
 const MobileLayout = ({ 
   files, 

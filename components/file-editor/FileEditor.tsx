@@ -195,7 +195,7 @@ export function FileEditor({
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
               className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500"
             >
-              {getFileIcon()}
+              {FILE_TYPE_ICONS[selectedType as keyof typeof FILE_TYPE_ICONS] && React.createElement(FILE_TYPE_ICONS[selectedType as keyof typeof FILE_TYPE_ICONS], { className: "w-5 h-5 text-white" })}
             </motion.div>
             <span>Edit File</span>
             {selectedType !== 'folder' && (

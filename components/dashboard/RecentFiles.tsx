@@ -127,7 +127,7 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
             {(files || []).map((fileItem) => {
               if (!fileItem) return null
               
-              const FileIcon = getFileIcon(fileItem?.original_name || '')
+              const FileIcon = getFileIcon(fileItem?.original_name || '') || FileText
               const canEdit = isTextFile(fileItem?.original_name || '') && fileItem?.content
               
               return (
