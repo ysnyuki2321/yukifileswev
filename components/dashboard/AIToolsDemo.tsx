@@ -30,21 +30,21 @@ export default function AIToolsDemo({ isDemoMode = true }: AIToolsDemoProps) {
     { 
       id: 'gemini' as const, 
       name: 'Google Gemini Pro', 
-      icon: '🔷', 
+      icon: Brain, 
       description: 'Advanced multimodal AI',
       strength: 'Code & Analysis'
     },
     { 
       id: 'chatgpt' as const, 
       name: 'OpenAI GPT-4', 
-      icon: '🤖', 
+      icon: MessageSquare, 
       description: 'Conversational AI expert',
       strength: 'Writing & Chat'
     },
     { 
       id: 'claude' as const, 
       name: 'Anthropic Claude', 
-      icon: '🧠', 
+      icon: Sparkles, 
       description: 'Helpful, harmless AI',
       strength: 'Research & Safety'
     }
@@ -170,7 +170,9 @@ export default function AIToolsDemo({ isDemoMode = true }: AIToolsDemoProps) {
                       : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
                   }`}
                 >
-                  <div className="text-2xl mb-2">{model.icon}</div>
+                  <div className="w-8 h-8 mb-2 flex items-center justify-center">
+                    <model.icon className="w-6 h-6 text-purple-400" />
+                  </div>
                   <h3 className="font-semibold text-sm mb-1">{model.name}</h3>
                   <p className="text-xs opacity-80 mb-2">{model.description}</p>
                   <Badge variant="secondary" className="text-xs">

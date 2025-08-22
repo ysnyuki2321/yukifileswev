@@ -29,3 +29,10 @@ Import trace for requested module:
 ./lib/utils/yuki-j-safe-mode.ts
 ./components/dashboard/DashboardClient.tsx
  ✓ Compiled in 386ms (2239 modules)
+ ✓ Compiled in 865ms (999 modules)
+ ✓ Compiled in 309ms (999 modules)
+ ✓ Compiled in 309ms (999 modules)
+ ✓ Compiled in 939ms (999 modules)
+ ✓ Compiled in 292ms (999 modules)
+ ✓ Compiled in 233ms (999 modules)
+ ✓ Compiled in 266ms (999 modules)

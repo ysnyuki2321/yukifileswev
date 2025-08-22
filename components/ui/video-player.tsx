@@ -204,19 +204,39 @@ export function VideoPlayer({ src, poster, title, className, aspectRatio = 'auto
 
   return (
     <div 
-      className={cn("relative bg-black rounded-lg overflow-hidden shadow-2xl video-player-container mx-auto", className)}
+      className={cn(
+        "relative bg-black rounded-lg overflow-hidden shadow-2xl video-player-container",
+        // Mobile responsive improvements
+        "w-full max-w-full mx-auto",
+        "h-auto max-h-[80vh] md:max-h-none",
+        className
+      )}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
-      style={{ maxWidth: 'fit-content' }}
+      onTouchStart={() => setShowControls(true)}
+      onTouchEnd={() => setTimeout(() => setShowControls(false), 3000)}
     >
       {/* Video Element */}
-      <div className={getAspectRatioClass()}>
+      <div className={cn(
+        getAspectRatioClass(),
+        // Mobile specific adjustments
+        aspectRatio === '9:16' ? "max-h-[80vh] md:max-h-none" : "",
+        "relative"
+      )}>
         <video
           ref={videoRef}
           src={src}
           poster={poster}
-          className="w-full h-full object-cover"
+          className={cn(
+            "w-full h-full",
+            aspectRatio === '9:16' ? "object-cover" : "object-contain",
+            // Mobile optimizations
+            "max-h-[80vh] md:max-h-none"
+          )}
           onClick={togglePlay}
+          playsInline // Critical for mobile
+          preload="metadata"
+          controlsList="nodownload nofullscreen noremoteplayback"
         />
       </div>
 
