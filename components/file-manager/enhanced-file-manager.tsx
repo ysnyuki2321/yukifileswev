@@ -412,9 +412,19 @@ const DesktopLayout = ({
                   : "space-y-3"
               }>
                 {/* Desktop File Items */}
-                {(filteredAndSortedFiles || []).map((file: any) => file && (
-                  <div
+                {(filteredAndSortedFiles || []).map((file: any, index: number) => file && (
+                  <motion.div
                     key={file.id}
+                    initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, y: -20 }}
+                    transition={{ 
+                      duration: 0.3,
+                      delay: index * 0.05,
+                      type: "spring",
+                      damping: 20,
+                      stiffness: 100
+                    }}
                     className={`group cursor-pointer rounded-xl border transition-all duration-300 relative hover:scale-105 hover:shadow-2xl ${
                       selectedMultiFiles.has(file.id) 
                         ? "border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/10 shadow-lg shadow-purple-500/25" 
@@ -550,7 +560,7 @@ const DesktopLayout = ({
                         </div>
                       </>
                     )}
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             )}

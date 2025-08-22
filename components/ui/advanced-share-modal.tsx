@@ -46,6 +46,22 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
     }
   }, [isOpen, file])
 
+  // Reset share links on page reload (demo behavior)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Clear all share data from sessionStorage
+      const keys = Object.keys(sessionStorage)
+      keys.forEach(key => {
+        if (key.startsWith('share_')) {
+          sessionStorage.removeItem(key)
+        }
+      })
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [])
+
   const generateRealShareLink = async () => {
     setIsGenerating(true)
     
@@ -158,7 +174,7 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+                  className="fixed inset-0 bg-black/60 backdrop-blur-md z-[9999] flex items-center justify-center p-4"
         onClick={onClose}
       >
         <motion.div
@@ -304,6 +320,7 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                     <Switch
                       checked={isPasswordProtected}
                       onCheckedChange={setIsPasswordProtected}
+                      className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-gray-600"
                     />
                   </div>
                   
@@ -337,6 +354,7 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                     <Switch
                       checked={isPublic}
                       onCheckedChange={setIsPublic}
+                      className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-gray-600"
                     />
                   </div>
 
@@ -399,6 +417,7 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                       <Switch
                         checked={allowPreview}
                         onCheckedChange={setAllowPreview}
+                        className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-gray-600"
                       />
                     </div>
                     
@@ -410,6 +429,7 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                       <Switch
                         checked={allowDownload}
                         onCheckedChange={setAllowDownload}
+                        className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-gray-600"
                       />
                     </div>
                   </div>
