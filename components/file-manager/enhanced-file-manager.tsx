@@ -14,7 +14,7 @@ import {
   FileAudio, FileCode, FileText, Image, Video, Music,
   Zap, Shield, Globe, Settings, BarChart3, TrendingUp,
   Database, Cloud, CloudUpload, CloudDownload, Wifi,
-  WifiOff, CheckCircle, XCircle, AlertCircle, Info
+  WifiOff, CheckCircle, XCircle, AlertCircle, Info, X
 } from "lucide-react"
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
@@ -503,33 +503,33 @@ export function EnhancedFileManager({
       {/* Header */}
       <div className="flex flex-col gap-4 items-start justify-between">
         <div className="w-full">
-          <h1 className="text-2xl font-bold text-white">YukiFiles Manager</h1>
-          <p className="text-gray-400">{filteredAndSortedFiles?.length || 0} of {files?.length || 0} items</p>
+          <h1 className="text-mobile-h2 font-bold text-white">YukiFiles Manager</h1>
+          <p className="text-mobile-body text-gray-400">{filteredAndSortedFiles?.length || 0} of {files?.length || 0} items</p>
         </div>
         
         {/* Mobile-First Action Buttons */}
-        <div className="w-full">
+        <div className="w-full space-y-4">
           {/* Primary Actions - Always Visible */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            <Button onClick={handleCreateFile} size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 min-h-[44px] flex-1 sm:flex-none">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
+            <Button onClick={handleCreateFile} size="sm" className="btn-gradient-primary min-h-[48px] flex-1 sm:flex-none">
               <FilePlus className="w-4 h-4 mr-2" />
               <span className="text-sm">New File</span>
             </Button>
-            <Button onClick={handleCreateFolder} size="sm" variant="outline" className="min-h-[44px] flex-1 sm:flex-none">
+            <Button onClick={handleCreateFolder} size="sm" variant="outline" className="min-h-[48px] flex-1 sm:flex-none border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
               <FolderPlus className="w-4 h-4 mr-2" />
               <span className="text-sm">New Folder</span>
             </Button>
-            <Button onClick={() => setShowUploadProgress(true)} size="sm" variant="outline" className="min-h-[44px] flex-1 sm:flex-none">
+          </div>
+          
+          {/* Secondary Actions - Responsive Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <Button onClick={() => setShowUploadProgress(true)} size="sm" variant="outline" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
               <CloudUpload className="w-4 h-4 mr-2" />
               <span className="text-sm">Upload</span>
             </Button>
-          </div>
-          
-          {/* Secondary Actions - Collapsible on Mobile */}
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => setShowAnalytics(!showAnalytics)} size="sm" variant="outline" className="min-h-[44px]">
-              <BarChart3 className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Analytics</span>
+            <Button onClick={() => setShowAnalytics(!showAnalytics)} size="sm" variant="outline" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
+              <BarChart3 className="w-4 h-4 mr-2" />
+              <span className="text-sm">Analytics</span>
             </Button>
             <Button 
               size="sm" 
@@ -541,34 +541,55 @@ export function EnhancedFileManager({
                 }
               }} 
               title="Refresh Files"
-              className="min-h-[44px]"
+              className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10"
             >
-              <RefreshCw className="w-4 h-4 sm:mr-2" />
-              <span className="hidden sm:inline">Refresh</span>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              <span className="text-sm">Refresh</span>
             </Button>
-            {!multiSelectMode && (
+            {!multiSelectMode ? (
               <Button 
                 size="sm" 
                 variant="outline" 
                 onClick={() => setMultiSelectMode(true)}
                 title="Multi-select"
-                className="min-h-[44px]"
+                className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10"
               >
-                <CheckCircle className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Select</span>
+                <CheckCircle className="w-4 h-4 mr-2" />
+                <span className="text-sm">Select</span>
+              </Button>
+            ) : (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={clearSelection}
+                title="Cancel"
+                className="min-h-[44px] border-red-600 text-red-400 hover:bg-red-600/10"
+              >
+                <span className="text-sm">Cancel</span>
               </Button>
             )}
-            {multiSelectMode && (
-              <>
-                <Button size="sm" variant="outline" onClick={selectAllFiles} title="Select All" className="min-h-[44px]">
-                  <span className="text-sm">Select All</span>
-                </Button>
-                <Button size="sm" variant="outline" onClick={clearSelection} title="Cancel" className="min-h-[44px]">
-                  <span className="text-sm">Cancel</span>
-                </Button>
-              </>
-            )}
           </div>
+
+          {/* Multi-select Actions - Full Width on Mobile */}
+          {multiSelectMode && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <Button size="sm" variant="outline" onClick={selectAllFiles} title="Select All" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
+                <span className="text-sm">Select All</span>
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleMultiAction.compress} title="Compress" className="min-h-[44px] border-purple-600 text-purple-400 hover:bg-purple-600/10">
+                <Archive className="w-4 h-4 mr-2" />
+                <span className="text-sm">Compress</span>
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleMultiAction.share} title="Share" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
+                <Share2 className="w-4 h-4 mr-2" />
+                <span className="text-sm">Share</span>
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleMultiAction.delete} title="Delete" className="min-h-[44px] border-red-600 text-red-400 hover:bg-red-600/10">
+                <Trash2 className="w-4 h-4 mr-2" />
+                <span className="text-sm">Delete</span>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -582,13 +603,13 @@ export function EnhancedFileManager({
               placeholder="Search files..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white min-h-[44px] text-base"
+              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white min-h-[48px] text-base"
             />
           </div>
           
-          {/* View and Filter Controls */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            {/* View Mode */}
+          {/* View and Filter Controls - Mobile Optimized */}
+          <div className="space-y-4">
+            {/* View Mode - Horizontal on Mobile */}
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -612,9 +633,9 @@ export function EnhancedFileManager({
               </Button>
             </div>
 
-            {/* Filters - Mobile Optimized */}
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 flex-1">
-              <div className="flex items-center gap-2 flex-1">
+            {/* Filters - Stacked on Mobile */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
                 <select
                   value={filterType}
@@ -646,7 +667,7 @@ export function EnhancedFileManager({
                   variant="outline"
                   onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
                   title={`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
-                  className="min-h-[44px] min-w-[44px]"
+                  className="min-h-[44px] min-w-[44px] border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
                 >
                   {sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
                 </Button>
@@ -657,7 +678,7 @@ export function EnhancedFileManager({
       </div>
 
       {/* File Grid/List */}
-      <Card className="bg-black/40 border-purple-500/20">
+      <Card className="glass-card">
         <CardContent className="p-4 sm:p-6">
           {(filteredAndSortedFiles?.length || 0) === 0 ? (
             <div className="text-center py-8 sm:py-12">
@@ -670,8 +691,8 @@ export function EnhancedFileManager({
           ) : (
             <div className={
               viewMode === "grid" 
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                : "space-y-2"
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
+                : "space-y-3"
             }>
               {(filteredAndSortedFiles || []).map((file) => file && (
                 <div
@@ -682,7 +703,7 @@ export function EnhancedFileManager({
                       : "border-gray-700/30 hover:border-purple-500/50 hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-slate-900/60"
                   } ${
                     viewMode === "grid"
-                      ? "p-6 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm"
+                      ? "p-4 sm:p-6 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[180px] sm:min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm"
                       : "p-4 flex items-center gap-4 bg-slate-800/20 min-h-[72px]"
                   }`}
                   onClick={(e) => {
@@ -700,80 +721,84 @@ export function EnhancedFileManager({
                 >
                   {/* Multi-select checkbox */}
                   {multiSelectMode && (
-                    <div className="absolute top-3 left-3 z-10">
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
+                    <div className="absolute top-2 left-2 z-10">
+                      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
                         selectedMultiFiles.has(file.id)
                           ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-400 shadow-lg'
                           : 'bg-black/60 border-gray-400'
                       }`}>
                         {selectedMultiFiles.has(file.id) && (
-                          <CheckCircle className="w-4 h-4 text-white" />
+                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                         )}
                       </div>
                     </div>
                   )}
 
                   {/* File status badges - Floating */}
-                  <div className="absolute top-3 right-3 flex flex-col gap-2">
+                  <div className="absolute top-2 right-2 flex flex-col gap-1 sm:gap-2">
                     {file.isStarred && (
-                      <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-xl animate-pulse">
-                        <Star className="w-4 h-4 text-white fill-current" />
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-xl animate-pulse">
+                        <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white fill-current" />
                       </div>
                     )}
                     {file.hasPassword && (
-                      <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-                        <Lock className="w-4 h-4 text-white" />
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                        <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                       </div>
                     )}
                     {file.isShared && (
-                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-xl">
-                        <Share2 className="w-4 h-4 text-white" />
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-xl">
+                        <Share2 className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                       </div>
                     )}
                   </div>
 
                   {viewMode === "grid" ? (
-                    // Grid View - Premium Beautiful Design
+                    // Grid View - Mobile Optimized
                     <>
-                      <div className="mb-4 relative">
+                      <div className="mb-3 sm:mb-4 relative">
                         <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
-                          {getFileIcon(file)}
+                          <div className="w-10 h-10 sm:w-12 sm:h-12">
+                            {getFileIcon(file)}
+                          </div>
                         </div>
                         {/* File type indicator with glow */}
-                        <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-                          <div className="w-3 h-3 bg-white rounded-full animate-pulse"></div>
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-pulse"></div>
                         </div>
                       </div>
                       <div className="space-y-2 text-center">
-                        <p className="text-white text-sm font-semibold truncate px-2 leading-tight" title={file.name}>
+                        <p className="text-white text-xs sm:text-sm font-semibold truncate px-2 leading-tight" title={file.name}>
                           {file.name}
                         </p>
                         <p className="text-gray-400 text-xs">
                           {formatBytes(file.size)}
                         </p>
-                        <div className="flex justify-center items-center gap-1 mt-3">
-                          <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                          <div className="w-1.5 h-1.5 bg-pink-400 rounded-full animate-pulse delay-100"></div>
-                          <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-pulse delay-200"></div>
+                        <div className="flex justify-center items-center gap-1 mt-2 sm:mt-3">
+                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
+                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-pink-400 rounded-full animate-pulse delay-100"></div>
+                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-purple-400 rounded-full animate-pulse delay-200"></div>
                         </div>
                       </div>
                     </>
                   ) : (
-                    // List View - Enhanced Explorer Style
+                    // List View - Mobile Optimized
                     <>
                       <div className="flex-shrink-0">
                         <div className="transform transition-all duration-300 group-hover:scale-110">
-                          {getFileIcon(file)}
+                          <div className="w-8 h-8 sm:w-12 sm:h-12">
+                            {getFileIcon(file)}
+                          </div>
                         </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-base font-semibold truncate" title={file.name}>
+                            <p className="text-white text-sm sm:text-base font-semibold truncate" title={file.name}>
                               {file.name}
                             </p>
-                            <div className="flex items-center space-x-4 mt-1">
-                              <p className="text-gray-400 text-sm">
+                            <div className="flex items-center space-x-2 sm:space-x-4 mt-1">
+                              <p className="text-gray-400 text-xs sm:text-sm">
                                 {formatBytes(file.size)}
                               </p>
                               <p className="text-gray-500 text-xs">
@@ -781,16 +806,16 @@ export function EnhancedFileManager({
                               </p>
                             </div>
                           </div>
-                          <div className="flex items-center space-x-3 ml-4">
+                          <div className="flex items-center space-x-2 sm:space-x-3 ml-2 sm:ml-4">
                             {/* Status indicators with animations */}
                             {file.isStarred && (
-                              <Star className="w-5 h-5 text-yellow-400 fill-current animate-pulse" />
+                              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current animate-pulse" />
                             )}
                             {file.isShared && (
-                              <Share2 className="w-5 h-5 text-green-400" />
+                              <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                             )}
                             {file.hasPassword && (
-                              <Lock className="w-5 h-5 text-red-400" />
+                              <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
                             )}
                             {/* More options with hover effect */}
                             <button
@@ -798,9 +823,9 @@ export function EnhancedFileManager({
                                 e.stopPropagation()
                                 handleRightClick(file, e)
                               }}
-                              className="p-2 text-gray-400 hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-lg hover:scale-110"
+                              className="p-1 sm:p-2 text-gray-400 hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-lg hover:scale-110"
                             >
-                              <MoreHorizontal className="w-5 h-5" />
+                              <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
                             </button>
                           </div>
                         </div>
@@ -891,25 +916,36 @@ export function EnhancedFileManager({
 
       {/* File Editor Modal */}
       {showEditor && selectedFile && (
-        <div className="fixed inset-0 z-50">
-          <FileEditor
-            file={{
-              id: selectedFile.id,
-              name: selectedFile.name,
-              content: selectedFile.content || '',
-              type: selectedFile.type,
-              size: selectedFile.size,
-              lastModified: selectedFile.lastModified
-            }}
-            onSave={(file, content, name) => {
-              if (onFileUpdate) {
-                onFileUpdate({ ...file, content, name })
-              }
-              closeEditor()
-            }}
-            onClose={closeEditor}
-            readOnly={false}
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeEditor}></div>
+          <div className="relative w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-xl border border-purple-500/30 shadow-2xl overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+              <h3 className="text-lg font-semibold text-white">Editing: {selectedFile.name}</h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={closeEditor}
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+            <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
+              <FileEditor
+                isOpen={true}
+                onClose={closeEditor}
+                onSave={(file, content, name) => {
+                  if (onFileUpdate) {
+                    onFileUpdate({ ...selectedFile, content, name: name || selectedFile.name })
+                  }
+                  closeEditor()
+                }}
+                initialFileName={selectedFile.name}
+                initialContent={selectedFile.content || ''}
+                fileType={isTextFile(selectedFile.name) ? 'text' : 'code'}
+              />
+            </div>
+          </div>
         </div>
       )}
 
@@ -1016,11 +1052,12 @@ export function EnhancedFileManager({
          />
        )}
 
-       {/* Multi-select Actions Bar */}
-        {showMultiActions && (
-          <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-4">
-            <div className="bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-center gap-2 sm:gap-3 shadow-2xl max-w-[calc(100vw-2rem)]">
-                          <div className="text-center sm:text-left">
+      {/* Multi-select Actions Bar */}
+      {showMultiActions && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md">
+          <div className="bg-black/95 backdrop-blur-xl border border-purple-500/30 rounded-xl p-4 shadow-2xl">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="text-center sm:text-left">
                 <span className="text-white text-sm font-medium">
                   {selectedMultiFiles.size} selected
                 </span>
@@ -1028,42 +1065,43 @@ export function EnhancedFileManager({
               
               <div className="hidden sm:block w-px h-6 bg-gray-600" />
               
-              <div className="flex flex-wrap justify-center gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 w-full sm:w-auto">
                 <Button
                   size="sm"
                   onClick={handleMultiAction.compress}
-                  className="bg-purple-600 hover:bg-purple-700 text-white h-8 px-3"
+                  className="btn-gradient-primary h-8 px-3 text-xs sm:text-sm"
                 >
-                  <Archive className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Compress</span>
+                  <Archive className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span>Compress</span>
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleMultiAction.share}
-                  className="border-gray-600 text-gray-300 h-8 px-3"
+                  className="border-gray-600 text-gray-300 h-8 px-3 text-xs sm:text-sm hover:bg-gray-600/10"
                 >
-                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Share</span>
+                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span>Share</span>
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={handleMultiAction.delete}
-                  className="border-red-600 text-red-400 hover:bg-red-600/10 h-8 px-3"
+                  className="border-red-600 text-red-400 hover:bg-red-600/10 h-8 px-3 text-xs sm:text-sm"
                 >
-                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 sm:mr-2" />
-                  <span className="hidden sm:inline">Delete</span>
+                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                  <span>Delete</span>
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={clearSelection}
-                  className="text-gray-400 hover:text-white h-8 px-3"
+                  className="text-gray-400 hover:text-white h-8 px-3 text-xs sm:text-sm"
                 >
                   Cancel
                 </Button>
               </div>
+            </div>
           </div>
         </div>
       )}
