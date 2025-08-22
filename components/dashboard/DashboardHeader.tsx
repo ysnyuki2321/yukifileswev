@@ -19,18 +19,20 @@ interface UserData {
 interface DashboardHeaderProps {
   userData: UserData | null
   filesCount: number
-  recentActivity: Array<{
+  recentActivity?: Array<{
     id: string
     type: "upload" | "download" | "share" | "delete"
     fileName: string
     timestamp: string
   }>
+  isDemoMode?: boolean
 }
 
 export default function DashboardHeader({
   userData,
   filesCount,
-  recentActivity
+  recentActivity = [], // Default empty array
+  isDemoMode = false
 }: DashboardHeaderProps) {
   const toast = useToastHelpers()
   const [isUploading, setIsUploading] = useState(false)
