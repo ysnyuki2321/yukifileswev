@@ -17,7 +17,7 @@ import {
   WifiOff, CheckCircle, XCircle, AlertCircle, Info, X,
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
-import { EnhancedFileEditor } from "@/components/file-editor/EnhancedFileEditor"
+import { FileEditor } from "@/components/file-editor/FileEditor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -484,9 +484,9 @@ const DesktopLayout = ({
                         <div className="mb-4 relative">
                           <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
                             <div className="w-16 h-16">
-                              {/* File Icon Placeholder */}
-                              <div className="w-full h-full bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                <File className="w-8 h-8 text-purple-400" />
+                              {/* Dynamic File Icon */}
+                              <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-xl flex items-center justify-center border border-purple-500/30 shadow-lg">
+                                {getFileIcon(file)}
                               </div>
                             </div>
                           </div>
@@ -514,9 +514,9 @@ const DesktopLayout = ({
                         <div className="flex-shrink-0">
                           <div className="transform transition-all duration-300 group-hover:scale-110">
                             <div className="w-12 h-12">
-                              {/* File Icon Placeholder */}
-                              <div className="w-full h-full bg-purple-500/20 rounded-lg flex items-center justify-center">
-                                <File className="w-6 h-6 text-purple-400" />
+                              {/* Dynamic File Icon */}
+                              <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center border border-purple-500/30 shadow-md">
+                                {getFileIcon(file)}
                               </div>
                             </div>
                           </div>
@@ -906,47 +906,55 @@ export function EnhancedFileManager({
       )
     }
     
+    // Return appropriate icon based on file type
     const category = getFileCategory(file.name)
     switch (category) {
       case 'images':
         return (
           <div className="relative">
-            <FileImage className="w-full h-full text-green-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg"></div>
+            <Image className="w-full h-full text-blue-400 drop-shadow-lg" />
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       case 'videos':
         return (
           <div className="relative">
-            <FileVideo className="w-full h-full text-red-400 drop-shadow-2xl" />
+            <Video className="w-full h-full text-red-400 drop-shadow-lg" />
             <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       case 'audio':
         return (
           <div className="relative">
-            <FileAudio className="w-full h-full text-purple-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg animate-pulse"></div>
+            <Music className="w-full h-full text-green-400 drop-shadow-lg" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg animate-pulse"></div>
           </div>
         )
       case 'code':
         return (
           <div className="relative">
-            <FileCode className="w-full h-full text-yellow-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
+            <FileCode className="w-full h-full text-purple-400 drop-shadow-lg" />
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       case 'documents':
         return (
           <div className="relative">
-            <FileText className="w-full h-full text-blue-400 drop-shadow-2xl" />
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
+            <FileText className="w-full h-full text-yellow-400 drop-shadow-lg" />
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
+          </div>
+        )
+      case 'database':
+        return (
+          <div className="relative">
+            <Database className="w-full h-full text-cyan-400 drop-shadow-lg" />
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/30 to-blue-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       default:
         return (
           <div className="relative">
-            <File className="w-full h-full text-gray-400 drop-shadow-2xl" />
+            <File className="w-full h-full text-gray-400 drop-shadow-lg" />
             <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
           </div>
         )
@@ -1315,16 +1323,19 @@ export function EnhancedFileManager({
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            <div className="overflow-auto max-h-[calc(90vh-80px)]">
-              <EnhancedFileEditor
-                file={selectedFile}
+            <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
+              <FileEditor
+                isOpen={true}
                 onClose={closeEditor}
-                onSave={(fileName, content, fileType) => {
+                onSave={(file, content, name) => {
                   if (onFileUpdate) {
-                    onFileUpdate({ ...selectedFile, content, name: fileName })
+                    onFileUpdate({ ...selectedFile, content, name: name || selectedFile.name })
                   }
                   closeEditor()
                 }}
+                initialFileName={selectedFile.name}
+                initialContent={selectedFile.content || ''}
+                fileType={isTextFile(selectedFile.name) ? 'text' : 'code'}
               />
             </div>
           </div>

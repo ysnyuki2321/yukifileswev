@@ -261,7 +261,7 @@ export default function DemoSharePage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-red-500/20 rounded-2xl p-8 max-w-md w-full text-center"
+          className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-red-500/20 rounded-2xl p-8 max-w-md w-full text-center overflow-hidden"
         >
           <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-white mb-2">Access Denied</h2>
