@@ -398,18 +398,13 @@ export function EnhancedFileManager({
 
   const getFileIcon = (file: FileItem) => {
     if (file.isFolder) {
-      return (
-        <div className="relative">
-          <Folder className="w-8 h-8 text-blue-400 drop-shadow-lg" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded blur-sm"></div>
-        </div>
-      )
+      return <Folder className="w-8 h-8 text-blue-400" />
     }
     
     // Show thumbnail for images/videos if available
     if (file.thumbnail && getFileCategory(file.name) === 'images') {
       return (
-        <div className="w-8 h-8 rounded-lg overflow-hidden shadow-lg border border-white/20">
+        <div className="w-8 h-8 rounded overflow-hidden border border-white/20">
           <img 
             src={file.thumbnail} 
             alt={file.name}
@@ -421,16 +416,14 @@ export function EnhancedFileManager({
     
     if (file.thumbnail && getFileCategory(file.name) === 'videos') {
       return (
-        <div className="w-8 h-8 rounded-lg overflow-hidden relative shadow-lg border border-white/20">
+        <div className="w-8 h-8 rounded overflow-hidden relative border border-white/20">
           <video 
             src={file.thumbnail} 
             className="w-full h-full object-cover"
             muted
           />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="w-4 h-4 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-              <FileVideo className="w-2 h-2 text-white" />
-            </div>
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <FileVideo className="w-3 h-3 text-white" />
           </div>
         </div>
       )
@@ -439,47 +432,17 @@ export function EnhancedFileManager({
     const category = getFileCategory(file.name)
     switch (category) {
       case 'images':
-        return (
-          <div className="relative">
-            <FileImage className="w-8 h-8 text-green-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400/20 to-emerald-400/20 rounded blur-sm"></div>
-          </div>
-        )
+        return <FileImage className="w-8 h-8 text-green-400" />
       case 'videos':
-        return (
-          <div className="relative">
-            <FileVideo className="w-8 h-8 text-red-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400/20 to-pink-400/20 rounded blur-sm"></div>
-          </div>
-        )
+        return <FileVideo className="w-8 h-8 text-red-400" />
       case 'audio':
-        return (
-          <div className="relative">
-            <FileAudio className="w-8 h-8 text-purple-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded blur-sm animate-pulse"></div>
-          </div>
-        )
+        return <FileAudio className="w-8 h-8 text-purple-400" />
       case 'code':
-        return (
-          <div className="relative">
-            <FileCode className="w-8 h-8 text-yellow-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded blur-sm"></div>
-          </div>
-        )
+        return <FileCode className="w-8 h-8 text-yellow-400" />
       case 'documents':
-        return (
-          <div className="relative">
-            <FileText className="w-8 h-8 text-blue-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded blur-sm"></div>
-          </div>
-        )
+        return <FileText className="w-8 h-8 text-blue-400" />
       default:
-        return (
-          <div className="relative">
-            <File className="w-8 h-8 text-gray-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-400/20 to-slate-400/20 rounded blur-sm"></div>
-          </div>
-        )
+        return <File className="w-8 h-8 text-gray-400" />
     }
   }
 
@@ -692,19 +655,19 @@ export function EnhancedFileManager({
           ) : (
             <div className={
               viewMode === "grid" 
-                ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3"
+                ? "grid grid-cols-5 gap-3"
                 : "space-y-1"
             }>
               {(filteredAndSortedFiles || []).map((file) => file && (
                 <div
                   key={file.id}
-                  className={`group cursor-pointer rounded-lg border transition-all duration-300 relative touch-manipulation hover:scale-105 ${
+                  className={`group cursor-pointer rounded-lg border transition-all duration-200 relative touch-manipulation ${
                     selectedMultiFiles.has(file.id) 
-                      ? "border-purple-500 bg-purple-500/20 shadow-lg shadow-purple-500/25" 
-                      : "border-gray-700/30 hover:border-purple-500/50 hover:bg-slate-800/40 hover:shadow-lg"
+                      ? "border-purple-500 bg-purple-500/10 shadow-lg" 
+                      : "border-gray-700/50 hover:border-purple-500/50 hover:bg-slate-800/30"
                   } ${
                     viewMode === "grid"
-                      ? "p-3 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[120px] flex flex-col items-center justify-center backdrop-blur-sm"
+                      ? "p-3 text-center bg-slate-800/20 min-h-[100px] flex flex-col items-center justify-center"
                       : "p-3 flex items-center gap-3 bg-slate-800/10 min-h-[56px]"
                   }`}
                   onClick={(e) => {
@@ -722,52 +685,46 @@ export function EnhancedFileManager({
                 >
                   {/* Multi-select checkbox */}
                   {multiSelectMode && (
-                    <div className="absolute top-2 left-2 z-10">
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                    <div className="absolute top-1 left-1 z-10">
+                      <div className={`w-4 h-4 rounded border flex items-center justify-center ${
                         selectedMultiFiles.has(file.id)
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-400 shadow-lg'
-                          : 'bg-black/60 border-gray-400 backdrop-blur-sm'
+                          ? 'bg-purple-500 border-purple-500'
+                          : 'bg-black/60 border-gray-400'
                       }`}>
                         {selectedMultiFiles.has(file.id) && (
-                          <CheckCircle className="w-3 h-3 text-white" />
+                          <CheckCircle className="w-2 h-2 text-white" />
                         )}
                       </div>
                     </div>
                   )}
 
-                  {/* File status badges */}
-                  <div className="absolute top-2 right-2 flex flex-col gap-1">
+                  {/* File status badges - Top right */}
+                  <div className="absolute top-1 right-1 flex gap-1">
                     {file.isStarred && (
-                      <div className="w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                        <Star className="w-3 h-3 text-white fill-current" />
+                      <div className="w-4 h-4 bg-yellow-500 rounded-full flex items-center justify-center">
+                        <Star className="w-2 h-2 text-white fill-current" />
                       </div>
                     )}
                     {file.hasPassword && (
-                      <div className="w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                        <Lock className="w-3 h-3 text-white" />
+                      <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                        <Lock className="w-2 h-2 text-white" />
                       </div>
                     )}
                     {file.isShared && (
-                      <div className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
-                        <Share2 className="w-3 h-3 text-white" />
+                      <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                        <Share2 className="w-2 h-2 text-white" />
                       </div>
                     )}
                   </div>
 
                   {viewMode === "grid" ? (
-                    // Grid View - Beautiful Card Style
+                    // Grid View - Clean & Professional
                     <>
-                      <div className="mb-2 relative">
-                        <div className="transform transition-transform duration-300 group-hover:scale-110">
-                          {getFileIcon(file)}
-                        </div>
-                        {/* File type indicator */}
-                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-sm">
-                          <div className="w-2 h-2 bg-white rounded-full"></div>
-                        </div>
+                      <div className="mb-2">
+                        {getFileIcon(file)}
                       </div>
-                      <div className="space-y-1 text-center min-h-[40px] flex flex-col justify-center">
-                        <p className="text-white text-xs font-medium truncate px-1 leading-tight" title={file.name}>
+                      <div className="space-y-1 text-center">
+                        <p className="text-white text-xs font-medium truncate" title={file.name}>
                           {file.name}
                         </p>
                         <p className="text-gray-400 text-xs">
@@ -779,18 +736,16 @@ export function EnhancedFileManager({
                     // List View - File Explorer Style
                     <>
                       <div className="flex-shrink-0">
-                        <div className="transform transition-transform duration-200 group-hover:scale-110">
-                          {getFileIcon(file)}
-                        </div>
+                        {getFileIcon(file)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
                           <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm sm:text-base font-medium truncate" title={file.name}>
+                            <p className="text-white text-sm font-medium truncate" title={file.name}>
                               {file.name}
                             </p>
                             <div className="flex items-center space-x-3 mt-1">
-                              <p className="text-gray-400 text-xs sm:text-sm">
+                              <p className="text-gray-400 text-xs">
                                 {formatBytes(file.size)}
                               </p>
                               <p className="text-gray-500 text-xs">
@@ -801,7 +756,7 @@ export function EnhancedFileManager({
                           <div className="flex items-center space-x-2 ml-3">
                             {/* Status indicators */}
                             {file.isStarred && (
-                              <Star className="w-4 h-4 text-yellow-400 fill-current animate-pulse" />
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
                             )}
                             {file.isShared && (
                               <Share2 className="w-4 h-4 text-green-400" />
@@ -815,7 +770,7 @@ export function EnhancedFileManager({
                                 e.stopPropagation()
                                 handleRightClick(file, e)
                               }}
-                              className="p-1 text-gray-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100 sm:opacity-100 hover:bg-white/10 rounded"
+                              className="p-1 text-gray-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded"
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </button>

@@ -36,18 +36,22 @@ export interface FileItem {
     currentDownloads: number
   }
   expiresAt?: string
+  // For audio files
+  artist?: string
+  album?: string
+  albumArt?: string
 }
 
 export const comprehensiveDemoFiles: FileItem[] = [
   // Documents
   {
     id: 'demo-doc-1',
-    name: 'Báo cáo tài chính Q4 2024.pdf',
-    original_name: 'Báo cáo tài chính Q4 2024.pdf',
+    name: 'Financial_Report_Q4_2024.pdf',
+    original_name: 'Financial_Report_Q4_2024.pdf',
     mime_type: 'application/pdf',
     file_size: 2547893,
     size: 2547893,
-    created_at: new Date(Date.now() - 864000000).toISOString(), // 1 day ago
+    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
     content: 'Mock PDF content - Financial Report Q4 2024',
     thumbnail: null,
     is_starred: true,
@@ -60,8 +64,8 @@ export const comprehensiveDemoFiles: FileItem[] = [
   },
   {
     id: 'demo-doc-2',
-    name: 'Hợp đồng thuê nhà.docx',
-    original_name: 'Hợp đồng thuê nhà.docx',
+    name: 'Rental_Agreement.docx',
+    original_name: 'Rental_Agreement.docx',
     mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
     file_size: 156789,
     size: 156789,
@@ -83,8 +87,8 @@ export const comprehensiveDemoFiles: FileItem[] = [
   },
   {
     id: 'demo-doc-3',
-    name: 'Presentation_Marketing.pptx',
-    original_name: 'Presentation_Marketing.pptx',
+    name: 'Marketing_Presentation.pptx',
+    original_name: 'Marketing_Presentation.pptx',
     mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
     file_size: 5234567,
     size: 5234567,
@@ -214,7 +218,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Expires in 30 days
   },
 
-  // Audio
+  // Audio with metadata
   {
     id: 'demo-audio-1',
     name: 'NAKISO_-_.mp3',
@@ -230,7 +234,11 @@ export const comprehensiveDemoFiles: FileItem[] = [
     is_public: false,
     isShared: false,
     owner: 'demo@yukifiles.com',
-    category: 'media'
+    category: 'media',
+    // Music metadata
+    artist: 'NAKISO',
+    album: 'Unknown Album',
+    albumArt: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop'
   },
   {
     id: 'demo-audio-2',
@@ -248,7 +256,10 @@ export const comprehensiveDemoFiles: FileItem[] = [
     isShared: true,
     owner: 'demo@yukifiles.com',
     category: 'media',
-    hasPassword: true
+    hasPassword: true,
+    artist: 'Various Artists',
+    album: 'Chill Collection',
+    albumArt: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop'
   },
   {
     id: 'demo-audio-3',
@@ -271,7 +282,10 @@ export const comprehensiveDemoFiles: FileItem[] = [
       maxDownloads: 50,
       currentViews: 87,
       currentDownloads: 12
-    }
+    },
+    artist: 'Tech Talk Radio',
+    album: 'Episode 01',
+    albumArt: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=300&h=300&fit=crop'
   },
 
   // Code Files
@@ -590,7 +604,7 @@ Next Meeting: December 22, 2024`,
 export const demoFolders = [
   {
     id: 'folder-1',
-    name: 'Dự án 2024',
+    name: 'Project 2024',
     type: 'folder',
     created_at: new Date(Date.now() - 86400000).toISOString(),
     file_count: 15,
@@ -598,7 +612,7 @@ export const demoFolders = [
   },
   {
     id: 'folder-2', 
-    name: 'Hình ảnh',
+    name: 'Images',
     type: 'folder',
     created_at: new Date(Date.now() - 172800000).toISOString(),
     file_count: 8,
@@ -606,7 +620,7 @@ export const demoFolders = [
   },
   {
     id: 'folder-3',
-    name: 'Tài liệu quan trọng',
+    name: 'Important Documents',
     type: 'folder', 
     created_at: new Date(Date.now() - 259200000).toISOString(),
     file_count: 12,
