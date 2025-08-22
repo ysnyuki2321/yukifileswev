@@ -130,8 +130,8 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                          }}
            />
         </div>
-            <AnimatePresence>
-              {showSearchResults && searchResults.length > 0 && (
+
+        <div className="flex items-center gap-2 sm:gap-3">
                 <motion.div
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
