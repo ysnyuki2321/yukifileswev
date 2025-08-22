@@ -84,6 +84,23 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${outfit.variable} font-outfit antialiased`}>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.addEventListener('error', function(e) {
+                if (e.message && e.message.includes('Cannot access') && e.message.includes('before initialization')) {
+                  console.error('FOUND J ERROR:', {
+                    message: e.message,
+                    filename: e.filename,
+                    lineno: e.lineno,
+                    colno: e.colno,
+                    stack: e.error?.stack
+                  });
+                }
+              });
+            `
+          }}
+        />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
