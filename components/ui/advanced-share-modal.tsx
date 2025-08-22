@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { ProfessionalDatePicker } from './professional-date-picker'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { 
@@ -53,8 +54,24 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
     
     const baseUrl = window.location.origin
     const shareToken = generateShareToken()
-    const link = `${baseUrl}/share/${shareToken}`
+    const link = `${baseUrl}/demo/share/${shareToken}`
     setShareLink(link)
+    
+    // Store share link data in sessionStorage for demo
+    const shareData = {
+      token: shareToken,
+      file: file,
+      password: isPasswordProtected ? password : null,
+      expiryDate: expiryDate || null,
+      maxViews: maxViews || null,
+      maxDownloads: maxDownloads || null,
+      allowPreview: allowPreview,
+      allowDownload: allowDownload,
+      isPublic: isPublic,
+      createdAt: new Date().toISOString()
+    }
+    sessionStorage.setItem(`share_${shareToken}`, JSON.stringify(shareData))
+    
     setIsGenerating(false)
   }
 
@@ -313,18 +330,16 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                   </div>
 
                   {/* Expiry Date */}
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-white flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-purple-400" />
-                      Expiry Date (Optional)
-                    </label>
-                    <Input
-                      type="datetime-local"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                      className="bg-black/30 border-purple-500/30 text-white"
-                    />
-                  </div>
+                                                  <div className="space-y-2">
+                                  <ProfessionalDatePicker
+                                    label="Expiry Date (Optional)"
+                                    value={expiryDate}
+                                    onChange={setExpiryDate}
+                                    placeholder="Select expiry date and time..."
+                                    minDate={new Date()}
+                                    includeTime={true}
+                                  />
+                                </div>
 
                   {/* View/Download Limits */}
                   <div className="grid grid-cols-2 gap-4">

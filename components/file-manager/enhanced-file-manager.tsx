@@ -21,6 +21,7 @@ import { FileEditor } from "@/components/file-editor/FileEditor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
+import { useProfessionalInput } from "@/components/ui/professional-input-modal"
 import { SimpleShareModal } from "@/components/ui/simple-share-modal"
 import { AdvancedShareModal } from "@/components/ui/advanced-share-modal"
 import { BreadcrumbPath } from "@/components/ui/breadcrumb-path"
@@ -668,7 +669,8 @@ export function EnhancedFileManager({
   const [isMobile, setIsMobile] = useState(false)
   
   // Professional modal system
-  const { showInput, showConfirm, Modal } = useProfessionalModal()
+  const { showConfirm, Modal } = useProfessionalModal()
+  const { showInput, ProfessionalInputComponent } = useProfessionalInput()
 
   // Detect mobile device
   useEffect(() => {
@@ -683,30 +685,59 @@ export function EnhancedFileManager({
 
   // File creation handlers
   const handleCreateFile = () => {
-    const name = prompt("Enter file name:")
-    if (name && onFileCreate) {
-      const newFile = {
-        name,
-        type: "text",
-        content: "",
-        path: "/"
+    showInput("Create New File", {
+      description: "Enter a name for your new file",
+      placeholder: "e.g., document.txt, script.js, notes.md",
+      icon: "file",
+      variant: "create",
+      maxLength: 255,
+      validation: (value) => {
+        if (!value.trim()) return "File name is required"
+        if (value.includes('/') || value.includes('\\')) return "File name cannot contain / or \\"
+        if (!value.includes('.')) return "File name should include an extension (e.g., .txt, .js)"
+        return null
+      },
+      confirmText: "Create File",
+      onConfirm: (fileName) => {
+        if (fileName && onFileCreate) {
+          const newFile = {
+            name: fileName,
+            type: "text",
+            content: "",
+            path: "/"
+          }
+          onFileCreate(newFile)
+        }
       }
-      onFileCreate(newFile)
-    }
+    })
   }
 
   const handleCreateFolder = () => {
-    const name = prompt("Enter folder name:")
-    if (name) {
-      // Assuming onFileCreate can handle folder creation
-      const newFolder = {
-        name,
-        type: "folder",
-        content: "",
-        path: "/"
+    showInput("Create New Folder", {
+      description: "Enter a name for your new folder",
+      placeholder: "e.g., Documents, Projects, Images",
+      icon: "folder",
+      variant: "create",
+      maxLength: 255,
+      validation: (value) => {
+        if (!value.trim()) return "Folder name is required"
+        if (value.includes('/') || value.includes('\\')) return "Folder name cannot contain / or \\"
+        if (value.includes('.')) return "Folder names should not include file extensions"
+        return null
+      },
+      confirmText: "Create Folder",
+      onConfirm: (folderName) => {
+        if (folderName && onFileCreate) {
+          const newFolder = {
+            name: folderName,
+            type: "folder",
+            content: "",
+            path: "/"
+          }
+          onFileCreate(newFolder)
+        }
       }
-      onFileCreate(newFolder)
-    }
+    })
   }
 
   // Multi-select handlers
@@ -930,6 +961,14 @@ export function EnhancedFileManager({
         description: `Enter a new name for "${file.name}"`,
         placeholder: "New file name",
         defaultValue: file.name,
+        icon: "file",
+        variant: "rename",
+        maxLength: 255,
+        validation: (value) => {
+          if (!value.trim()) return "File name is required"
+          if (value.includes('/') || value.includes('\\')) return "File name cannot contain / or \\"
+          return null
+        },
         onConfirm: (newName) => {
           if (newName && newName !== file.name) {
             console.log('Renaming:', file.name, 'to:', newName)
@@ -937,6 +976,7 @@ export function EnhancedFileManager({
           }
         }
       })
+      setContextMenu(null)
     },
     delete: (file: any) => {
       showConfirm("Delete File", {
@@ -971,6 +1011,13 @@ export function EnhancedFileManager({
       showInput("Move to Folder", {
         description: `Move "${file.name}" to a different folder`,
         placeholder: "Folder path (e.g., /Documents/Projects)",
+        icon: "folder",
+        variant: "move",
+        validation: (value) => {
+          if (!value.trim()) return "Folder path is required"
+          if (!value.startsWith('/')) return "Path must start with /"
+          return null
+        },
         onConfirm: (folderPath) => {
           if (folderPath) {
             console.log('Moving:', file.name, 'to:', folderPath)
@@ -978,6 +1025,7 @@ export function EnhancedFileManager({
           }
         }
       })
+      setContextMenu(null)
     },
     archive: (file: any) => {
       console.log('Archive:', file.name)
@@ -1317,6 +1365,9 @@ export function EnhancedFileManager({
 
       {/* Professional Modal */}
       <Modal />
+      
+      {/* Professional Input Modal */}
+      {ProfessionalInputComponent}
 
       {/* Simple Share Modal */}
       {shareModal.file && (
