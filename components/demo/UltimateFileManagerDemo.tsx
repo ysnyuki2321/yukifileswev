@@ -92,9 +92,9 @@ export function UltimateFileManagerDemo() {
       owner: 'demo@yukifiles.com',
       hasPassword: false,
       inArchive: false,
-      category: file.type.startsWith('image/') ? 'image' :
-                file.type.startsWith('video/') ? 'video' :
-                file.type.startsWith('audio/') ? 'audio' :
+      category: file.type.startsWith('image/') ? 'media' :
+                file.type.startsWith('video/') ? 'media' :
+                file.type.startsWith('audio/') ? 'media' :
                 'document'
     }))
     
@@ -104,171 +104,122 @@ export function UltimateFileManagerDemo() {
   return (
     <div className="space-y-6">
       {/* Demo Header */}
-      <div className="text-center space-y-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Ultimate File Manager Demo
-          </h1>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Experience all features: Advanced search, database editor, archive viewer, 
-            compression system, password protection, and more!
-          </p>
-        </motion.div>
-
-        {/* Quick Stats */}
-        {showStats && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 max-w-6xl mx-auto"
+      <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-white">🗂️ Ultimate File Manager Demo</h2>
+            <p className="text-gray-400">Test all file management features with {demoFiles.length} demo files</p>
+          </div>
+          <Button
+            onClick={() => setShowStats(!showStats)}
+            variant="outline"
+            className="border-purple-500/30"
           >
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Files className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{stats.files}</p>
-                <p className="text-xs text-gray-400">Files</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Share2 className="w-6 h-6 text-green-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{stats.shared}</p>
-                <p className="text-xs text-gray-400">Shared</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Lock className="w-6 h-6 text-red-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{stats.protected}</p>
-                <p className="text-xs text-gray-400">Protected</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Archive className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{stats.archived}</p>
-                <p className="text-xs text-gray-400">Archived</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Database className="w-6 h-6 text-cyan-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{stats.categories.databases}</p>
-                <p className="text-xs text-gray-400">Databases</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <Star className="w-6 h-6 text-yellow-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{stats.starred}</p>
-                <p className="text-xs text-gray-400">Starred</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-black/40 border-purple-500/20">
-              <CardContent className="p-4 text-center">
-                <HardDrive className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-                <p className="text-xl font-bold text-white">{(stats.totalSize / 1024 / 1024).toFixed(1)}</p>
-                <p className="text-xs text-gray-400">MB Total</p>
-              </CardContent>
-            </Card>
-          </motion.div>
-        )}
+            <BarChart3 className="w-4 h-4 mr-2" />
+            {showStats ? 'Hide' : 'Show'} Stats
+          </Button>
+        </div>
 
-        {/* Feature Highlights */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="flex flex-wrap justify-center gap-2 max-w-4xl mx-auto"
-        >
-          <Badge className="bg-purple-500/20 text-purple-400">Enhanced Search</Badge>
-          <Badge className="bg-blue-500/20 text-blue-400">Database Editor</Badge>
-          <Badge className="bg-orange-500/20 text-orange-400">Archive Viewer</Badge>
-          <Badge className="bg-green-500/20 text-green-400">Compression System</Badge>
-          <Badge className="bg-red-500/20 text-red-400">Password Protection</Badge>
-          <Badge className="bg-yellow-500/20 text-yellow-400">Access Limits</Badge>
-          <Badge className="bg-pink-500/20 text-pink-400">File Encryption</Badge>
-          <Badge className="bg-cyan-500/20 text-cyan-400">Breadcrumb Navigation</Badge>
-        </motion.div>
+        {/* Demo Stats */}
+        {showStats && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 pt-4 border-t border-purple-500/10">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-400">{stats.total}</div>
+              <div className="text-xs text-gray-400">Total Files</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-400">{stats.folders}</div>
+              <div className="text-xs text-gray-400">Folders</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-400">{stats.shared}</div>
+              <div className="text-xs text-gray-400">Shared</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-yellow-400">{stats.protected}</div>
+              <div className="text-xs text-gray-400">Protected</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-red-400">{stats.archived}</div>
+              <div className="text-xs text-gray-400">Archived</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-orange-400">{(stats.totalSize / 1024 / 1024).toFixed(0)}MB</div>
+              <div className="text-xs text-gray-400">Total Size</div>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Enhanced File Manager */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6 }}
-      >
-        <EnhancedFileManager
-          files={demoFiles.map(file => ({
-            id: file.id,
-            name: file.name,
-            size: file.size,
-            type: file.mime_type,
-            lastModified: new Date(file.created_at),
-            isFolder: file.mime_type === 'folder',
-            isStarred: file.is_starred,
-            isShared: file.is_public,
-            thumbnail: file.thumbnail
-          }))}
-          onFileCreate={handleFileCreate}
-          onFileEdit={handleFileEdit}
-          onFileUpload={handleFileUpload}
-          uploadProgress={{}}
-          uploadingFiles={[]}
-          isAdmin={true}
-        />
-      </motion.div>
+      {/* Main File Manager */}
+      <EnhancedFileManager
+        files={demoFiles.map(file => ({
+          id: file.id,
+          name: file.name,
+          size: file.size,
+          type: file.mime_type,
+          lastModified: new Date(file.created_at),
+          isFolder: file.mime_type === 'folder',
+          isStarred: file.is_starred,
+          isShared: file.is_public,
+          thumbnail: file.content,
+          content: file.content,
+          owner: file.owner,
+          hasPassword: file.hasPassword,
+          inArchive: file.inArchive,
+          category: file.category,
+          encryptedName: file.encryptedName,
+          accessLimits: file.accessLimits ? {
+            views: file.accessLimits.currentViews,
+            downloads: file.accessLimits.currentDownloads,
+            maxViews: file.accessLimits.maxViews,
+            maxDownloads: file.accessLimits.maxDownloads
+          } : undefined,
+          expiresAt: file.expiresAt ? new Date(file.expiresAt) : undefined
+        }))}
+        onFileUpload={handleFileUpload}
+        onFileCreate={handleFileCreate}
+        isAdmin={true}
+      />
 
-      {/* Demo Instructions */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8 }}
-        className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-lg p-6"
-      >
-        <h3 className="text-white font-semibold mb-4">🎯 Demo Features to Test:</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+      {/* Demo Feature Highlights */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="bg-black/40 border border-purple-500/20 rounded-xl p-6">
           <div className="space-y-2">
-            <h4 className="text-purple-400 font-medium">📁 File Operations</h4>
-            <ul className="text-gray-400 space-y-1">
-              <li>• Click database files → Database Editor</li>
-              <li>• Click archive files → Archive Viewer</li>
-              <li>• Right-click → Context menu</li>
-              <li>• Multi-select → Bulk operations</li>
+            <h4 className="text-purple-400 font-medium">🎯 File Management</h4>
+            <ul className="text-gray-400 space-y-1 text-sm">
+              <li>• Upload → Drag & drop multiple files</li>
+              <li>• Preview → Images, videos, audio, code</li>
+              <li>• Edit → Syntax highlighting editor</li>
+              <li>• Context menu → Right-click/long-press</li>
             </ul>
           </div>
-          
+        </div>
+
+        <div className="bg-black/40 border border-purple-500/20 rounded-xl p-6">
           <div className="space-y-2">
             <h4 className="text-green-400 font-medium">🔗 Sharing & Security</h4>
-            <ul className="text-gray-400 space-y-1">
+            <ul className="text-gray-400 space-y-1 text-sm">
               <li>• Share → Advanced security options</li>
               <li>• Password protection toggle</li>
               <li>• Access limits & expiration</li>
               <li>• Filename encryption</li>
             </ul>
           </div>
-          
+        </div>
+        
+        <div className="bg-black/40 border border-purple-500/20 rounded-xl p-6">
           <div className="space-y-2">
             <h4 className="text-orange-400 font-medium">📦 Advanced Features</h4>
-            <ul className="text-gray-400 space-y-1">
+            <ul className="text-gray-400 space-y-1 text-sm">
               <li>• Compress → Professional overlay</li>
               <li>• Search → Enhanced với highlighting</li>
               <li>• Breadcrumb → Windows-style navigation</li>
-              <li>• Profile → Slide-up screen</li>
+              <li>• Multi-select → Bulk operations</li>
             </ul>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   )
 }
