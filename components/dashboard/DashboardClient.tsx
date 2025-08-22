@@ -11,6 +11,8 @@ import AIToolsDemo from "@/components/dashboard/AIToolsDemo"
 import CollaborationDemo from "@/components/dashboard/CollaborationDemo"
 import PaymentDemo from "@/components/dashboard/PaymentDemo"
 import DiskManagementDemo from "@/components/dashboard/DiskManagementDemo"
+import { AdminDemo } from "@/components/dashboard/AdminDemo"
+import { SettingsDemo } from "@/components/dashboard/SettingsDemo"
 import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
@@ -173,7 +175,17 @@ export default function DashboardClient() {
                       <PaymentDemo isDemoMode={true} />
                     </SafeDemoWrapper>
                   )}
-                  {activeTab === 'admin' && userData?.is_admin && (
+                  {activeTab === 'admin' && (
+                    <SafeDemoWrapper fallbackTitle="Loading Admin Panel...">
+                      <AdminDemo />
+                    </SafeDemoWrapper>
+                  )}
+                  {activeTab === 'settings' && (
+                    <SafeDemoWrapper fallbackTitle="Loading Settings...">
+                      <SettingsDemo />
+                    </SafeDemoWrapper>
+                  )}
+                  {activeTab === 'infrastructure' && userData?.is_admin && (
                     <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
                       <DiskManagementDemo isDemoMode={true} />
                     </SafeDemoWrapper>

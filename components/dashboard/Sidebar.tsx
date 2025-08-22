@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Files, Home, CreditCard, Shield, Settings, X, Sparkles, BarChart3, Users } from "lucide-react"
+import { Files, Home, CreditCard, Shield, Settings, X, Sparkles, BarChart3, Users, Server } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface SidebarProps {
@@ -32,9 +32,9 @@ export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOp
     navItems.push({ href: "/dashboard?demo=true&tab=ai", label: "AI Tools", icon: Sparkles })
     navItems.push({ href: "/dashboard?demo=true&tab=security", label: "Security", icon: Shield })
     navItems.push({ href: "/dashboard?demo=true&tab=pricing", label: "Pricing", icon: CreditCard })
-    if (isAdmin) {
-      navItems.push({ href: "/dashboard?demo=true&tab=admin", label: "Admin", icon: Settings })
-    }
+    navItems.push({ href: "/dashboard?demo=true&tab=admin", label: "Admin", icon: Settings })
+    navItems.push({ href: "/dashboard?demo=true&tab=settings", label: "Settings", icon: Settings })
+    navItems.push({ href: "/dashboard?demo=true&tab=infrastructure", label: "Infrastructure", icon: Server })
   } else {
     navItems.push({ href: "/pricing", label: "Pricing", icon: CreditCard })
     if (isAdmin) {

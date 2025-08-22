@@ -75,6 +75,9 @@ export function EnhancedFileManager({
   const [showAnalytics, setShowAnalytics] = useState(false)
   const [contextMenu, setContextMenu] = useState<{ file: FileItem; position: { x: number; y: number } } | null>(null)
   const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
+  const [multiSelectMode, setMultiSelectMode] = useState(false)
+  const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
+  const [showMultiActions, setShowMultiActions] = useState(false)
 
   const getFileCategory = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -167,6 +170,57 @@ export function EnhancedFileManager({
     })
   }
 
+  // Multi-select handlers
+  const toggleMultiSelect = (fileId: string) => {
+    setSelectedMultiFiles(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(fileId)) {
+        newSet.delete(fileId)
+      } else {
+        newSet.add(fileId)
+      }
+      setShowMultiActions(newSet.size > 0)
+      return newSet
+    })
+  }
+
+  const selectAllFiles = () => {
+    const allFileIds = new Set(filteredAndSortedFiles.map(f => f.id))
+    setSelectedMultiFiles(allFileIds)
+    setShowMultiActions(true)
+  }
+
+  const clearSelection = () => {
+    setSelectedMultiFiles(new Set())
+    setShowMultiActions(false)
+    setMultiSelectMode(false)
+  }
+
+  const handleMultiAction = {
+    compress: () => {
+      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
+      console.log('Compressing files to tar.gz:', selectedFiles.map(f => f.name))
+      // Mock compression
+      alert(`Creating archive with ${selectedFiles.length} files...`)
+      clearSelection()
+    },
+    delete: () => {
+      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
+      console.log('Deleting files:', selectedFiles.map(f => f.name))
+      clearSelection()
+    },
+    move: () => {
+      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
+      console.log('Moving files:', selectedFiles.map(f => f.name))
+      clearSelection()
+    },
+    share: () => {
+      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
+      console.log('Sharing files:', selectedFiles.map(f => f.name))
+      clearSelection()
+    }
+  }
+
   // Context menu actions
   const handleContextAction = {
     share: (file: FileItem) => console.log('Share:', file.name),
@@ -178,7 +232,11 @@ export function EnhancedFileManager({
     toggleStar: (file: FileItem) => console.log('Toggle star:', file.name),
     togglePrivacy: (file: FileItem) => console.log('Toggle privacy:', file.name),
     moveToFolder: (file: FileItem) => console.log('Move to folder:', file.name),
-    archive: (file: FileItem) => console.log('Archive:', file.name)
+    archive: (file: FileItem) => console.log('Archive:', file.name),
+    select: (file: FileItem) => {
+      setMultiSelectMode(true)
+      toggleMultiSelect(file.id)
+    }
   }
 
   const isTextFile = (filename: string): boolean => {
@@ -386,6 +444,26 @@ export function EnhancedFileManager({
             <Button size="sm" variant="outline" onClick={() => window.location.reload()} title="Refresh">
               <RefreshCw className="w-4 h-4" />
             </Button>
+            {!multiSelectMode && (
+              <Button 
+                size="sm" 
+                variant="outline" 
+                onClick={() => setMultiSelectMode(true)}
+                title="Multi-select"
+              >
+                <CheckCircle className="w-4 h-4" />
+              </Button>
+            )}
+            {multiSelectMode && (
+              <>
+                <Button size="sm" variant="outline" onClick={selectAllFiles} title="Select All">
+                  Select All
+                </Button>
+                <Button size="sm" variant="outline" onClick={clearSelection} title="Cancel">
+                  Cancel
+                </Button>
+              </>
+            )}
             <Button size="sm" variant="outline" title="Storage Info">
               <HardDrive className="w-4 h-4" />
             </Button>
@@ -412,12 +490,23 @@ export function EnhancedFileManager({
               {filteredAndSortedFiles.map((file) => (
                 <div
                   key={file.id}
-                  className={`group cursor-pointer rounded-lg border border-gray-700 hover:border-purple-500/50 transition-all duration-200 ${
+                  className={`group cursor-pointer rounded-lg border transition-all duration-200 relative ${
+                    selectedMultiFiles.has(file.id) 
+                      ? "border-purple-500 bg-purple-500/10" 
+                      : "border-gray-700 hover:border-purple-500/50"
+                  } ${
                     viewMode === "grid"
                       ? "p-4 text-center bg-slate-800/30 hover:bg-slate-800/50"
                       : "p-3 flex items-center gap-3 bg-slate-800/20 hover:bg-slate-800/40"
                   }`}
-                  onClick={() => handleFileClick(file)}
+                  onClick={(e) => {
+                    if (multiSelectMode) {
+                      e.preventDefault()
+                      toggleMultiSelect(file.id)
+                    } else {
+                      handleFileClick(file)
+                    }
+                  }}
                   onContextMenu={(e) => handleRightClick(file, e)}
                   onTouchStart={(e) => handleLongPressStart(file, e)}
                   onTouchEnd={handleLongPressEnd}
@@ -425,6 +514,20 @@ export function EnhancedFileManager({
                   onMouseUp={handleLongPressEnd}
                   onMouseLeave={handleLongPressEnd}
                 >
+                  {/* Multi-select checkbox */}
+                  {multiSelectMode && (
+                    <div className="absolute top-2 left-2 z-10">
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                        selectedMultiFiles.has(file.id) 
+                          ? 'bg-purple-600 border-purple-600' 
+                          : 'border-gray-400 bg-black/20'
+                      }`}>
+                        {selectedMultiFiles.has(file.id) && (
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        )}
+                      </div>
+                    </div>
+                  )}
                   {viewMode === "grid" ? (
                     <>
                       <div className="mb-3">
@@ -609,7 +712,63 @@ export function EnhancedFileManager({
         onTogglePrivacy={handleContextAction.togglePrivacy}
         onMoveToFolder={handleContextAction.moveToFolder}
         onArchive={handleContextAction.archive}
+        onSelect={handleContextAction.select}
       />
+
+      {/* Multi-select Actions Bar */}
+      {showMultiActions && (
+        <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+          <div className="bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-xl p-4 flex items-center gap-3 shadow-2xl">
+            <span className="text-white text-sm font-medium">
+              {selectedMultiFiles.size} selected
+            </span>
+            <div className="w-px h-6 bg-gray-600" />
+            <Button
+              size="sm"
+              onClick={handleMultiAction.compress}
+              className="bg-purple-600 hover:bg-purple-700 text-white"
+            >
+              <Archive className="w-4 h-4 mr-2" />
+              Compress (.tar.gz)
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleMultiAction.share}
+              className="border-gray-600 text-gray-300"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              Share
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleMultiAction.move}
+              className="border-gray-600 text-gray-300"
+            >
+              <FolderPlus className="w-4 h-4 mr-2" />
+              Move
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleMultiAction.delete}
+              className="border-red-600 text-red-400 hover:bg-red-600/10"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Delete
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={clearSelection}
+              className="text-gray-400 hover:text-white"
+            >
+              Cancel
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

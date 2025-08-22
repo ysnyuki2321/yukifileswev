@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { 
   Share2, Edit3, Trash2, Download, Copy, Eye, 
   Star, StarOff, Lock, Unlock, MoreVertical,
-  FolderOpen, Link, Archive
+  FolderOpen, Link, Archive, CheckCircle
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -23,6 +23,7 @@ interface FileContextMenuProps {
   onTogglePrivacy?: (file: any) => void
   onMoveToFolder?: (file: any) => void
   onArchive?: (file: any) => void
+  onSelect?: (file: any) => void
 }
 
 export function FileContextMenu({
@@ -38,7 +39,8 @@ export function FileContextMenu({
   onToggleStar,
   onTogglePrivacy,
   onMoveToFolder,
-  onArchive
+  onArchive,
+  onSelect
 }: FileContextMenuProps) {
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -75,6 +77,13 @@ export function FileContextMenu({
       action: () => onView?.(file),
       color: "text-blue-400",
       shortcut: "Space"
+    },
+    {
+      icon: CheckCircle,
+      label: "Select",
+      action: () => onSelect?.(file),
+      color: "text-purple-400",
+      shortcut: "Ctrl+A"
     },
     {
       icon: Share2,
