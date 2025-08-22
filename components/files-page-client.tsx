@@ -66,9 +66,11 @@ export default function FilesPageClient() {
         
         console.log("[v0] Loading files page data")
         setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
-        setUserData(getMockUserData())
+        const mockData = getMockUserData()
+        mockData.is_admin = true
+        setUserData(mockData)
         
-        // Use comprehensive demo files instead of basic samples
+        // Use comprehensive demo files for consistent experience
         const transformedFiles: FileItem[] = comprehensiveDemoFiles.map((file: any) => ({
           id: file.id,
           name: file.name,
@@ -788,9 +790,9 @@ Thank you for trying YukiFiles! 🚀`,
     setFiles(prevFiles => [...prevFiles, fileItem])
   }
 
-  const handleFolderCreate = (newFolder: { name: string, path: string }) => {
+  const handleFolderCreate = (newFolder: { name: string; path: string }) => {
     const folderItem: FileItem = {
-      id: `folder-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `folder-${Date.now()}`,
       name: newFolder.name,
       type: 'folder',
       size: 0,
@@ -803,8 +805,6 @@ Thank you for trying YukiFiles! 🚀`,
     }
     setFiles(prevFiles => [...prevFiles, folderItem])
   }
-
-  const allFiles = isDemoMode ? demoFiles : [...transformedFiles, ...testFiles]
 
   if (loading) {
     return (

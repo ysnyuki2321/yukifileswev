@@ -936,11 +936,22 @@ export function EnhancedFileManager({
           file={{
             id: selectedFile.id,
             name: selectedFile.name,
-            type: selectedFile.type,
-            size: selectedFile.size,
-            thumbnail: selectedFile.thumbnail
+            mime_type: selectedFile.type,
+            content: selectedFile.content || selectedFile.thumbnail || '',
+            thumbnail: selectedFile.thumbnail,
+            size: selectedFile.size
           }}
-          onClose={closeMediaPreview}
+          onDownload={() => {
+            console.log('Downloading:', selectedFile.name)
+            closeMediaPreview()
+          }}
+          onShare={() => {
+            setAdvancedShareModal({ isOpen: true, file: selectedFile })
+            closeMediaPreview()
+          }}
+          onLike={() => {
+            console.log('Liked:', selectedFile.name)
+          }}
         />
       )}
 
