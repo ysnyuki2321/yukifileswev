@@ -18,6 +18,7 @@ import {
 } from "lucide-react"
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
+import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { formatBytes } from "@/lib/utils"
 
 export interface FileItem {
@@ -72,6 +73,8 @@ export function EnhancedFileManager({
   const [showUploadProgress, setShowUploadProgress] = useState(false)
   const [storageStats, setStorageStats] = useState({ used: 0, total: 0 })
   const [showAnalytics, setShowAnalytics] = useState(false)
+  const [contextMenu, setContextMenu] = useState<{ file: FileItem; position: { x: number; y: number } } | null>(null)
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null)
 
   const getFileCategory = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase() || ''
@@ -126,6 +129,56 @@ export function EnhancedFileManager({
       setShowMediaPreview(true)
       onFileEdit?.(file)
     }
+  }
+
+  // Long press handlers for mobile context menu
+  const handleLongPressStart = (file: FileItem, event: React.TouchEvent | React.MouseEvent) => {
+    const timer = setTimeout(() => {
+      const rect = (event.target as HTMLElement).getBoundingClientRect()
+      setContextMenu({
+        file,
+        position: {
+          x: rect.left + rect.width / 2,
+          y: rect.top + rect.height / 2
+        }
+      })
+      
+      // Haptic feedback on mobile
+      if ('vibrate' in navigator) {
+        navigator.vibrate(50)
+      }
+    }, 500) // 500ms long press
+    
+    setLongPressTimer(timer)
+  }
+
+  const handleLongPressEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer)
+      setLongPressTimer(null)
+    }
+  }
+
+  const handleRightClick = (file: FileItem, event: React.MouseEvent) => {
+    event.preventDefault()
+    setContextMenu({
+      file,
+      position: { x: event.clientX, y: event.clientY }
+    })
+  }
+
+  // Context menu actions
+  const handleContextAction = {
+    share: (file: FileItem) => console.log('Share:', file.name),
+    rename: (file: FileItem) => console.log('Rename:', file.name),
+    delete: (file: FileItem) => console.log('Delete:', file.name),
+    download: (file: FileItem) => console.log('Download:', file.name),
+    copy: (file: FileItem) => console.log('Copy link:', file.name),
+    view: (file: FileItem) => handleFileClick(file),
+    toggleStar: (file: FileItem) => console.log('Toggle star:', file.name),
+    togglePrivacy: (file: FileItem) => console.log('Toggle privacy:', file.name),
+    moveToFolder: (file: FileItem) => console.log('Move to folder:', file.name),
+    archive: (file: FileItem) => console.log('Archive:', file.name)
   }
 
   const isTextFile = (filename: string): boolean => {
@@ -365,6 +418,12 @@ export function EnhancedFileManager({
                       : "p-3 flex items-center gap-3 bg-slate-800/20 hover:bg-slate-800/40"
                   }`}
                   onClick={() => handleFileClick(file)}
+                  onContextMenu={(e) => handleRightClick(file, e)}
+                  onTouchStart={(e) => handleLongPressStart(file, e)}
+                  onTouchEnd={handleLongPressEnd}
+                  onMouseDown={(e) => e.button === 2 ? handleLongPressStart(file, e) : undefined}
+                  onMouseUp={handleLongPressEnd}
+                  onMouseLeave={handleLongPressEnd}
                 >
                   {viewMode === "grid" ? (
                     <>
@@ -534,6 +593,23 @@ export function EnhancedFileManager({
           onClose={closeMediaPreview}
         />
       )}
+
+      {/* File Context Menu */}
+      <FileContextMenu
+        file={contextMenu?.file}
+        position={contextMenu?.position || null}
+        onClose={() => setContextMenu(null)}
+        onShare={handleContextAction.share}
+        onRename={handleContextAction.rename}
+        onDelete={handleContextAction.delete}
+        onDownload={handleContextAction.download}
+        onCopy={handleContextAction.copy}
+        onView={handleContextAction.view}
+        onToggleStar={handleContextAction.toggleStar}
+        onTogglePrivacy={handleContextAction.togglePrivacy}
+        onMoveToFolder={handleContextAction.moveToFolder}
+        onArchive={handleContextAction.archive}
+      />
     </div>
   )
 }
