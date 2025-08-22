@@ -344,7 +344,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                     onClick={() => setSelectedNotification(null)}
                     className="bg-purple-600 hover:bg-purple-700 min-h-[44px] px-6"
                   >
-                    Đã hiểu
+                    Got it
                   </Button>
                 </div>
               </motion.div>

@@ -13,10 +13,10 @@ import {
   BarChart3, Users, HardDrive, Zap, Globe
 } from "lucide-react"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
-import { comprehensiveDemoFiles, getFileStats, DemoFileItem } from "./ComprehensiveDemoFiles"
+import { comprehensiveDemoFiles, getFileStats, FileItem, demoFolders } from "./ComprehensiveDemoFiles"
 
 export function UltimateFileManagerDemo() {
-  const [demoFiles, setDemoFiles] = useState<DemoFileItem[]>(comprehensiveDemoFiles)
+  const [demoFiles, setDemoFiles] = useState<FileItem[]>(comprehensiveDemoFiles)
   const [showStats, setShowStats] = useState(true)
 
   const stats = getFileStats(demoFiles)
@@ -25,36 +25,46 @@ export function UltimateFileManagerDemo() {
     // Handle both new file creation and archive file addition
     if (fileData.name && typeof fileData.isFolder !== 'undefined') {
       // New file/folder creation
-      const newFile: DemoFileItem = {
+      const newFile: FileItem = {
         id: `new-${Date.now()}`,
         name: fileData.name,
+        original_name: fileData.name,
+        mime_type: fileData.isFolder ? 'folder' : 'text/plain',
+        file_size: fileData.isFolder ? 0 : Math.floor(Math.random() * 1000000),
         size: fileData.isFolder ? 0 : Math.floor(Math.random() * 1000000),
-        type: fileData.isFolder ? 'folder' : 'text/plain',
-        lastModified: new Date(),
-        isFolder: fileData.isFolder,
+        created_at: new Date().toISOString(),
+        content: fileData.isFolder ? '' : 'New file content',
+        thumbnail: null,
+        is_starred: false,
         isStarred: false,
+        is_public: false,
         isShared: false,
+        owner: 'demo@yukifiles.com',
         hasPassword: false,
         inArchive: false,
-        category: fileData.isFolder ? 'folder' : 'document',
-        path: []
+        category: fileData.isFolder ? 'other' : 'document'
       }
       setDemoFiles(prev => [...prev, newFile])
     } else {
       // Archive file or extracted file addition
-      const newFile: DemoFileItem = {
+      const newFile: FileItem = {
         id: fileData.id || `file-${Date.now()}`,
         name: fileData.name,
+        original_name: fileData.name,
+        mime_type: fileData.type || 'application/octet-stream',
+        file_size: fileData.size || 0,
         size: fileData.size || 0,
-        type: fileData.type || 'application/octet-stream',
-        lastModified: fileData.lastModified || new Date(),
-        isFolder: fileData.isFolder || false,
-        isStarred: fileData.isStarred || false,
-        isShared: fileData.isShared || false,
-        hasPassword: fileData.hasPassword || false,
+        created_at: new Date().toISOString(),
+        content: 'Extracted file content',
+        thumbnail: null,
+        is_starred: false,
+        isStarred: false,
+        is_public: false,
+        isShared: false,
+        owner: 'demo@yukifiles.com',
+        hasPassword: false,
         inArchive: fileData.inArchive || false,
-        category: fileData.category || 'document',
-        path: fileData.path || []
+        category: 'other'
       }
       setDemoFiles(prev => [...prev, newFile])
     }
@@ -65,22 +75,27 @@ export function UltimateFileManagerDemo() {
   }
 
   const handleFileUpload = (files: File[]) => {
-    const newFiles: DemoFileItem[] = files.map(file => ({
+    const newFiles: FileItem[] = files.map(file => ({
       id: `upload-${Date.now()}-${Math.random()}`,
       name: file.name,
+      original_name: file.name,
+      mime_type: file.type,
+      file_size: file.size,
       size: file.size,
-      type: file.type,
-      lastModified: new Date(),
-      isFolder: false,
+      created_at: new Date().toISOString(),
+      content: 'Uploaded file content',
+      thumbnail: null,
+      is_starred: false,
       isStarred: false,
+      is_public: false,
       isShared: false,
+      owner: 'demo@yukifiles.com',
       hasPassword: false,
       inArchive: false,
       category: file.type.startsWith('image/') ? 'image' :
                 file.type.startsWith('video/') ? 'video' :
                 file.type.startsWith('audio/') ? 'audio' :
-                'document',
-      path: []
+                'document'
     }))
     
     setDemoFiles(prev => [...prev, ...newFiles])
@@ -198,11 +213,11 @@ export function UltimateFileManagerDemo() {
             id: file.id,
             name: file.name,
             size: file.size,
-            type: file.type,
-            lastModified: file.lastModified,
-            isFolder: file.isFolder,
-            isStarred: file.isStarred,
-            isShared: file.isShared,
+            type: file.mime_type,
+            lastModified: new Date(file.created_at),
+            isFolder: file.mime_type === 'folder',
+            isStarred: file.is_starred,
+            isShared: file.is_public,
             thumbnail: file.thumbnail
           }))}
           onFileCreate={handleFileCreate}

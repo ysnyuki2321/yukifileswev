@@ -183,12 +183,12 @@ export default function RegisterForm() {
                         setFormData(prev => ({ ...prev, password: e.target.value }))
                         checkPasswordStrength(e.target.value)
                       }}
-                      className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                      className="pl-9 pr-12 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
                     />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-1"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -248,12 +248,12 @@ export default function RegisterForm() {
                       minLength={6}
                       value={formData.password2}
                       onChange={(e) => setFormData(prev => ({ ...prev, password2: e.target.value }))}
-                      className="pl-9 pr-9 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
+                      className="pl-9 pr-12 bg-black/30 border-gray-700 text-white placeholder:text-gray-500 focus:border-purple-500 focus:ring-purple-500/20 transition-all duration-200 hover:border-gray-600"
                     />
                   <button
                     type="button"
                     onClick={() => setShowPassword2(!showPassword2)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white transition-colors p-1"
                   >
                     {showPassword2 ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
@@ -261,15 +261,16 @@ export default function RegisterForm() {
               </div>
 
               {/* Terms and Conditions */}
-              <CheckboxGroup className="space-y-4">
-                <CustomCheckbox
-                  checked={termsAccepted}
-                  onChange={setTermsAccepted}
-                  required
-                  variant="gradient"
-                  size="md"
-                >
-                  <div className="text-sm">
+              <div className="space-y-4">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={termsAccepted}
+                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                    required
+                    className="w-4 h-4 mt-0.5 text-purple-600 bg-black/30 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
+                  />
+                  <div className="text-sm text-gray-300">
                     I agree to the{" "}
                     <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">
                       Terms of Service
@@ -279,19 +280,20 @@ export default function RegisterForm() {
                       Privacy Policy
                     </Link>
                   </div>
-                </CustomCheckbox>
+                </label>
                 
-                <CustomCheckbox
-                  checked={newsletterSubscribed}
-                  onChange={setNewsletterSubscribed}
-                  variant="default"
-                  size="md"
-                >
-                  <div className="text-sm">
+                <label className="flex items-start space-x-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={newsletterSubscribed}
+                    onChange={(e) => setNewsletterSubscribed(e.target.checked)}
+                    className="w-4 h-4 mt-0.5 text-purple-600 bg-black/30 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
+                  />
+                  <div className="text-sm text-gray-300">
                     Send me product updates and security notifications
                   </div>
-                </CustomCheckbox>
-              </CheckboxGroup>
+                </label>
+              </div>
             </div>
 
             <SubmitButton disabled={false} />
