@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -14,7 +14,8 @@ import {
   FileAudio, FileCode, FileText, Image, Video, Music,
   Zap, Shield, Globe, Settings, BarChart3, TrendingUp,
   Database, Cloud, CloudUpload, CloudDownload, Wifi,
-  WifiOff, CheckCircle, XCircle, AlertCircle, Info, X
+  WifiOff, CheckCircle, XCircle, AlertCircle, Info, X,
+  Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
 import { FileEditor } from "@/components/file-editor/file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
@@ -72,10 +73,23 @@ export function EnhancedFileManager({
   const [compressionOverlay, setCompressionOverlay] = useState<{ isOpen: boolean; files: any[] }>({ isOpen: false, files: [] })
   const [databaseEditor, setDatabaseEditor] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
   const [archiveViewer, setArchiveViewer] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
+  const [isMobile, setIsMobile] = useState(false)
   
   // Professional modal system
   const { showInput, showConfirm, Modal } = useProfessionalModal()
 
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Helper functions
   const getFileCategory = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase() || ''
     const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp']
@@ -146,6 +160,26 @@ export function EnhancedFileManager({
     const ext = filename.split('.').pop()?.toLowerCase()
     const fullExt = filename.toLowerCase()
     return archiveExtensions.includes(ext || '') || fullExt.endsWith('.tar.gz')
+  }
+
+  const isTextFile = (filename: string): boolean => {
+    const textExtensions = [
+      'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss',
+      'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt',
+      'xml', 'yaml', 'yml', 'sql', 'csv', 'log'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return textExtensions.includes(ext || '')
+  }
+
+  const isMediaFile = (filename: string): boolean => {
+    const mediaExtensions = [
+      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
+      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
+      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return mediaExtensions.includes(ext || '')
   }
 
   // Long press handlers for mobile context menu
@@ -346,31 +380,11 @@ export function EnhancedFileManager({
     }
   }
 
-  const isTextFile = (filename: string): boolean => {
-    const textExtensions = [
-      'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss',
-      'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt',
-      'xml', 'yaml', 'yml', 'sql', 'csv', 'log'
-    ]
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return textExtensions.includes(ext || '')
-  }
-
-  const isMediaFile = (filename: string): boolean => {
-    const mediaExtensions = [
-      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
-      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
-      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
-    ]
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return mediaExtensions.includes(ext || '')
-  }
-
   const getFileIcon = (file: any) => {
     if (file.isFolder) {
       return (
         <div className="relative">
-          <Folder className="w-12 h-12 text-blue-400 drop-shadow-2xl" />
+          <Folder className="w-full h-full text-blue-400 drop-shadow-2xl" />
           <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-lg blur-lg"></div>
         </div>
       )
@@ -379,7 +393,7 @@ export function EnhancedFileManager({
     // Show thumbnail for images/videos if available
     if (file.thumbnail && getFileCategory(file.name) === 'images') {
       return (
-        <div className="w-12 h-12 rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 relative">
+        <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 relative">
           <img 
             src={file.thumbnail} 
             alt={file.name}
@@ -392,7 +406,7 @@ export function EnhancedFileManager({
     
     if (file.thumbnail && getFileCategory(file.name) === 'videos') {
       return (
-        <div className="w-12 h-12 rounded-xl overflow-hidden relative shadow-2xl border-2 border-white/20">
+        <div className="w-full h-full rounded-xl overflow-hidden relative shadow-2xl border-2 border-white/20">
           <video 
             src={file.thumbnail} 
             className="w-full h-full object-cover"
@@ -412,42 +426,42 @@ export function EnhancedFileManager({
       case 'images':
         return (
           <div className="relative">
-            <FileImage className="w-12 h-12 text-green-400 drop-shadow-2xl" />
+            <FileImage className="w-full h-full text-green-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       case 'videos':
         return (
           <div className="relative">
-            <FileVideo className="w-12 h-12 text-red-400 drop-shadow-2xl" />
+            <FileVideo className="w-full h-full text-red-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       case 'audio':
         return (
           <div className="relative">
-            <FileAudio className="w-12 h-12 text-purple-400 drop-shadow-2xl" />
+            <FileAudio className="w-full h-full text-purple-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg animate-pulse"></div>
           </div>
         )
       case 'code':
         return (
           <div className="relative">
-            <FileCode className="w-12 h-12 text-yellow-400 drop-shadow-2xl" />
+            <FileCode className="w-full h-full text-yellow-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       case 'documents':
         return (
           <div className="relative">
-            <FileText className="w-12 h-12 text-blue-400 drop-shadow-2xl" />
+            <FileText className="w-full h-full text-blue-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
           </div>
         )
       default:
         return (
           <div className="relative">
-            <File className="w-12 h-12 text-gray-400 drop-shadow-2xl" />
+            <File className="w-full h-full text-gray-400 drop-shadow-2xl" />
             <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
           </div>
         )
@@ -491,6 +505,545 @@ export function EnhancedFileManager({
     setSelectedFile(null)
   }
 
+  // Mobile-specific layout
+  const MobileLayout = () => (
+    <div className="space-y-4 md:hidden">
+      {/* Mobile Header */}
+      <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl p-4 border border-purple-500/20">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-white">Files</h1>
+            <p className="text-sm text-gray-400">{filteredAndSortedFiles?.length || 0} items</p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            className="bg-purple-500/20 text-purple-300 border-purple-500/30"
+          >
+            <BarChart3 className="w-4 h-4" />
+          </Button>
+        </div>
+
+        {/* Mobile Search */}
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Input
+            placeholder="Search files..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 bg-black/40 border-purple-500/30 text-white h-12 text-base"
+          />
+        </div>
+
+        {/* Mobile Quick Actions */}
+        <div className="grid grid-cols-3 gap-3">
+          <Button
+            onClick={handleCreateFile}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 h-12 text-sm font-medium"
+          >
+            <FilePlus className="w-4 h-4 mr-2" />
+            New File
+          </Button>
+          <Button
+            onClick={handleCreateFolder}
+            variant="outline"
+            className="border-purple-500/30 text-purple-300 h-12 text-sm font-medium"
+          >
+            <FolderPlus className="w-4 h-4 mr-2" />
+            Folder
+          </Button>
+          <Button
+            onClick={() => setShowUploadProgress(true)}
+            variant="outline"
+            className="border-purple-500/30 text-purple-300 h-12 text-sm font-medium"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile Filters */}
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        <Button
+          size="sm"
+          variant={filterType === "all" ? "default" : "outline"}
+          onClick={() => setFilterType("all")}
+          className="bg-gradient-to-r from-purple-500 to-pink-500 whitespace-nowrap"
+        >
+          All
+        </Button>
+        <Button
+          size="sm"
+          variant={filterType === "images" ? "default" : "outline"}
+          onClick={() => setFilterType("images")}
+          className="whitespace-nowrap"
+        >
+          Images
+        </Button>
+        <Button
+          size="sm"
+          variant={filterType === "documents" ? "default" : "outline"}
+          onClick={() => setFilterType("documents")}
+          className="whitespace-nowrap"
+        >
+          Documents
+        </Button>
+        <Button
+          size="sm"
+          variant={filterType === "code" ? "default" : "outline"}
+          onClick={() => setFilterType("code")}
+          className="whitespace-nowrap"
+        >
+          Code
+        </Button>
+      </div>
+
+      {/* Mobile File Grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {(filteredAndSortedFiles || []).map((file) => file && (
+          <div
+            key={file.id}
+            className="bg-gradient-to-br from-slate-800/40 to-slate-900/60 rounded-xl p-4 border border-purple-500/20 cursor-pointer touch-target"
+            onClick={() => handleFileClick(file)}
+            onTouchStart={(e) => handleLongPressStart(file, e)}
+            onTouchEnd={handleLongPressEnd}
+          >
+            <div className="text-center">
+              <div className="w-12 h-12 mx-auto mb-3">
+                {getFileIcon(file)}
+              </div>
+              <p className="text-white text-sm font-medium truncate mb-1" title={file.name}>
+                {file.name}
+              </p>
+              <p className="text-gray-400 text-xs mb-2">
+                {formatBytes(file.size)}
+              </p>
+              
+              {/* Mobile Status Badges */}
+              <div className="flex justify-center gap-1">
+                {file.isStarred && (
+                  <div className="w-6 h-6 bg-yellow-500/20 rounded-full flex items-center justify-center">
+                    <Star className="w-3 h-3 text-yellow-400 fill-current" />
+                  </div>
+                )}
+                {file.isShared && (
+                  <div className="w-6 h-6 bg-green-500/20 rounded-full flex items-center justify-center">
+                    <Share2 className="w-3 h-3 text-green-400" />
+                  </div>
+                )}
+                {file.hasPassword && (
+                  <div className="w-6 h-6 bg-red-500/20 rounded-full flex items-center justify-center">
+                    <Lock className="w-3 h-3 text-red-400" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile Multi-select Actions */}
+      {showMultiActions && (
+        <div className="fixed bottom-4 left-4 right-4 z-50">
+          <div className="bg-black/95 backdrop-blur-xl border border-purple-500/30 rounded-xl p-4 shadow-2xl">
+            <div className="text-center mb-3">
+              <span className="text-white text-sm font-medium">
+                {selectedMultiFiles.size} files selected
+              </span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                size="sm"
+                onClick={handleMultiAction.compress}
+                className="bg-gradient-to-r from-purple-500 to-pink-500 h-10"
+              >
+                <Archive className="w-4 h-4 mr-2" />
+                Compress
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleMultiAction.share}
+                className="border-purple-500/30 text-purple-300 h-10"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={handleMultiAction.delete}
+                className="border-red-600 text-red-400 h-10"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={clearSelection}
+                className="text-gray-400 h-10"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+  // Desktop power-user layout
+  const DesktopLayout = () => (
+    <div className="hidden md:block space-y-6">
+      {/* Desktop Header with Advanced Controls */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white">File Manager</h1>
+          <p className="text-gray-400 text-lg">{filteredAndSortedFiles?.length || 0} of {files?.length || 0} items</p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <Button
+            onClick={() => setShowAnalytics(!showAnalytics)}
+            variant="outline"
+            className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Analytics
+          </Button>
+          <Button
+            onClick={() => setShowUploadProgress(true)}
+            variant="outline"
+            className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+          >
+            <Upload className="w-4 h-4 mr-2" />
+            Upload Files
+          </Button>
+          <Button
+            onClick={handleCreateFile}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          >
+            <FilePlus className="w-4 h-4 mr-2" />
+            New File
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop Advanced Controls */}
+      <div className="grid grid-cols-4 gap-6">
+        <div className="col-span-2">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Input
+              placeholder="Search files, folders, content..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white h-12 text-base"
+            />
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value as any)}
+            className="bg-slate-800/50 border border-purple-500/20 text-white text-base rounded px-3 py-2 h-12"
+          >
+            <option value="all">All Files</option>
+            <option value="images">Images</option>
+            <option value="videos">Videos</option>
+            <option value="audio">Audio</option>
+            <option value="documents">Documents</option>
+            <option value="code">Code</option>
+          </select>
+          
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as any)}
+            className="bg-slate-800/50 border border-purple-500/20 text-white text-base rounded px-3 py-2 h-12"
+          >
+            <option value="name">Name</option>
+            <option value="size">Size</option>
+            <option value="date">Date</option>
+          </select>
+          
+          <Button
+            variant="outline"
+            onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
+            className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10 h-12 w-12"
+          >
+            {sortOrder === "asc" ? <SortAsc className="w-5 h-5" /> : <SortDesc className="w-5 h-5" />}
+          </Button>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button
+            variant={viewMode === "grid" ? "default" : "outline"}
+            onClick={() => setViewMode("grid")}
+            className="h-12 px-4"
+          >
+            <Grid className="w-4 h-4 mr-2" />
+            Grid
+          </Button>
+          <Button
+            variant={viewMode === "list" ? "default" : "outline"}
+            onClick={() => setViewMode("list")}
+            className="h-12 px-4"
+          >
+            <List className="w-4 h-4 mr-2" />
+            List
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop File Management */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3">
+          {/* File Display */}
+          <Card className="glass-card">
+            <CardContent className="p-6">
+              {(filteredAndSortedFiles?.length || 0) === 0 ? (
+                <div className="text-center py-16">
+                  <File className="w-20 h-20 mx-auto mb-6 text-gray-500" />
+                  <h3 className="text-2xl font-semibold text-white mb-3">No files found</h3>
+                  <p className="text-gray-400 text-lg mb-6">
+                    {searchQuery ? "Try adjusting your search query" : "Upload your first file to get started"}
+                  </p>
+                  <div className="flex justify-center gap-4">
+                    <Button onClick={handleCreateFile} className="bg-gradient-to-r from-purple-500 to-pink-500">
+                      <FilePlus className="w-4 h-4 mr-2" />
+                      Create File
+                    </Button>
+                    <Button onClick={() => setShowUploadProgress(true)} variant="outline">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload Files
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className={
+                  viewMode === "grid" 
+                    ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                    : "space-y-3"
+                }>
+                  {/* Desktop File Items */}
+                  {(filteredAndSortedFiles || []).map((file) => file && (
+                    <div
+                      key={file.id}
+                      className={`group cursor-pointer rounded-xl border transition-all duration-300 relative hover:scale-105 hover:shadow-2xl ${
+                        selectedMultiFiles.has(file.id) 
+                          ? "border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/10 shadow-lg shadow-purple-500/25" 
+                          : "border-gray-700/30 hover:border-purple-500/50 hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-slate-900/60"
+                      } ${
+                        viewMode === "grid"
+                          ? "p-6 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[220px] flex flex-col items-center justify-center backdrop-blur-sm"
+                          : "p-4 flex items-center gap-4 bg-slate-800/20 min-h-[80px]"
+                      }`}
+                      onClick={(e) => {
+                        if (multiSelectMode) {
+                          e.preventDefault()
+                          toggleMultiSelect(file.id)
+                          return
+                        }
+                        handleFileClick(file)
+                      }}
+                      onContextMenu={(e) => handleRightClick(file, e)}
+                    >
+                      {/* Desktop Multi-select */}
+                      {multiSelectMode && (
+                        <div className="absolute top-3 left-3 z-10">
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
+                            selectedMultiFiles.has(file.id)
+                              ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-400 shadow-lg'
+                              : 'bg-black/60 border-gray-400'
+                          }`}>
+                            {selectedMultiFiles.has(file.id) && (
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Desktop Status Badges */}
+                      <div className="absolute top-3 right-3 flex flex-col gap-2">
+                        {file.isStarred && (
+                          <div className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-xl animate-pulse">
+                            <Star className="w-4 h-4 text-white fill-current" />
+                          </div>
+                        )}
+                        {file.hasPassword && (
+                          <div className="w-8 h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                            <Lock className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                        {file.isShared && (
+                          <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-xl">
+                            <Share2 className="w-4 h-4 text-white" />
+                          </div>
+                        )}
+                      </div>
+
+                      {viewMode === "grid" ? (
+                        // Desktop Grid View
+                        <>
+                          <div className="mb-4 relative">
+                            <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
+                              <div className="w-16 h-16">
+                                {getFileIcon(file)}
+                              </div>
+                            </div>
+                            <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
+                              <div className="w-4 h-4 bg-white rounded-full animate-pulse"></div>
+                            </div>
+                          </div>
+                          <div className="space-y-3 text-center">
+                            <p className="text-white text-base font-semibold truncate px-2 leading-tight" title={file.name}>
+                              {file.name}
+                            </p>
+                            <p className="text-gray-400 text-sm">
+                              {formatBytes(file.size)}
+                            </p>
+                            <div className="flex justify-center items-center gap-2 mt-4">
+                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                              <div className="w-2 h-2 bg-pink-400 rounded-full animate-pulse delay-100"></div>
+                              <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse delay-200"></div>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        // Desktop List View
+                        <>
+                          <div className="flex-shrink-0">
+                            <div className="transform transition-all duration-300 group-hover:scale-110">
+                              <div className="w-12 h-12">
+                                {getFileIcon(file)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-white text-lg font-semibold truncate" title={file.name}>
+                                  {file.name}
+                                </p>
+                                <div className="flex items-center space-x-6 mt-2">
+                                  <p className="text-gray-400 text-sm">
+                                    {formatBytes(file.size)}
+                                  </p>
+                                  <p className="text-gray-500 text-sm">
+                                    {new Date(file.lastModified).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-4 ml-6">
+                                {file.isStarred && (
+                                  <Star className="w-5 h-5 text-yellow-400 fill-current animate-pulse" />
+                                )}
+                                {file.isShared && (
+                                  <Share2 className="w-5 h-5 text-green-400" />
+                                )}
+                                {file.hasPassword && (
+                                  <Lock className="w-5 h-5 text-red-400" />
+                                )}
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    handleRightClick(file, e)
+                                  }}
+                                  className="p-2 text-gray-400 hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-lg hover:scale-110"
+                                >
+                                  <MoreHorizontal className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Desktop Sidebar */}
+        <div className="space-y-6">
+          {/* Quick Actions */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">Quick Actions</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button
+                onClick={handleCreateFolder}
+                variant="outline"
+                className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+              >
+                <FolderPlus className="w-4 h-4 mr-2" />
+                New Folder
+              </Button>
+              <Button
+                onClick={() => setMultiSelectMode(!multiSelectMode)}
+                variant="outline"
+                className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                {multiSelectMode ? 'Exit Select' : 'Multi Select'}
+              </Button>
+              <Button
+                onClick={() => setShowAnalytics(!showAnalytics)}
+                variant="outline"
+                className="w-full border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Analytics
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* File Stats */}
+          <Card className="glass-card">
+            <CardHeader>
+              <CardTitle className="text-white text-lg">File Statistics</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-400">{files?.length || 0}</div>
+                  <div className="text-sm text-gray-400">Total Files</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-green-400">
+                    {formatBytes(files.reduce((acc, f) => acc + (f.size || 0), 0))}
+                  </div>
+                  <div className="text-sm text-gray-400">Total Size</div>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Images</span>
+                  <span className="text-white">{files.filter(f => getFileCategory(f.name) === 'images').length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Documents</span>
+                  <span className="text-white">{files.filter(f => getFileCategory(f.name) === 'documents').length}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Code Files</span>
+                  <span className="text-white">{files.filter(f => getFileCategory(f.name) === 'code').length}</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
     <div className="space-y-6">
       {/* Breadcrumb Path */}
@@ -500,348 +1053,12 @@ export function EnhancedFileManager({
         className="mb-4"
       />
       
-      {/* Header */}
-      <div className="flex flex-col gap-4 items-start justify-between">
-        <div className="w-full">
-          <h1 className="text-mobile-h2 font-bold text-white">YukiFiles Manager</h1>
-          <p className="text-mobile-body text-gray-400">{filteredAndSortedFiles?.length || 0} of {files?.length || 0} items</p>
-        </div>
-        
-        {/* Mobile-First Action Buttons */}
-        <div className="w-full space-y-4">
-          {/* Primary Actions - Always Visible */}
-          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3">
-            <Button onClick={handleCreateFile} size="sm" className="btn-gradient-primary min-h-[48px] flex-1 sm:flex-none">
-              <FilePlus className="w-4 h-4 mr-2" />
-              <span className="text-sm">New File</span>
-            </Button>
-            <Button onClick={handleCreateFolder} size="sm" variant="outline" className="min-h-[48px] flex-1 sm:flex-none border-purple-500/30 text-purple-300 hover:bg-purple-500/10">
-              <FolderPlus className="w-4 h-4 mr-2" />
-              <span className="text-sm">New Folder</span>
-            </Button>
-          </div>
-          
-          {/* Secondary Actions - Responsive Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <Button onClick={() => setShowUploadProgress(true)} size="sm" variant="outline" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
-              <CloudUpload className="w-4 h-4 mr-2" />
-              <span className="text-sm">Upload</span>
-            </Button>
-            <Button onClick={() => setShowAnalytics(!showAnalytics)} size="sm" variant="outline" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
-              <BarChart3 className="w-4 h-4 mr-2" />
-              <span className="text-sm">Analytics</span>
-            </Button>
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => {
-                console.log('Refreshing file list...')
-                if (onFileUpload) {
-                  window.dispatchEvent(new CustomEvent('refreshFileList'))
-                }
-              }} 
-              title="Refresh Files"
-              className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              <span className="text-sm">Refresh</span>
-            </Button>
-            {!multiSelectMode ? (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={() => setMultiSelectMode(true)}
-                title="Multi-select"
-                className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                <span className="text-sm">Select</span>
-              </Button>
-            ) : (
-              <Button 
-                size="sm" 
-                variant="outline" 
-                onClick={clearSelection}
-                title="Cancel"
-                className="min-h-[44px] border-red-600 text-red-400 hover:bg-red-600/10"
-              >
-                <span className="text-sm">Cancel</span>
-              </Button>
-            )}
-          </div>
+      {/* Responsive Layouts */}
+      {isMobile ? <MobileLayout /> : <DesktopLayout />}
 
-          {/* Multi-select Actions - Full Width on Mobile */}
-          {multiSelectMode && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <Button size="sm" variant="outline" onClick={selectAllFiles} title="Select All" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
-                <span className="text-sm">Select All</span>
-              </Button>
-              <Button size="sm" variant="outline" onClick={handleMultiAction.compress} title="Compress" className="min-h-[44px] border-purple-600 text-purple-400 hover:bg-purple-600/10">
-                <Archive className="w-4 h-4 mr-2" />
-                <span className="text-sm">Compress</span>
-              </Button>
-              <Button size="sm" variant="outline" onClick={handleMultiAction.share} title="Share" className="min-h-[44px] border-gray-600 text-gray-300 hover:bg-gray-600/10">
-                <Share2 className="w-4 h-4 mr-2" />
-                <span className="text-sm">Share</span>
-              </Button>
-              <Button size="sm" variant="outline" onClick={handleMultiAction.delete} title="Delete" className="min-h-[44px] border-red-600 text-red-400 hover:bg-red-600/10">
-                <Trash2 className="w-4 h-4 mr-2" />
-                <span className="text-sm">Delete</span>
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Search, Filter and View Controls */}
-      <div className="space-y-4">
-        <div className="flex flex-col gap-4">
-          {/* Mobile Search Bar */}
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              placeholder="Search files..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-purple-500/20 text-white min-h-[48px] text-base"
-            />
-          </div>
-          
-          {/* View and Filter Controls - Mobile Optimized */}
-          <div className="space-y-4">
-            {/* View Mode - Horizontal on Mobile */}
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant={viewMode === "grid" ? "default" : "outline"}
-                onClick={() => setViewMode("grid")}
-                title="Grid View"
-                className="min-h-[44px] flex-1 sm:flex-none"
-              >
-                <Grid className="w-4 h-4 mr-2" />
-                <span className="text-sm">Grid</span>
-              </Button>
-              <Button
-                size="sm"
-                variant={viewMode === "list" ? "default" : "outline"}
-                onClick={() => setViewMode("list")}
-                title="List View"
-                className="min-h-[44px] flex-1 sm:flex-none"
-              >
-                <List className="w-4 h-4 mr-2" />
-                <span className="text-sm">List</span>
-              </Button>
-            </div>
-
-            {/* Filters - Stacked on Mobile */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="flex items-center gap-2">
-                <Filter className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                <select
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value as any)}
-                  className="bg-slate-800/50 border border-purple-500/20 text-white text-base rounded px-3 py-2 flex-1 min-h-[44px]"
-                >
-                  <option value="all">All Files</option>
-                  <option value="images">Images</option>
-                  <option value="videos">Videos</option>
-                  <option value="audio">Audio</option>
-                  <option value="documents">Documents</option>
-                  <option value="code">Code</option>
-                </select>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-400 flex-shrink-0">Sort:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-slate-800/50 border border-purple-500/20 text-white text-base rounded px-3 py-2 flex-1 min-h-[44px]"
-                >
-                  <option value="name">Name</option>
-                  <option value="size">Size</option>
-                  <option value="date">Date</option>
-                </select>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                  title={`Sort ${sortOrder === "asc" ? "Descending" : "Ascending"}`}
-                  className="min-h-[44px] min-w-[44px] border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
-                >
-                  {sortOrder === "asc" ? <SortAsc className="w-4 h-4" /> : <SortDesc className="w-4 h-4" />}
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* File Grid/List */}
-      <Card className="glass-card">
-        <CardContent className="p-4 sm:p-6">
-          {(filteredAndSortedFiles?.length || 0) === 0 ? (
-            <div className="text-center py-8 sm:py-12">
-              <File className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-500" />
-              <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">No files found</h3>
-              <p className="text-gray-400 text-sm sm:text-base">
-                {searchQuery ? "Try adjusting your search query" : "Upload your first file to get started"}
-              </p>
-            </div>
-          ) : (
-            <div className={
-              viewMode === "grid" 
-                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6"
-                : "space-y-3"
-            }>
-              {(filteredAndSortedFiles || []).map((file) => file && (
-                <div
-                  key={file.id}
-                  className={`group cursor-pointer rounded-xl border transition-all duration-300 relative hover:scale-105 hover:shadow-2xl ${
-                    selectedMultiFiles.has(file.id) 
-                      ? "border-purple-500 bg-gradient-to-br from-purple-500/20 to-pink-500/10 shadow-lg shadow-purple-500/25" 
-                      : "border-gray-700/30 hover:border-purple-500/50 hover:bg-gradient-to-br hover:from-slate-800/40 hover:to-slate-900/60"
-                  } ${
-                    viewMode === "grid"
-                      ? "p-4 sm:p-6 text-center bg-gradient-to-br from-slate-800/20 to-slate-900/30 min-h-[180px] sm:min-h-[200px] flex flex-col items-center justify-center backdrop-blur-sm"
-                      : "p-4 flex items-center gap-4 bg-slate-800/20 min-h-[72px]"
-                  }`}
-                  onClick={(e) => {
-                    if (multiSelectMode) {
-                      e.preventDefault()
-                      toggleMultiSelect(file.id)
-                      return
-                    }
-                    handleFileClick(file)
-                  }}
-                  onContextMenu={(e) => handleRightClick(file, e)}
-                  onTouchStart={(e) => handleLongPressStart(file, e)}
-                  onTouchEnd={handleLongPressEnd}
-                  onMouseLeave={handleLongPressEnd}
-                >
-                  {/* Multi-select checkbox */}
-                  {multiSelectMode && (
-                    <div className="absolute top-2 left-2 z-10">
-                      <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300 backdrop-blur-sm ${
-                        selectedMultiFiles.has(file.id)
-                          ? 'bg-gradient-to-r from-purple-500 to-pink-500 border-purple-400 shadow-lg'
-                          : 'bg-black/60 border-gray-400'
-                      }`}>
-                        {selectedMultiFiles.has(file.id) && (
-                          <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* File status badges - Floating */}
-                  <div className="absolute top-2 right-2 flex flex-col gap-1 sm:gap-2">
-                    {file.isStarred && (
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full flex items-center justify-center shadow-xl animate-pulse">
-                        <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white fill-current" />
-                      </div>
-                    )}
-                    {file.hasPassword && (
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-                        <Lock className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                      </div>
-                    )}
-                    {file.isShared && (
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-xl">
-                        <Share2 className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
-                      </div>
-                    )}
-                  </div>
-
-                  {viewMode === "grid" ? (
-                    // Grid View - Mobile Optimized
-                    <>
-                      <div className="mb-3 sm:mb-4 relative">
-                        <div className="transform transition-all duration-500 group-hover:scale-110 group-hover:rotate-2">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12">
-                            {getFileIcon(file)}
-                          </div>
-                        </div>
-                        {/* File type indicator with glow */}
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-xl">
-                          <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full animate-pulse"></div>
-                        </div>
-                      </div>
-                      <div className="space-y-2 text-center">
-                        <p className="text-white text-xs sm:text-sm font-semibold truncate px-2 leading-tight" title={file.name}>
-                          {file.name}
-                        </p>
-                        <p className="text-gray-400 text-xs">
-                          {formatBytes(file.size)}
-                        </p>
-                        <div className="flex justify-center items-center gap-1 mt-2 sm:mt-3">
-                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-purple-400 rounded-full animate-pulse"></div>
-                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-pink-400 rounded-full animate-pulse delay-100"></div>
-                          <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-purple-400 rounded-full animate-pulse delay-200"></div>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    // List View - Mobile Optimized
-                    <>
-                      <div className="flex-shrink-0">
-                        <div className="transform transition-all duration-300 group-hover:scale-110">
-                          <div className="w-8 h-8 sm:w-12 sm:h-12">
-                            {getFileIcon(file)}
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-white text-sm sm:text-base font-semibold truncate" title={file.name}>
-                              {file.name}
-                            </p>
-                            <div className="flex items-center space-x-2 sm:space-x-4 mt-1">
-                              <p className="text-gray-400 text-xs sm:text-sm">
-                                {formatBytes(file.size)}
-                              </p>
-                              <p className="text-gray-500 text-xs">
-                                {new Date(file.lastModified).toLocaleDateString()}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2 sm:space-x-3 ml-2 sm:ml-4">
-                            {/* Status indicators with animations */}
-                            {file.isStarred && (
-                              <Star className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current animate-pulse" />
-                            )}
-                            {file.isShared && (
-                              <Share2 className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-                            )}
-                            {file.hasPassword && (
-                              <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
-                            )}
-                            {/* More options with hover effect */}
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleRightClick(file, e)
-                              }}
-                              className="p-1 sm:p-2 text-gray-400 hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100 hover:bg-white/10 rounded-lg hover:scale-110"
-                            >
-                              <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Analytics Panel */}
+      {/* Analytics Panel - Shared between layouts */}
       {showAnalytics && (
-        <Card className="bg-black/40 border-purple-500/20">
+        <Card className="glass-card">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
@@ -999,7 +1216,7 @@ export function EnhancedFileManager({
       {/* Professional Modal */}
       <Modal />
 
-            {/* Simple Share Modal */}
+      {/* Simple Share Modal */}
       {shareModal.file && (
         <SimpleShareModal
           isOpen={shareModal.isOpen}
@@ -1025,85 +1242,31 @@ export function EnhancedFileManager({
         />
       )}
 
-             {/* Database Editor */}
-       {databaseEditor.file && (
-         <DatabaseEditor
-           file={{
-             id: databaseEditor.file.id,
-             name: databaseEditor.file.name,
-             size: databaseEditor.file.size
-           }}
-           onClose={() => setDatabaseEditor({ isOpen: false, file: null })}
-           readOnly={false}
-         />
-       )}
+      {/* Database Editor */}
+      {databaseEditor.file && (
+        <DatabaseEditor
+          file={{
+            id: databaseEditor.file.id,
+            name: databaseEditor.file.name,
+            size: databaseEditor.file.size
+          }}
+          onClose={() => setDatabaseEditor({ isOpen: false, file: null })}
+          readOnly={false}
+        />
+      )}
 
-       {/* Archive Viewer */}
-       {archiveViewer.file && (
-         <ArchiveViewer
-           isOpen={archiveViewer.isOpen}
-           onClose={() => setArchiveViewer({ isOpen: false, file: null })}
-           archiveFile={{
-             id: archiveViewer.file.id,
-             name: archiveViewer.file.name,
-             size: archiveViewer.file.size || 0,
-             type: archiveViewer.file.type || 'archive'
-           }}
-         />
-       )}
-
-      {/* Multi-select Actions Bar */}
-      {showMultiActions && (
-        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 z-50 px-4 w-full max-w-md">
-          <div className="bg-black/95 backdrop-blur-xl border border-purple-500/30 rounded-xl p-4 shadow-2xl">
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <div className="text-center sm:text-left">
-                <span className="text-white text-sm font-medium">
-                  {selectedMultiFiles.size} selected
-                </span>
-              </div>
-              
-              <div className="hidden sm:block w-px h-6 bg-gray-600" />
-              
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 w-full sm:w-auto">
-                <Button
-                  size="sm"
-                  onClick={handleMultiAction.compress}
-                  className="btn-gradient-primary h-8 px-3 text-xs sm:text-sm"
-                >
-                  <Archive className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span>Compress</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleMultiAction.share}
-                  className="border-gray-600 text-gray-300 h-8 px-3 text-xs sm:text-sm hover:bg-gray-600/10"
-                >
-                  <Share2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span>Share</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={handleMultiAction.delete}
-                  className="border-red-600 text-red-400 hover:bg-red-600/10 h-8 px-3 text-xs sm:text-sm"
-                >
-                  <Trash2 className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                  <span>Delete</span>
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={clearSelection}
-                  className="text-gray-400 hover:text-white h-8 px-3 text-xs sm:text-sm"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Archive Viewer */}
+      {archiveViewer.file && (
+        <ArchiveViewer
+          isOpen={archiveViewer.isOpen}
+          onClose={() => setArchiveViewer({ isOpen: false, file: null })}
+          archiveFile={{
+            id: archiveViewer.file.id,
+            name: archiveViewer.file.name,
+            size: archiveViewer.file.size || 0,
+            type: archiveViewer.file.type || 'archive'
+          }}
+        />
       )}
 
       {/* Compression Overlay */}
