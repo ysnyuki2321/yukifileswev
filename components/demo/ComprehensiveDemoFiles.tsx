@@ -47,7 +47,7 @@ export const comprehensiveDemoFiles: FileItem[] = [
     mime_type: 'application/pdf',
     file_size: 2547893,
     size: 2547893,
-    created_at: new Date(Date.now() - 86400000).toISOString(), // 1 day ago
+    created_at: new Date(Date.now() - 864000000).toISOString(), // 1 day ago
     content: 'Mock PDF content - Financial Report Q4 2024',
     thumbnail: null,
     is_starred: true,
@@ -194,17 +194,36 @@ export const comprehensiveDemoFiles: FileItem[] = [
     owner: 'demo@yukifiles.com',
     category: 'media'
   },
+  {
+    id: 'demo-video-3',
+    name: 'Product_Demo_4K.mov',
+    original_name: 'Product_Demo_4K.mov',
+    mime_type: 'video/quicktime',
+    file_size: 89012345,
+    size: 89012345,
+    created_at: new Date(Date.now() - 777600000).toISOString(), // 9 days ago
+    content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    thumbnail: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=300&h=200&fit=crop',
+    is_starred: true,
+    isStarred: true,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
+    category: 'media',
+    hasPassword: true,
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // Expires in 30 days
+  },
 
   // Audio
   {
     id: 'demo-audio-1',
-    name: 'Chill_Music.mp3',
-    original_name: 'Chill_Music.mp3',
+    name: 'NAKISO_-_.mp3',
+    original_name: 'NAKISO_-_.mp3',
     mime_type: 'audio/mpeg',
     file_size: 8765432,
     size: 8765432,
     created_at: new Date(Date.now() - 777600000).toISOString(), // 9 days ago
-    content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+    content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
     thumbnail: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
     is_starred: true,
     isStarred: true,
@@ -215,14 +234,14 @@ export const comprehensiveDemoFiles: FileItem[] = [
   },
   {
     id: 'demo-audio-2',
-    name: 'Podcast_Episode_01.wav',
-    original_name: 'Podcast_Episode_01.wav',
+    name: 'Chill_Beats.wav',
+    original_name: 'Chill_Beats.wav',
     mime_type: 'audio/wav',
     file_size: 23456789,
     size: 23456789,
     created_at: new Date(Date.now() - 864000000).toISOString(), // 10 days ago
     content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-    thumbnail: null,
+    thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop',
     is_starred: false,
     isStarred: false,
     is_public: true,
@@ -230,6 +249,29 @@ export const comprehensiveDemoFiles: FileItem[] = [
     owner: 'demo@yukifiles.com',
     category: 'media',
     hasPassword: true
+  },
+  {
+    id: 'demo-audio-3',
+    name: 'Podcast_Tech_Talk.mp3',
+    original_name: 'Podcast_Tech_Talk.mp3',
+    mime_type: 'audio/mpeg',
+    file_size: 15678901,
+    size: 15678901,
+    created_at: new Date(Date.now() - 950400000).toISOString(), // 11 days ago
+    content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
+    thumbnail: 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=300&h=300&fit=crop',
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'media',
+    accessLimits: {
+      maxViews: 200,
+      maxDownloads: 50,
+      currentViews: 87,
+      currentDownloads: 12
+    }
   },
 
   // Code Files
@@ -460,6 +502,87 @@ Upload files, share with team, collaborate in real-time.`,
     category: 'other',
     hasPassword: true,
     encryptedName: '***********'
+  },
+  {
+    id: 'demo-other-3',
+    name: 'Design_System.figma',
+    original_name: 'Design_System.figma',
+    mime_type: 'application/figma',
+    file_size: 12345678,
+    size: 12345678,
+    created_at: new Date(Date.now() - 1728000000).toISOString(), // 20 days ago
+    content: 'Mock Figma file content',
+    thumbnail: 'https://images.unsplash.com/photo-1558655146-d09347e92766?w=300&h=200&fit=crop',
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    isShared: true,
+    owner: 'demo@yukifiles.com',
+    category: 'other'
+  },
+  {
+    id: 'demo-other-4',
+    name: 'Meeting_Notes.txt',
+    original_name: 'Meeting_Notes.txt',
+    mime_type: 'text/plain',
+    file_size: 2345,
+    size: 2345,
+    created_at: new Date(Date.now() - 1814400000).toISOString(), // 21 days ago
+    content: `Meeting Notes - Q4 Planning
+Date: December 15, 2024
+Attendees: John, Sarah, Mike, Lisa
+
+Agenda:
+1. Q4 Goals Review
+2. Budget Planning
+3. New Features Discussion
+4. Team Allocation
+
+Action Items:
+- John: Finalize budget proposal
+- Sarah: Design new UI mockups
+- Mike: Setup development environment
+- Lisa: Prepare user research
+
+Next Meeting: December 22, 2024`,
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
+    category: 'other'
+  },
+  {
+    id: 'demo-other-5',
+    name: 'Backup_Settings.xml',
+    original_name: 'Backup_Settings.xml',
+    mime_type: 'application/xml',
+    file_size: 5678,
+    size: 5678,
+    created_at: new Date(Date.now() - 1900800000).toISOString(), // 22 days ago
+    content: `<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <backup>
+    <frequency>daily</frequency>
+    <retention>30</retention>
+    <compression>true</compression>
+    <encryption>AES256</encryption>
+  </backup>
+  <storage>
+    <provider>AWS S3</provider>
+    <region>us-east-1</region>
+    <bucket>yukifiles-backup</bucket>
+  </storage>
+</configuration>`,
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: false,
+    isShared: false,
+    owner: 'demo@yukifiles.com',
+    category: 'other',
+    hasPassword: true
   }
 ]
 
@@ -494,7 +617,7 @@ export const demoFolders = [
 export function getFileIcon(file: FileItem, size: 'sm' | 'md' | 'lg' = 'md') {
   const iconSize = size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'
   
-  if (file.is_folder) {
+  if (file.mime_type === 'folder') {
     return <Folder className={`${iconSize} text-purple-400`} />
   }
   
@@ -596,23 +719,21 @@ export function getFileStats(files: FileItem[] = []) {
   const safeFiles = files || []
   const stats = {
     total: safeFiles.length,
-    folders: safeFiles.filter(f => f?.is_folder).length,
-    files: safeFiles.filter(f => !f?.is_folder).length,
-    shared: safeFiles.filter(f => f?.isShared).length,
+    folders: safeFiles.filter(f => f?.mime_type === 'folder').length,
+    files: safeFiles.filter(f => f?.mime_type !== 'folder').length,
+    shared: safeFiles.filter(f => f?.is_public || f?.isShared).length,
+    starred: safeFiles.filter(f => f?.is_starred || f?.isStarred).length,
     protected: safeFiles.filter(f => f?.hasPassword).length,
     archived: safeFiles.filter(f => f?.inArchive).length,
-    starred: safeFiles.filter(f => f?.isStarred).length,
     totalSize: safeFiles.reduce((acc, f) => acc + (f?.size || 0), 0),
     categories: {
       documents: safeFiles.filter(f => f?.category === 'document').length,
-      images: safeFiles.filter(f => f?.category === 'image').length,
-      videos: safeFiles.filter(f => f?.category === 'video').length,
-      audio: safeFiles.filter(f => f?.category === 'audio').length,
+      media: safeFiles.filter(f => f?.category === 'media').length,
       code: safeFiles.filter(f => f?.category === 'code').length,
+      archives: safeFiles.filter(f => f?.category === 'archive').length,
       databases: safeFiles.filter(f => f?.category === 'database').length,
-      archives: safeFiles.filter(f => f?.category === 'archive').length
+      other: safeFiles.filter(f => f?.category === 'other').length
     }
   }
-  
   return stats
 }

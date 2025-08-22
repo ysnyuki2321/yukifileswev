@@ -261,16 +261,15 @@ export default function RegisterForm() {
               </div>
 
               {/* Terms and Conditions */}
-              <div className="space-y-4">
-                <label className="flex items-start space-x-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={termsAccepted}
-                    onChange={(e) => setTermsAccepted(e.target.checked)}
-                    required
-                    className="w-4 h-4 mt-0.5 text-purple-600 bg-black/30 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
-                  />
-                  <div className="text-sm text-gray-300">
+              <CheckboxGroup className="space-y-4">
+                <CustomCheckbox
+                  checked={termsAccepted}
+                  onChange={setTermsAccepted}
+                  required
+                  variant="gradient"
+                  size="sm"
+                >
+                  <div className="text-sm">
                     I agree to the{" "}
                     <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">
                       Terms of Service
@@ -280,20 +279,19 @@ export default function RegisterForm() {
                       Privacy Policy
                     </Link>
                   </div>
-                </label>
+                </CustomCheckbox>
                 
-                <label className="flex items-start space-x-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={newsletterSubscribed}
-                    onChange={(e) => setNewsletterSubscribed(e.target.checked)}
-                    className="w-4 h-4 mt-0.5 text-purple-600 bg-black/30 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
-                  />
-                  <div className="text-sm text-gray-300">
+                <CustomCheckbox
+                  checked={newsletterSubscribed}
+                  onChange={setNewsletterSubscribed}
+                  variant="default"
+                  size="sm"
+                >
+                  <div className="text-sm">
                     Send me product updates and security notifications
                   </div>
-                </label>
-              </div>
+                </CustomCheckbox>
+              </CheckboxGroup>
             </div>
 
             <SubmitButton disabled={false} />

@@ -203,15 +203,14 @@ export default function LoginForm() {
 
             {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between">
-              <label className="flex items-center space-x-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-purple-600 bg-black/30 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
-                />
-                <span className="text-sm text-gray-300">Remember me</span>
-              </label>
+              <CustomCheckbox
+                checked={rememberMe}
+                onChange={setRememberMe}
+                variant="glow"
+                size="sm"
+              >
+                Remember me
+              </CustomCheckbox>
               <Link href="/auth/forgot-password" className="text-sm text-purple-400 hover:text-purple-300 transition-colors">
                 Forgot password?
               </Link>
