@@ -49,30 +49,41 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
   const generateRealShareLink = async () => {
     setIsGenerating(true)
     
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 800))
-    
-    const baseUrl = window.location.origin
-    const shareToken = generateShareToken()
-    const link = `${baseUrl}/demo/share/${shareToken}`
-    setShareLink(link)
-    
-    // Store share link data in sessionStorage for demo
-    const shareData = {
-      token: shareToken,
-      file: file,
-      password: isPasswordProtected ? password : null,
-      expiryDate: expiryDate || null,
-      maxViews: maxViews || null,
-      maxDownloads: maxDownloads || null,
-      allowPreview: allowPreview,
-      allowDownload: allowDownload,
-      isPublic: isPublic,
-      createdAt: new Date().toISOString()
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 800))
+      
+      const baseUrl = window.location.origin
+      const shareToken = generateShareToken()
+      const link = `${baseUrl}/demo/share/${shareToken}`
+      setShareLink(link)
+      
+      // Store share link data in sessionStorage for demo
+      const shareData = {
+        token: shareToken,
+        file: file,
+        password: isPasswordProtected ? password : null,
+        expiryDate: expiryDate || null,
+        maxViews: maxViews || null,
+        maxDownloads: maxDownloads || null,
+        allowPreview: allowPreview,
+        allowDownload: allowDownload,
+        isPublic: isPublic,
+        createdAt: new Date().toISOString()
+      }
+      
+      try {
+        sessionStorage.setItem(`share_${shareToken}`, JSON.stringify(shareData))
+      } catch (storageError) {
+        console.warn('Failed to save to sessionStorage:', storageError)
+      }
+      
+      setIsGenerating(false)
+    } catch (error) {
+      console.error('Error generating share link:', error)
+      setShareLink('Error generating link')
+      setIsGenerating(false)
     }
-    sessionStorage.setItem(`share_${shareToken}`, JSON.stringify(shareData))
-    
-    setIsGenerating(false)
   }
 
   const generateShareToken = () => {

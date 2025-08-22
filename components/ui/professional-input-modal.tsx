@@ -116,9 +116,14 @@ export function ProfessionalInputModal({
 
     // Custom validation
     if (validation) {
-      const validationError = validation(value)
-      if (validationError) {
-        setError(validationError)
+      try {
+        const validationError = validation(value)
+        if (validationError) {
+          setError(validationError)
+          return
+        }
+      } catch (error) {
+        setError('Validation error occurred')
         return
       }
     }

@@ -62,9 +62,9 @@ export function VideoPlayer({
 
   // Auto-hide controls
   useEffect(() => {
-    let timeout: NodeJS.Timeout
+    let timeout: number
     if (isPlaying && showControls) {
-      timeout = setTimeout(() => setShowControls(false), 3000)
+      timeout = window.setTimeout(() => setShowControls(false), 3000)
     }
     return () => clearTimeout(timeout)
   }, [isPlaying, showControls])

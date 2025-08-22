@@ -49,13 +49,21 @@ export function ProfessionalDatePicker({
 
   useEffect(() => {
     if (value) {
-      const date = new Date(value)
-      setSelectedDate(date)
-      setViewDate(date)
-      if (includeTime) {
-        const hours = date.getHours().toString().padStart(2, '0')
-        const minutes = date.getMinutes().toString().padStart(2, '0')
-        setTimeValue(`${hours}:${minutes}`)
+      try {
+        const date = new Date(value)
+        if (isNaN(date.getTime())) {
+          console.warn('Invalid date value:', value)
+          return
+        }
+        setSelectedDate(date)
+        setViewDate(date)
+        if (includeTime) {
+          const hours = date.getHours().toString().padStart(2, '0')
+          const minutes = date.getMinutes().toString().padStart(2, '0')
+          setTimeValue(`${hours}:${minutes}`)
+        }
+      } catch (error) {
+        console.warn('Error parsing date:', value, error)
       }
     }
   }, [value, includeTime])

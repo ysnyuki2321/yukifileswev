@@ -160,27 +160,32 @@ export default function DemoSharePage() {
   const handleSaveToStorage = () => {
     if (!shareData) return
     
-    // Demo: Save to localStorage as "saved files"
-    const savedFilesKey = 'demo_saved_files'
-    const existingFiles = JSON.parse(localStorage.getItem(savedFilesKey) || '[]')
-    
-    const fileToSave = {
-      ...shareData.file,
-      savedAt: new Date().toISOString(),
-      originalShareToken: token
+    try {
+      // Demo: Save to localStorage as "saved files"
+      const savedFilesKey = 'demo_saved_files'
+      const existingFiles = JSON.parse(localStorage.getItem(savedFilesKey) || '[]')
+      
+      const fileToSave = {
+        ...shareData.file,
+        savedAt: new Date().toISOString(),
+        originalShareToken: token
+      }
+      
+      // Check if already saved
+      const alreadySaved = existingFiles.find((f: any) => f.originalShareToken === token)
+      if (alreadySaved) {
+        alert('File already saved to your storage!')
+        return
+      }
+      
+      existingFiles.push(fileToSave)
+      localStorage.setItem(savedFilesKey, JSON.stringify(existingFiles))
+      
+      alert('File saved to your storage successfully!')
+    } catch (error) {
+      console.error('Error saving to storage:', error)
+      alert('Failed to save file to storage. Please try again.')
     }
-    
-    // Check if already saved
-    const alreadySaved = existingFiles.find((f: any) => f.originalShareToken === token)
-    if (alreadySaved) {
-      alert('File already saved to your storage!')
-      return
-    }
-    
-    existingFiles.push(fileToSave)
-    localStorage.setItem(savedFilesKey, JSON.stringify(existingFiles))
-    
-    alert('File saved to your storage successfully!')
   }
 
   const handleViewOnline = () => {

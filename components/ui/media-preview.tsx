@@ -43,7 +43,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
   }, [])
 
   const getAspectRatio = () => {
-    if (file.type.startsWith('video/')) {
+    if (file.type && file.type.startsWith('video/')) {
       // Detect vertical video (TikTok style)
       if (file.name.toLowerCase().includes('tiktok') || file.name.toLowerCase().includes('vertical')) {
         return '9:16'
@@ -54,7 +54,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
   }
 
   // Video files - use inline display
-  if (file.type.startsWith('video/')) {
+  if (file.type && file.type.startsWith('video/')) {
     return (
       <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border border-purple-500/20 rounded-2xl overflow-hidden shadow-2xl">
         {/* Header */}
@@ -120,7 +120,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
   }
 
   // Audio files - use inline display
-  if (file.type.startsWith('audio/')) {
+  if (file.type && file.type.startsWith('audio/')) {
     return (
       <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border border-purple-500/20 rounded-2xl overflow-hidden shadow-2xl">
         {/* Header */}
@@ -187,7 +187,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
   }
 
   // Image files - use inline display
-  if (file.type.startsWith('image/')) {
+  if (file.type && file.type.startsWith('image/')) {
     return (
       <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border border-purple-500/20 rounded-2xl overflow-hidden shadow-2xl">
         {/* Header */}

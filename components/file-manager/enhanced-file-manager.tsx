@@ -692,10 +692,14 @@ export function EnhancedFileManager({
       variant: "create",
       maxLength: 255,
       validation: (value) => {
-        if (!value.trim()) return "File name is required"
-        if (value.includes('/') || value.includes('\\')) return "File name cannot contain / or \\"
-        if (!value.includes('.')) return "File name should include an extension (e.g., .txt, .js)"
-        return null
+        try {
+          if (!value.trim()) return "File name is required"
+          if (value.includes('/') || value.includes('\\')) return "File name cannot contain / or \\"
+          if (!value.includes('.')) return "File name should include an extension (e.g., .txt, .js)"
+          return null
+        } catch (error) {
+          return "Validation error occurred"
+        }
       },
       confirmText: "Create File",
       onConfirm: (fileName) => {
@@ -720,10 +724,14 @@ export function EnhancedFileManager({
       variant: "create",
       maxLength: 255,
       validation: (value) => {
-        if (!value.trim()) return "Folder name is required"
-        if (value.includes('/') || value.includes('\\')) return "Folder name cannot contain / or \\"
-        if (value.includes('.')) return "Folder names should not include file extensions"
-        return null
+        try {
+          if (!value.trim()) return "Folder name is required"
+          if (value.includes('/') || value.includes('\\')) return "Folder name cannot contain / or \\"
+          if (value.includes('.')) return "Folder names should not include file extensions"
+          return null
+        } catch (error) {
+          return "Validation error occurred"
+        }
       },
       confirmText: "Create Folder",
       onConfirm: (folderName) => {

@@ -69,84 +69,96 @@ export function DatabaseEditor({ file, onClose, readOnly = false }: DatabaseEdit
 
   // Mock database structure based on type
   const getMockTables = (dbType: string): TableData[] => {
-    switch (dbType) {
-      case 'sqlite':
-        return [
-          {
-            name: 'users',
-            columns: ['id', 'email', 'name', 'created_at', 'plan'],
-            rows: [
-              [1, 'john@example.com', 'John Doe', '2024-01-15', 'premium'],
-              [2, 'jane@example.com', 'Jane Smith', '2024-01-14', 'free'],
-              [3, 'bob@example.com', 'Bob Wilson', '2024-01-13', 'enterprise']
-            ],
-            rowCount: 3
-          },
-          {
-            name: 'files',
-            columns: ['id', 'filename', 'size', 'user_id', 'uploaded_at'],
-            rows: [
-              [1, 'document.pdf', 2048576, 1, '2024-01-15 10:30:00'],
-              [2, 'image.jpg', 1024000, 2, '2024-01-15 11:45:00'],
-              [3, 'video.mp4', 52428800, 1, '2024-01-15 14:20:00']
-            ],
-            rowCount: 3
-          }
-        ]
-      
-      case 'mysql':
-        return [
-          {
-            name: 'customers',
-            columns: ['customer_id', 'first_name', 'last_name', 'email', 'status'],
-            rows: [
-              [1, 'Alice', 'Johnson', 'alice@example.com', 'active'],
-              [2, 'Bob', 'Brown', 'bob@example.com', 'inactive'],
-              [3, 'Carol', 'Davis', 'carol@example.com', 'active']
-            ],
-            rowCount: 3
-          }
-        ]
-      
-      case 'postgresql':
-        return [
-          {
-            name: 'products',
-            columns: ['product_id', 'name', 'price', 'category', 'stock'],
-            rows: [
-              [1, 'Laptop', 999.99, 'Electronics', 50],
-              [2, 'Mouse', 29.99, 'Accessories', 200],
-              [3, 'Keyboard', 79.99, 'Accessories', 100]
-            ],
-            rowCount: 3
-          }
-        ]
-      
-      case 'mongodb':
-        return [
-          {
-            name: 'documents',
-            columns: ['_id', 'title', 'content', 'tags', 'created_at'],
-            rows: [
-              ['507f1f77bcf86cd799439011', 'Sample Doc', 'Content here', '["tag1", "tag2"]', '2024-01-15'],
-              ['507f1f77bcf86cd799439012', 'Another Doc', 'More content', '["tag3"]', '2024-01-16']
-            ],
-            rowCount: 2
-          }
-        ]
-      
-      default:
-        return [
-          {
-            name: 'data',
-            columns: ['id', 'value', 'timestamp'],
-            rows: [
-              [1, 'Sample data', '2024-01-15 10:00:00'],
-              [2, 'More data', '2024-01-15 11:00:00']
-            ],
-            rowCount: 2
-          }
-        ]
+    try {
+      switch (dbType) {
+        case 'sqlite':
+          return [
+            {
+              name: 'users',
+              columns: ['id', 'email', 'name', 'created_at', 'plan'],
+              rows: [
+                [1, 'john@example.com', 'John Doe', '2024-01-15', 'premium'],
+                [2, 'jane@example.com', 'Jane Smith', '2024-01-14', 'free'],
+                [3, 'bob@example.com', 'Bob Wilson', '2024-01-13', 'enterprise']
+              ],
+              rowCount: 3
+            },
+            {
+              name: 'files',
+              columns: ['id', 'filename', 'size', 'user_id', 'uploaded_at'],
+              rows: [
+                [1, 'document.pdf', 2048576, 1, '2024-01-15 10:30:00'],
+                [2, 'image.jpg', 1024000, 2, '2024-01-15 11:45:00'],
+                [3, 'video.mp4', 52428800, 1, '2024-01-15 14:20:00']
+              ],
+              rowCount: 3
+            }
+          ]
+        
+        case 'mysql':
+          return [
+            {
+              name: 'customers',
+              columns: ['customer_id', 'first_name', 'last_name', 'email', 'status'],
+              rows: [
+                [1, 'Alice', 'Johnson', 'alice@example.com', 'active'],
+                [2, 'Bob', 'Brown', 'bob@example.com', 'inactive'],
+                [3, 'Carol', 'Davis', 'carol@example.com', 'active']
+              ],
+              rowCount: 3
+            }
+          ]
+        
+        case 'postgresql':
+          return [
+            {
+              name: 'products',
+              columns: ['product_id', 'name', 'price', 'category', 'stock'],
+              rows: [
+                [1, 'Laptop', 999.99, 'Electronics', 50],
+                [2, 'Mouse', 29.99, 'Accessories', 200],
+                [3, 'Keyboard', 79.99, 'Accessories', 100]
+              ],
+              rowCount: 3
+            }
+          ]
+        
+        case 'mongodb':
+          return [
+            {
+              name: 'documents',
+              columns: ['_id', 'title', 'content', 'tags', 'created_at'],
+              rows: [
+                ['507f1f77bcf86cd799439011', 'Sample Doc', 'Content here', '["tag1", "tag2"]', '2024-01-15'],
+                ['507f1f77bcf86cd799439012', 'Another Doc', 'More content', '["tag3"]', '2024-01-16']
+              ],
+              rowCount: 2
+            }
+          ]
+        
+        default:
+          return [
+            {
+              name: 'data',
+              columns: ['id', 'value', 'timestamp'],
+              rows: [
+                [1, 'Sample data', '2024-01-15 10:00:00'],
+                [2, 'More data', '2024-01-15 11:00:00']
+              ],
+              rowCount: 2
+            }
+          ]
+      }
+    } catch (error) {
+      console.error('Error generating mock tables:', error)
+      return [
+        {
+          name: 'error_table',
+          columns: ['id', 'error'],
+          rows: [['error', 'Failed to generate mock data']],
+          rowCount: 1
+        }
+      ]
     }
   }
 
