@@ -152,6 +152,176 @@ export const comprehensiveDemoFiles = [
     album: null,
     albumArt: null
   },
+  {
+    id: 'folder-4',
+    name: 'Code Examples',
+    mime_type: 'folder',
+    size: 0,
+    created_at: '2024-01-15T13:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: false,
+    is_public: true,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'folder',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+
+  // Code Files in Code Examples folder
+  {
+    id: 'code-1',
+    name: 'app.js',
+    mime_type: 'application/javascript',
+    size: 15360, // 15KB
+    created_at: '2024-01-15T16:00:00Z',
+    content: `// YukiFiles Demo App
+import React from 'react';
+
+function App() {
+  return (
+    <div className="app">
+      <h1>Welcome to YukiFiles</h1>
+      <p>This is a demo file manager application.</p>
+    </div>
+  );
+}
+
+export default App;`,
+    thumbnail: null,
+    is_starred: false,
+    is_public: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'code',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+  {
+    id: 'code-2',
+    name: 'styles.css',
+    mime_type: 'text/css',
+    size: 8192, // 8KB
+    created_at: '2024-01-15T16:30:00Z',
+    content: `/* YukiFiles Demo Styles */
+.app {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+.app h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.app p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+  text-align: center;
+}`,
+    thumbnail: null,
+    is_starred: false,
+    is_public: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'code',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+  {
+    id: 'code-3',
+    name: 'index.html',
+    mime_type: 'text/html',
+    size: 2048, // 2KB
+    created_at: '2024-01-15T17:00:00Z',
+    content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YukiFiles Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="root"></div>
+    <script src="app.js"></script>
+</body>
+</html>`,
+    thumbnail: null,
+    is_starred: false,
+    is_public: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'code',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+  {
+    id: 'code-4',
+    name: 'package.json',
+    mime_type: 'application/json',
+    size: 1024, // 1KB
+    created_at: '2024-01-15T17:30:00Z',
+    content: `{
+  "name": "yukifiles-demo",
+  "version": "1.0.0",
+  "description": "A demo file manager application",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.0.0",
+    "nodemon": "^2.0.0"
+  }
+}`,
+    thumbnail: null,
+    is_starred: false,
+    is_public: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'code',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
 
   // Discord Audio
   {
@@ -214,41 +384,6 @@ export const comprehensiveDemoFiles = [
     hasPassword: true,
     inArchive: false,
     category: 'video',
-    encryptedName: null,
-    accessLimits: null,
-    expiresAt: null,
-    artist: null,
-    album: null,
-    albumArt: null
-  },
-
-  // Code Files
-  {
-    id: 'code-1',
-    name: 'app.js',
-    mime_type: 'application/javascript',
-    size: 15360, // 15KB
-    created_at: '2024-01-15T16:00:00Z',
-    content: `// YukiFiles Demo App
-import React from 'react';
-
-function App() {
-  return (
-    <div className="app">
-      <h1>Welcome to YukiFiles</h1>
-      <p>This is a demo file manager application.</p>
-    </div>
-  );
-}
-
-export default App;`,
-    thumbnail: null,
-    is_starred: false,
-    is_public: false,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
-    category: 'code',
     encryptedName: null,
     accessLimits: null,
     expiresAt: null,

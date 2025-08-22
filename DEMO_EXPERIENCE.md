@@ -1,7 +1,36 @@
-# 🎯 **YukiFiles Demo Experience Guide**
+# 🎯 **YukiFiles Demo Experience Guide - UPDATED**
 
 ## 🚀 **Demo Overview**
-YukiFiles là một **file management platform** hoàn chỉnh với các tính năng enterprise-grade. Demo này được thiết kế để showcase tất cả các khả năng của platform.
+YukiFiles là một **file management platform** hoàn chỉnh với các tính năng enterprise-grade. Demo này được thiết kế để showcase tất cả các khả năng của platform với **UI/UX cao nhất**.
+
+---
+
+## ✨ **NEW IMPROVEMENTS**
+
+### **🎨 Enhanced UI/UX**
+- **Premium theme** với gradients và glass effects
+- **Anti-select text** mặc định cho better UX
+- **Touch-friendly elements** (48px+ minimum)
+- **Smooth animations** với Framer Motion
+- **Custom scrollbars** và loading states
+
+### **🔗 Real Share Links**
+- **Actual share URLs** (e.g., `/share/[token]`)
+- **Real-time generation** với unique tokens
+- **View Share Page** button để test
+- **404 on reload** (demo limitation)
+
+### **🎬 Popout Media Players**
+- **Full-screen overlay** cho video/audio/image
+- **Custom video player** với advanced controls
+- **Professional music player** với album art
+- **Image viewer** với zoom/rotate controls
+
+### **🗄️ Enhanced Database Editor**
+- **Auto-detect database type** từ filename
+- **Dropdown database selection** (SQLite, MySQL, PostgreSQL, MongoDB, Redis, SQL Server, Oracle)
+- **Smart query results** based on database type
+- **Professional schema viewer**
 
 ---
 
@@ -13,6 +42,7 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **Swipe gestures** và **long press** support
 - **Bottom action bar** cho multi-select
 - **Mobile-optimized filters** với horizontal scroll
+- **Anti-select text** cho better mobile UX
 
 ### **Desktop Layout (Power-User)**
 - **4-column grid** với advanced controls
@@ -20,6 +50,7 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **Right-click context menu**
 - **Sidebar với Quick Actions**
 - **Keyboard shortcuts** support
+- **Professional database editor**
 
 ---
 
@@ -32,6 +63,7 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
   - Album art display
   - Playback controls
   - Download & share options
+  - **Popout overlay** experience
 
 ### **Image: demo-image.jpg**
 - **Source**: Discord CDN
@@ -40,6 +72,7 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
   - Zoom, rotate controls
   - Download & share
   - Responsive display
+  - **Full-screen overlay**
 
 ### **Video: demo-video.mp4**
 - **Source**: Discord CDN
@@ -49,10 +82,11 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
   - Playback speed control
   - Quality selection
   - Advanced controls
+  - **Professional overlay**
 
 ---
 
-## 📁 **Folder Structure Demo**
+## 📁 **Enhanced Folder Structure Demo**
 
 ### **Documents Folder**
 - Empty folder để test navigation
@@ -66,14 +100,23 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - Starred folder (special status)
 - Test folder management features
 
+### **🆕 Code Examples Folder**
+- **Multiple code files** để test folder navigation
+- **app.js** - React component
+- **styles.css** - CSS styling
+- **index.html** - HTML structure
+- **package.json** - Project configuration
+- **Real folder experience** với multiple files
+
 ---
 
-## 🔧 **File Editor Experience**
+## 🔧 **Enhanced File Editor Experience**
 
 ### **Auto-Detect File Types**
 1. **Change file extension** → Watch icon animation
 2. **Auto-switch file type** based on extension
 3. **Smooth transitions** với Framer Motion
+4. **Real-time validation** với error messages
 
 ### **Supported File Types**
 - **Text**: .txt, .md, .json, .csv, .log, .rtf
@@ -88,12 +131,14 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **Extension checking**
 - **Content editing**
 - **File type switching**
+- **Professional UI** với premium theme
 
 ---
 
-## 🎬 **Media Player Experience**
+## 🎬 **Enhanced Media Player Experience**
 
-### **Video Player**
+### **Video Player (Popout Overlay)**
+- **Full-screen overlay** với backdrop blur
 - **Custom controls** với overlay
 - **Playback speed**: 0.5x to 2x
 - **Quality selection**: Auto, 1080p, 720p, 480p
@@ -101,25 +146,33 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **Volume control**
 - **Skip forward/backward** (10s)
 - **Auto-hide controls** (3s delay)
+- **Close button** và maximize button
 
-### **Audio Player**
+### **Audio Player (Popout Overlay)**
+- **Professional overlay** với glass effect
 - **Album art display**
 - **Progress bar**
 - **Volume control**
 - **Playback controls**
+- **Download & share** buttons
 
-### **Image Viewer**
+### **Image Viewer (Popout Overlay)**
+- **Full-screen experience**
 - **Zoom controls** (0.5x to 3x)
 - **Rotation** (90° increments)
 - **Download & share**
+- **Professional controls**
 
 ---
 
-## 🔗 **Sharing Experience**
+## 🔗 **Enhanced Sharing Experience**
 
-### **Advanced Share Modal**
+### **Advanced Share Modal (Premium UI)**
 1. **Link Sharing**:
-   - Generate unique share tokens
+   - **Real-time generation** với unique tokens
+   - **Copy to clipboard** functionality
+   - **View Share Page** button
+   - **Regenerate token** với loading state
    - Password protection
    - Expiry dates
    - View/download limits
@@ -140,6 +193,33 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **404 on reload** (demo limitation)
 - **Secure access control**
 - **Download restrictions**
+- **Professional share page**
+
+---
+
+## 🗄️ **Enhanced Database Editor**
+
+### **Auto-Detect Database Types**
+- **SQLite**: .db, .sqlite files
+- **MySQL**: .sql files
+- **PostgreSQL**: .psql files
+- **MongoDB**: .bson files
+- **Redis**: .rdb files
+- **SQL Server**: .mdf files
+- **Oracle**: .ora files
+
+### **Database-Specific Features**
+- **Smart table detection** based on type
+- **Relevant sample data** cho mỗi database
+- **Type-specific queries** và results
+- **Professional schema viewer**
+- **Query execution** với loading states
+
+### **Editor Interface**
+- **Tabs**: Tables, Query Editor, Schema
+- **Database type selector** dropdown
+- **Professional color coding** cho mỗi type
+- **Smart query suggestions**
 
 ---
 
@@ -150,6 +230,7 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **Drag & drop** (desktop)
 - **Context menus** (right-click/long press)
 - **Bulk actions** (delete, move, compress)
+- **Folder navigation** với real files
 
 ### **Search & Filter**
 - **Real-time search**
@@ -195,7 +276,7 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 
 ---
 
-## 🎨 **UI/UX Features**
+## 🎨 **Enhanced UI/UX Features**
 
 ### **Responsive Design**
 - **Mobile-first approach**
@@ -203,34 +284,38 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - **Adaptive layouts**
 - **Touch-friendly elements**
 
-### **Animations**
+### **Animations & Effects**
 - **Framer Motion** integration
 - **Smooth transitions**
 - **Loading states**
 - **Hover effects**
+- **Premium gradients**
 
 ### **Theme System**
 - **Premium theme** với gradients
-- **Glass effects**
+- **Glass effects** và shadows
 - **Custom CSS variables**
 - **Dark mode support**
+- **Professional color scheme**
 
 ---
 
-## 🧪 **Testing Scenarios**
+## 🧪 **Enhanced Testing Scenarios**
 
-### **1. File Creation**
+### **1. File Creation & Editing**
 - Create text file → Change extension → Watch animation
 - Create code file → Test syntax highlighting
 - Create folder → Test organization
+- **Test real folder navigation** với Code Examples
 
-### **2. Media Preview**
-- Open audio file → Test player controls
-- Open image → Test zoom/rotate
-- Open video → Test custom player
+### **2. Media Preview (Popout Experience)**
+- Open audio file → **Full overlay experience**
+- Open image → **Full-screen viewer**
+- Open video → **Professional player**
 
-### **3. File Sharing**
+### **3. File Sharing (Real Links)**
 - Generate share link → Copy to clipboard
+- **View Share Page** → Test real URL
 - Set password protection
 - Set expiry dates
 - Test social sharing
@@ -239,12 +324,14 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 - Switch to mobile view → Test touch controls
 - Test long press context menu
 - Test mobile-optimized layout
+- **Test anti-select text** functionality
 
 ### **5. Advanced Features**
 - Test multi-select operations
 - Test file compression
-- Test database editor
+- **Test enhanced database editor**
 - Test archive viewer
+- **Test folder navigation** với multiple files
 
 ---
 
@@ -267,16 +354,18 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 ## 🎯 **Demo Goals**
 
 ### **User Experience**
-- **Showcase** tất cả features
+- **Showcase** tất cả features với **highest quality**
 - **Demonstrate** mobile/desktop differences
 - **Highlight** advanced capabilities
 - **Provide** realistic file management experience
+- **Test real folder navigation** với multiple files
 
 ### **Technical Demonstration**
 - **Responsive design** implementation
 - **Component architecture**
 - **State management**
 - **Performance optimization**
+- **Professional UI/UX**
 
 ---
 
@@ -287,12 +376,14 @@ YukiFiles là một **file management platform** hoàn chỉnh với các tính 
 2. **Share links 404** → Expected in demo
 3. **Upload not working** → Demo limitation
 4. **Mobile layout issues** → Check viewport
+5. **Media not playing** → Check popout overlay
 
 ### **Performance Tips**
 - **Use desktop** cho full feature set
 - **Test mobile** trên actual device
 - **Clear cache** nếu có issues
 - **Check console** cho errors
+- **Test folder navigation** với Code Examples
 
 ---
 
@@ -303,7 +394,44 @@ Nếu gặp vấn đề hoặc cần hỗ trợ:
 - **Refresh page** để reset demo state
 - **Switch devices** để test responsiveness
 - **Report issues** với detailed steps
+- **Test folder navigation** để verify functionality
 
 ---
 
-**🎉 Enjoy exploring YukiFiles Demo!**
+## 🆕 **What's New in This Update**
+
+### **UI/UX Improvements**
+- ✅ **Premium theme** với gradients và glass effects
+- ✅ **Anti-select text** mặc định cho better UX
+- ✅ **Touch-friendly elements** (48px+ minimum)
+- ✅ **Professional color scheme** và animations
+
+### **Media Player Enhancements**
+- ✅ **Popout overlay** cho tất cả media types
+- ✅ **Full-screen experience** với backdrop blur
+- ✅ **Professional controls** và UI
+- ✅ **Close buttons** và maximize options
+
+### **Sharing Improvements**
+- ✅ **Real share links** với unique tokens
+- ✅ **View Share Page** button để test
+- ✅ **Premium UI** với glass effects
+- ✅ **Real-time generation** với loading states
+
+### **Database Editor**
+- ✅ **Auto-detect database types** từ filename
+- ✅ **Dropdown selection** cho database types
+- ✅ **Smart query results** based on type
+- ✅ **Professional interface** với tabs
+
+### **Folder Demo**
+- ✅ **Code Examples folder** với multiple files
+- ✅ **Real folder navigation** experience
+- ✅ **Multiple file types** để test
+- ✅ **Professional folder structure**
+
+---
+
+**🎉 Enjoy exploring the enhanced YukiFiles Demo!**
+
+**✨ Now with the highest quality UI/UX and real demo experience!**
