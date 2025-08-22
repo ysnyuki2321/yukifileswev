@@ -410,24 +410,25 @@ export function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
-export function getFileStats(files: DemoFileItem[]) {
+export function getFileStats(files: DemoFileItem[] = []) {
+  const safeFiles = files || []
   const stats = {
-    total: files.length,
-    folders: files.filter(f => f.isFolder).length,
-    files: files.filter(f => !f.isFolder).length,
-    shared: files.filter(f => f.isShared).length,
-    protected: files.filter(f => f.hasPassword).length,
-    archived: files.filter(f => f.inArchive).length,
-    starred: files.filter(f => f.isStarred).length,
-    totalSize: files.reduce((acc, f) => acc + f.size, 0),
+    total: safeFiles.length,
+    folders: safeFiles.filter(f => f?.isFolder).length,
+    files: safeFiles.filter(f => !f?.isFolder).length,
+    shared: safeFiles.filter(f => f?.isShared).length,
+    protected: safeFiles.filter(f => f?.hasPassword).length,
+    archived: safeFiles.filter(f => f?.inArchive).length,
+    starred: safeFiles.filter(f => f?.isStarred).length,
+    totalSize: safeFiles.reduce((acc, f) => acc + (f?.size || 0), 0),
     categories: {
-      documents: files.filter(f => f.category === 'document').length,
-      images: files.filter(f => f.category === 'image').length,
-      videos: files.filter(f => f.category === 'video').length,
-      audio: files.filter(f => f.category === 'audio').length,
-      code: files.filter(f => f.category === 'code').length,
-      databases: files.filter(f => f.category === 'database').length,
-      archives: files.filter(f => f.category === 'archive').length
+      documents: safeFiles.filter(f => f?.category === 'document').length,
+      images: safeFiles.filter(f => f?.category === 'image').length,
+      videos: safeFiles.filter(f => f?.category === 'video').length,
+      audio: safeFiles.filter(f => f?.category === 'audio').length,
+      code: safeFiles.filter(f => f?.category === 'code').length,
+      databases: safeFiles.filter(f => f?.category === 'database').length,
+      archives: safeFiles.filter(f => f?.category === 'archive').length
     }
   }
   

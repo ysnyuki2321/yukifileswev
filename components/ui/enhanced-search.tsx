@@ -160,7 +160,7 @@ export function EnhancedSearch({
         }
         
         return item
-      }).slice(0, 8) // Limit results
+      })?.slice(0, 8) || [] // Limit results với safe navigation
       
       setResults(filtered)
       setShowResults(true)

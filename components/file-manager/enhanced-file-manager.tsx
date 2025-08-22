@@ -122,23 +122,23 @@ export function EnhancedFileManager({
     return 'other'
   }
 
-  const filteredAndSortedFiles = files
+  const filteredAndSortedFiles = (files || [])
     .filter(file => {
-      const matchesSearch = file.name.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesFilter = filterType === 'all' || getFileCategory(file.name) === filterType
+      const matchesSearch = file?.name?.toLowerCase()?.includes(searchQuery.toLowerCase()) || false
+      const matchesFilter = filterType === 'all' || getFileCategory(file?.name || '') === filterType
       return matchesSearch && matchesFilter
     })
     .sort((a, b) => {
       let comparison = 0
       switch (sortBy) {
         case 'name':
-          comparison = a.name.localeCompare(b.name)
+          comparison = (a?.name || '').localeCompare(b?.name || '')
           break
         case 'size':
-          comparison = a.size - b.size
+          comparison = (a?.size || 0) - (b?.size || 0)
           break
         case 'date':
-          comparison = a.lastModified.getTime() - b.lastModified.getTime()
+          comparison = (a?.lastModified?.getTime() || 0) - (b?.lastModified?.getTime() || 0)
           break
       }
       return sortOrder === 'asc' ? comparison : -comparison
@@ -229,7 +229,7 @@ export function EnhancedFileManager({
   }
 
   const selectAllFiles = () => {
-    const allFileIds = new Set(filteredAndSortedFiles.map(f => f.id))
+    const allFileIds = new Set((filteredAndSortedFiles || []).map(f => f?.id).filter(Boolean))
     setSelectedMultiFiles(allFileIds)
     setShowMultiActions(true)
   }
@@ -242,23 +242,23 @@ export function EnhancedFileManager({
 
   const handleMultiAction = {
     compress: () => {
-      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
       setCompressionOverlay({ isOpen: true, files: selectedFiles })
       clearSelection()
     },
     delete: () => {
-      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
-      console.log('Deleting files:', selectedFiles.map(f => f.name))
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      console.log('Deleting files:', selectedFiles.map(f => f?.name).filter(Boolean))
       clearSelection()
     },
     move: () => {
-      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
-      console.log('Moving files:', selectedFiles.map(f => f.name))
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      console.log('Moving files:', selectedFiles.map(f => f?.name).filter(Boolean))
       clearSelection()
     },
     share: () => {
-      const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
-      console.log('Sharing files:', selectedFiles.map(f => f.name))
+      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
+      console.log('Sharing files:', selectedFiles.map(f => f?.name).filter(Boolean))
       clearSelection()
     }
   }
@@ -489,7 +489,7 @@ export function EnhancedFileManager({
       <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-white">YukiFiles Manager</h1>
-          <p className="text-gray-400">{filteredAndSortedFiles.length} of {files.length} items</p>
+          <p className="text-gray-400">{filteredAndSortedFiles?.length || 0} of {files?.length || 0} items</p>
         </div>
         
         <div className="flex flex-wrap gap-2">
@@ -670,7 +670,7 @@ export function EnhancedFileManager({
       {/* File Grid/List */}
       <Card className="bg-black/40 border-purple-500/20">
         <CardContent className="p-6">
-          {filteredAndSortedFiles.length === 0 ? (
+          {(filteredAndSortedFiles?.length || 0) === 0 ? (
             <div className="text-center py-12">
               <File className="w-16 h-16 mx-auto mb-4 text-gray-500" />
               <h3 className="text-xl font-semibold text-white mb-2">No files found</h3>
@@ -683,7 +683,7 @@ export function EnhancedFileManager({
               ? "grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"
               : "space-y-2"
             }>
-              {filteredAndSortedFiles.map((file) => (
+              {(filteredAndSortedFiles || []).map((file) => file && (
                 <div
                   key={file.id}
                   className={`group cursor-pointer rounded-lg border transition-all duration-200 relative ${
@@ -792,24 +792,24 @@ export function EnhancedFileManager({
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400">{files.length}</div>
+                <div className="text-2xl font-bold text-purple-400">{files?.length || 0}</div>
                 <div className="text-sm text-gray-400">Total Files</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-400">
-                  {files.filter(f => getFileCategory(f.name) === 'images').length}
+                  {files?.filter(f => getFileCategory(f.name) === 'images')?.length || 0}
                 </div>
                 <div className="text-sm text-gray-400">Images</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-blue-400">
-                  {files.filter(f => getFileCategory(f.name) === 'documents').length}
+                  {files?.filter(f => getFileCategory(f.name) === 'documents')?.length || 0}
                 </div>
                 <div className="text-sm text-gray-400">Documents</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-400">
-                  {files.filter(f => getFileCategory(f.name) === 'code').length}
+                  {files?.filter(f => getFileCategory(f.name) === 'code')?.length || 0}
                 </div>
                 <div className="text-sm text-gray-400">Code Files</div>
               </div>
