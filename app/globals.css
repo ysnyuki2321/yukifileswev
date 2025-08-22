@@ -92,24 +92,27 @@ input[type="number"] {
     overflow: hidden;
   }
   
-  /* Better touch feedback with visual response */
+  /* Better touch feedback with visual response - Optimized for performance */
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(147, 51, 234, 0.2);
-    transition: all 0.15s ease-out;
+    transition: transform 0.1s ease-out, background-color 0.1s ease-out;
     will-change: transform;
+    transform: translateZ(0); /* Force hardware acceleration */
   }
   
   .touch-manipulation:active {
-    transform: scale(0.98);
+    transform: scale(0.98) translateZ(0);
     background-color: rgba(147, 51, 234, 0.1);
   }
   
-  /* Stable mobile containers */
+  /* Stable mobile containers - Anti-jank */
   .mobile-container {
     position: relative;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
+    transform: translateZ(0); /* Force GPU acceleration */
+    backface-visibility: hidden;
   }
   
   /* Improved form inputs on mobile - Prevent iOS zoom */
@@ -118,12 +121,14 @@ input[type="number"] {
     -webkit-appearance: none;
     border-radius: 8px;
     padding: 12px 16px;
+    transform: translateZ(0); /* Smooth rendering */
   }
   
-  /* Mobile-friendly modals with proper spacing */
+  /* Mobile-friendly modals with proper spacing - Performance optimized */
   .mobile-modal {
     margin: 8px !important;
     max-height: calc(100vh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important; /* Dynamic viewport height */
     overflow-y: auto;
     border-radius: 12px;
     position: fixed;
@@ -132,28 +137,33 @@ input[type="number"] {
     right: 8px;
     bottom: 8px;
     z-index: 9999;
+    transform: translateZ(0);
+    -webkit-overflow-scrolling: touch;
   }
   
-  /* Better mobile scrolling - iOS optimized */
+  /* Better mobile scrolling - iOS optimized - Smooth as butter */
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     scroll-behavior: smooth;
     position: relative;
+    transform: translateZ(0);
   }
   
-  /* Fix mobile viewport issues */
+  /* Fix mobile viewport issues - Handle dynamic viewport */
   .mobile-viewport-fix {
     min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
     min-height: -webkit-fill-available;
   }
   
-  /* Prevent mobile layout shifts */
+  /* Prevent mobile layout shifts - Hardware acceleration */
   .mobile-stable {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    will-change: transform;
   }
   
   /* Mobile-optimized cards with proper spacing */
@@ -161,15 +171,18 @@ input[type="number"] {
     margin: 6px;
     padding: 12px;
     border-radius: 12px;
+    transform: translateZ(0);
   }
   
-  /* Mobile notification improvements */
+  /* Mobile notification improvements - Smooth animations */
   .mobile-notification {
     padding: 12px;
     border-radius: 8px;
+    transform: translateZ(0);
+    transition: all 0.2s ease-out;
   }
   
-  /* Hamburger menu improvements */
+  /* Hamburger menu improvements - Smooth interactions */
   .mobile-menu-button {
     min-height: 44px;
     min-width: 44px;
@@ -177,12 +190,40 @@ input[type="number"] {
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    transition: all 0.2s ease;
+    transition: all 0.15s ease-out;
+    transform: translateZ(0);
   }
   
   .mobile-menu-button:active {
-    transform: scale(0.95);
+    transform: scale(0.95) translateZ(0);
     background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Smooth animations for mobile - Reduce jank */
+  .animate-in {
+    animation-duration: 0.3s;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Modal animations - Smooth entrance/exit */
+  .modal-enter {
+    transform: translateY(100%) translateZ(0);
+    opacity: 0;
+  }
+  
+  .modal-enter-active {
+    transform: translateY(0) translateZ(0);
+    opacity: 1;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  /* Prevent animation lag on low-end devices */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 

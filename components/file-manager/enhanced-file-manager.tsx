@@ -643,19 +643,20 @@ export function EnhancedFileManager({
 
       {/* File Grid/List */}
       <Card className="bg-black/40 border-purple-500/20">
-        <CardContent className="p-6">
+        <CardContent className="p-4 sm:p-6">
           {(filteredAndSortedFiles?.length || 0) === 0 ? (
-            <div className="text-center py-12">
-              <File className="w-16 h-16 mx-auto mb-4 text-gray-500" />
-              <h3 className="text-xl font-semibold text-white mb-2">No files found</h3>
-              <p className="text-gray-400">
+            <div className="text-center py-8 sm:py-12">
+              <File className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 text-gray-500" />
+              <h3 className="text-lg sm:text-xl font-semibold text-white mb-2">No files found</h3>
+              <p className="text-gray-400 text-sm sm:text-base">
                 {searchQuery ? "Try adjusting your search query" : "Upload your first file to get started"}
               </p>
             </div>
           ) : (
-            <div className={viewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 sm:gap-4"
-              : "space-y-2"
+            <div className={
+              viewMode === "grid" 
+                ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4"
+                : "space-y-1"
             }>
               {(filteredAndSortedFiles || []).map((file) => file && (
                 <div
@@ -663,11 +664,11 @@ export function EnhancedFileManager({
                   className={`group cursor-pointer rounded-lg border transition-all duration-200 relative touch-manipulation ${
                     selectedMultiFiles.has(file.id) 
                       ? "border-purple-500 bg-purple-500/10" 
-                      : "border-gray-700 hover:border-purple-500/50"
+                      : "border-gray-700/50 hover:border-purple-500/50 hover:bg-slate-800/30"
                   } ${
                     viewMode === "grid"
-                      ? "p-4 sm:p-4 text-center bg-slate-800/30 hover:bg-slate-800/50 min-h-[120px] sm:min-h-[140px]"
-                      : "p-4 flex items-center gap-3 bg-slate-800/20 hover:bg-slate-800/40 min-h-[60px]"
+                      ? "p-4 text-center bg-slate-800/20 min-h-[140px] flex flex-col items-center justify-center"
+                      : "p-3 flex items-center gap-3 bg-slate-800/10 min-h-[56px]"
                   }`}
                   onClick={(e) => {
                     if (multiSelectMode) {
@@ -686,9 +687,9 @@ export function EnhancedFileManager({
                   {multiSelectMode && (
                     <div className="absolute top-2 left-2 z-10">
                       <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                        selectedMultiFiles.has(file.id) 
-                          ? 'bg-purple-600 border-purple-600' 
-                          : 'border-gray-400 bg-black/20'
+                        selectedMultiFiles.has(file.id)
+                          ? 'bg-purple-500 border-purple-500'
+                          : 'bg-black/50 border-gray-400'
                       }`}>
                         {selectedMultiFiles.has(file.id) && (
                           <CheckCircle className="w-3 h-3 text-white" />
@@ -696,52 +697,84 @@ export function EnhancedFileManager({
                       </div>
                     </div>
                   )}
+
                   {viewMode === "grid" ? (
+                    // Grid View - Card Style
                     <>
                       <div className="mb-3">
                         {getFileIcon(file)}
                       </div>
-                      <p className="text-sm text-white font-medium truncate mb-1">
-                        {file.name}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {file.isFolder ? "Folder" : formatBytes(file.size)}
-                      </p>
-                      {file.isStarred && (
-                        <Star className="w-3 h-3 text-yellow-400 mx-auto mt-1" />
-                      )}
+                      <div className="space-y-1 text-center">
+                        <p className="text-white text-sm font-medium truncate px-2" title={file.name}>
+                          {file.name}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          {formatBytes(file.size)}
+                        </p>
+                        {/* File badges */}
+                        <div className="flex flex-wrap justify-center gap-1 mt-2">
+                          {file.isStarred && (
+                            <div className="w-4 h-4 text-yellow-400">
+                              <Star className="w-full h-full fill-current" />
+                            </div>
+                          )}
+                          {file.isShared && (
+                            <div className="w-4 h-4 text-green-400">
+                              <Share2 className="w-full h-full" />
+                            </div>
+                          )}
+                          {file.hasPassword && (
+                            <div className="w-4 h-4 text-red-400">
+                              <Lock className="w-full h-full" />
+                            </div>
+                          )}
+                        </div>
+                      </div>
                     </>
                   ) : (
+                    // List View - File Explorer Style
                     <>
                       <div className="flex-shrink-0">
                         {getFileIcon(file)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-white font-medium truncate">
-                          {file.name}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {file.isFolder ? "Folder" : `${formatBytes(file.size)} • ${file.lastModified.toLocaleDateString()}`}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {file.isStarred && (
-                          <Star className="w-4 h-4 text-yellow-400" />
-                        )}
-                        {file.isShared && (
-                          <Share2 className="w-4 h-4 text-green-400" />
-                        )}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            // Handle more actions
-                          }}
-                        >
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-sm sm:text-base font-medium truncate" title={file.name}>
+                              {file.name}
+                            </p>
+                            <div className="flex items-center space-x-3 mt-1">
+                              <p className="text-gray-400 text-xs sm:text-sm">
+                                {formatBytes(file.size)}
+                              </p>
+                              <p className="text-gray-500 text-xs">
+                                {new Date(file.lastModified).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2 ml-3">
+                            {/* Status indicators */}
+                            {file.isStarred && (
+                              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                            )}
+                            {file.isShared && (
+                              <Share2 className="w-4 h-4 text-green-400" />
+                            )}
+                            {file.hasPassword && (
+                              <Lock className="w-4 h-4 text-red-400" />
+                            )}
+                            {/* More options */}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleRightClick(file, e)
+                              }}
+                              className="p-1 text-gray-400 hover:text-white transition-colors opacity-0 group-hover:opacity-100 sm:opacity-100"
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </>
                   )}
