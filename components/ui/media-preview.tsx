@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { ResponsiveVideoPlayer } from './responsive-video-player'
 import { MusicPlayer } from './music-player'
 import { PopoutMusicPlayer } from './popout-music-player'
+import { VideoPlayer } from './video-player'
 import { Download, Share2, RotateCcw, ZoomIn, ZoomOut, Star } from 'lucide-react'
 
 interface MediaPreviewProps {
@@ -51,6 +52,37 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
     return '16:9'
   }
 
+  // Video files - use new VideoPlayer
+  if (file.type.startsWith('video/')) {
+    return (
+      <VideoPlayer
+        src={file.content}
+        poster={file.thumbnail || undefined}
+        title={file.name}
+        onDownload={onDownload}
+        onShare={onShare}
+        onLike={onLike}
+        className={className}
+      />
+    )
+  }
+
+  // Audio files - use MusicPlayer
+  if (file.type.startsWith('audio/')) {
+    return (
+      <div className={`bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 ${className}`}>
+        <MusicPlayer
+          file={file}
+          onDownload={onDownload}
+          onShare={onShare}
+          onLike={onLike}
+          isMobile={isMobile}
+        />
+      </div>
+    )
+  }
+
+  // Image files
   if (file.type.startsWith('image/')) {
     return (
       <div className={`bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 ${className}`}>
@@ -99,24 +131,28 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
                 Image • {(file.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
+            
             <div className="flex items-center space-x-2">
               <button
-                onClick={onLike}
-                className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                onClick={onDownload}
+                className="p-2 bg-purple-500/20 hover:bg-purple-500/30 rounded-lg text-purple-400 hover:text-purple-300 transition-colors"
+                title="Download"
               >
-                <Star className="w-5 h-5" />
+                <Download className="w-4 h-4" />
               </button>
               <button
                 onClick={onShare}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                className="p-2 bg-green-500/20 hover:bg-green-500/30 rounded-lg text-green-400 hover:text-green-300 transition-colors"
+                title="Share"
               >
-                <Share2 className="w-5 h-5" />
+                <Share2 className="w-4 h-4" />
               </button>
               <button
-                onClick={onDownload}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
+                onClick={onLike}
+                className="p-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-red-400 hover:text-red-300 transition-colors"
+                title="Like"
               >
-                <Download className="w-5 h-5" />
+                <Star className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -125,80 +161,29 @@ export function MediaPreview({ file, onDownload, onShare, onLike, className = ''
     )
   }
 
-  if (file.type.startsWith('video/')) {
-    // Use original ResponsiveVideoPlayer - the beautiful one
-    return (
-      <ResponsiveVideoPlayer
-        src={file.content}
-        title={file.name}
-        poster={file.thumbnail || undefined}
-        aspectRatio={getAspectRatio() as '16:9' | '9:16' | '1:1' | '4:3'}
-        onEnded={() => console.log('Video ended')}
-      />
-    )
-  }
-
-  if (file.type.startsWith('audio/')) {
-    return (
-      <>
-        {/* Use original MusicPlayer for inline, PopoutMusicPlayer for popout */}
-        <MusicPlayer
-          src={file.content}
-          title={file.name}
-          artist={file.artist || 'Unknown Artist'}
-          albumArt={file.albumArt || file.thumbnail || undefined}
-          onDownload={onDownload}
-          onShare={onShare}
-          onLike={onLike}
-          onPopout={() => setShowPopoutPlayer(true)}
-          className={className}
-        />
-
-        {/* Popout Music Player */}
-        {showPopoutPlayer && (
-          <PopoutMusicPlayer
-            src={file.content}
-            title={file.name}
-            artist={file.artist}
-            album={file.album}
-            albumArt={file.albumArt || file.thumbnail || undefined}
-            onClose={() => setShowPopoutPlayer(false)}
-            onDownload={onDownload}
-            onShare={onShare}
-            onLike={onLike}
-          />
-        )}
-      </>
-    )
-  }
-
-  // Fallback for other file types
+  // Default fallback
   return (
-    <div className={`bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-white/10 text-center ${className}`}>
-      <div className="text-gray-400 mb-4">
-        <div className="w-16 h-16 bg-gray-700 rounded-lg flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+    <div className={`bg-black/40 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/10 ${className}`}>
+      <div className="p-8 text-center">
+        <div className="text-6xl mb-4">📁</div>
+        <h3 className="text-white text-xl font-semibold mb-2">Unsupported File Type</h3>
+        <p className="text-gray-400">
+          This file type ({file.type}) cannot be previewed.
+        </p>
+        <div className="flex items-center justify-center space-x-4 mt-6">
+          <button
+            onClick={onDownload}
+            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 rounded-lg text-white transition-colors"
+          >
+            Download
+          </button>
+          <button
+            onClick={onShare}
+            className="px-4 py-2 bg-green-500 hover:bg-green-600 rounded-lg text-white transition-colors"
+          >
+            Share
+          </button>
         </div>
-        <p className="text-white font-medium mb-2">{file.name}</p>
-        <p className="text-sm">Preview not available for this file type</p>
-      </div>
-      <div className="flex justify-center space-x-4">
-        <button
-          onClick={onDownload}
-          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors flex items-center space-x-2"
-        >
-          <Download className="w-4 h-4" />
-          <span>Download</span>
-        </button>
-        <button
-          onClick={onShare}
-          className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors flex items-center space-x-2"
-        >
-          <Share2 className="w-4 h-4" />
-          <span>Share</span>
-        </button>
       </div>
     </div>
   )

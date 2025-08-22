@@ -84,53 +84,268 @@ export default function DashboardClient() {
           
           // Use beautiful mock data instead of API calls
           const mockFiles = [
+            // Folders
             {
-              id: 'demo-1',
-              original_name: 'project-proposal.pdf',
-              name: 'project-proposal.pdf',
-              mime_type: 'application/pdf',
-              file_size: 2547893,
-              size: 2547893,
-              created_at: new Date().toISOString(),
-              content: 'Mock PDF content',
+              id: 'folder-1',
+              original_name: 'Documents',
+              name: 'Documents',
+              mime_type: 'folder',
+              file_size: 0,
+              size: 0,
+              created_at: new Date('2024-01-15T10:30:00Z').toISOString(),
+              content: '',
               thumbnail: null,
               is_starred: false,
               isStarred: false,
               is_public: false,
               isShared: false,
-              owner: 'demo@yukifiles.com'
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'folder',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
             },
             {
-              id: 'demo-2',
-              original_name: 'presentation.pptx',
-              name: 'presentation.pptx',
-              mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-              file_size: 5892103,
-              size: 5892103,
-              created_at: new Date(Date.now() - 86400000).toISOString(),
-              content: 'Mock PowerPoint content',
+              id: 'folder-2',
+              original_name: 'Media',
+              name: 'Media',
+              mime_type: 'folder',
+              file_size: 0,
+              size: 0,
+              created_at: new Date('2024-01-15T11:00:00Z').toISOString(),
+              content: '',
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: false,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'folder',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+            {
+              id: 'folder-3',
+              original_name: 'Projects',
+              name: 'Projects',
+              mime_type: 'folder',
+              file_size: 0,
+              size: 0,
+              created_at: new Date('2024-01-15T12:00:00Z').toISOString(),
+              content: '',
+              thumbnail: null,
+              is_starred: true,
+              isStarred: true,
+              is_public: false,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'folder',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Discord Audio
+            {
+              id: 'audio-1',
+              original_name: 'NAKISO - Track.mp3',
+              name: 'NAKISO - Track.mp3',
+              mime_type: 'audio/mpeg',
+              file_size: 5242880,
+              size: 5242880,
+              created_at: new Date('2024-01-15T13:00:00Z').toISOString(),
+              content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
               thumbnail: null,
               is_starred: true,
               isStarred: true,
               is_public: true,
               isShared: true,
-              owner: 'demo@yukifiles.com'
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'audio',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: 'NAKISO',
+              album: 'Demo Album',
+              albumArt: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68aa0bc2&is=68a8ba42&hm=7b8e6a548ea63488dd4df70f6b7730de231d365166deedc7f0d102cc116a4056&'
             },
+
+            // Discord Image
             {
-              id: 'demo-3',
-              original_name: 'team-photo.jpg',
-              name: 'team-photo.jpg',
+              id: 'image-1',
+              original_name: 'demo-image.jpg',
+              name: 'demo-image.jpg',
               mime_type: 'image/jpeg',
-              file_size: 1234567,
-              size: 1234567,
-              created_at: new Date(Date.now() - 172800000).toISOString(),
-              content: 'Mock image content',
-              thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzFFMUUyRSIvPgo8cGF0aCBkPSJNMTIgMTZIMjhWMjRIMTJWMTZaIiBmaWxsPSIjNkM3Mjg1Ii8+CjxwYXRoIGQ9Ik0xNiAyMEMyMC40MTgzIDIwIDI0IDIzLjU4MTcgMjQgMjhIMTZWMjBaIiBmaWxsPSIjOEI1Q0Y2Ii8+Cjwvc3ZnPgo=',
+              file_size: 2097152,
+              size: 2097152,
+              created_at: new Date('2024-01-15T14:00:00Z').toISOString(),
+              content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68aa0bc2&is=68a8ba42&hm=7b8e6a548ea63488dd4df70f6b7730de231d365166deedc7f0d102cc116a4056&',
+              thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68aa0bc2&is=68a8ba42&hm=7b8e6a548ea63488dd4df70f6b7730de231d365166deedc7f0d102cc116a4056&',
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: true,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'image',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Discord Video
+            {
+              id: 'video-1',
+              original_name: 'demo-video.mp4',
+              name: 'demo-video.mp4',
+              mime_type: 'video/mp4',
+              file_size: 15728640,
+              size: 15728640,
+              created_at: new Date('2024-01-15T15:00:00Z').toISOString(),
+              content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68aa0bc0&is=68a8ba40&hm=b9eed69866daa68598b5aeed80fe56ba5cb6219c54385995fbb4d4998e1cd8af&',
+              thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68aa0bc0&is=68a8ba40&hm=b9eed69866daa68598b5aeed80fe56ba5cb6219c54385995fbb4d4998e1cd8af&',
+              is_starred: true,
+              isStarred: true,
+              is_public: false,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: true,
+              inArchive: false,
+              category: 'video',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Code Files
+            {
+              id: 'code-1',
+              original_name: 'app.js',
+              name: 'app.js',
+              mime_type: 'application/javascript',
+              file_size: 15360,
+              size: 15360,
+              created_at: new Date('2024-01-15T16:00:00Z').toISOString(),
+              content: `// YukiFiles Demo App
+import React from 'react';
+
+function App() {
+  return (
+    <div className="app">
+      <h1>Welcome to YukiFiles</h1>
+      <p>This is a demo file manager application.</p>
+    </div>
+  );
+}
+
+export default App;`,
+              thumbnail: null,
               is_starred: false,
               isStarred: false,
               is_public: false,
               isShared: false,
-              owner: 'demo@yukifiles.com'
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'code',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Text Files
+            {
+              id: 'text-1',
+              original_name: 'README.md',
+              name: 'README.md',
+              mime_type: 'text/markdown',
+              file_size: 2048,
+              size: 2048,
+              created_at: new Date('2024-01-15T17:00:00Z').toISOString(),
+              content: `# YukiFiles Demo
+
+## Features
+- File management
+- Media preview
+- Sharing capabilities
+- Security features
+
+## Getting Started
+1. Upload files
+2. Organize in folders
+3. Share with others
+
+Created: ${new Date().toLocaleDateString()}`,
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: true,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'text',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Database Files
+            {
+              id: 'db-1',
+              original_name: 'users.db',
+              name: 'users.db',
+              mime_type: 'application/x-sqlite3',
+              file_size: 1048576,
+              size: 1048576,
+              created_at: new Date('2024-01-15T18:00:00Z').toISOString(),
+              content: '',
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: false,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: true,
+              inArchive: false,
+              category: 'database',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
             }
           ]
           

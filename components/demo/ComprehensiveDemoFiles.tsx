@@ -87,304 +87,233 @@ export const demoFolders: FolderItem[] = [
   }
 ]
 
-export const comprehensiveDemoFiles: FileItem[] = [
-  // Documents
+export const comprehensiveDemoFiles = [
+  // Folders
   {
-    id: 'doc-1',
-    name: 'Project_Proposal_2024.pdf',
-    original_name: 'Project_Proposal_2024.pdf',
-    mime_type: 'application/pdf',
-    file_size: 2547893,
-    size: 2547893,
-    created_at: new Date().toISOString(),
-    content: 'Mock PDF content for project proposal',
+    id: 'folder-1',
+    name: 'Documents',
+    mime_type: 'folder',
+    size: 0,
+    created_at: '2024-01-15T10:30:00Z',
+    content: '',
     thumbnail: null,
-    is_starred: true,
-    isStarred: true,
-    is_public: true,
-    isShared: true,
+    is_starred: false,
+    is_public: false,
     owner: 'demo@yukifiles.com',
     hasPassword: false,
     inArchive: false,
-    category: 'document',
-    accessLimits: {
-      currentViews: 15,
-      currentDownloads: 8,
-      maxViews: 100,
-      maxDownloads: 50
-    }
+    category: 'folder',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
   },
   {
-    id: 'doc-2',
-    name: 'Business_Plan.docx',
-    original_name: 'Business_Plan.docx',
-    mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    file_size: 1892345,
-    size: 1892345,
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    content: 'Mock Word document content',
+    id: 'folder-2',
+    name: 'Media',
+    mime_type: 'folder',
+    size: 0,
+    created_at: '2024-01-15T11:00:00Z',
+    content: '',
     thumbnail: null,
     is_starred: false,
-    isStarred: false,
     is_public: false,
-    isShared: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'folder',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+  {
+    id: 'folder-3',
+    name: 'Projects',
+    mime_type: 'folder',
+    size: 0,
+    created_at: '2024-01-15T12:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: true,
+    is_public: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'folder',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+
+  // Discord Audio
+  {
+    id: 'audio-1',
+    name: 'NAKISO - Track.mp3',
+    mime_type: 'audio/mpeg',
+    size: 5242880, // 5MB
+    created_at: '2024-01-15T13:00:00Z',
+    content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408373313759219722/NAKISO_-_.mp3?ex=68a9815c&is=68a82fdc&hm=f33af4367697c580038c23e870ddbe03680cdfb1ca0686e9692b243ca935a260&',
+    thumbnail: null,
+    is_starred: true,
+    is_public: true,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'audio',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: 'NAKISO',
+    album: 'Demo Album',
+    albumArt: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68aa0bc2&is=68a8ba42&hm=7b8e6a548ea63488dd4df70f6b7730de231d365166deedc7f0d102cc116a4056&'
+  },
+
+  // Discord Image
+  {
+    id: 'image-1',
+    name: 'demo-image.jpg',
+    mime_type: 'image/jpeg',
+    size: 2097152, // 2MB
+    created_at: '2024-01-15T14:00:00Z',
+    content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68aa0bc2&is=68a8ba42&hm=7b8e6a548ea63488dd4df70f6b7730de231d365166deedc7f0d102cc116a4056&',
+    thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68aa0bc2&is=68a8ba42&hm=7b8e6a548ea63488dd4df70f6b7730de231d365166deedc7f0d102cc116a4056&',
+    is_starred: false,
+    is_public: true,
+    owner: 'demo@yukifiles.com',
+    hasPassword: false,
+    inArchive: false,
+    category: 'image',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+
+  // Discord Video
+  {
+    id: 'video-1',
+    name: 'demo-video.mp4',
+    mime_type: 'video/mp4',
+    size: 15728640, // 15MB
+    created_at: '2024-01-15T15:00:00Z',
+    content: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68aa0bc0&is=68a8ba40&hm=b9eed69866daa68598b5aeed80fe56ba5cb6219c54385995fbb4d4998e1cd8af&',
+    thumbnail: 'https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68aa0bc0&is=68a8ba40&hm=b9eed69866daa68598b5aeed80fe56ba5cb6219c54385995fbb4d4998e1cd8af&',
+    is_starred: true,
+    is_public: false,
     owner: 'demo@yukifiles.com',
     hasPassword: true,
     inArchive: false,
-    category: 'document'
-  },
-  {
-    id: 'doc-3',
-    name: 'Presentation_Deck.pptx',
-    original_name: 'Presentation_Deck.pptx',
-    mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    file_size: 5892103,
-    size: 5892103,
-    created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
-    content: 'Mock PowerPoint content',
-    thumbnail: null,
-    is_starred: true,
-    isStarred: true,
-    is_public: true,
-    isShared: true,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
-    category: 'document',
-    accessLimits: {
-      currentViews: 45,
-      currentDownloads: 12,
-      maxViews: 200,
-      maxDownloads: 100
-    }
-  },
-  
-  // Images
-  {
-    id: 'img-1',
-    name: 'Team_Photo.jpg',
-    original_name: 'Team_Photo.jpg',
-    mime_type: 'image/jpeg',
-    file_size: 1234567,
-    size: 1234567,
-    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
-    content: 'Mock image content',
-    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzFFMUUyRSIvPgo8cGF0aCBkPSJNMTIgMTZIMjhWMjRIMTJWMTZaIiBmaWxsPSIjNkM3Mjg1Ii8+CjxwYXRoIGQ9Ik0xNiAyMEMyMC40MTgzIDIwIDI0IDIzLjU4MTcgMjQgMjhIMTZWMjBaIiBmaWxsPSIjOEI1Q0Y2Ii8+Cjwvc3ZnPgo=',
-    is_starred: false,
-    isStarred: false,
-    is_public: true,
-    isShared: true,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
-    category: 'image'
-  },
-  {
-    id: 'img-2',
-    name: 'Product_Screenshot.png',
-    original_name: 'Product_Screenshot.png',
-    mime_type: 'image/png',
-    file_size: 2345678,
-    size: 2345678,
-    created_at: new Date(Date.now() - 86400000 * 4).toISOString(),
-    content: 'Mock PNG content',
-    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzFFMUUyRSIvPgo8cGF0aCBkPSJNMTIgMTZIMjhWMjRIMTJWMTZaIiBmaWxsPSIjNkM3Mjg1Ii8+CjxwYXRoIGQ9Ik0xNiAyMEMyMC40MTgzIDIwIDI0IDIzLjU4MTcgMjQgMjhIMTZWMjBaIiBmaWxsPSIjOEI1Q0Y2Ii8+Cjwvc3ZnPgo=',
-    is_starred: false,
-    isStarred: false,
-    is_public: false,
-    isShared: false,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
-    category: 'image'
-  },
-  
-  // Videos
-  {
-    id: 'vid-1',
-    name: 'Product_Demo.mp4',
-    original_name: 'Product_Demo.mp4',
-    mime_type: 'video/mp4',
-    file_size: 15678901,
-    size: 15678901,
-    created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
-    content: 'Mock video content',
-    thumbnail: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzFFMUUyRSIvPgo8cGF0aCBkPSJNMTYgMTJIMjRWMjhIMTZWMTJaIiBmaWxsPSIjNkM3Mjg1Ii8+Cjwvc3ZnPgo=',
-    is_starred: true,
-    isStarred: true,
-    is_public: true,
-    isShared: true,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
     category: 'video',
-    accessLimits: {
-      currentViews: 89,
-      currentDownloads: 23,
-      maxViews: 500,
-      maxDownloads: 200
-    }
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
   },
-  
-  // Audio
-  {
-    id: 'aud-1',
-    name: 'Podcast_Episode.mp3',
-    original_name: 'Podcast_Episode.mp3',
-    mime_type: 'audio/mpeg',
-    file_size: 4567890,
-    size: 4567890,
-    created_at: new Date(Date.now() - 86400000 * 6).toISOString(),
-    content: 'Mock audio content',
-    thumbnail: null,
-    is_starred: false,
-    isStarred: false,
-    is_public: false,
-    isShared: false,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
-    category: 'audio'
-  },
-  
+
   // Code Files
   {
     id: 'code-1',
-    name: 'app.tsx',
-    original_name: 'app.tsx',
-    mime_type: 'text/tsx',
-    file_size: 1520,
-    size: 1520,
-    created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-    content: `import React from "react"
-import { useState } from "react"
+    name: 'app.js',
+    mime_type: 'application/javascript',
+    size: 15360, // 15KB
+    created_at: '2024-01-15T16:00:00Z',
+    content: `// YukiFiles Demo App
+import React from 'react';
 
-export default function App() {
-  const [count, setCount] = useState(0)
-  
+function App() {
   return (
     <div className="app">
-      <h1>Hello YukiFiles</h1>
-      <button onClick={() => setCount(count + 1)}>
-        Count: {count}
-      </button>
+      <h1>Welcome to YukiFiles</h1>
+      <p>This is a demo file manager application.</p>
     </div>
-  )
-}`,
-    thumbnail: null,
-    is_starred: false,
-    isStarred: false,
-    is_public: true,
-    isShared: true,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: false,
-    category: 'code'
-  },
-  {
-    id: 'code-2',
-    name: 'styles.css',
-    original_name: 'styles.css',
-    mime_type: 'text/css',
-    file_size: 890,
-    size: 890,
-    created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
-    content: `.app {
-  text-align: center;
-  padding: 2rem;
+  );
 }
 
-button {
-  background: #8b5cf6;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-}`,
+export default App;`,
     thumbnail: null,
     is_starred: false,
-    isStarred: false,
     is_public: false,
-    isShared: false,
     owner: 'demo@yukifiles.com',
     hasPassword: false,
     inArchive: false,
-    category: 'code'
+    category: 'code',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
   },
-  
-  // Archive Files
+
+  // Text Files
   {
-    id: 'arc-1',
-    name: 'Project_Backup.zip',
-    original_name: 'Project_Backup.zip',
-    mime_type: 'application/zip',
-    file_size: 9876543,
-    size: 9876543,
-    created_at: new Date(Date.now() - 86400000 * 9).toISOString(),
-    content: 'Mock ZIP archive content',
-    thumbnail: null,
-    is_starred: false,
-    isStarred: false,
-    is_public: false,
-    isShared: false,
-    owner: 'demo@yukifiles.com',
-    hasPassword: true,
-    inArchive: true,
-    category: 'archive'
-  },
-  {
-    id: 'arc-2',
-    name: 'Documents_Archive.tar.gz',
-    original_name: 'Documents_Archive.tar.gz',
-    mime_type: 'application/gzip',
-    file_size: 5432109,
-    size: 5432109,
-    created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
-    content: 'Mock TAR.GZ archive content',
-    thumbnail: null,
-    is_starred: false,
-    isStarred: false,
-    is_public: false,
-    isShared: false,
-    owner: 'demo@yukifiles.com',
-    hasPassword: false,
-    inArchive: true,
-    category: 'archive'
-  },
-  
-  // Other Files
-  {
-    id: 'other-1',
+    id: 'text-1',
     name: 'README.md',
-    original_name: 'README.md',
     mime_type: 'text/markdown',
-    file_size: 2340,
-    size: 2340,
-    created_at: new Date(Date.now() - 86400000 * 11).toISOString(),
+    size: 2048, // 2KB
+    created_at: '2024-01-15T17:00:00Z',
     content: `# YukiFiles Demo
 
-This is a comprehensive demo of the YukiFiles platform.
-
 ## Features
-- File upload and management
-- Secure sharing
-- Analytics and insights
-- Team collaboration
+- File management
+- Media preview
+- Sharing capabilities
+- Security features
 
 ## Getting Started
-1. Upload your files
-2. Share with team members
-3. Track usage and engagement`,
+1. Upload files
+2. Organize in folders
+3. Share with others
+
+Created: ${new Date().toLocaleDateString()}`,
     thumbnail: null,
-    is_starred: true,
-    isStarred: true,
+    is_starred: false,
     is_public: true,
-    isShared: true,
     owner: 'demo@yukifiles.com',
     hasPassword: false,
     inArchive: false,
-    category: 'other'
+    category: 'text',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
+  },
+
+  // Database Files
+  {
+    id: 'db-1',
+    name: 'users.db',
+    mime_type: 'application/x-sqlite3',
+    size: 1048576, // 1MB
+    created_at: '2024-01-15T18:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: false,
+    is_public: false,
+    owner: 'demo@yukifiles.com',
+    hasPassword: true,
+    inArchive: false,
+    category: 'database',
+    encryptedName: null,
+    accessLimits: null,
+    expiresAt: null,
+    artist: null,
+    album: null,
+    albumArt: null
   }
 ]
 

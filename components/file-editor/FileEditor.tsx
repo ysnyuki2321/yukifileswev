@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
+import { motion, AnimatePresence } from "framer-motion"
 import { 
   FileText, FileCode, Save, X, AlertCircle, CheckCircle,
-  Type, Code, File, Folder
+  Type, Code, File, Folder, Music, Image, Video, Database, Info
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -18,19 +19,37 @@ interface FileEditorProps {
   onSave: (fileName: string, content: string, fileType: string) => void
   initialFileName?: string
   initialContent?: string
-  fileType?: 'text' | 'code' | 'folder'
+  fileType?: 'text' | 'code' | 'folder' | 'audio' | 'image' | 'video' | 'database'
 }
 
 const ALLOWED_EXTENSIONS = {
-  text: ['.txt', '.md', '.json', '.csv', '.log'],
+  text: ['.txt', '.md', '.json', '.csv', '.log', '.rtf'],
   code: ['.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.scss', '.py', '.java', '.cpp', '.c', '.php', '.rb', '.go', '.rs', '.swift', '.kt'],
+  audio: ['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a'],
+  image: ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp'],
+  video: ['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'],
+  database: ['.db', '.sqlite', '.sqlite3', '.sql'],
   folder: []
 }
 
 const FILE_TYPE_NAMES = {
   text: 'Text File',
   code: 'Code File', 
+  audio: 'Audio File',
+  image: 'Image File',
+  video: 'Video File',
+  database: 'Database File',
   folder: 'Folder'
+}
+
+const FILE_TYPE_ICONS = {
+  text: FileText,
+  code: FileCode,
+  audio: Music,
+  image: Image,
+  video: Video,
+  database: Database,
+  folder: Folder
 }
 
 export function FileEditor({ 
@@ -46,10 +65,43 @@ export function FileEditor({
   const [selectedType, setSelectedType] = useState(fileType)
   const [errors, setErrors] = useState<string[]>([])
   const [isValid, setIsValid] = useState(false)
+  const [iconKey, setIconKey] = useState(0)
+
+  useEffect(() => {
+    setFileName(initialFileName)
+    setContent(initialContent)
+    setSelectedType(fileType)
+    setIconKey(prev => prev + 1)
+  }, [initialFileName, initialContent, fileType])
 
   useEffect(() => {
     validateFileName()
   }, [fileName, selectedType])
+
+  // Auto-detect file type from extension
+  const detectFileType = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
+    
+    if (ALLOWED_EXTENSIONS.audio.includes(`.${ext}`)) return 'audio'
+    if (ALLOWED_EXTENSIONS.image.includes(`.${ext}`)) return 'image'
+    if (ALLOWED_EXTENSIONS.video.includes(`.${ext}`)) return 'video'
+    if (ALLOWED_EXTENSIONS.database.includes(`.${ext}`)) return 'database'
+    if (ALLOWED_EXTENSIONS.code.includes(`.${ext}`)) return 'code'
+    if (ALLOWED_EXTENSIONS.text.includes(`.${ext}`)) return 'text'
+    
+    return 'text' // default
+  }
+
+  const handleFileNameChange = (newName: string) => {
+    setFileName(newName)
+    
+    // Auto-detect and update file type with animation
+    const detectedType = detectFileType(newName)
+    if (detectedType !== selectedType) {
+      setIconKey(prev => prev + 1)
+      setSelectedType(detectedType)
+    }
+  }
 
   const validateFileName = () => {
     const newErrors: string[] = []
@@ -68,10 +120,10 @@ export function FileEditor({
     // Check file extension
     if (fileName.includes('.')) {
       const extension = fileName.substring(fileName.lastIndexOf('.'))
-      const allowedExtensions = ALLOWED_EXTENSIONS[selectedType]
+      const allowedExtensions = ALLOWED_EXTENSIONS[selectedType as keyof typeof ALLOWED_EXTENSIONS]
       
       if (allowedExtensions && allowedExtensions.length > 0 && !allowedExtensions.includes(extension.toLowerCase())) {
-        newErrors.push(`Invalid extension for ${FILE_TYPE_NAMES[selectedType]}. Allowed: ${allowedExtensions.join(', ')}`)
+        newErrors.push(`Invalid extension for ${FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]}. Allowed: ${allowedExtensions.join(', ')}`)
       }
     } else {
       // No extension - add default based on type
@@ -79,6 +131,14 @@ export function FileEditor({
         newErrors.push('Text files should have .txt extension')
       } else if (selectedType === 'code') {
         newErrors.push('Code files should have appropriate extension (.js, .ts, .html, etc.)')
+      } else if (selectedType === 'audio') {
+        newErrors.push('Audio files should have appropriate extension (.mp3, .wav, etc.)')
+      } else if (selectedType === 'image') {
+        newErrors.push('Image files should have appropriate extension (.jpg, .png, etc.)')
+      } else if (selectedType === 'video') {
+        newErrors.push('Video files should have appropriate extension (.mp4, .avi, etc.)')
+      } else if (selectedType === 'database') {
+        newErrors.push('Database files should have appropriate extension (.db, .sqlite, etc.)')
       }
     }
     
@@ -98,243 +158,152 @@ export function FileEditor({
         finalFileName = fileName + '.txt'
       } else if (selectedType === 'code') {
         finalFileName = fileName + '.js' // Default to .js
+      } else if (selectedType === 'audio') {
+        finalFileName = fileName + '.mp3' // Default to .mp3
+      } else if (selectedType === 'image') {
+        finalFileName = fileName + '.jpg' // Default to .jpg
+      } else if (selectedType === 'video') {
+        finalFileName = fileName + '.mp4' // Default to .mp4
+      } else if (selectedType === 'database') {
+        finalFileName = fileName + '.db' // Default to .db
       }
     }
     
     onSave(finalFileName, finalContent, selectedType)
-    handleClose()
-  }
-
-  const handleClose = () => {
-    setFileName('')
-    setContent('')
-    setSelectedType('text')
-    setErrors([])
-    setIsValid(false)
     onClose()
   }
 
   const getFileIcon = () => {
-    switch (selectedType) {
-      case 'code': return FileCode
-      case 'folder': return Folder
-      default: return FileText
-    }
-  }
-
-  const getSampleContent = () => {
-    switch (selectedType) {
-      case 'text':
-        return `# Sample Text File
-
-This is a sample text file created in YukiFiles.
-
-You can write any text content here:
-- Notes
-- Documentation
-- Lists
-- And more...
-
-Created: ${new Date().toLocaleDateString()}
-`
-      case 'code':
-        return `// Sample JavaScript File
-// Created in YukiFiles Demo
-
-function greetUser(name) {
-  return \`Hello, \${name}! Welcome to YukiFiles.\`;
-}
-
-// Example usage
-const message = greetUser('Demo User');
-console.log(message);
-
-// You can write any code here
-class FileManager {
-  constructor() {
-    this.files = [];
-  }
-  
-  addFile(file) {
-    this.files.push(file);
-  }
-  
-  getFiles() {
-    return this.files;
-  }
-}
-
-export default FileManager;
-`
-      default:
-        return ''
-    }
-  }
-
-  const insertSampleContent = () => {
-    setContent(getSampleContent())
+    const IconComponent = FILE_TYPE_ICONS[selectedType as keyof typeof FILE_TYPE_ICONS] || File
+    return <IconComponent className="w-6 h-6" />
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-gray-900 border-gray-700 max-w-4xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
         <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                {(() => {
-                  const Icon = getFileIcon()
-                  return <Icon className="w-5 h-5 text-purple-400" />
-                })()}
-              </div>
-              <div>
-                <DialogTitle className="text-white">Create New {FILE_TYPE_NAMES[selectedType]}</DialogTitle>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="bg-gray-700 text-gray-300">
-                    {FILE_TYPE_NAMES[selectedType]}
-                  </Badge>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="border-gray-600 text-gray-300">
-                <Type className="w-4 h-4 mr-2" />
-                Sample
-              </Button>
-              <Button variant="ghost" size="sm" onClick={handleClose} className="text-gray-400">
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
+          <DialogTitle className="flex items-center gap-3">
+            <motion.div
+              key={iconKey}
+              initial={{ scale: 0.8, rotate: -10 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500"
+            >
+              {getFileIcon()}
+            </motion.div>
+            <span>Edit File</span>
+            {selectedType !== 'folder' && (
+              <Badge variant="secondary" className="ml-2">
+                {FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]}
+              </Badge>
+            )}
+          </DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-6 mt-6">
+
+        <div className="space-y-4 overflow-y-auto max-h-[calc(90vh-200px)]">
           {/* File Type Selection */}
-          <div className="space-y-3">
-            <label className="text-white font-medium">File Type</label>
-            <div className="grid grid-cols-3 gap-3">
-              {(['text', 'code', 'folder'] as const).map((type) => (
-                <button
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+            {Object.entries(FILE_TYPE_NAMES).map(([type, name]) => {
+              if (type === 'folder') return null
+              const IconComponent = FILE_TYPE_ICONS[type as keyof typeof FILE_TYPE_ICONS]
+              
+              return (
+                <motion.button
                   key={type}
-                  onClick={() => setSelectedType(type)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    setSelectedType(type as any)
+                    setIconKey(prev => prev + 1)
+                  }}
                   className={cn(
-                    "flex items-center gap-2 p-3 rounded-lg border transition-all",
+                    "flex items-center gap-2 p-3 rounded-lg border transition-all duration-200",
                     selectedType === type
-                      ? "border-purple-500 bg-purple-500/20 text-white"
-                      : "border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500"
+                      ? "border-purple-500 bg-purple-500/10 text-purple-600"
+                      : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
                   )}
                 >
-                  {type === 'text' && <FileText className="w-4 h-4" />}
-                  {type === 'code' && <FileCode className="w-4 h-4" />}
-                  {type === 'folder' && <Folder className="w-4 h-4" />}
-                  <span className="text-sm font-medium">{FILE_TYPE_NAMES[type]}</span>
-                </button>
-              ))}
-            </div>
+                  <IconComponent className="w-4 h-4" />
+                  <span className="text-sm font-medium">{name}</span>
+                </motion.button>
+              )
+            })}
           </div>
 
           {/* File Name Input */}
-          <div className="space-y-3">
-            <label className="text-white font-medium">File Name</label>
-            <div className="space-y-2">
-              <Input
-                value={fileName}
-                onChange={(e) => setFileName(e.target.value)}
-                placeholder={selectedType === 'folder' ? 'Enter folder name' : 'Enter file name with extension'}
-                className="bg-gray-800 border-gray-600 text-white placeholder-gray-400"
-              />
-              
-              {/* Error Messages */}
-              {errors.length > 0 && (
-                <div className="space-y-1">
-                  {errors.map((error, index) => (
-                    <div key={index} className="flex items-center gap-2 text-red-400 text-sm">
-                      <AlertCircle className="w-4 h-4" />
-                      {error}
-                    </div>
-                  ))}
-                </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-700">File Name</label>
+            <Input
+              value={fileName}
+              onChange={(e) => handleFileNameChange(e.target.value)}
+              placeholder="Enter file name with extension"
+              className={cn(
+                "transition-all duration-200",
+                errors.length > 0 ? "border-red-500 focus:border-red-500" : ""
               )}
-              
-              {/* Valid File Name */}
-              {isValid && (
-                <div className="flex items-center gap-2 text-green-400 text-sm">
-                  <CheckCircle className="w-4 h-4" />
-                  Valid file name
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* File Extensions Help */}
-          {selectedType !== 'folder' && (
-            <div className="bg-gray-800/50 rounded-lg p-4">
-              <h4 className="text-white font-medium mb-2">Allowed Extensions</h4>
-              <div className="flex flex-wrap gap-2">
-                {ALLOWED_EXTENSIONS[selectedType].map((ext) => (
-                  <Badge key={ext} variant="secondary" className="bg-gray-700 text-gray-300">
-                    {ext}
-                  </Badge>
+            />
+            {errors.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-1"
+              >
+                {errors.map((error, index) => (
+                  <div key={index} className="flex items-center gap-2 text-sm text-red-600">
+                    <AlertCircle className="w-4 h-4" />
+                    {error}
+                  </div>
                 ))}
-              </div>
-            </div>
-          )}
+              </motion.div>
+            )}
+          </div>
 
           {/* Content Editor */}
           {selectedType !== 'folder' && (
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-white font-medium">Content</label>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={insertSampleContent}
-                  className="border-gray-600 text-gray-300"
-                >
-                  <Type className="w-4 h-4 mr-2" />
-                  Insert Sample
-                </Button>
-              </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700">Content</label>
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Enter file content here..."
-                className="min-h-[300px] bg-gray-800 border-gray-600 text-white placeholder-gray-400 font-mono text-sm"
+                placeholder={`Enter ${FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]} content...`}
+                className="min-h-[200px] font-mono text-sm"
               />
             </div>
           )}
 
-          {/* Folder Creation */}
-          {selectedType === 'folder' && (
-            <div className="bg-gray-800/50 rounded-lg p-6 text-center">
-              <Folder className="w-16 h-16 text-purple-400 mx-auto mb-4" />
-              <h3 className="text-white text-lg font-semibold mb-2">Create Folder</h3>
-              <p className="text-gray-400">
-                This will create a new empty folder in your file manager.
-              </p>
+          {/* File Type Info */}
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Info className="w-4 h-4" />
+              <span>
+                {selectedType === 'folder' 
+                  ? 'Folders are used to organize files and cannot contain content.'
+                  : `This file will be saved as a ${FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]}.`
+                }
+              </span>
             </div>
-          )}
+            {selectedType !== 'folder' && ALLOWED_EXTENSIONS[selectedType as keyof typeof ALLOWED_EXTENSIONS]?.length > 0 && (
+              <div className="mt-2 text-xs text-gray-500">
+                <strong>Allowed extensions:</strong> {ALLOWED_EXTENSIONS[selectedType as keyof typeof ALLOWED_EXTENSIONS].join(', ')}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="flex items-center justify-between pt-6 border-t border-gray-700">
-          <div className="text-gray-400 text-sm">
-            {selectedType === 'folder' ? 'Folder will be created empty' : 'File will be saved with your content'}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={handleClose} className="border-gray-600 text-gray-300">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={!isValid}
-              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 disabled:opacity-50"
-            >
-              <Save className="w-4 h-4 mr-2" />
-              {selectedType === 'folder' ? 'Create Folder' : 'Save File'}
-            </Button>
-          </div>
+        {/* Actions */}
+        <div className="flex justify-end gap-3 pt-4 border-t">
+          <Button variant="outline" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSave} 
+            disabled={!isValid}
+            className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save File
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
