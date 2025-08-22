@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { VideoPlayer } from "@/components/ui/video-player"
+import { ResponsiveVideoPlayer } from "@/components/ui/responsive-video-player"
 import { 
   Download, Copy, ExternalLink, Maximize2, RotateCw, 
   ZoomIn, ZoomOut, Image, Video, Sparkles, Eye
@@ -145,11 +145,10 @@ export function MediaPreview({ file, onClose }: MediaPreviewProps) {
             </div>
           ) : isVideo && file.thumbnail ? (
             <div className="h-full flex items-center justify-center">
-              <VideoPlayer
-                src={file.thumbnail}
+              <ResponsiveVideoPlayer
+                src={file.thumbnail || ''}
                 title={file.name}
-                className="max-w-full max-h-full"
-                aspectRatio="auto"
+                aspectRatio="16:9"
               />
             </div>
           ) : isAudio && file.thumbnail ? (

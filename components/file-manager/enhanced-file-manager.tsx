@@ -20,6 +20,7 @@ import { FileEditor } from "@/components/file-editor/file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
+import { SimpleShareModal } from "@/components/ui/simple-share-modal"
 import { formatBytes } from "@/lib/utils"
 
 export interface FileItem {
@@ -79,6 +80,7 @@ export function EnhancedFileManager({
   const [multiSelectMode, setMultiSelectMode] = useState(false)
   const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
   const [showMultiActions, setShowMultiActions] = useState(false)
+  const [shareModal, setShareModal] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
   
   // Professional modal system
   const { showInput, showConfirm, Modal } = useProfessionalModal()
@@ -228,14 +230,8 @@ export function EnhancedFileManager({
   // Context menu actions with professional modals
   const handleContextAction = {
     share: (file: FileItem) => {
-      showInput("Share File", {
-        description: `Generate a share link for "${file.name}"`,
-        placeholder: "Optional: Custom link name",
-        onConfirm: (customName) => {
-          console.log('Sharing:', file.name, 'with custom name:', customName)
-          // Generate share link logic here
-        }
-      })
+      setShareModal({ isOpen: true, file })
+      setContextMenu(null)
     },
     rename: (file: FileItem) => {
       showInput("Rename File", {
@@ -819,6 +815,19 @@ export function EnhancedFileManager({
 
       {/* Professional Modal */}
       <Modal />
+
+      {/* Simple Share Modal */}
+      {shareModal.file && (
+        <SimpleShareModal
+          isOpen={shareModal.isOpen}
+          onClose={() => setShareModal({ isOpen: false, file: null })}
+          file={{
+            id: shareModal.file.id,
+            name: shareModal.file.name,
+            size: shareModal.file.size
+          }}
+        />
+      )}
 
       {/* Multi-select Actions Bar */}
       {showMultiActions && (
