@@ -1,13 +1,48 @@
 "use client"
 
-import React, { Suspense } from "react"
-import { AdvancedErrorBoundary } from "@/components/ui/advanced-error-boundary"
+import React, { Suspense, Component, ErrorInfo, ReactNode } from "react"
+import { SimpleErrorScreen } from "@/components/ui/simple-error-screen"
 import { Card, CardContent } from "@/components/ui/card"
 import { Sparkles } from "lucide-react"
 
 interface SafeDemoWrapperProps {
   children: React.ReactNode
   fallbackTitle?: string
+}
+
+// Simple Error Boundary for Demo Components
+class DemoErrorBoundary extends Component<
+  { children: ReactNode; fallbackTitle?: string },
+  { hasError: boolean; error: Error | null; errorInfo: ErrorInfo | null }
+> {
+  constructor(props: { children: ReactNode; fallbackTitle?: string }) {
+    super(props)
+    this.state = { hasError: false, error: null, errorInfo: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error, errorInfo: null }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Demo Component Error:', error)
+    console.error('Error Info:', errorInfo)
+    this.setState({ error, errorInfo })
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <SimpleErrorScreen 
+          error={this.state.error || undefined}
+          errorInfo={this.state.errorInfo || undefined}
+          resetError={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+        />
+      )
+    }
+
+    return this.props.children
+  }
 }
 
 function DemoLoadingFallback({ title = "Loading Demo..." }: { title?: string }) {
@@ -24,32 +59,12 @@ function DemoLoadingFallback({ title = "Loading Demo..." }: { title?: string }) 
   )
 }
 
-function DemoErrorFallback({ error, resetError }: { error?: Error; resetError: () => void }) {
-  return (
-    <Card className="bg-black/40 border-red-500/20">
-      <CardContent className="p-6 text-center">
-        <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Sparkles className="w-6 h-6 text-white" />
-        </div>
-        <p className="text-red-300 font-medium mb-2">Demo Feature Error</p>
-        <p className="text-gray-400 text-sm mb-4">{error?.message || 'An error occurred'}</p>
-        <button
-          onClick={resetError}
-          className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600"
-        >
-          Retry Demo
-        </button>
-      </CardContent>
-    </Card>
-  )
-}
-
 export function SafeDemoWrapper({ children, fallbackTitle }: SafeDemoWrapperProps) {
   return (
-    <AdvancedErrorBoundary fallbackTitle={fallbackTitle}>
+    <DemoErrorBoundary fallbackTitle={fallbackTitle}>
       <Suspense fallback={<DemoLoadingFallback title={fallbackTitle} />}>
         {children}
       </Suspense>
-    </AdvancedErrorBoundary>
+    </DemoErrorBoundary>
   )
 }

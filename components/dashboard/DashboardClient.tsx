@@ -15,13 +15,49 @@ import { AdminDemo } from "@/components/dashboard/AdminDemo"
 import { SettingsDemo } from "@/components/dashboard/SettingsDemo"
 import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { UltimateFileManagerDemo } from "@/components/demo/UltimateFileManagerDemo"
-import { AdvancedErrorBoundary } from "@/components/ui/advanced-error-boundary"
+import { SimpleErrorScreen } from "@/components/ui/simple-error-screen"
 import Sidebar from "@/components/dashboard/Sidebar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
 import { useSearchParams } from "next/navigation"
+import React, { Component, ErrorInfo, ReactNode } from "react"
+
+// Simple Error Boundary for Dashboard Components
+class DashboardErrorBoundary extends Component<
+  { children: ReactNode; fallbackTitle?: string },
+  { hasError: boolean; error: Error | null; errorInfo: ErrorInfo | null }
+> {
+  constructor(props: { children: ReactNode; fallbackTitle?: string }) {
+    super(props)
+    this.state = { hasError: false, error: null, errorInfo: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error, errorInfo: null }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('Dashboard Error:', error)
+    console.error('Error Info:', errorInfo)
+    this.setState({ error, errorInfo })
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <SimpleErrorScreen 
+          error={this.state.error || undefined}
+          errorInfo={this.state.errorInfo || undefined}
+          resetError={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+        />
+      )
+    }
+
+    return this.props.children
+  }
+}
 
 export default function DashboardClient() {
   const searchParams = useSearchParams()
@@ -37,80 +73,86 @@ export default function DashboardClient() {
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true)
+      try {
+        setLoading(true)
 
-      if (isDemoMode) {
-        setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
-        const mockData = getMockUserData()
-        // Ensure admin access in demo mode
-        mockData.is_admin = true
-        mockData.subscription_type = "paid"
-        setUserData(mockData)
-        
-        // Use beautiful mock data instead of API calls
-        const mockFiles = [
-          {
-            id: 'demo-1',
-            original_name: 'project-proposal.pdf',
-            name: 'project-proposal.pdf',
-            mime_type: 'application/pdf',
-            file_size: 2547893,
-            size: 2547893,
-            created_at: new Date().toISOString(),
-            content: 'Mock PDF content',
-            thumbnail: null,
-            is_starred: false,
-            isStarred: false,
-            is_public: true,
-            isShared: true,
-            owner: 'demo@yukifiles.com'
-          },
-          {
-            id: 'demo-2',
-            original_name: 'app.tsx',
-            name: 'app.tsx',
-            mime_type: 'text/tsx',
-            file_size: 1520,
-            size: 1520,
-            created_at: new Date().toISOString(),
-            content: 'import React from "react"\nexport default function App() {\n  return <div>Hello YukiFiles</div>\n}',
-            thumbnail: null,
-            is_starred: true,
-            isStarred: true,
-            is_public: false,
-            isShared: false,
-            owner: 'demo@yukifiles.com'
-          },
-          {
-            id: 'demo-3',
-            original_name: 'Beautiful_Landscape.jpg',
-            name: 'Beautiful_Landscape.jpg',
-            mime_type: 'image/jpeg',
-            file_size: 3247891,
-            size: 3247891,
-            created_at: new Date().toISOString(),
-            content: 'https://cdn.discordapp.com/attachments/1234567890/demo-image.jpg',
-            thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/demo-thumb.jpg',
-            is_starred: false,
-            isStarred: false,
-            is_public: true,
-            isShared: true,
-            owner: 'demo@yukifiles.com'
-          }
-        ]
-        
-        setRecentFiles(mockFiles)
-        setFilesCount(mockFiles.length)
-      } else {
-        // For non-demo mode, use simple mock data too (no Supabase to prevent j error)
-        const authUser = { email: "user@yukifiles.com", id: "user-123" }
-        setUser(authUser)
-        setUserData(getMockUserData())
-        setRecentFiles([])
-        setFilesCount(0)
+        if (isDemoMode) {
+          setUser({ email: "demo@yukifiles.com", id: "demo-user-123" })
+          const mockData = getMockUserData()
+          // Ensure admin access in demo mode
+          mockData.is_admin = true
+          mockData.subscription_type = "paid"
+          setUserData(mockData)
+          
+          // Use beautiful mock data instead of API calls
+          const mockFiles = [
+            {
+              id: 'demo-1',
+              original_name: 'project-proposal.pdf',
+              name: 'project-proposal.pdf',
+              mime_type: 'application/pdf',
+              file_size: 2547893,
+              size: 2547893,
+              created_at: new Date().toISOString(),
+              content: 'Mock PDF content',
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: true,
+              owner: 'demo@yukifiles.com'
+            },
+            {
+              id: 'demo-2',
+              original_name: 'app.tsx',
+              name: 'app.tsx',
+              mime_type: 'text/tsx',
+              file_size: 1520,
+              size: 1520,
+              created_at: new Date().toISOString(),
+              content: 'import React from "react"\nexport default function App() {\n  return <div>Hello YukiFiles</div>\n}',
+              thumbnail: null,
+              is_starred: true,
+              isStarred: true,
+              is_public: false,
+              isShared: false,
+              owner: 'demo@yukifiles.com'
+            },
+            {
+              id: 'demo-3',
+              original_name: 'Beautiful_Landscape.jpg',
+              name: 'Beautiful_Landscape.jpg',
+              mime_type: 'image/jpeg',
+              file_size: 3247891,
+              size: 3247891,
+              created_at: new Date().toISOString(),
+              content: 'https://cdn.discordapp.com/attachments/1234567890/demo-image.jpg',
+              thumbnail: 'https://cdn.discordapp.com/attachments/1234567890/demo-thumb.jpg',
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: true,
+              owner: 'demo@yukifiles.com'
+            }
+          ]
+          
+          setRecentFiles(mockFiles)
+          setFilesCount(mockFiles.length)
+        } else {
+          // For non-demo mode, use simple mock data too (no Supabase to prevent j error)
+          const authUser = { email: "user@yukifiles.com", id: "user-123" }
+          setUser(authUser)
+          setUserData(getMockUserData())
+          setRecentFiles([])
+          setFilesCount(0)
+        }
+
+        setLoading(false)
+      } catch (error) {
+        console.error('Dashboard loading error:', error)
+        setLoading(false)
+        throw error // Let error boundary catch it
       }
-
-      setLoading(false)
     }
 
     loadData()
@@ -128,125 +170,127 @@ export default function DashboardClient() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen mobile-viewport-fix bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-      <div className="flex mobile-stable">
-        {/* Desktop Sidebar */}
-        <div className="hidden md:block">
-          <Sidebar 
+    <DashboardErrorBoundary fallbackTitle="Dashboard Error">
+      <div className="min-h-screen mobile-viewport-fix bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+        <div className="flex mobile-stable">
+          {/* Desktop Sidebar */}
+          <div className="hidden md:block">
+            <Sidebar 
+              isAdmin={Boolean(userData?.is_admin)}
+              brandName={brandName}
+              isOpen={true}
+              onClose={() => {}}
+              activeTab={isDemoMode ? "overview" : undefined}
+            />
+          </div>
+          
+          {/* Mobile Sidebar */}
+          <MobileSidebar
+            isOpen={isSidebarOpen}
+            onClose={() => setIsSidebarOpen(false)}
             isAdmin={Boolean(userData?.is_admin)}
             brandName={brandName}
-            isOpen={true}
-            onClose={() => {}}
-            activeTab={isDemoMode ? "overview" : undefined}
           />
-        </div>
-        
-        {/* Mobile Sidebar */}
-        <MobileSidebar
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          isAdmin={Boolean(userData?.is_admin)}
-          brandName={brandName}
-        />
-        
-        <div className="flex-1 min-w-0">
-          <Topbar 
-            userEmail={user.email!}
-            isPremium={userData?.subscription_type === "paid"}
-            brandName={brandName}
-            isDemoMode={isDemoMode}
-            onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-          />
-          <main className="container mx-auto px-4 py-6">
-            <div className="space-y-8">
-              <DashboardHeader 
-                userData={userData}
-                filesCount={filesCount}
-                recentActivity={recentActivity}
-              />
-              {isDemoMode ? (
-                <div className="space-y-6">
-                  {activeTab === 'dashboard' && (
-                    <div className="space-y-6">
-                      <DashboardHeader 
-                        userData={userData}
-                        filesCount={filesCount}
-                        isDemoMode={isDemoMode}
-                      />
-                      <div className="grid gap-6 lg:grid-cols-3">
-                        <div className="lg:col-span-2 space-y-6">
-                          <AdvancedErrorBoundary fallbackTitle="Charts Error">
-                            <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                          </AdvancedErrorBoundary>
-                          <AdvancedErrorBoundary fallbackTitle="Activity Feed Error">
-                            <ActivityFeed activities={recentActivity} />
-                          </AdvancedErrorBoundary>
-                        </div>
-                        <div className="order-first lg:order-last">
-                          <AdvancedErrorBoundary fallbackTitle="Recent Files Error">
-                            <RecentFiles files={recentFiles} />
-                          </AdvancedErrorBoundary>
+          
+          <div className="flex-1 min-w-0">
+            <Topbar 
+              userEmail={user?.email || 'user@yukifiles.com'}
+              isPremium={userData?.subscription_type === "paid"}
+              brandName={brandName}
+              isDemoMode={isDemoMode}
+              onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
+            <main className="container mx-auto px-4 py-6">
+              <div className="space-y-8">
+                <DashboardHeader 
+                  userData={userData}
+                  filesCount={filesCount}
+                  recentActivity={recentActivity}
+                />
+                {isDemoMode ? (
+                  <div className="space-y-6">
+                    {activeTab === 'dashboard' && (
+                      <div className="space-y-6">
+                        <DashboardHeader 
+                          userData={userData}
+                          filesCount={filesCount}
+                          isDemoMode={isDemoMode}
+                        />
+                        <div className="grid gap-6 lg:grid-cols-3">
+                          <div className="lg:col-span-2 space-y-6">
+                            <DashboardErrorBoundary fallbackTitle="Charts Error">
+                              <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                            </DashboardErrorBoundary>
+                            <DashboardErrorBoundary fallbackTitle="Activity Feed Error">
+                              <ActivityFeed activities={recentActivity || []} />
+                            </DashboardErrorBoundary>
+                          </div>
+                          <div className="order-first lg:order-last">
+                            <DashboardErrorBoundary fallbackTitle="Recent Files Error">
+                              <RecentFiles files={recentFiles || []} />
+                            </DashboardErrorBoundary>
+                          </div>
                         </div>
                       </div>
+                    )}
+                    {activeTab === 'filemanager' && (
+                      <DashboardErrorBoundary fallbackTitle="File Manager Error">
+                        <UltimateFileManagerDemo />
+                      </DashboardErrorBoundary>
+                    )}
+                    {activeTab === 'analytics' && (
+                      <SafeDemoWrapper fallbackTitle="Loading Analytics...">
+                        <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
+                      </SafeDemoWrapper>
+                    )}
+                    {activeTab === 'ai' && (
+                      <SafeDemoWrapper fallbackTitle="Loading AI Tools...">
+                        <AIToolsDemo isDemoMode={true} />
+                      </SafeDemoWrapper>
+                    )}
+                    {activeTab === 'collaboration' && (
+                      <SafeDemoWrapper fallbackTitle="Loading Collaboration...">
+                        <CollaborationDemo isDemoMode={true} />
+                      </SafeDemoWrapper>
+                    )}
+                    {activeTab === 'pricing' && (
+                      <SafeDemoWrapper fallbackTitle="Loading Payment System...">
+                        <PaymentDemo isDemoMode={true} />
+                      </SafeDemoWrapper>
+                    )}
+                    {activeTab === 'admin' && (
+                      <SafeDemoWrapper fallbackTitle="Loading Admin Panel...">
+                        <AdminDemo />
+                      </SafeDemoWrapper>
+                    )}
+                    {activeTab === 'settings' && (
+                      <SafeDemoWrapper fallbackTitle="Loading Settings...">
+                        <SettingsDemo />
+                      </SafeDemoWrapper>
+                    )}
+                    {activeTab === 'infrastructure' && userData?.is_admin && (
+                      <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
+                        <DiskManagementDemo isDemoMode={true} />
+                      </SafeDemoWrapper>
+                    )}
+                  </div>
+                ) : (
+                  <div className="grid gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2 space-y-6">
+                      <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                      <ActivityFeed activities={recentActivity || []} />
                     </div>
-                  )}
-                  {activeTab === 'filemanager' && (
-                    <AdvancedErrorBoundary fallbackTitle="File Manager Error">
-                      <UltimateFileManagerDemo />
-                    </AdvancedErrorBoundary>
-                  )}
-                  {activeTab === 'analytics' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Analytics...">
-                      <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'ai' && (
-                    <SafeDemoWrapper fallbackTitle="Loading AI Tools...">
-                      <AIToolsDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'collaboration' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Collaboration...">
-                      <CollaborationDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'pricing' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Payment System...">
-                      <PaymentDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'admin' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Admin Panel...">
-                      <AdminDemo />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'settings' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Settings...">
-                      <SettingsDemo />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'infrastructure' && userData?.is_admin && (
-                    <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
-                      <DiskManagementDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                </div>
-              ) : (
-                <div className="grid gap-6 lg:grid-cols-3">
-                  <div className="lg:col-span-2 space-y-6">
-                    <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                    <ActivityFeed activities={recentActivity} />
+                    <div className="order-first lg:order-last">
+                      <RecentFiles files={recentFiles || []} />
+                    </div>
                   </div>
-                  <div className="order-first lg:order-last">
-                    <RecentFiles files={recentFiles} />
-                  </div>
-                </div>
-              )}
-            </div>
-          </main>
+                )}
+              </div>
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardErrorBoundary>
   )
 }
 

@@ -66,111 +66,140 @@ export function SimpleErrorScreen({
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      <div className="w-full max-w-2xl relative z-10">
         {/* Main Error Card */}
-        <div className="bg-white rounded-2xl shadow-2xl border border-red-100 overflow-hidden">
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
           {/* Header */}
-          <div className="bg-gradient-to-r from-red-500 to-orange-500 p-6 text-white">
-            <div className="flex items-center space-x-4">
-              <div className="bg-white/20 p-3 rounded-full">
-                <AlertTriangle className="w-8 h-8" />
+          <div className="bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 p-8 text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-red-600/50 via-pink-600/50 to-orange-600/50"></div>
+            <div className="relative z-10 flex items-center space-x-4">
+              <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-sm">
+                <AlertTriangle className="w-10 h-10 drop-shadow-lg" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">Oops! Something went wrong</h1>
-                <p className="text-red-100 mt-1">We encountered an unexpected error</p>
+                <h1 className="text-3xl font-bold drop-shadow-lg">Oops! Something went wrong</h1>
+                <p className="text-red-100 mt-2 text-lg drop-shadow">We encountered an unexpected error</p>
               </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-6 space-y-6">
+          <div className="p-8 space-y-8 bg-gradient-to-b from-white/95 to-white/90 backdrop-blur-sm">
             {/* Error Message */}
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-start space-x-3">
-                <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+            <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200/50 rounded-2xl p-6 shadow-lg">
+              <div className="flex items-start space-x-4">
+                <div className="bg-red-100 p-2 rounded-xl">
+                  <AlertTriangle className="w-6 h-6 text-red-600" />
+                </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-red-800 mb-1">Error Details</h3>
-                  <p className="text-red-700 font-mono text-sm break-all">
+                  <h3 className="font-bold text-red-800 mb-2 text-lg">Error Details</h3>
+                  <p className="text-red-700 font-mono text-sm break-all bg-white/50 p-3 rounded-lg border border-red-200/30">
                     {error?.message || 'Unknown error occurred'}
                   </p>
-                  <p className="text-red-600 text-xs mt-2">
-                    Error ID: <span className="font-mono">{errorId}</span>
+                  <p className="text-red-600 text-sm mt-3 font-medium">
+                    Error ID: <span className="font-mono bg-red-100 px-2 py-1 rounded">{errorId}</span>
                   </p>
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-4">
               <button
                 onClick={handleRefresh}
-                className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                <RefreshCw className="w-4 h-4" />
+                <RefreshCw className="w-5 h-5" />
                 <span>Refresh Page</span>
               </button>
               
               <button
                 onClick={goToDashboard}
-                className="flex-1 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center space-x-2"
+                className="flex-1 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white px-8 py-4 rounded-2xl font-bold transition-all duration-200 flex items-center justify-center space-x-3 shadow-lg hover:shadow-xl transform hover:scale-105"
               >
-                <Home className="w-4 h-4" />
+                <Home className="w-5 h-5" />
                 <span>Go to Dashboard</span>
               </button>
             </div>
 
             {/* Full Log Section */}
-            <div className="border-t pt-6">
+            <div className="border-t border-gray-200/50 pt-8">
               <button
                 onClick={() => setShowFullLog(!showFullLog)}
-                className="w-full flex items-center justify-between p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-gray-100 hover:to-gray-200 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg"
               >
-                <span className="font-medium text-gray-700">View Full Error Log</span>
-                {showFullLog ? (
-                  <ChevronUp className="w-5 h-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
-                )}
+                <span className="font-bold text-gray-800 text-lg">View Full Error Log</span>
+                <div className="bg-white p-2 rounded-xl shadow-sm">
+                  {showFullLog ? (
+                    <ChevronUp className="w-6 h-6 text-gray-600" />
+                  ) : (
+                    <ChevronDown className="w-6 h-6 text-gray-600" />
+                  )}
+                </div>
               </button>
 
               {showFullLog && (
-                <div className="mt-4 space-y-4">
+                <div className="mt-6 space-y-6 animate-in slide-in-from-top duration-300">
                   {/* Copy and Download Buttons */}
-                  <div className="flex gap-3">
+                  <div className="flex gap-4">
                     <button
                       onClick={copyErrorLog}
-                      className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="w-5 h-5" />
                       <span>{copied ? 'Copied!' : 'Copy Log'}</span>
                     </button>
                     
                     <button
                       onClick={downloadErrorLog}
-                      className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
+                      className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl font-bold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
                     >
-                      <Download className="w-4 h-4" />
+                      <Download className="w-5 h-5" />
                       <span>Download Log</span>
                     </button>
                   </div>
 
                   {/* Full Error Log Display */}
-                  <div className="bg-gray-900 rounded-lg p-4 max-h-96 overflow-auto">
-                    <pre className="text-green-400 text-xs font-mono whitespace-pre-wrap break-all">
+                  <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl p-6 max-h-96 overflow-auto shadow-2xl border border-gray-700">
+                    <div className="flex items-center justify-between mb-4">
+                      <h4 className="text-green-400 font-bold text-lg">Error Log Details</h4>
+                      <div className="flex space-x-2">
+                        <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                        <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                      </div>
+                    </div>
+                    <pre className="text-green-300 text-sm font-mono whitespace-pre-wrap break-all leading-relaxed">
                       {JSON.stringify(fullErrorLog, null, 2)}
                     </pre>
                   </div>
 
                   {/* Additional Info */}
-                  <div className="text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-                    <p className="font-medium mb-1">How to use this information:</p>
-                    <ul className="list-disc list-inside space-y-1 text-xs">
-                      <li>Copy the log and share it with the development team</li>
-                      <li>The error ID helps track this specific issue</li>
-                      <li>The stack trace shows where the error occurred</li>
-                      <li>Component stack shows which React component failed</li>
-                    </ul>
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/50 p-6 rounded-2xl shadow-lg">
+                    <div className="flex items-start space-x-3">
+                      <div className="bg-blue-100 p-2 rounded-xl">
+                        <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-bold text-blue-800 mb-3 text-lg">How to use this information:</p>
+                        <ul className="list-disc list-inside space-y-2 text-blue-700">
+                          <li className="font-medium">Copy the log and share it with the development team</li>
+                          <li className="font-medium">The error ID helps track this specific issue</li>
+                          <li className="font-medium">The stack trace shows where the error occurred</li>
+                          <li className="font-medium">Component stack shows which React component failed</li>
+                        </ul>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -179,7 +208,7 @@ export function SimpleErrorScreen({
         </div>
 
         {/* Footer */}
-        <div className="text-center mt-6 text-gray-500 text-sm">
+        <div className="text-center mt-8 text-white/80 text-lg font-medium drop-shadow">
           <p>If this problem persists, please contact support with the error ID above.</p>
         </div>
       </div>
