@@ -21,6 +21,8 @@ import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
 import { SimpleShareModal } from "@/components/ui/simple-share-modal"
+import { BreadcrumbPath } from "@/components/ui/breadcrumb-path"
+import { CompressionOverlay } from "@/components/ui/compression-overlay"
 import { formatBytes } from "@/lib/utils"
 
 export interface FileItem {
@@ -81,6 +83,8 @@ export function EnhancedFileManager({
   const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
   const [showMultiActions, setShowMultiActions] = useState(false)
   const [shareModal, setShareModal] = useState<{ isOpen: boolean; file: FileItem | null }>({ isOpen: false, file: null })
+  const [currentPath, setCurrentPath] = useState<string[]>([])
+  const [compressionOverlay, setCompressionOverlay] = useState<{ isOpen: boolean; files: FileItem[] }>({ isOpen: false, files: [] })
   
   // Professional modal system
   const { showInput, showConfirm, Modal } = useProfessionalModal()
@@ -205,9 +209,7 @@ export function EnhancedFileManager({
   const handleMultiAction = {
     compress: () => {
       const selectedFiles = filteredAndSortedFiles.filter(f => selectedMultiFiles.has(f.id))
-      console.log('Compressing files to tar.gz:', selectedFiles.map(f => f.name))
-      // Mock compression
-      alert(`Creating archive with ${selectedFiles.length} files...`)
+      setCompressionOverlay({ isOpen: true, files: selectedFiles })
       clearSelection()
     },
     delete: () => {
@@ -880,6 +882,18 @@ export function EnhancedFileManager({
           </div>
         </div>
       )}
+
+      {/* Compression Overlay */}
+      <CompressionOverlay
+        isOpen={compressionOverlay.isOpen}
+        onClose={() => setCompressionOverlay({ isOpen: false, files: [] })}
+        files={compressionOverlay.files}
+        onComplete={(archiveName, compressionType) => {
+          console.log('Archive created:', archiveName, compressionType)
+          // Add archive to file list with "In Archive" badge
+          setCompressionOverlay({ isOpen: false, files: [] })
+        }}
+      />
     </div>
   )
 }

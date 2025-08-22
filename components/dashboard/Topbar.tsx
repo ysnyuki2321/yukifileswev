@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Bell, LogOut, Menu, Sparkles, X, CheckCircle, AlertCircle, Info, Search, File, Folder, Image, Video, Music } from "lucide-react"
 import { signOut } from "@/lib/actions/auth"
 import { motion, AnimatePresence } from "framer-motion"
+import { EnhancedSearch } from "@/components/ui/enhanced-search"
 
 interface TopbarProps {
   userEmail: string
@@ -113,27 +114,22 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
 
         </div>
 
-        {/* Search Bar with Dropdown */}
-        <div className="flex-1 max-w-xl hidden md:block relative">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input 
-              placeholder="Search files, folders, shares..." 
-              className="bg-black/30 border-gray-700 pl-10 focus:border-purple-500/50 focus:bg-black/50 transition-all allow-select"
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              onFocus={() => {
-                if (searchQuery.trim().length > 0) {
-                  setShowSearchResults(true)
-                }
-              }}
-              onBlur={() => {
-                // Delay hiding to allow clicking on results
-                setTimeout(() => setShowSearchResults(false), 150)
-              }}
-            />
-            
-            {/* Search Results Dropdown */}
+        {/* Enhanced Search Bar */}
+        <div className="flex-1 max-w-xl hidden md:block">
+          <EnhancedSearch 
+            placeholder="Search files, folders, features..."
+            onResultClick={(result) => {
+              console.log('Search result clicked:', result)
+              if (result.type === 'feature') {
+                // Navigate to feature
+                window.location.href = `/dashboard?demo=true&tab=${result.name.toLowerCase().replace(' ', '')}`
+              } else {
+                // Navigate to file/folder
+                window.location.href = `/files?path=${result.path.join('/')}&highlight=${result.name}`
+              }
+                         }}
+           />
+        </div>
             <AnimatePresence>
               {showSearchResults && searchResults.length > 0 && (
                 <motion.div
@@ -257,6 +253,10 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
                   className="absolute right-0 top-full mt-2 w-64 sm:w-80 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-50"
+                  style={{ 
+                    right: window.innerWidth < 768 ? '0.5rem' : '0',
+                    maxWidth: window.innerWidth < 768 ? 'calc(100vw - 1rem)' : 'auto'
+                  }}
                 >
                   <div className="p-3 sm:p-4 border-b border-purple-500/10">
                     <div className="flex items-center justify-between">
