@@ -11,28 +11,21 @@
    - Network:      http://172.30.0.2:3000
 
  ✓ Starting...
-Attention: Next.js now collects completely anonymous telemetry regarding usage.
-This information is used to shape Next.js' roadmap and prioritize features.
-You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
-https://nextjs.org/telemetry
-
- ✓ Ready in 1075ms
+ ✓ Ready in 1185ms
  ○ Compiling /middleware ...
- ✓ Compiled /middleware in 562ms (171 modules)
+ ✓ Compiled /middleware in 625ms (171 modules)
 [Middleware] Supabase environment variables not found, skipping auth middleware
  ○ Compiling /dashboard ...
 <w> [webpack.cache.PackFileCacheStrategy] Serializing big strings (108kiB) impacts deserialization performance (consider using Buffer instead and decode when needed)
- ✓ Compiled /dashboard in 5.8s (2252 modules)
- GET /dashboard?demo=true 200 in 6251ms
- ✓ Compiled in 425ms (1001 modules)
- ✓ Compiled in 210ms (1001 modules)
- ⨯ ./components/ui/j-error-shield.tsx
-Error: Failed to read source code from /workspace/components/ui/j-error-shield.tsx
+ ✓ Compiled /dashboard in 6.3s (2250 modules)
+ GET /dashboard?demo=true 200 in 6680ms
+ ⨯ ./lib/utils/yuki-j-safe-mode.ts
+Error: Failed to read source code from /workspace/lib/utils/yuki-j-safe-mode.ts
 
 Caused by:
     No such file or directory (os error 2)
 
 Import trace for requested module:
-./components/ui/j-error-shield.tsx
+./lib/utils/yuki-j-safe-mode.ts
 ./components/dashboard/DashboardClient.tsx
- ✓ Compiled in 358ms (2241 modules)
+ ✓ Compiled in 386ms (2239 modules)

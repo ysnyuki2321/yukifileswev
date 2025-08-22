@@ -16,14 +16,14 @@ interface SidebarProps {
 export default function Sidebar({ isAdmin = false, brandName = "YukiFiles", isOpen = false, onClose, activeTab }: SidebarProps) {
   const pathname = usePathname()
 
+  // Check if we're in demo mode or files page - MOVED UP to prevent hoisting
+  const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
+  const isFilesPage = pathname === '/files'
+
   const navItems = [
     { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home },
     { href: isDemoMode ? "/files?demo=true" : "/files", label: "Files", icon: Files },
   ]
-
-  // Check if we're in demo mode or files page
-  const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
-  const isFilesPage = pathname === '/files'
 
   // Demo mode: Add all features to dashboard
   if (isDemoMode) {

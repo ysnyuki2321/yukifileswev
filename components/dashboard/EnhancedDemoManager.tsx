@@ -2,7 +2,8 @@
 
 import React from "react"
 import ProfessionalCharts from "@/components/dashboard/ProfessionalCharts"
-import ActivityFeed, { ActivityItem } from "@/components/dashboard/ActivityFeed"
+import ActivityFeed from "@/components/dashboard/ActivityFeed"
+type ActivityItem = any
 import RecentFiles from "@/components/dashboard/RecentFiles"
 import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
 

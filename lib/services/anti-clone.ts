@@ -288,7 +288,7 @@ export async function checkRateLimit(
   const attemptAction = action === "login" ? "login_attempt" : "register_attempt"
 
   // Count attempts in the window for this IP (and email if provided)
-  let query = supabase
+  const query = supabase
     .from("ip_logs")
     .select("id, created_at", { count: "exact", head: false })
     .eq("ip_address", identifier.ip)

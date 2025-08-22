@@ -24,7 +24,7 @@ function DemoLoadingFallback({ title = "Loading Demo..." }: { title?: string }) 
   )
 }
 
-function DemoErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+function DemoErrorFallback({ error, resetError }: { error?: Error; resetError: () => void }) {
   return (
     <Card className="bg-black/40 border-red-500/20">
       <CardContent className="p-6 text-center">
@@ -32,7 +32,7 @@ function DemoErrorFallback({ error, resetError }: { error: Error; resetError: ()
           <Sparkles className="w-6 h-6 text-white" />
         </div>
         <p className="text-red-300 font-medium mb-2">Demo Feature Error</p>
-        <p className="text-gray-400 text-sm mb-4">{error.message}</p>
+        <p className="text-gray-400 text-sm mb-4">{error?.message || 'An error occurred'}</p>
         <button
           onClick={resetError}
           className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg hover:from-purple-600 hover:to-pink-600"
