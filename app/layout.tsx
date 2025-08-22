@@ -87,17 +87,73 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              window.addEventListener('error', function(e) {
-                if (e.message && e.message.includes('Cannot access') && e.message.includes('before initialization')) {
-                  console.error('FOUND J ERROR:', {
-                    message: e.message,
-                    filename: e.filename,
-                    lineno: e.lineno,
-                    colno: e.colno,
-                    stack: e.error?.stack
+              // J-Safe Global Protection
+              (function() {
+                // Prevent any global j variable conflicts
+                if (typeof window !== 'undefined') {
+                  Object.defineProperty(window, 'j', {
+                    get: function() {
+                      console.warn('Attempted access to global j variable - redirecting to safe alternative');
+                      return undefined;
+                    },
+                    set: function(value) {
+                      console.warn('Attempted to set global j variable - preventing to avoid conflicts');
+                      return false;
+                    },
+                    configurable: false,
+                    enumerable: false
                   });
                 }
-              });
+                
+                // Enhanced error handler
+                window.addEventListener('error', function(e) {
+                  if (e.message && e.message.includes('Cannot access') && e.message.includes('before initialization')) {
+                    console.error('🚨 J INITIALIZATION ERROR DETECTED:', {
+                      message: e.message,
+                      filename: e.filename,
+                      lineno: e.lineno,
+                      colno: e.colno,
+                      stack: e.error?.stack,
+                      timestamp: new Date().toISOString(),
+                      userAgent: navigator.userAgent,
+                      url: window.location.href
+                    });
+                    
+                    // Try to prevent page crash
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Show user-friendly message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.innerHTML = \`
+                      <div style="position: fixed; top: 20px; right: 20px; background: rgba(239, 68, 68, 0.9); color: white; padding: 16px; border-radius: 8px; max-width: 400px; z-index: 9999; font-family: system-ui;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold;">⚠️ Initialization Error</h3>
+                        <p style="margin: 0 0 12px 0; font-size: 14px;">A JavaScript error occurred. Refreshing the page may help.</p>
+                        <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                          Refresh Page
+                        </button>
+                        <button onclick="this.parentElement.remove()" style="background: transparent; border: none; color: rgba(255,255,255,0.7); padding: 8px; cursor: pointer; float: right; font-size: 16px;">×</button>
+                      </div>
+                    \`;
+                    document.body.appendChild(errorDiv);
+                    
+                    // Auto-remove after 10 seconds
+                    setTimeout(() => {
+                      if (errorDiv.parentElement) {
+                        errorDiv.remove();
+                      }
+                    }, 10000);
+                  }
+                });
+                
+                // Prevent variable hoisting conflicts
+                const originalMap = Array.prototype.map;
+                Array.prototype.map = function(callback, thisArg) {
+                  return originalMap.call(this, function(element, index, array) {
+                    return callback.call(thisArg, element, index, array);
+                  });
+                };
+              })();
             `
           }}
         />

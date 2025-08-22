@@ -43,7 +43,7 @@ export default function DemoSharePage({ params }: DemoSharePageProps) {
           const settings = JSON.parse(localStorage.getItem(linkSettings) || '{}')
           setIsPrivate(!settings.isPublic)
           if (settings.fileName) {
-            setDemoFile(prev => ({ ...prev, original_name: settings.fileName }))
+            setDemoFile((prevDemoFile: any) => ({ ...prevDemoFile, original_name: settings.fileName }))
           }
         } else {
           // Simulate some links being private

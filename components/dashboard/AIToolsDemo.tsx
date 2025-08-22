@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress"
 import { 
   Sparkles, Brain, FileText, Image, Video, Music, 
   Zap, Eye, Download, Copy, Settings, RefreshCw,
-  MessageSquare, Search, Wand2, Cpu, Globe, Star
+  MessageSquare, Search, Wand2, Cpu, Globe, Star, Upload
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -222,7 +222,7 @@ export default function AIToolsDemo({ isDemoMode = true }: AIToolsDemoProps) {
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
                   <div className="border-2 border-dashed border-purple-500/30 rounded-lg p-6 text-center hover:border-purple-500/50 transition-colors">
-                    <Icon className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <Upload className="w-8 h-8 text-purple-400 mx-auto mb-2" />
                     <p className="text-gray-300">
                       {selectedFile ? selectedFile.name : `Drop ${selectedTool === 'ocr' ? 'image' : 'audio/video'} file here or click to browse`}
                     </p>

@@ -114,7 +114,7 @@ export interface ValidationResult {
 }
 
 export interface FormValidationRules<T> {
-  [K in keyof T]: (value: T[K]) => ValidationResult
+  [K in keyof T]: (value: T[K]) => ValidationResult;
 }
 
 // Anti-Clone Types

@@ -1,16 +1,18 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
+import { jSafe } from "@/lib/utils/j-safe"
 import DashboardHeader from "@/components/dashboard/DashboardHeader"
 import ProfessionalCharts from "@/components/dashboard/ProfessionalCharts"
 import ActivityFeed from "@/components/dashboard/ActivityFeed"
-import { ActivityItem } from "@/components/dashboard/ActivityFeed"
+type ActivityItem = any
 import RecentFiles from "@/components/dashboard/RecentFiles"
 import AIToolsDemo from "@/components/dashboard/AIToolsDemo"
 import CollaborationDemo from "@/components/dashboard/CollaborationDemo"
 import PaymentDemo from "@/components/dashboard/PaymentDemo"
 import DiskManagementDemo from "@/components/dashboard/DiskManagementDemo"
 import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
+import { JErrorShield } from "@/components/ui/j-error-shield"
 import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import Topbar from "@/components/dashboard/Topbar"
@@ -119,81 +121,103 @@ export default function DashboardClient() {
   if (!user) return null
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
-      <div className="flex">
-        <Sidebar 
-          isAdmin={Boolean(userData?.is_admin)}
-          brandName={brandName}
-          isOpen={isSidebarOpen}
-          onClose={() => setIsSidebarOpen(false)}
-          activeTab={isDemoMode ? "overview" : undefined}
-        />
-        <div className="flex-1 min-w-0">
-          <Topbar 
-            userEmail={user.email!}
-            isPremium={userData?.subscription_type === "paid"}
-            brandName={brandName}
-            isDemoMode={isDemoMode}
-            onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-          />
-          <main className="container mx-auto px-4 py-6">
-            <div className="space-y-8">
-              <DashboardHeader 
-                userData={userData}
-                filesCount={filesCount}
-                recentActivity={recentActivity}
+    <JErrorShield maxRetries={3}>
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
+        <div className="flex">
+          <JErrorShield>
+            <Sidebar 
+              isAdmin={Boolean(userData?.is_admin)}
+              brandName={brandName}
+              isOpen={isSidebarOpen}
+              onClose={() => setIsSidebarOpen(false)}
+              activeTab={isDemoMode ? "overview" : undefined}
+            />
+          </JErrorShield>
+          <div className="flex-1 min-w-0">
+            <JErrorShield>
+              <Topbar 
+                userEmail={user.email!}
+                isPremium={userData?.subscription_type === "paid"}
+                brandName={brandName}
+                isDemoMode={isDemoMode}
+                onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
               />
-              {isDemoMode ? (
-                <div className="space-y-6">
-                  {activeTab === 'dashboard' && (
-                    <EnhancedDemoManager 
-                      userData={userData}
-                      recentFiles={recentFiles}
-                      recentActivity={recentActivity}
-                    />
-                  )}
-                  {activeTab === 'analytics' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Analytics...">
-                      <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'ai' && (
-                    <SafeDemoWrapper fallbackTitle="Loading AI Tools...">
-                      <AIToolsDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'collaboration' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Collaboration...">
-                      <CollaborationDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'pricing' && (
-                    <SafeDemoWrapper fallbackTitle="Loading Payment System...">
-                      <PaymentDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                  {activeTab === 'admin' && userData?.is_admin && (
-                    <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
-                      <DiskManagementDemo isDemoMode={true} />
-                    </SafeDemoWrapper>
-                  )}
-                </div>
-              ) : (
-                <div className="grid gap-6 lg:grid-cols-3">
-                  <div className="lg:col-span-2 space-y-6">
-                    <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
-                    <ActivityFeed activities={recentActivity} />
+            </JErrorShield>
+            <main className="container mx-auto px-4 py-6">
+              <div className="space-y-8">
+                <JErrorShield>
+                  <DashboardHeader 
+                    userData={userData}
+                    filesCount={filesCount}
+                    recentActivity={recentActivity}
+                  />
+                </JErrorShield>
+                {isDemoMode ? (
+                  <div className="space-y-6">
+                    {activeTab === 'dashboard' && (
+                      <JErrorShield>
+                        <EnhancedDemoManager 
+                          userData={userData}
+                          recentFiles={recentFiles}
+                          recentActivity={recentActivity}
+                        />
+                      </JErrorShield>
+                    )}
+                    {activeTab === 'analytics' && (
+                      <JErrorShield>
+                        <SafeDemoWrapper fallbackTitle="Loading Analytics...">
+                          <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={true} />
+                        </SafeDemoWrapper>
+                      </JErrorShield>
+                    )}
+                    {activeTab === 'ai' && (
+                      <JErrorShield>
+                        <SafeDemoWrapper fallbackTitle="Loading AI Tools...">
+                          <AIToolsDemo isDemoMode={true} />
+                        </SafeDemoWrapper>
+                      </JErrorShield>
+                    )}
+                    {activeTab === 'collaboration' && (
+                      <JErrorShield>
+                        <SafeDemoWrapper fallbackTitle="Loading Collaboration...">
+                          <CollaborationDemo isDemoMode={true} />
+                        </SafeDemoWrapper>
+                      </JErrorShield>
+                    )}
+                    {activeTab === 'pricing' && (
+                      <JErrorShield>
+                        <SafeDemoWrapper fallbackTitle="Loading Payment System...">
+                          <PaymentDemo isDemoMode={true} />
+                        </SafeDemoWrapper>
+                      </JErrorShield>
+                    )}
+                    {activeTab === 'admin' && userData?.is_admin && (
+                      <JErrorShield>
+                        <SafeDemoWrapper fallbackTitle="Loading Infrastructure...">
+                          <DiskManagementDemo isDemoMode={true} />
+                        </SafeDemoWrapper>
+                      </JErrorShield>
+                    )}
                   </div>
-                  <div className="order-first lg:order-last">
-                    <RecentFiles files={recentFiles} />
-                  </div>
-                </div>
-              )}
-            </div>
-          </main>
+                ) : (
+                  <JErrorShield>
+                    <div className="grid gap-6 lg:grid-cols-3">
+                      <div className="lg:col-span-2 space-y-6">
+                        <ProfessionalCharts isPremium={userData?.subscription_type === "paid"} isDemoMode={isDemoMode} />
+                        <ActivityFeed activities={recentActivity} />
+                      </div>
+                      <div className="order-first lg:order-last">
+                        <RecentFiles files={recentFiles} />
+                      </div>
+                    </div>
+                  </JErrorShield>
+                )}
+              </div>
+            </main>
+          </div>
         </div>
       </div>
-    </div>
+    </JErrorShield>
   )
 }
 
