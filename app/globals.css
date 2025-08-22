@@ -73,46 +73,78 @@ input[type="number"] {
   }
 }
 
-/* Mobile UX optimizations */
+/* Mobile UX optimizations - PROFESSIONAL GRADE */
 @media (max-width: 768px) {
-  /* Touch-friendly buttons */
+  /* Touch-friendly buttons - Apple HIG Compliant */
   button, .touch-target {
     min-height: 44px;
     min-width: 44px;
     touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(147, 51, 234, 0.15);
   }
   
-  /* Better touch feedback */
+  /* Better touch feedback with visual response */
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-tap-highlight-color: rgba(147, 51, 234, 0.2);
+    transition: all 0.15s ease-out;
   }
   
-  /* Improved form inputs on mobile */
+  .touch-manipulation:active {
+    transform: scale(0.98);
+    background-color: rgba(147, 51, 234, 0.1);
+  }
+  
+  /* Improved form inputs on mobile - Prevent iOS zoom */
   input, textarea, select {
-    font-size: 16px; /* Prevent zoom on iOS */
+    font-size: 16px !important; /* Critical for iOS */
     -webkit-appearance: none;
     border-radius: 8px;
+    padding: 12px 16px;
   }
   
-  /* Mobile-friendly modals */
+  /* Mobile-friendly modals with proper spacing */
   .mobile-modal {
-    margin: 16px;
-    max-height: calc(100vh - 32px);
+    margin: 12px;
+    max-height: calc(100vh - 24px);
     overflow-y: auto;
+    border-radius: 16px;
   }
   
-  /* Better mobile scrolling */
+  /* Better mobile scrolling - iOS optimized */
   .mobile-scroll {
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
+    scroll-behavior: smooth;
   }
   
-  /* Mobile-optimized cards */
+  /* Mobile-optimized cards with proper spacing */
   .mobile-card {
-    margin: 8px;
-    padding: 16px;
+    margin: 6px;
+    padding: 12px;
     border-radius: 12px;
+  }
+  
+  /* Mobile notification improvements */
+  .mobile-notification {
+    padding: 12px;
+    border-radius: 8px;
+  }
+  
+  /* Hamburger menu improvements */
+  .mobile-menu-button {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+  
+  .mobile-menu-button:active {
+    transform: scale(0.95);
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 

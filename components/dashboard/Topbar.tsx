@@ -106,7 +106,7 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
         <div className="flex items-center gap-3">
           <button 
             onClick={onMenuToggle}
-            className="md:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-300 hover:text-white hover:bg-white/5"
+            className="md:hidden mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
           >
             <Menu className="h-5 w-5" />
           </button>
@@ -256,42 +256,44 @@ export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", 
                   initial={{ opacity: 0, y: -10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-80 bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-50"
+                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-50"
                 >
-                  <div className="p-4 border-b border-purple-500/10">
+                  <div className="p-3 sm:p-4 border-b border-purple-500/10">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-white font-semibold">Notifications</h3>
+                      <h3 className="text-white font-semibold text-sm sm:text-base">Notifications</h3>
                       <Button
                         onClick={() => setShowNotifications(false)}
                         size="sm"
                         variant="ghost"
-                        className="h-6 w-6 p-0 text-gray-400 hover:text-white"
+                        className="h-8 w-8 p-0 text-gray-400 hover:text-white touch-manipulation"
                       >
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
                   
-                  <div className="max-h-96 overflow-y-auto">
+                  <div className="max-h-80 sm:max-h-96 overflow-y-auto mobile-scroll">
                     {notifications.map((notification) => (
                       <div
                         key={notification.id}
                         onClick={() => handleNotificationClick(notification)}
-                        className={`p-4 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors ${
+                        className={`p-3 sm:p-4 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors touch-manipulation ${
                           !notification.read ? 'bg-purple-500/5' : ''
                         }`}
                       >
-                        <div className="flex items-start gap-3">
-                          {getNotificationIcon(notification.type)}
+                        <div className="flex items-start gap-2 sm:gap-3">
+                          <div className="flex-shrink-0 mt-0.5">
+                            {getNotificationIcon(notification.type)}
+                          </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <p className="text-white text-sm font-medium">{notification.title}</p>
+                              <p className="text-white text-xs sm:text-sm font-medium leading-tight">{notification.title}</p>
                               {!notification.read && (
-                                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                <div className="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0"></div>
                               )}
                             </div>
-                            <p className="text-gray-400 text-xs mt-1 line-clamp-2">{notification.message}</p>
-                            <p className="text-gray-500 text-xs mt-2">{notification.time}</p>
+                            <p className="text-gray-400 text-xs mt-1 line-clamp-2 leading-relaxed">{notification.message}</p>
+                            <p className="text-gray-500 text-xs mt-1.5">{notification.time}</p>
                           </div>
                         </div>
                       </div>

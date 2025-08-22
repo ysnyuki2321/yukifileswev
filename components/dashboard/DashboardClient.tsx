@@ -16,6 +16,7 @@ import { SettingsDemo } from "@/components/dashboard/SettingsDemo"
 import { SafeDemoWrapper } from "@/components/dashboard/SafeDemoWrapper"
 import { EnhancedDemoManager } from "@/components/dashboard/EnhancedDemoManager"
 import Sidebar from "@/components/dashboard/Sidebar"
+import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import Topbar from "@/components/dashboard/Topbar"
 import { getMockUserData } from "@/lib/services/debug-context"
 import { PageSkeleton } from "@/components/ui/loading-skeleton"
@@ -128,13 +129,25 @@ export default function DashboardClient() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900">
       <div className="flex">
-        <Sidebar 
-          isAdmin={Boolean(userData?.is_admin)}
-          brandName={brandName}
+        {/* Desktop Sidebar */}
+        <div className="hidden md:block">
+          <Sidebar 
+            isAdmin={Boolean(userData?.is_admin)}
+            brandName={brandName}
+            isOpen={true}
+            onClose={() => {}}
+            activeTab={isDemoMode ? "overview" : undefined}
+          />
+        </div>
+        
+        {/* Mobile Sidebar */}
+        <MobileSidebar
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          activeTab={isDemoMode ? "overview" : undefined}
+          isAdmin={Boolean(userData?.is_admin)}
+          brandName={brandName}
         />
+        
         <div className="flex-1 min-w-0">
           <Topbar 
             userEmail={user.email!}
