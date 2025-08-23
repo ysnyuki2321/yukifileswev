@@ -1066,6 +1066,10 @@ export function EnhancedFileManager({
     dispatch({ type: 'SET_UPLOAD_PROGRESS', payload: show })
   }, [])
 
+  const setShowMultiActions = useCallback((show: boolean) => {
+    dispatch({ type: 'SET_MULTI_ACTIONS', payload: show })
+  }, [])
+
   const setCurrentPath = useCallback((path: string[]) => {
     dispatch({ type: 'SET_CURRENT_PATH', payload: path })
   }, [])
@@ -1181,6 +1185,29 @@ export function EnhancedFileManager({
     }
   }, [currentPath, setCurrentPath, openFileInTab, closeTab])
 
+  // Context menu handlers
+  const handleRightClick = useCallback((file: FileItem, event: React.MouseEvent) => {
+    event.preventDefault()
+    dispatch({ 
+      type: 'SET_CONTEXT_MENU', 
+      payload: { file, position: { x: event.clientX, y: event.clientY } } 
+    })
+  }, [])
+
+  const closeContextMenu = useCallback(() => {
+    dispatch({ type: 'SET_CONTEXT_MENU', payload: null })
+  }, [])
+
+  // Share handlers
+  const handleShare = useCallback((file: FileItem) => {
+    dispatch({ type: 'SET_SHARE_MODAL', payload: { isOpen: true, file } })
+  }, [])
+
+  const handleAdvancedShare = useCallback((file: FileItem) => {
+    dispatch({ type: 'SET_ADVANCED_SHARE_MODAL', payload: { isOpen: true, file } })
+  }, [])
+
+  // File type detection helpers
   const isDatabaseFile = useCallback((filename: string): boolean => {
     const dbExtensions = ['db', 'sqlite', 'sqlite3', 'sql']
     const ext = filename.split('.').pop()?.toLowerCase()
@@ -1217,10 +1244,12 @@ export function EnhancedFileManager({
   // File creation handlers
   const handleCreateFile = useCallback(() => {
     // Implementation for file creation
+    console.log('Create file clicked')
   }, [])
 
   const handleCreateFolder = useCallback(() => {
     // Implementation for folder creation
+    console.log('Create folder clicked')
   }, [])
 
   // Multi-select handlers
