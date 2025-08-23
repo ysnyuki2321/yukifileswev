@@ -69,7 +69,25 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 800))
       
-      const baseUrl = window.location.origin
+      // Get current site URL dynamically - more professional approach
+      let baseUrl = window.location.origin
+      
+      // Handle different environments
+      if (process.env.NODE_ENV === 'development') {
+        baseUrl = 'http://localhost:3000'
+      } else if (window.location.hostname.includes('localhost')) {
+        baseUrl = 'http://localhost:3000'
+      } else if (window.location.hostname.includes('vercel.app')) {
+        baseUrl = `https://${window.location.hostname}`
+      } else if (window.location.hostname.includes('onrender.com')) {
+        baseUrl = `https://${window.location.hostname}`
+      } else if (window.location.hostname.includes('netlify.app')) {
+        baseUrl = `https://${window.location.hostname}`
+      } else {
+        // Fallback to current origin
+        baseUrl = window.location.origin
+      }
+      
       const shareToken = generateShareToken()
       const link = `${baseUrl}/demo/share/${shareToken}`
       setShareLink(link)
@@ -359,25 +377,27 @@ export function AdvancedShareModal({ isOpen, onClose, file }: AdvancedShareModal
                   </div>
 
                   {/* Expiry Date */}
-                  <div className="flex items-center justify-between p-4 bg-black/20 rounded-xl border border-purple-500/20">
-                    <div className="flex items-center gap-3">
-                      <Timer className="w-5 h-5 text-purple-400" />
-                      <div>
-                        <p className="font-medium text-white">Expiry Date</p>
-                        <p className="text-sm text-gray-400">
-                          Set when this link expires (optional)
-                        </p>
+                  <div className="p-4 bg-black/20 rounded-xl border border-purple-500/20">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <Timer className="w-5 h-5 text-purple-400" />
+                        <div>
+                          <p className="font-medium text-white">Expiry Date</p>
+                          <p className="text-sm text-gray-400">
+                            Set when this link expires (optional)
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="w-64">
-                      <ProfessionalDatePicker
-                        label=""
-                        value={expiryDate}
-                        onChange={setExpiryDate}
-                        placeholder="Select expiry date and time..."
-                        minDate={new Date()}
-                        includeTime={true}
-                      />
+                      <div className="w-full lg:w-64">
+                        <ProfessionalDatePicker
+                          label=""
+                          value={expiryDate}
+                          onChange={setExpiryDate}
+                          placeholder="Select expiry date and time..."
+                          minDate={new Date()}
+                          includeTime={true}
+                        />
+                      </div>
                     </div>
                   </div>
 

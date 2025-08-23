@@ -211,12 +211,12 @@ export function ProfessionalDatePicker({
             initial={{ opacity: 0, y: 10, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl z-50 p-4"
+            className="absolute top-full left-0 right-0 mt-2 bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl z-50 p-2 sm:p-4 max-w-[320px] sm:max-w-none"
           >
             {/* Quick Select */}
             <div className="mb-4">
               <h4 className="text-sm font-medium text-white mb-2">Quick Select</h4>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
                 {getQuickDates().map((option, index) => (
                   <Button
                     key={index}
@@ -317,7 +317,7 @@ export function ProfessionalDatePicker({
             )}
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 variant="outline"
                 onClick={() => setIsOpen(false)}
