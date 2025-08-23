@@ -87,11 +87,11 @@ export function SimpleDatabaseEditor({ file, onClose, readOnly = false }: Simple
 
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
-        {/* Tabs */}
-        <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 border-b border-purple-500/20">
-          <div className="overflow-x-auto">
-            <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="w-full min-w-[600px]">
-              <TabsList className="grid w-full grid-cols-3 bg-transparent border-0 p-0">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)} className="h-full flex flex-col">
+          {/* Tabs Header */}
+          <div className="bg-gradient-to-r from-slate-800/50 to-slate-900/50 border-b border-purple-500/20">
+            <div className="overflow-x-auto">
+              <TabsList className="grid w-full grid-cols-3 bg-transparent border-0 p-0 min-w-[600px]">
                 <TabsTrigger 
                   value="overview" 
                   className="data-[state=active]:bg-purple-500/20 data-[state=active]:text-purple-300 data-[state=active]:border-purple-500/30 text-gray-400 hover:text-white border-b-2 border-transparent data-[state=active]:border-purple-500/30 rounded-none rounded-t-lg"
@@ -114,14 +114,12 @@ export function SimpleDatabaseEditor({ file, onClose, readOnly = false }: Simple
                   Query
                 </TabsTrigger>
               </TabsList>
-            </Tabs>
+            </div>
           </div>
-        </div>
 
-        {/* Tab Content */}
-        <div className="p-6 overflow-y-auto h-full">
-          <div className="overflow-x-auto min-w-full">
-            <TabsContent value="overview" className="space-y-6 min-w-[600px]">
+          {/* Tab Content */}
+          <div className="flex-1 overflow-y-auto">
+            <TabsContent value="overview" className="p-6 space-y-6 min-w-[600px]">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 min-w-[600px]">
                 <Card className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 border-purple-500/20">
                   <CardHeader>
@@ -179,22 +177,22 @@ export function SimpleDatabaseEditor({ file, onClose, readOnly = false }: Simple
                   <CardContent className="space-y-3">
                     <div className="flex justify-between">
                       <span className="text-gray-400">Status:</span>
-                      <span className="text-green-400 font-medium">Online</span>
+                      <span className="text-green-400 font-medium">Active</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Connections:</span>
-                      <span className="text-white font-medium">1</span>
+                      <span className="text-gray-400">Last Backup:</span>
+                      <span className="text-white font-medium">2 hours ago</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Uptime:</span>
-                      <span className="text-white font-medium">24h</span>
+                      <span className="text-gray-400">Version:</span>
+                      <span className="text-white font-medium">3.42.0</span>
                     </div>
                   </CardContent>
                 </Card>
               </div>
             </TabsContent>
 
-            <TabsContent value="tables" className="space-y-6 min-w-[600px]">
+            <TabsContent value="tables" className="p-6 space-y-6 min-w-[600px]">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">Database Tables</h3>
               </div>
@@ -248,7 +246,7 @@ export function SimpleDatabaseEditor({ file, onClose, readOnly = false }: Simple
               </div>
             </TabsContent>
 
-            <TabsContent value="query" className="space-y-6 min-w-[600px]">
+            <TabsContent value="query" className="p-6 space-y-6 min-w-[600px]">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-white">SQL Query Editor</h3>
                 <Button
@@ -283,7 +281,7 @@ export function SimpleDatabaseEditor({ file, onClose, readOnly = false }: Simple
               </div>
             </TabsContent>
           </div>
-        </div>
+        </Tabs>
       </div>
     </div>
   )

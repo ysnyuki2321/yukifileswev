@@ -186,7 +186,7 @@ export function SimpleFileEditor({ file, onSave, onClose, readOnly = false }: Si
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Enter search term..."
                     className={`bg-slate-700/50 border-purple-500/30 text-white mt-1 ${
-                      isMobile ? 'h-12 text-base' : 'h-10'
+                      isMobile ? 'h-14 text-base' : 'h-10'
                     }`}
                   />
                 </div>
@@ -197,7 +197,7 @@ export function SimpleFileEditor({ file, onSave, onClose, readOnly = false }: Si
                     onChange={(e) => setReplaceQuery(e.target.value)}
                     placeholder="Enter replacement text..."
                     className={`bg-slate-700/50 border-purple-500/30 text-white mt-1 ${
-                      isMobile ? 'h-12 text-base' : 'h-10'
+                      isMobile ? 'h-14 text-base' : 'h-10'
                     }`}
                   />
                 </div>

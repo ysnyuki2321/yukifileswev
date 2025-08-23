@@ -329,6 +329,36 @@ const mockFiles: FileItem[] = [
     lastModified: new Date('2024-02-03T12:00:00Z')
   },
   {
+    id: '15',
+    name: 'project-files.zip',
+    original_name: 'project-files.zip',
+    mime_type: 'application/zip',
+    file_size: 5120000,
+    size: 5120000,
+    created_at: '2024-02-04T10:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    lastModified: new Date('2024-02-04T10:00:00Z')
+  },
+  {
+    id: '16',
+    name: 'backup-data.tar.gz',
+    original_name: 'backup-data.tar.gz',
+    mime_type: 'application/gzip',
+    file_size: 8192000,
+    size: 8192000,
+    created_at: '2024-02-05T11:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: false,
+    lastModified: new Date('2024-02-05T11:00:00Z')
+  },
+  {
     id: '7',
     name: 'Documents',
     original_name: 'Documents',
@@ -611,6 +641,21 @@ export function UnifiedFileManager() {
             isStarred: false,
             is_public: true,
             lastModified: new Date('2024-01-31T15:00:00Z')
+          },
+          {
+            id: 'doc8',
+            name: 'source-code.zip',
+            original_name: 'source-code.zip',
+            mime_type: 'application/zip',
+            file_size: 2048000,
+            size: 2048000,
+            created_at: '2024-02-01T16:00:00Z',
+            content: '',
+            thumbnail: null,
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-01T16:00:00Z')
           }
         ]
       case 'Pictures':
@@ -1154,10 +1199,10 @@ export function UnifiedFileManager() {
                     variant={state.filterType === type ? "default" : "outline"}
                     size={state.isMobile ? "default" : "sm"}
                     onClick={() => dispatch({ type: 'SET_FILTER_TYPE', payload: type as any })}
-                    className={`whitespace-nowrap ${state.isMobile ? 'min-w-[80px] h-10' : ''} ${
+                    className={`whitespace-nowrap transition-all duration-200 ${state.isMobile ? 'min-w-[80px] h-10' : ''} ${
                       state.filterType === type 
-                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0" 
-                        : "bg-slate-800/50 border-purple-500/30 text-gray-300 hover:bg-slate-700/50"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 shadow-lg" 
+                        : "bg-slate-800/50 border-purple-500/30 text-gray-300 hover:bg-slate-700/50 hover:border-purple-400/50"
                     }`}
                   >
                     {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -1189,24 +1234,24 @@ export function UnifiedFileManager() {
             </div>
 
             {/* Action Buttons */}
-            <div className={`flex gap-2 ${state.isMobile ? 'flex-col' : ''}`}>
+            <div className={`flex gap-3 ${state.isMobile ? 'flex-col' : ''}`}>
               <Button
                 onClick={handleCreateFile}
-                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white ${state.isMobile ? 'h-12' : 'h-10'}`}
+                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 ${state.isMobile ? 'h-12 text-base font-medium' : 'h-10'}`}
               >
                 <FilePlus className="w-4 h-4 mr-2" />
                 New File
               </Button>
               <Button
                 onClick={handleCreateFolder}
-                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white ${state.isMobile ? 'h-12' : 'h-10'}`}
+                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 ${state.isMobile ? 'h-12 text-base font-medium' : 'h-10'}`}
               >
                 <FolderPlus className="w-4 h-4 mr-2" />
                 New Folder
               </Button>
               <Button
                 onClick={() => setShowUploadProgress(true)}
-                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white ${state.isMobile ? 'h-12' : 'h-10'}`}
+                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 ${state.isMobile ? 'h-12 text-base font-medium' : 'h-10'}`}
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Upload
@@ -1410,9 +1455,16 @@ export function UnifiedFileManager() {
               <Card className="bg-slate-800/50 border-purple-500/30">
                 <CardContent className="p-8 text-center">
                   <File className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-300 mb-2">No files found</h3>
+                  <h3 className="text-lg font-medium text-gray-300 mb-2">
+                    {currentPath.length > 0 ? `No files in ${currentPath[currentPath.length - 1]}` : "No files found"}
+                  </h3>
                   <p className="text-gray-400 mb-4">
-                    {state.searchQuery ? `No files match "${state.searchQuery}"` : "Create your first file to get started"}
+                    {state.searchQuery 
+                      ? `No files match "${state.searchQuery}"` 
+                      : currentPath.length > 0 
+                        ? `This folder is empty. Add some files to get started.`
+                        : "Create your first file to get started"
+                    }
                   </p>
                   {!state.searchQuery && (
                     <div className="flex gap-2 justify-center">
