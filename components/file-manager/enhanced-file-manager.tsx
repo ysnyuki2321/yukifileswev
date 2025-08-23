@@ -19,7 +19,7 @@ import {
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
 import { TabSystem } from "@/components/ui/tab-system"
-import { AdvancedFileEditor } from "@/components/file-editor/advanced-file-editor"
+import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
 import { AdvancedDatabaseEditor } from "@/components/file-editor/advanced-database-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
@@ -463,7 +463,7 @@ export function EnhancedFileManager({
       type: 'file',
       content: (
         <div className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-          <AdvancedFileEditor
+          <SimpleFileEditor
             file={{
               id: file.id || `file-${Date.now()}`,
               name: file.name,
