@@ -20,6 +20,7 @@ import {
 } from "lucide-react"
 import { TabSystem } from "@/components/ui/tab-system"
 import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
+import { DatabaseEditor } from "@/components/file-editor/database-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -1357,20 +1358,8 @@ export function EnhancedFileManager({
         type: 'database',
         content: (
           <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <SimpleFileEditor
-              file={{
-                id: file.id || `file-${Date.now()}`,
-                name: file.name,
-                content: file.content || '',
-                type: detectFileType(file.name),
-                size: file.size || 0,
-                lastModified: file.lastModified || new Date()
-              }}
-              onSave={(fileName, content, fileType) => {
-                if (onFileUpdate) {
-                  onFileUpdate({ ...file, content, name: fileName })
-                }
-              }}
+            <DatabaseEditor
+              file={file}
               onClose={() => closeTab(tabId)}
               readOnly={false}
             />
