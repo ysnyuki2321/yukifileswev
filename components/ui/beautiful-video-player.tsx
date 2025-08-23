@@ -409,42 +409,46 @@ export function BeautifulVideoPlayer({
                 </div>
 
                 <div className="flex items-center gap-2">
-                  {/* Action Buttons */}
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={handleLike}
-                    className={cn(
-                      "text-white hover:bg-white/20",
-                      isLiked && "text-red-400"
-                    )}
-                  >
-                    <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
-                  </Button>
+                  {/* Action Buttons - Mobile Optimized */}
+                  {!isMobile && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleLike}
+                        className={cn(
+                          "text-white hover:bg-white/20",
+                          isLiked && "text-red-400"
+                        )}
+                      >
+                        <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+                      </Button>
 
-                  {onShare && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={onShare}
-                      className="text-white hover:bg-white/20"
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </Button>
+                      {onShare && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={onShare}
+                          className="text-white hover:bg-white/20"
+                        >
+                          <Share2 className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {onDownload && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={onDownload}
+                          className="text-white hover:bg-white/20"
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </>
                   )}
 
-                  {onDownload && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={onDownload}
-                      className="text-white hover:bg-white/20"
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
-                  )}
-
-                  {/* Settings */}
+                  {/* Settings - Mobile Optimized */}
                   <div className="relative">
                     <Button
                       size="sm"

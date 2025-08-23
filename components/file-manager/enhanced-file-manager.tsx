@@ -19,7 +19,7 @@ import {
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
 import { TabSystem } from "@/components/ui/tab-system"
-import { FileEditor } from "@/components/file-editor/FileEditor"
+import { LegacyFileEditor } from "@/components/file-editor/legacy-file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -285,9 +285,9 @@ const MobileLayout = ({
         >
           <div className="text-center">
             <div className="w-12 h-12 mx-auto mb-3">
-              {/* File Icon Placeholder */}
-              <div className="w-full h-full bg-purple-500/20 rounded-lg flex items-center justify-center">
-                <File className="w-6 h-6 text-purple-400" />
+              {/* Dynamic File Icon */}
+              <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-lg flex items-center justify-center border border-purple-500/30 shadow-lg">
+                {getFileIcon(file)}
               </div>
             </div>
             <p className="text-white text-sm font-medium truncate mb-1" title={file.name}>
@@ -822,17 +822,22 @@ export function EnhancedFileManager({
         type: 'file',
         content: (
           <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <FileEditor
-              isOpen={true}
-              onClose={() => closeTab(tabId)}
+            <LegacyFileEditor
+              file={{
+                id: file.id || `file-${Date.now()}`,
+                name: file.name,
+                content: file.content || '',
+                type: detectFileType(file.name),
+                size: file.size || 0,
+                lastModified: file.lastModified || new Date()
+              }}
               onSave={(fileName, content, fileType) => {
                 if (onFileUpdate) {
                   onFileUpdate({ ...file, content, name: fileName })
                 }
               }}
-              initialFileName={file.name}
-              initialContent={file.content || ''}
-              fileType={detectFileType(file.name)}
+              onClose={() => closeTab(tabId)}
+              readOnly={false}
             />
           </div>
         ),
@@ -1319,6 +1324,8 @@ export function EnhancedFileManager({
   const handleFileClick = (file: any) => {
     if (file.isFolder) {
       // Handle folder navigation
+      const newPath = [...currentPath, file.name]
+      setCurrentPath(newPath)
       return
     }
     
