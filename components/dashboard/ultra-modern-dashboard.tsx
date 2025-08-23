@@ -33,11 +33,11 @@ import {
   ResponsiveText,
   InteractiveButton,
   StatusBadge,
-  LoadingSpinner,
   ResponsiveGrid,
   ResponsiveContainer,
   GradientBackground
 } from '@/components/ui'
+import { SmartLoading } from '@/components/ui/smart-loading'
 
 interface DashboardStats {
   totalFiles: number
@@ -146,14 +146,29 @@ const UltraModernDashboard: React.FC = () => {
   if (loading) {
     return (
       <UltraModernLayout title="Dashboard" subtitle="Loading your file management overview...">
-        <div className="flex items-center justify-center min-h-[60vh]">
-          <div className="text-center">
-            <LoadingSpinner size="lg" className="mx-auto mb-4" />
-            <ResponsiveText variant="p" className="text-gray-400">
-              Loading dashboard...
-            </ResponsiveText>
-          </div>
-        </div>
+        <SmartLoading
+          timeout={15000}
+          message="Loading Dashboard"
+          showProgress={true}
+          progressSteps={[
+            "Initializing components...",
+            "Loading file statistics...",
+            "Preparing analytics...",
+            "Setting up dashboard..."
+          ]}
+          onTimeout={() => {
+            console.log("Dashboard loading timeout")
+            setLoading(false)
+            setStats({
+              totalFiles: 0,
+              totalSize: 0,
+              fileTypes: { images: 0, videos: 0, documents: 0, audio: 0, code: 0, databases: 0 },
+              recentActivity: [],
+              storageUsage: { used: 0, total: 0, percentage: 0 },
+              popularFiles: []
+            })
+          }}
+        />
       </UltraModernLayout>
     )
   }
