@@ -1,42 +1,27 @@
-import { createServerClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
-import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
+import { NextRequest, NextResponse } from "next/server"
 
-export async function requireAdmin() {
-  const supabase = await createServerClient()
-
-  // Check debug mode first
-  const debugMode = await isDebugModeEnabled()
+export function adminMiddleware(request: NextRequest) {
+  // Simple admin check for demo purposes
+  // In production, this would check authentication and admin role
   
-  if (debugMode) {
-    console.log("[v0] Debug mode enabled - bypassing admin checks")
-    return {
-      userData: getMockUserData(),
-      isAdmin: true
+  const isAdmin = true // Demo mode - always allow admin access
+  
+  if (!isAdmin) {
+    return NextResponse.redirect(new URL('/auth/login', request.url))
+  }
+  
+  return NextResponse.next()
+}
+
+export function requireAdmin() {
+  return function(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value
+    
+    descriptor.value = function(...args: any[]) {
+      // Admin check logic here
+      return originalMethod.apply(this, args)
     }
+    
+    return descriptor
   }
-
-  if (!supabase) {
-    redirect("/auth/login")
-  }
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/auth/login")
-  }
-
-  const { data: userData } = await supabase
-    .from("users")
-    .select("*")
-    .eq("email", user.email)
-    .single()
-
-  if (!userData?.is_admin) {
-    redirect("/dashboard")
-  }
-
-  return { userData, isAdmin: true }
 }

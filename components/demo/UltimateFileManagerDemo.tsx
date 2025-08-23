@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,7 +11,7 @@ import {
   Archive, Database, Eye, Settings, RefreshCw,
   BarChart3, Users, HardDrive, Zap, Globe
 } from "lucide-react"
-import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
+import { UnifiedFileManager } from "@/components/file-manager/unified-file-manager"
 import { comprehensiveDemoFiles, getFileStats, FileItem, demoFolders } from "./ComprehensiveDemoFiles"
 
 export function UltimateFileManagerDemo() {
@@ -48,14 +47,14 @@ export function UltimateFileManagerDemo() {
     } else {
       // Archive file or extracted file addition
       const newFile: FileItem = {
-        id: fileData.id || `file-${Date.now()}`,
-        name: fileData.name,
-        original_name: fileData.name,
-        mime_type: fileData.type || 'application/octet-stream',
-        file_size: fileData.size || 0,
-        size: fileData.size || 0,
+        id: `archive-${Date.now()}`,
+        name: fileData.name || 'New Archive File',
+        original_name: fileData.name || 'New Archive File',
+        mime_type: fileData.mime_type || 'application/octet-stream',
+        file_size: fileData.size || Math.floor(Math.random() * 1000000),
+        size: fileData.size || Math.floor(Math.random() * 1000000),
         created_at: new Date().toISOString(),
-        content: 'Extracted file content',
+        content: fileData.content || 'Archive content',
         thumbnail: null,
         is_starred: false,
         isStarred: false,
@@ -64,161 +63,149 @@ export function UltimateFileManagerDemo() {
         owner: 'demo@yukifiles.com',
         hasPassword: false,
         inArchive: fileData.inArchive || false,
-        category: 'other'
+        category: fileData.category || 'archive'
       }
       setDemoFiles(prev => [...prev, newFile])
     }
   }
 
-  const handleFileEdit = (file: any) => {
-    console.log('Editing file:', file.name)
+  const handleFileUpdate = (updatedFile: FileItem) => {
+    setDemoFiles(prev => prev.map(file => 
+      file.id === updatedFile.id ? updatedFile : file
+    ))
   }
 
-  const handleFileUpload = (files: File[]) => {
-    const newFiles: FileItem[] = files.map(file => ({
-      id: `upload-${Date.now()}-${Math.random()}`,
-      name: file.name,
-      original_name: file.name,
-      mime_type: file.type,
-      file_size: file.size,
-      size: file.size,
-      created_at: new Date().toISOString(),
-      content: 'Uploaded file content',
-      thumbnail: null,
-      is_starred: false,
-      isStarred: false,
-      is_public: false,
-      isShared: false,
-      owner: 'demo@yukifiles.com',
-      hasPassword: false,
-      inArchive: false,
-      category: file.type.startsWith('image/') ? 'media' :
-                file.type.startsWith('video/') ? 'media' :
-                file.type.startsWith('audio/') ? 'media' :
-                'document'
-    }))
-    
-    setDemoFiles(prev => [...prev, ...newFiles])
+  const handleFileDelete = (fileId: string) => {
+    setDemoFiles(prev => prev.filter(file => file.id !== fileId))
   }
 
   return (
     <div className="space-y-6">
-      {/* Demo Header */}
-      <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 rounded-xl p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h2 className="text-2xl font-bold text-white">🗂️ Ultimate File Manager Demo</h2>
-            <p className="text-gray-400">Test all file management features with {demoFiles.length} demo files</p>
-          </div>
-          <Button
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-white">File Manager</h2>
+          <p className="text-gray-400">Comprehensive file management system</p>
+        </div>
+        <div className="flex gap-2">
+          <Button 
             onClick={() => setShowStats(!showStats)}
             variant="outline"
-            className="border-purple-500/30"
+            size="sm"
           >
             <BarChart3 className="w-4 h-4 mr-2" />
             {showStats ? 'Hide' : 'Show'} Stats
           </Button>
         </div>
-
-        {/* Demo Stats */}
-        {showStats && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4 pt-4 border-t border-purple-500/10">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-400">{stats.total}</div>
-              <div className="text-xs text-gray-400">Total Files</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-400">{stats.folders}</div>
-              <div className="text-xs text-gray-400">Folders</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-400">{stats.shared}</div>
-              <div className="text-xs text-gray-400">Shared</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-yellow-400">{stats.protected}</div>
-              <div className="text-xs text-gray-400">Protected</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-red-400">{stats.archived}</div>
-              <div className="text-xs text-gray-400">Archived</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-400">{(stats.totalSize / 1024 / 1024).toFixed(0)}MB</div>
-              <div className="text-xs text-gray-400">Total Size</div>
-            </div>
-          </div>
-        )}
       </div>
 
-      {/* Main File Manager */}
-      <EnhancedFileManager
-        files={demoFiles.map(file => ({
-          id: file.id,
-          name: file.name,
-          size: file.size,
-          type: file.mime_type,
-          lastModified: new Date(file.created_at),
-          isFolder: file.mime_type === 'folder',
-          isStarred: file.is_starred,
-          isShared: file.is_public,
-          thumbnail: file.content,
-          content: file.content,
-          owner: file.owner,
-          hasPassword: file.hasPassword,
-          inArchive: file.inArchive,
-          category: file.category,
-          encryptedName: file.encryptedName,
-          accessLimits: file.accessLimits ? {
-            views: file.accessLimits.currentViews,
-            downloads: file.accessLimits.currentDownloads,
-            maxViews: file.accessLimits.maxViews,
-            maxDownloads: file.accessLimits.maxDownloads
-          } : undefined,
-          expiresAt: file.expiresAt ? new Date(file.expiresAt) : undefined
-        }))}
-        onFileUpload={handleFileUpload}
-        onFileCreate={handleFileCreate}
-        isAdmin={true}
-      />
-
-      {/* Demo Feature Highlights */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-black/40 border border-purple-500/20 rounded-xl p-6">
-          <div className="space-y-2">
-            <h4 className="text-purple-400 font-medium">🎯 File Management</h4>
-            <ul className="text-gray-400 space-y-1 text-sm">
-              <li>• Upload → Drag & drop multiple files</li>
-              <li>• Preview → Images, videos, audio, code</li>
-              <li>• Edit → Syntax highlighting editor</li>
-              <li>• Context menu → Right-click/long-press</li>
-            </ul>
-          </div>
+      {/* Quick Stats */}
+      {showStats && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card className="bg-black/40 border-purple-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <Files className="w-5 h-5 text-blue-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Total Files</p>
+                  <p className="text-xl font-bold text-white">{stats.totalFiles}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-black/40 border-purple-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <HardDrive className="w-5 h-5 text-green-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Total Size</p>
+                  <p className="text-xl font-bold text-white">{stats.totalSize}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-black/40 border-purple-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <Star className="w-5 h-5 text-yellow-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Starred</p>
+                  <p className="text-xl font-bold text-white">{stats.starredFiles}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-black/40 border-purple-500/20">
+            <CardContent className="p-4">
+              <div className="flex items-center space-x-2">
+                <Share2 className="w-5 h-5 text-purple-400" />
+                <div>
+                  <p className="text-sm text-gray-400">Shared</p>
+                  <p className="text-xl font-bold text-white">{stats.sharedFiles}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
+      )}
 
-        <div className="bg-black/40 border border-purple-500/20 rounded-xl p-6">
-          <div className="space-y-2">
-            <h4 className="text-green-400 font-medium">🔗 Sharing & Security</h4>
-            <ul className="text-gray-400 space-y-1 text-sm">
-              <li>• Share → Advanced security options</li>
-              <li>• Password protection toggle</li>
-              <li>• Access limits & expiration</li>
-              <li>• Filename encryption</li>
-            </ul>
-          </div>
-        </div>
+      {/* File Manager */}
+      <Card className="bg-black/40 border-purple-500/20">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-2">
+            <Database className="w-5 h-5" />
+            Enhanced File Manager
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <UnifiedFileManager
+            files={demoFiles}
+            folders={demoFolders}
+            onFileCreate={handleFileCreate}
+            onFileUpdate={handleFileUpdate}
+            onFileDelete={handleFileDelete}
+            isDemoMode={true}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Demo Features */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Card className="bg-black/40 border-purple-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Upload className="w-5 h-5 text-blue-400" />
+              <Badge variant="secondary">Demo Feature</Badge>
+            </div>
+            <h3 className="font-semibold text-white">Drag & Drop Upload</h3>
+            <p className="text-sm text-gray-400">Upload files with drag and drop</p>
+          </CardContent>
+        </Card>
         
-        <div className="bg-black/40 border border-purple-500/20 rounded-xl p-6">
-          <div className="space-y-2">
-            <h4 className="text-orange-400 font-medium">📦 Advanced Features</h4>
-            <ul className="text-gray-400 space-y-1 text-sm">
-              <li>• Compress → Professional overlay</li>
-              <li>• Search → Enhanced với highlighting</li>
-              <li>• Breadcrumb → Windows-style navigation</li>
-              <li>• Multi-select → Bulk operations</li>
-            </ul>
-          </div>
-        </div>
+        <Card className="bg-black/40 border-purple-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Archive className="w-5 h-5 text-green-400" />
+              <Badge variant="secondary">Demo Feature</Badge>
+            </div>
+            <h3 className="font-semibold text-white">Archive Management</h3>
+            <p className="text-sm text-gray-400">Extract and create archives</p>
+          </CardContent>
+        </Card>
+        
+        <Card className="bg-black/40 border-purple-500/20">
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <Lock className="w-5 h-5 text-red-400" />
+              <Badge variant="secondary">Demo Feature</Badge>
+            </div>
+            <h3 className="font-semibold text-white">Password Protection</h3>
+            <p className="text-sm text-gray-400">Secure files with passwords</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

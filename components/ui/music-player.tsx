@@ -66,15 +66,29 @@ export function MusicPlayer({
         setIsPlaying(false)
       }
     }
+    const handlePlay = () => setIsPlaying(true)
+    const handlePause = () => setIsPlaying(false)
 
     audio.addEventListener('timeupdate', updateTime)
     audio.addEventListener('loadedmetadata', updateDuration)
     audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('play', handlePlay)
+    audio.addEventListener('pause', handlePause)
+
+    // Prevent audio from stopping when tab loses focus
+    audio.addEventListener('visibilitychange', () => {
+      if (document.hidden && isPlaying) {
+        // Keep playing even when tab is hidden
+        audio.play().catch(() => {})
+      }
+    })
 
     return () => {
       audio.removeEventListener('timeupdate', updateTime)
       audio.removeEventListener('loadedmetadata', updateDuration)
       audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('play', handlePlay)
+      audio.removeEventListener('pause', handlePause)
     }
   }, [isRepeat])
 

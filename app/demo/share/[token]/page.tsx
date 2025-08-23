@@ -1,354 +1,621 @@
-"use client"
+'use client'
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Badge } from "@/components/ui/badge"
-import { Download, Copy, Eye, Calendar, HardDrive, Sparkles, ExternalLink, Share2, Lock, AlertCircle, CheckCircle, Image, Video } from "lucide-react"
-import { motion } from "framer-motion"
-import { ResponsiveVideoPlayer } from "@/components/ui/responsive-video-player"
-import { ProfessionalDownload } from "@/components/ui/professional-download"
+import React, { useState, useEffect } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import { motion } from 'framer-motion'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
+import { MediaPreview } from '@/components/ui/media-preview'
+import { 
+  Download, Share2, Eye, Lock, Unlock, Calendar, 
+  Users, AlertCircle, CheckCircle, FileText, 
+  Music, Image, Video, File, Folder, Database,
+  Home, ArrowLeft, Timer, Shield
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { useToast } from '@/components/ui/professional-toast'
+import { ToastProvider } from '@/components/ui/professional-toast'
 
-interface DemoSharePageProps {
-  params: Promise<{
-    token: string
-  }>
+interface ShareData {
+  token: string
+  file: {
+    id: string
+    name: string
+    type: string
+    content: string
+    size: number
+    thumbnail?: string
+    artist?: string
+    album?: string
+    albumArt?: string
+  }
+  password: string | null
+  expiryDate: string | null
+  maxViews: number | null
+  maxDownloads: number | null
+  allowPreview: boolean
+  allowDownload: boolean
+  isPublic: boolean
+  createdAt: string
 }
 
-export default function DemoSharePage({ params }: DemoSharePageProps) {
-  const [token, setToken] = useState<string>('')
-  const [copied, setCopied] = useState(false)
-  const [isPrivate, setIsPrivate] = useState(false)
-  const [password, setPassword] = useState('')
-  const [accessGranted, setAccessGranted] = useState(false)
-  const [showCopySuccess, setShowCopySuccess] = useState(false)
+function DemoSharePageContent() {
+  const params = useParams()
+  const router = useRouter()
+  const { addToast } = useToast()
+  const [shareData, setShareData] = useState<ShareData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [passwordInput, setPasswordInput] = useState('')
+  const [isUnlocked, setIsUnlocked] = useState(false)
+  const [showPreview, setShowPreview] = useState(false)
+  const [views, setViews] = useState(0)
+  const [downloads, setDownloads] = useState(0)
+
+  const token = params.token as string
 
   useEffect(() => {
-    params.then(p => {
-      setToken(p.token)
-      
-      // Check if this link has settings
-      const allSettings = Object.keys(localStorage).filter(key => key.startsWith('share-'))
-      const linkSettings = allSettings.find(key => {
-        const settings = JSON.parse(localStorage.getItem(key) || '{}')
-        return settings.shareLink && settings.shareLink.includes(p.token)
-      })
-      
-              // Set demo file based on token
-        const fileData = getDemoFileByToken(p.token)
-        setDemoFile(fileData)
-        
-        if (linkSettings) {
-          const settings = JSON.parse(localStorage.getItem(linkSettings) || '{}')
-          setIsPrivate(!settings.isPublic)
-          if (settings.fileName) {
-            setDemoFile((prevDemoFile: any) => ({ ...prevDemoFile, original_name: settings.fileName }))
-          }
-        } else {
-          // Simulate some links being private
-          setIsPrivate(p.token.includes('private') || Math.random() > 0.7)
-        }
-    })
-  }, [params])
+    loadShareData()
+  }, [token])
 
-  const getDemoFileByToken = (token: string) => {
-    // Demo files với different types
-    const demoFiles: { [key: string]: any } = {
-      'abc123': {
-        original_name: "Beautiful_Landscape.jpg",
-        file_size: 2547893,
-        created_at: "2024-01-15T10:30:00Z",
-        download_count: 1247,
-        mime_type: "image/jpeg",
-        owner: "demo@yukifiles.com",
-        preview_url: "https://cdn.discordapp.com/attachments/1402528640108990502/1408159531212472340/9a158cfef15faa3a2bb0d910d5bace0f.jpg?ex=68a8ba42&is=68a768c2&hm=2cc475eb3894f0b72b9497613b9465e92a4ea89e386f14b890defec176ca97d9&"
-      },
-      'def456': {
-        original_name: "Demo_Video.mp4", 
-        file_size: 15847392,
-        created_at: "2024-01-14T15:20:00Z",
-        download_count: 892,
-        mime_type: "video/mp4",
-        owner: "creator@yukifiles.com",
-        preview_url: "https://cdn.discordapp.com/attachments/1402528640108990502/1408159523310538844/83cb90295730d846323a14bbd13dc777.mp4?ex=68a8ba40&is=68a768c0&hm=6d2fef08de6bd955520298bddd012bf7aaa2f82ab6c081738b80d5e2c2996ca2&"
-      },
-      'default': {
-        original_name: "YukiFiles_Demo_Project.zip",
-        file_size: 2547893,
-        created_at: "2024-01-15T10:30:00Z",
-        download_count: 1247,
-        mime_type: "application/zip",
-        owner: "demo@yukifiles.com"
+  const loadShareData = () => {
+    setLoading(true)
+    setError(null)
+
+    try {
+      // Get share data from sessionStorage
+      const shareDataJson = sessionStorage.getItem(`share_${token}`)
+      
+      if (!shareDataJson) {
+        setError('Share link not found or expired')
+        setLoading(false)
+        return
       }
+
+      const data: ShareData = JSON.parse(shareDataJson)
+      
+      // Check expiry
+      if (data.expiryDate && new Date(data.expiryDate) < new Date()) {
+        setError('This share link has expired')
+        setLoading(false)
+        return
+      }
+
+      setShareData(data)
+      
+      // Check if password is required
+      if (!data.password) {
+        setIsUnlocked(true)
+        
+        // Auto-show preview for media files
+        if (data.file.type && (
+          data.file.type.startsWith('video/') || 
+          data.file.type.startsWith('audio/') || 
+          data.file.type.startsWith('image/') ||
+          data.file.type.startsWith('text/') ||
+          data.file.type.includes('code') ||
+          data.file.name.endsWith('.md') ||
+          data.file.name.endsWith('.json') ||
+          data.file.name.endsWith('.txt')
+        )) {
+          setShowPreview(true)
+        }
+      }
+      
+      // Load view/download stats
+      const statsKey = `share_stats_${token}`
+      const stats = localStorage.getItem(statsKey)
+      if (stats) {
+        const { views: savedViews, downloads: savedDownloads } = JSON.parse(stats)
+        setViews(savedViews || 0)
+        setDownloads(savedDownloads || 0)
+      }
+      
+      setLoading(false)
+    } catch (err) {
+      setError('Failed to load share data')
+      setLoading(false)
     }
+  }
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
     
-    return demoFiles[token] || demoFiles['default']
+    if (!shareData) return
+    
+    if (passwordInput === shareData.password) {
+      setIsUnlocked(true)
+      setPasswordInput('')
+    } else {
+      setError('Incorrect password')
+    }
   }
 
-  const [demoFile, setDemoFile] = useState(getDemoFileByToken('default'))
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
-  }
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long", 
-      day: "numeric",
-    })
-  }
-
-  const copyLink = () => {
-    navigator.clipboard.writeText(window.location.href)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
-
-  const copyToDemo = () => {
-    // Simulate copying file to demo account
-    setShowCopySuccess(true)
-    setTimeout(() => setShowCopySuccess(false), 3000)
+  const handlePreview = () => {
+    if (!shareData || !shareData.allowPreview) return
+    
+    // Increment view count
+    const newViews = views + 1
+    setViews(newViews)
+    
+    // Save stats
+    const statsKey = `share_stats_${token}`
+    const stats = { views: newViews, downloads }
+    localStorage.setItem(statsKey, JSON.stringify(stats))
+    
+    setShowPreview(true)
   }
 
   const handleDownload = () => {
+    if (!shareData || !shareData.allowDownload) return
+    
+    // Check download limits
+    if (shareData.maxDownloads && downloads >= shareData.maxDownloads) {
+      setError('Download limit exceeded')
+      return
+    }
+    
+    // Increment download count
+    const newDownloads = downloads + 1
+    setDownloads(newDownloads)
+    
+    // Save stats
+    const statsKey = `share_stats_${token}`
+    const stats = { views, downloads: newDownloads }
+    localStorage.setItem(statsKey, JSON.stringify(stats))
+    
+    // Create download link
     const link = document.createElement('a')
-    link.href = '/demo-file.zip'
-    link.download = demoFile.original_name
+    link.href = shareData.file.content
+    link.download = shareData.file.name
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
   }
 
-  const handlePasswordSubmit = () => {
-    if (password === 'demo123') {
-      setAccessGranted(true)
+  const handleSaveToStorage = () => {
+    if (!shareData) return
+    
+    try {
+      // Demo: Save to localStorage as "saved files"
+      const savedFilesKey = 'demo_saved_files'
+      const existingFiles = JSON.parse(localStorage.getItem(savedFilesKey) || '[]')
+      
+      const fileToSave = {
+        ...shareData.file,
+        savedAt: new Date().toISOString(),
+        originalShareToken: token
+      }
+      
+      // Check if already saved
+      const alreadySaved = existingFiles.find((f: any) => f.originalShareToken === token)
+      if (alreadySaved) {
+        addToast({
+          type: 'warning',
+          title: 'Already Saved',
+          description: 'File already saved to your storage!'
+        })
+        return
+      }
+      
+      existingFiles.push(fileToSave)
+      localStorage.setItem(savedFilesKey, JSON.stringify(existingFiles))
+      
+      addToast({
+        type: 'success',
+        title: 'File Saved',
+        description: 'File saved to your storage successfully!'
+      })
+    } catch (error) {
+      console.error('Error saving to storage:', error)
+      addToast({
+        type: 'error',
+        title: 'Save Failed',
+        description: 'Failed to save file to storage. Please try again.'
+      })
     }
   }
 
-  // Private Access Screen
-  if (isPrivate && !accessGranted) {
+  const handleViewOnline = () => {
+    if (!shareData) return
+    
+    // Open file in new tab for online viewing
+    window.open(shareData.file.content, '_blank')
+  }
+
+  const getFileIcon = () => {
+    if (!shareData || !shareData.file || !shareData.file.type) return File
+    
+    const { type } = shareData.file
+    if (type.startsWith('image/')) return Image
+    if (type.startsWith('video/')) return Video
+    if (type.startsWith('audio/')) return Music
+    if (type === 'application/x-sqlite3') return Database
+    if (type === 'folder') return Folder
+    return FileText
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md bg-gradient-to-br from-black/40 via-red-950/30 to-black/40 backdrop-blur-lg border border-red-500/20 shadow-2xl">
-          <CardHeader className="text-center">
-            <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Lock className="w-10 h-10 text-white" />
-            </div>
-            <CardTitle className="text-2xl text-white mb-2">Private File</CardTitle>
-            <CardDescription className="text-gray-400 text-lg">
-              This file is private and requires permission to access
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent className="space-y-6">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-red-400" />
-                <div>
-                  <p className="text-red-300 font-medium">Access Restricted</p>
-                  <p className="text-red-400/80 text-sm">You don't have permission to view this file</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <label className="text-white text-sm font-medium">Enter Password</label>
-              <Input
-                type="password"
-                placeholder="Password required..."
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="bg-slate-800/50 border-red-500/20 text-white"
-                onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-              />
-              <p className="text-gray-400 text-xs">Demo password: demo123</p>
-            </div>
-
-            <div className="flex gap-3">
-              <Button 
-                onClick={handlePasswordSubmit}
-                className="flex-1 bg-gradient-to-r from-red-500 to-orange-500 hover:from-red-600 hover:to-orange-600"
-                disabled={!password}
-              >
-                <Lock className="w-4 h-4 mr-2" />
-                Access File
-              </Button>
-              <Button 
-                onClick={() => window.open('/', '_blank')}
-                variant="outline"
-                className="border-gray-500 text-gray-300 hover:bg-gray-700"
-              >
-                Go Home
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="text-center text-white"
+        >
+          <div className="w-16 h-16 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold mb-2">Loading Share Link...</h2>
+          <p className="text-gray-400">Please wait while we verify your link</p>
+        </motion.div>
       </div>
     )
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl bg-gradient-to-br from-black/40 via-purple-950/30 to-black/40 backdrop-blur-lg border border-purple-500/20 shadow-2xl">
-        <CardHeader className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-            <Sparkles className="w-10 h-10 text-white" />
-          </div>
-          <CardTitle className="text-2xl text-white mb-2">{demoFile.original_name}</CardTitle>
-          <CardDescription className="text-gray-400 text-lg">
-            Shared securely via YukiFiles Platform
-          </CardDescription>
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-              <Eye className="w-3 h-3 mr-1" />
-              Demo File
-            </Badge>
-            <Badge variant="outline" className="border-blue-500/30 text-blue-300">
-              Shared by: {demoFile.owner}
-            </Badge>
-          </div>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Copy Success Notification */}
-          {showCopySuccess && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-green-500/20 border border-green-500/30 rounded-lg p-4 flex items-center gap-3"
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-red-500/20 rounded-2xl p-8 max-w-md w-full text-center overflow-hidden"
+        >
+          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl font-semibold text-white mb-2">Access Denied</h2>
+          <p className="text-gray-400 mb-6">{error}</p>
+          <div className="flex gap-3">
+            <Button
+              onClick={() => router.push('/')}
+              variant="outline"
+              className="flex-1 border-purple-500/30 text-purple-400 hover:bg-purple-500/20"
             >
-              <CheckCircle className="w-5 h-5 text-green-400" />
-              <div>
-                <p className="text-green-300 font-medium">File copied successfully!</p>
-                <p className="text-green-400/80 text-sm">File copied from {demoFile.owner} to your demo account</p>
-              </div>
-            </motion.div>
-          )}
+              <Home className="w-4 h-4 mr-2" />
+              Go Home
+            </Button>
+            <Button
+              onClick={() => window.location.reload()}
+              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+            >
+              Try Again
+            </Button>
+          </div>
+        </motion.div>
+      </div>
+    )
+  }
 
-          {/* File Info Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-purple-500/10">
-              <HardDrive className="w-6 h-6 text-purple-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-white">{formatFileSize(demoFile.file_size)}</div>
-              <div className="text-xs text-gray-400">File Size</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-purple-500/10">
-              <Download className="w-6 h-6 text-green-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-white">{demoFile.download_count.toLocaleString()}</div>
-              <div className="text-xs text-gray-400">Downloads</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-purple-500/10">
-              <Calendar className="w-6 h-6 text-blue-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-white">{formatDate(demoFile.created_at)}</div>
-              <div className="text-xs text-gray-400">Uploaded</div>
-            </div>
-            <div className="bg-slate-800/50 rounded-lg p-4 text-center border border-purple-500/10">
-              <Share2 className="w-6 h-6 text-orange-400 mx-auto mb-2" />
-              <div className="text-lg font-bold text-white">Public</div>
-              <div className="text-xs text-gray-400">Access</div>
-            </div>
+  if (!shareData) return null
+
+  // Password protection screen
+  if (shareData.password && !isUnlocked) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-8 max-w-md w-full"
+        >
+          <div className="text-center mb-6">
+            <Lock className="w-16 h-16 text-purple-400 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold text-white mb-2">Password Protected</h2>
+            <p className="text-gray-400">This file is protected. Please enter the password to continue.</p>
           </div>
 
-          {/* File Preview */}
-          {demoFile.preview_url && (
-            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-lg p-6 border border-purple-500/20">
-              <h3 className="text-white font-semibold mb-4 flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                File Preview
-              </h3>
-              
-              {demoFile.mime_type.startsWith('image/') ? (
-                <div className="relative rounded-lg overflow-hidden bg-black/20">
-                  <img
-                    src={demoFile.preview_url}
-                    alt={demoFile.original_name}
-                    className="w-full h-auto max-h-96 object-contain rounded-lg"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                      <Image className="w-3 h-3 mr-1" />
-                      Image
-                    </Badge>
-                  </div>
-                </div>
-                             ) : demoFile.mime_type.startsWith('video/') ? (
-                <div className="flex justify-center">
-                  <ResponsiveVideoPlayer
-                    src={demoFile.preview_url}
-                    title={demoFile.original_name}
-                    aspectRatio="16:9"
-                  />
-                </div>
-               ) : (
-                <div className="bg-slate-800/50 rounded-lg p-8 text-center">
-                  <HardDrive className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-300 font-medium">{demoFile.original_name}</p>
-                  <p className="text-gray-400 text-sm mt-2">Preview not available for this file type</p>
-                  <Badge variant="outline" className="mt-3 border-gray-500 text-gray-300">
-                    {demoFile.mime_type}
-                  </Badge>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <ProfessionalDownload
-              url={demoFile.preview_url || '/demo-file.zip'}
-              filename={demoFile.original_name}
-              fileSize={demoFile.file_size}
-              className="flex-1"
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
+            <Input
+              type="password"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              placeholder="Enter password..."
+              className="bg-black/30 border-purple-500/30 text-white placeholder-gray-400"
+              autoFocus
             />
-            <Button 
-              onClick={copyToDemo}
-              variant="outline"
-              className="border-blue-500/30 text-blue-300 hover:bg-blue-500/20"
+            
+            {error && (
+              <div className="flex items-center gap-2 text-sm text-red-400">
+                <AlertCircle className="w-4 h-4" />
+                {error}
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={!passwordInput.trim()}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white"
             >
-              <Copy className="w-4 h-4 mr-2" />
-              Copy to My Files
+              <Unlock className="w-4 h-4 mr-2" />
+              Unlock File
             </Button>
-            <Button 
-              onClick={copyLink}
-              variant="outline"
-              className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
-            >
-              {copied ? (
-                <>
-                  <CheckCircle className="w-4 h-4 mr-2 text-green-400" />
-                  Copied!
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4 mr-2" />
-                  Copy Link
-                </>
+          </form>
+        </motion.div>
+      </div>
+    )
+  }
+
+  const IconComponent = getFileIcon()
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 p-4">
+      {/* Header */}
+      <div className="max-w-4xl mx-auto mb-6">
+        <div className="flex items-center gap-4 mb-4">
+          <Button
+            onClick={() => router.push('/demo')}
+            variant="outline"
+            size="sm"
+            className="border-purple-500/30 text-purple-400 hover:bg-purple-500/20"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Demo
+          </Button>
+          
+          <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+            Demo Share Link
+          </Badge>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6"
+        >
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center flex-shrink-0">
+              <IconComponent className="w-8 h-8 text-white" />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl font-bold text-white mb-2">{shareData.file.name}</h1>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                <span>Size: {formatFileSize(shareData.file.size)}</span>
+                <span>Shared: {formatDate(shareData.createdAt)}</span>
+                {shareData.expiryDate && (
+                  <div className="flex items-center gap-1">
+                    <Timer className="w-4 h-4" />
+                    <span>Expires: {formatDate(shareData.expiryDate)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {shareData.password && (
+                <Badge variant="outline" className="border-yellow-500/30 text-yellow-400">
+                  <Shield className="w-3 h-3 mr-1" />
+                  Protected
+                </Badge>
               )}
-            </Button>
-            <Button 
-              onClick={() => window.open('/', '_blank')}
-              variant="ghost"
-              className="text-gray-400 hover:text-white"
-            >
-              <ExternalLink className="w-4 h-4 mr-2" />
-              Visit YukiFiles
-            </Button>
+              {shareData.isPublic ? (
+                <Badge variant="outline" className="border-green-500/30 text-green-400">
+                  <Unlock className="w-3 h-3 mr-1" />
+                  Public
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="border-purple-500/30 text-purple-400">
+                  <Lock className="w-3 h-3 mr-1" />
+                  Private
+                </Badge>
+              )}
+            </div>
           </div>
 
-          {/* Security Info */}
-          <div className="text-center text-xs text-gray-500 pt-4 border-t border-purple-500/10">
-            <p>This file is shared securely via YukiFiles Platform</p>
-            <p>End-to-end encrypted • Enterprise security • 99.9% uptime</p>
+          {/* Stats */}
+          <div className="flex items-center gap-6 mt-4 pt-4 border-t border-purple-500/20">
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <Eye className="w-4 h-4" />
+              <span>{views} views</span>
+              {shareData.maxViews && (
+                <span className="text-gray-500">/ {shareData.maxViews}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-sm text-gray-400">
+              <Download className="w-4 h-4" />
+              <span>{downloads} downloads</span>
+              {shareData.maxDownloads && (
+                <span className="text-gray-500">/ {shareData.maxDownloads}</span>
+              )}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+
+                      {/* Actions */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
+              {shareData.allowPreview && (
+                <Button
+                  onClick={handlePreview}
+                  className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+                  disabled={shareData.maxViews ? views >= shareData.maxViews : false}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  {showPreview ? 'Hide Preview' : 'Show Preview'}
+                </Button>
+              )}
+              
+              {shareData.allowDownload && (
+                <Button
+                  onClick={handleDownload}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                  disabled={shareData.maxDownloads ? downloads >= shareData.maxDownloads : false}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+              )}
+              
+              <Button
+                onClick={handleViewOnline}
+                variant="outline"
+                className="border-green-500/30 text-green-400 hover:bg-green-500/20"
+              >
+                <Eye className="w-4 h-4 mr-2" />
+                View Online
+              </Button>
+              
+              <Button
+                onClick={handleSaveToStorage}
+                variant="outline"
+                className="border-orange-500/30 text-orange-400 hover:bg-orange-500/20"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Save to Storage
+              </Button>
+            </div>
+            
+            {/* Share Button */}
+            <div className="flex justify-center mt-4">
+              <Button
+                onClick={() => navigator.share?.({ url: window.location.href })}
+                variant="outline"
+                className="border-purple-500/30 text-purple-400 hover:bg-purple-500/20"
+              >
+                <Share2 className="w-4 h-4 mr-2" />
+                Share This Link
+              </Button>
+            </div>
+        </motion.div>
+      </div>
+
+      {/* File Preview */}
+      {showPreview && (
+        <div className="max-w-4xl mx-auto">
+          <MediaPreview
+            file={shareData.file}
+            onDownload={shareData.allowDownload ? handleDownload : undefined}
+            onShare={() => navigator.share?.({ url: window.location.href })}
+            onLike={() => {}}
+            onClose={() => setShowPreview(false)}
+          />
+        </div>
+      )}
+
+      {/* Inline Media Player for Video/Audio */}
+      {shareData && !showPreview && (
+        <div className="max-w-4xl mx-auto mt-6">
+          {/* Video Player */}
+          {shareData.file.type && shareData.file.type.startsWith('video/') && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <Video className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Video Preview</h3>
+              </div>
+              <div className="aspect-video bg-black rounded-xl overflow-hidden">
+                <video
+                  src={shareData.file.content}
+                  controls
+                  className="w-full h-full object-contain"
+                  poster={shareData.file.thumbnail}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Size: {(shareData.file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            </div>
+          )}
+
+          {/* Audio Player */}
+          {shareData.file.type && shareData.file.type.startsWith('audio/') && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <Music className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Audio Player</h3>
+              </div>
+              <div className="bg-black/30 rounded-xl p-6">
+                <audio
+                  src={shareData.file.content}
+                  controls
+                  className="w-full"
+                >
+                  Your browser does not support the audio tag.
+                </audio>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Size: {(shareData.file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            </div>
+          )}
+
+          {/* Image Preview */}
+          {shareData.file.type && shareData.file.type.startsWith('image/') && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <Image className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Image Preview</h3>
+              </div>
+              <div className="bg-black/30 rounded-xl p-4">
+                <img
+                  src={shareData.file.content}
+                  alt={shareData.file.name}
+                  className="w-full h-auto max-h-96 object-contain rounded-lg"
+                />
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Size: {(shareData.file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            </div>
+          )}
+
+          {/* Text/Code Preview */}
+          {shareData.file.type && (shareData.file.type.startsWith('text/') || shareData.file.type.includes('code') || shareData.file.name.endsWith('.md') || shareData.file.name.endsWith('.json') || shareData.file.name.endsWith('.txt')) && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <FileText className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Content Preview</h3>
+              </div>
+              <div className="bg-black/30 rounded-xl p-4 max-h-96 overflow-auto">
+                <pre className="text-white text-sm font-mono whitespace-pre-wrap">
+                  {shareData.file.content}
+                </pre>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Lines: {shareData.file.content?.split('\n').length || 0}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Demo Notice */}
+      <div className="max-w-4xl mx-auto mt-6">
+        <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-4">
+          <div className="flex items-center gap-2 text-yellow-400 text-sm">
+            <AlertCircle className="w-4 h-4" />
+            <span>
+              <strong>Demo Mode:</strong> This is a demonstration. Share links work during this session but will be reset on page reload.
+            </span>
+          </div>
+        </div>
+      </div>
     </div>
+  )
+}
+
+export default function DemoSharePage() {
+  return (
+    <ToastProvider>
+      <DemoSharePageContent />
+    </ToastProvider>
   )
 }

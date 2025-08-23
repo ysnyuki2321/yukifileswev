@@ -1,7 +1,7 @@
 "use client"
 
-import * as React from "react"
-import { createContext, useContext, useState, useCallback } from "react"
+
+import React, { createContext, useContext, useState, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from "lucide-react"

@@ -5,7 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function formatBytes(bytes: number, decimals = 2) {
+export function formatBytes(bytes: number, decimals = 2, isFolder = false) {
+  if (isFolder) {
+    return "Folder"
+  }
+  
   if (bytes === 0) return "0 Bytes"
 
   const k = 1024

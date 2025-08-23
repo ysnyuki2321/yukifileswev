@@ -1,142 +1,160 @@
 "use client"
 
-import { usePathname } from "next/navigation"
 import Link from "next/link"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  Home, Files, CreditCard, Shield, Settings, X, Sparkles, 
-  BarChart3, Users, Server
-} from "lucide-react"
+import { usePathname } from "next/navigation"
+import { X, Files, Home, CreditCard, Shield, Settings, Sparkles, BarChart3, Users, Server, Database, Zap } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface MobileSidebarProps {
   isOpen: boolean
   onClose: () => void
   isAdmin?: boolean
-  brandName?: string
+  activeTab?: string
 }
 
-export function MobileSidebar({ isOpen, onClose, isAdmin = false, brandName = "YukiFiles" }: MobileSidebarProps) {
+export function MobileSidebar({ isOpen, onClose, isAdmin = false, activeTab }: MobileSidebarProps) {
   const pathname = usePathname()
-  
-  // Check if we're in demo mode
   const isDemoMode = pathname.includes('demo=true') || pathname.includes('/demo')
-  
+
   const navItems = [
-    { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home },
-    { href: isDemoMode ? "/files?demo=true" : "/files", label: "Files", icon: Files },
+    { href: isDemoMode ? "/dashboard?demo=true" : "/dashboard", label: "Dashboard", icon: Home, color: "text-blue-400" },
+    { href: isDemoMode ? "/files?demo=true" : "/files", label: "Files", icon: Files, color: "text-green-400" },
   ]
 
   // Demo mode: Add all features to dashboard
   if (isDemoMode) {
-    navItems.push({ href: "/dashboard?demo=true&tab=filemanager", label: "File Manager", icon: Files })
-    navItems.push({ href: "/dashboard?demo=true&tab=analytics", label: "Analytics", icon: BarChart3 })
-    navItems.push({ href: "/dashboard?demo=true&tab=collaboration", label: "Collaboration", icon: Users })
-    navItems.push({ href: "/dashboard?demo=true&tab=ai", label: "AI Tools", icon: Sparkles })
-    navItems.push({ href: "/dashboard?demo=true&tab=security", label: "Security", icon: Shield })
-    navItems.push({ href: "/dashboard?demo=true&tab=pricing", label: "Pricing", icon: CreditCard })
-    navItems.push({ href: "/dashboard?demo=true&tab=admin", label: "Admin", icon: Settings })
-    navItems.push({ href: "/dashboard?demo=true&tab=settings", label: "Settings", icon: Settings })
-    navItems.push({ href: "/dashboard?demo=true&tab=infrastructure", label: "Infrastructure", icon: Server })
+    navItems.push(
+      { href: "/dashboard?demo=true&tab=filemanager", label: "File Manager", icon: Database, color: "text-purple-400" },
+      { href: "/dashboard?demo=true&tab=analytics", label: "Analytics", icon: BarChart3, color: "text-cyan-400" },
+      { href: "/dashboard?demo=true&tab=collaboration", label: "Collaboration", icon: Users, color: "text-orange-400" },
+      { href: "/dashboard?demo=true&tab=ai", label: "AI Tools", icon: Sparkles, color: "text-pink-400" },
+      { href: "/dashboard?demo=true&tab=security", label: "Security", icon: Shield, color: "text-red-400" },
+      { href: "/dashboard?demo=true&tab=pricing", label: "Pricing", icon: CreditCard, color: "text-yellow-400" },
+      { href: "/dashboard?demo=true&tab=admin", label: "Admin", icon: Settings, color: "text-indigo-400" },
+      { href: "/dashboard?demo=true&tab=settings", label: "Settings", icon: Settings, color: "text-gray-400" },
+      { href: "/dashboard?demo=true&tab=infrastructure", label: "Infrastructure", icon: Server, color: "text-emerald-400" }
+    )
   } else {
-    navItems.push({ href: "/pricing", label: "Pricing", icon: CreditCard })
+    navItems.push({ href: "/pricing", label: "Pricing", icon: CreditCard, color: "text-yellow-400" })
     if (isAdmin) {
-      navItems.push({ href: "/admin", label: "Admin", icon: Shield })
-      navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings })
-    }
-  }
-
-  const handleNavClick = (href: string) => {
-    onClose()
-    
-    // For demo tabs, handle client-side navigation
-    if (href.includes('tab=')) {
-      const url = new URL(href, window.location.origin)
-      window.history.pushState({}, '', url.pathname + url.search)
-      window.location.reload()
-    } else {
-      // Regular navigation
-      window.location.href = href
+      navItems.push({ href: "/admin", label: "Admin", icon: Shield, color: "text-red-400" })
+      navItems.push({ href: "/admin/settings", label: "Settings", icon: Settings, color: "text-gray-400" })
     }
   }
 
   return (
-    <AnimatePresence>
+    <>
+      {/* Mobile overlay */}
       {isOpen && (
-        <>
-                     {/* Backdrop */}
-           <motion.div
-             initial={{ opacity: 0 }}
-             animate={{ opacity: 1 }}
-             exit={{ opacity: 0 }}
-             transition={{ duration: 0.2 }}
-             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] mobile-stable"
-             onClick={onClose}
-           />
-          
-          {/* Sidebar */}
-          <motion.aside
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                         className="fixed inset-y-0 left-0 z-[9999] w-64 bg-gradient-to-b from-slate-900/95 via-purple-950/60 to-slate-900/95 border-r border-purple-500/20 backdrop-blur-xl shadow-2xl mobile-stable"
-          >
-            {/* Header */}
-            <div className="h-16 px-6 flex items-center justify-between border-b border-purple-500/10">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-white font-bold text-lg">{brandName}</span>
-              </div>
-              
-              <button 
-                onClick={onClose}
-                className="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors touch-manipulation"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Navigation */}
-            <nav className="flex-1 px-4 py-6 overflow-y-auto">
-              <div className="space-y-2">
-                {navItems.map((item) => {
-                  const Icon = item.icon
-                  const isActive = pathname === item.href || 
-                    (pathname.includes('/dashboard') && item.href.includes('dashboard')) ||
-                    (pathname.includes('/files') && item.href.includes('files'))
-                  
-                  return (
-                    <button
-                      key={item.href}
-                      onClick={() => handleNavClick(item.href)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 touch-manipulation ${
-                        isActive
-                          ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white border border-purple-500/30 shadow-lg"
-                          : "text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
-                      }`}
-                    >
-                      <Icon className="w-5 h-5 flex-shrink-0" />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </nav>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-purple-500/10">
-              <div className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 rounded-lg">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-sm text-gray-300">
-                  {isDemoMode ? "Demo Mode" : "Connected"}
-                </span>
-              </div>
-            </div>
-          </motion.aside>
-        </>
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
+          onClick={onClose}
+        />
       )}
-    </AnimatePresence>
+
+      {/* Mobile sidebar */}
+      <div className={cn(
+        "fixed inset-y-0 left-0 z-50 w-80 max-w-[90vw] bg-black/95 backdrop-blur-xl border-r border-purple-500/20 transform transition-transform duration-300 ease-in-out md:hidden",
+        isOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-purple-500/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+              <Zap className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <span className="text-xl font-bold text-white">YukiFiles</span>
+              <p className="text-xs text-purple-300">Demo Mode</p>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-purple-500/10 transition-colors touch-target"
+          >
+            <X className="w-6 h-6 text-gray-400" />
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto py-6 scrollbar-mobile">
+          <div className="px-4 space-y-2">
+            {navItems.map((item, index) => {
+              const isActive = activeTab === item.label.toLowerCase().replace(' ', '') || 
+                              pathname === item.href ||
+                              (isDemoMode && item.href.includes('tab=') && activeTab === item.href.split('tab=')[1])
+              
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onClose}
+                  className={cn(
+                    "flex items-center space-x-4 px-4 py-4 rounded-xl transition-all duration-200 touch-target group",
+                    isActive
+                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-white shadow-lg"
+                      : "text-gray-300 hover:text-white hover:bg-purple-500/10"
+                  )}
+                >
+                  <div className={cn(
+                    "w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-200",
+                    isActive 
+                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20" 
+                      : "bg-gray-800/50 group-hover:bg-purple-500/10"
+                  )}>
+                    <item.icon className={cn("w-5 h-5", item.color)} />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-sm">{item.label}</span>
+                    {isActive && (
+                      <div className="flex items-center mt-1">
+                        <div className="w-2 h-2 bg-purple-400 rounded-full mr-2"></div>
+                        <span className="text-xs text-purple-300">Active</span>
+                      </div>
+                    )}
+                  </div>
+                  {isActive && (
+                    <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                  )}
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Demo mode indicator */}
+          {isDemoMode && (
+            <div className="px-4 mt-8">
+              <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-xl p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center">
+                    <Sparkles className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <h4 className="font-medium text-white text-sm">Demo Mode Active</h4>
+                    <p className="text-xs text-gray-400">All features available for testing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-6 border-t border-purple-500/20 bg-gradient-to-r from-gray-900/50 to-black/50">
+          <div className="text-center">
+            <div className="flex items-center justify-center space-x-2 mb-2">
+              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+              <span className="text-xs text-green-400">System Online</span>
+            </div>
+            <p className="text-xs text-gray-500">
+              © 2024 YukiFiles
+            </p>
+            <p className="text-xs text-gray-600 mt-1">
+              Secure File Sharing Platform
+            </p>
+          </div>
+        </div>
+      </div>
+    </>
   )
 }

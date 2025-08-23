@@ -1,9 +1,9 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
+import { UnifiedFileManager } from "@/components/file-manager/unified-file-manager"
 import Sidebar from "@/components/dashboard/Sidebar"
-import Topbar from "@/components/dashboard/Topbar"
+import { Topbar } from "@/components/dashboard/Topbar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
 import { isDebugModeEnabled, getMockUserData } from "@/lib/services/debug-context"
 import { Button } from "@/components/ui/button"
@@ -106,7 +106,7 @@ export default function FilesPageClient() {
     loadData()
   }, [])
 
-  // Transform files to match EnhancedFileManager interface
+          // Transform files to match UnifiedFileManager interface
   const transformedFiles = files.map((file: any) => ({
     id: file.id,
     name: file.name || 'untitled.txt',
@@ -849,9 +849,8 @@ Thank you for trying YukiFiles! 🚀`,
         
         <div className="flex-1 min-w-0">
           <Topbar 
-            userEmail={user?.email || 'demo@yukifiles.com'}
-            isPremium={userData?.subscription_type === "paid"}
-            brandName={brandName}
+            user={user}
+            userData={userData}
             isDemoMode={isDemoMode}
             onMenuToggle={() => setIsSidebarOpen(!isSidebarOpen)}
           />
@@ -872,16 +871,13 @@ Thank you for trying YukiFiles! 🚀`,
               </div>
 
               {/* Enhanced File Manager */}
-              <EnhancedFileManager
+              <UnifiedFileManager
                 files={files}
-                onFileUpload={handleFakeUpload}
-                onFileEdit={handleFileEdit}
-                onFileDelete={handleFileDelete}
-                onFileSave={handleFileSave}
                 onFileCreate={handleFileCreate}
-                onFolderCreate={handleFolderCreate}
-                uploadProgress={uploadProgress}
-                uploadingFiles={uploadingFiles}
+                onFileUpdate={handleFileEdit}
+                onFileDelete={handleFileDelete}
+                onFileUpload={handleFakeUpload}
+                isDemoMode={isDemoMode}
                 isAdmin={Boolean(userData?.is_admin)}
               />
             </div>

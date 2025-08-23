@@ -1,40 +1,65 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
-    // Temporarily disable TypeScript checking during builds
     ignoreBuildErrors: true,
   },
   eslint: {
-    // Disable ESLint during builds
     ignoreDuringBuilds: true,
   },
+  images: {
+    unoptimized: true,
+  },
+  compress: true,
+  // Fix chunk loading issues
   experimental: {
-    turbo: {
-      rules: {
-        '*.tsx': {
-          loaders: ['swc-loader'],
-          as: '*.tsx',
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react'],
+    // Optimize chunk loading
+    forceSwcTransforms: true,
+  },
+  // Webpack configuration for better chunk handling
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+      
+      // Fix chunk loading issues
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          chunks: 'all',
+          cacheGroups: {
+            default: false,
+            vendors: false,
+            // Create a single vendor chunk
+            vendor: {
+              name: 'vendor',
+              chunks: 'all',
+              test: /[\\/]node_modules[\\/]/,
+              priority: 20,
+            },
+            // Create a common chunk for shared code
+            common: {
+              name: 'common',
+              minChunks: 2,
+              chunks: 'all',
+              priority: 10,
+              reuseExistingChunk: true,
+            },
+          },
         },
-      },
-    },
-  },
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Disable minification completely để debug undefined length errors
-    if (!dev && !isServer) {
-      config.optimization.minimize = false
+      };
+      
+      // Ensure consistent chunk naming
+      config.output = {
+        ...config.output,
+        chunkFilename: '[name]-[chunkhash].js',
+        filename: '[name]-[chunkhash].js',
+      };
     }
-
-    return config
+    return config;
   },
-  // Disable static optimization for pages that might have j conflicts
-  staticPageGenerationTimeout: 60,
-  // Enhanced error handling
-  onDemandEntries: {
-    maxInactiveAge: 25 * 1000,
-    pagesBufferLength: 2,
-  },
-  // Prevent problematic optimizations
-  // swcMinify: false, // Removed - not supported in Next.js 15
 }
 
 module.exports = nextConfig

@@ -1,11 +1,14 @@
 'use client'
 
-import React, { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { 
-  Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, 
-  Repeat, Shuffle, Download, Share2, Heart, X, Minimize, Maximize,
-  Music, User, Disc
+  Play, Pause, SkipBack, SkipForward, Volume2, VolumeX,
+  Heart, Download, Share2, Repeat, Shuffle, List
 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
+import { cn } from '@/lib/utils'
 
 interface PopoutMusicPlayerProps {
   src: string
@@ -13,7 +16,7 @@ interface PopoutMusicPlayerProps {
   artist?: string
   album?: string
   albumArt?: string
-  onClose: () => void
+  onClose?: () => void
   onDownload?: () => void
   onShare?: () => void
   onLike?: () => void
@@ -39,67 +42,90 @@ export function PopoutMusicPlayer({
   const [isLiked, setIsLiked] = useState(false)
   const [isRepeat, setIsRepeat] = useState(false)
   const [isShuffle, setIsShuffle] = useState(false)
-  const [isMinimized, setIsMinimized] = useState(false)
+  const [showPlaylist, setShowPlaylist] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
+  // Check if mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Handle audio events
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
 
-    const updateTime = () => setCurrentTime(audio.currentTime)
-    const updateDuration = () => setDuration(audio.duration)
-    
-    audio.addEventListener('timeupdate', updateTime)
-    audio.addEventListener('loadedmetadata', updateDuration)
-    audio.addEventListener('ended', () => setIsPlaying(false))
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration)
+    }
+
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime)
+    }
+
+    const handlePlay = () => setIsPlaying(true)
+    const handlePause = () => setIsPlaying(false)
+    const handleEnded = () => {
+      if (isRepeat) {
+        audio.currentTime = 0
+        audio.play()
+      } else {
+        setIsPlaying(false)
+        setCurrentTime(0)
+      }
+    }
+
+    audio.addEventListener('loadedmetadata', handleLoadedMetadata)
+    audio.addEventListener('timeupdate', handleTimeUpdate)
+    audio.addEventListener('play', handlePlay)
+    audio.addEventListener('pause', handlePause)
+    audio.addEventListener('ended', handleEnded)
 
     return () => {
-      audio.removeEventListener('timeupdate', updateTime)
-      audio.removeEventListener('loadedmetadata', updateDuration)
-      audio.removeEventListener('ended', () => setIsPlaying(false))
+      audio.removeEventListener('loadedmetadata', handleLoadedMetadata)
+      audio.removeEventListener('timeupdate', handleTimeUpdate)
+      audio.removeEventListener('play', handlePlay)
+      audio.removeEventListener('pause', handlePause)
+      audio.removeEventListener('ended', handleEnded)
     }
-  }, [])
+  }, [isRepeat])
 
   const togglePlay = () => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    if (isPlaying) {
-      audio.pause()
-    } else {
-      audio.play()
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause()
+      } else {
+        audioRef.current.play()
+      }
     }
-    setIsPlaying(!isPlaying)
-  }
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const newTime = (parseFloat(e.target.value) / 100) * duration
-    audio.currentTime = newTime
-    setCurrentTime(newTime)
-  }
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const newVolume = parseFloat(e.target.value) / 100
-    audio.volume = newVolume
-    setVolume(newVolume)
-    setIsMuted(newVolume === 0)
   }
 
   const toggleMute = () => {
-    const audio = audioRef.current
-    if (!audio) return
+    if (audioRef.current) {
+      audioRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
+    }
+  }
 
-    if (isMuted) {
-      audio.volume = volume > 0 ? volume : 0.5
-      setIsMuted(false)
-    } else {
-      audio.volume = 0
-      setIsMuted(true)
+  const handleSeek = (value: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0]
+      setCurrentTime(value[0])
+    }
+  }
+
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0]
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume
+      setVolume(newVolume)
+      setIsMuted(newVolume === 0)
     }
   }
 
@@ -109,199 +135,190 @@ export function PopoutMusicPlayer({
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  if (isMinimized) {
-    return (
-      <div className="fixed bottom-4 right-4 z-50">
-        <div className="bg-black/90 backdrop-blur-lg border border-purple-500/30 rounded-lg p-3 shadow-2xl">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded overflow-hidden">
-              {albumArt ? (
-                <img src={albumArt} alt={album} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Music className="w-5 h-5 text-white" />
-                </div>
-              )}
-            </div>
-            <button
-              onClick={togglePlay}
-              className="w-8 h-8 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 transition-transform"
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-            </button>
-            <button
-              onClick={() => setIsMinimized(false)}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
-            >
-              <Maximize className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      </div>
-    )
+  const skipTime = (seconds: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = Math.max(0, Math.min(duration, currentTime + seconds))
+    }
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 max-w-[calc(100vw-2rem)]">
-      <div className="bg-black/95 backdrop-blur-xl border border-purple-500/30 rounded-xl shadow-2xl overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <Music className="w-5 h-5 text-purple-400" />
-            <span className="text-white font-medium">Now Playing</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsMinimized(true)}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
-            >
-              <Minimize className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Album Art & Info */}
-        <div className="p-4">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-              {albumArt ? (
-                <img src={albumArt} alt={album} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                  <Music className="w-8 h-8 text-white" />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white font-semibold text-lg truncate" title={title}>{title}</h3>
-              <p className="text-gray-400 truncate" title={artist}>{artist}</p>
-              <p className="text-gray-500 text-sm truncate" title={album}>{album}</p>
-            </div>
-            <button
-              onClick={() => {
-                setIsLiked(!isLiked)
-                onLike?.()
-              }}
-              className={`p-2 rounded-full transition-colors ${
-                isLiked ? 'text-red-500' : 'text-gray-400 hover:text-white'
-              }`}
-            >
-              <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-            </button>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="space-y-2 mb-4">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={duration ? (currentTime / duration) * 100 : 0}
-              onChange={handleSeek}
-              className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-              style={{
-                background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${duration ? (currentTime / duration) * 100 : 0}%, #4B5563 ${duration ? (currentTime / duration) * 100 : 0}%, #4B5563 100%)`
-              }}
+    <div className="bg-gradient-to-br from-slate-800 via-purple-900 to-slate-800 rounded-xl p-4 text-white">
+      {/* Audio Element */}
+      <audio ref={audioRef} src={src} preload="metadata" />
+      
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-4">
+        {/* Album Art */}
+        <div className="relative w-16 h-16 md:w-20 md:h-20 flex-shrink-0">
+          {albumArt ? (
+            <img 
+              src={albumArt} 
+              alt={album} 
+              className="w-full h-full object-cover rounded-lg"
             />
-            <div className="flex justify-between text-xs text-gray-400">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+              <span className="text-2xl">🎵</span>
             </div>
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsShuffle(!isShuffle)}
-                className={`p-2 rounded transition-colors ${
-                  isShuffle ? 'text-purple-400' : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <Shuffle className="w-4 h-4" />
-              </button>
-              <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                <SkipBack className="w-5 h-5" />
-              </button>
-            </div>
-
-            <button
-              onClick={togglePlay}
-              className="w-12 h-12 bg-white text-black rounded-full flex items-center justify-center hover:scale-105 transition-transform"
-            >
-              {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-0.5" />}
-            </button>
-
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-400 hover:text-white transition-colors">
-                <SkipForward className="w-5 h-5" />
-              </button>
-              <button
-                onClick={() => setIsRepeat(!isRepeat)}
-                className={`p-2 rounded transition-colors ${
-                  isRepeat ? 'text-purple-400' : 'text-gray-400 hover:text-white'
-                }`}
-              >
-                <Repeat className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Volume & Actions */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 flex-1">
-              <button
-                onClick={toggleMute}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-              >
-                {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-              <div className="flex-1 max-w-20">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={isMuted ? 0 : volume * 100}
-                  onChange={handleVolumeChange}
-                  className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-                  style={{
-                    background: `linear-gradient(to right, #8B5CF6 0%, #8B5CF6 ${isMuted ? 0 : volume * 100}%, #4B5563 ${isMuted ? 0 : volume * 100}%, #4B5563 100%)`
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={onShare}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-              >
-                <Share2 className="w-4 h-4" />
-              </button>
-              <button
-                onClick={onDownload}
-                className="p-2 text-gray-400 hover:text-white transition-colors"
-              >
-                <Download className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+          )}
         </div>
-
-        <audio ref={audioRef} src={src} />
+        
+        {/* Track Info */}
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-lg truncate">{title}</h3>
+          <p className="text-gray-300 text-sm truncate">{artist}</p>
+          <p className="text-gray-400 text-xs truncate">{album}</p>
+        </div>
+        
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsLiked(!isLiked)}
+            className={cn(
+              "text-gray-300 hover:text-red-500 hover:bg-red-500/20 h-8 w-8 p-0",
+              isLiked && "text-red-500"
+            )}
+          >
+            <Heart className={cn("w-4 h-4", isLiked && "fill-current")} />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onDownload}
+            className="text-gray-300 hover:text-purple-400 hover:bg-purple-500/20 h-8 w-8 p-0"
+          >
+            <Download className="w-4 h-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onShare}
+            className="text-gray-300 hover:text-green-400 hover:bg-green-500/20 h-8 w-8 p-0"
+          >
+            <Share2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
+      
+      {/* Progress Bar */}
+      <div className="space-y-2 mb-4">
+        <Slider
+          value={[currentTime]}
+          max={duration}
+          step={0.1}
+          onValueChange={handleSeek}
+          className="w-full"
+        />
+        <div className="flex items-center justify-between text-xs text-gray-400">
+          <span>{formatTime(currentTime)}</span>
+          <span>{formatTime(duration)}</span>
+        </div>
+      </div>
+      
+      {/* Control Buttons */}
+      <div className="flex items-center justify-center gap-2 mb-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsShuffle(!isShuffle)}
+          className={cn(
+            "text-gray-300 hover:text-white hover:bg-white/20 h-8 w-8 p-0",
+            isShuffle && "text-purple-400"
+          )}
+        >
+          <Shuffle className="w-4 h-4" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => skipTime(-10)}
+          className="text-gray-300 hover:text-white hover:bg-white/20 h-8 w-8 p-0"
+        >
+          <SkipBack className="w-4 h-4" />
+        </Button>
+        
+        <Button
+          onClick={togglePlay}
+          size="lg"
+          className="w-12 h-12 rounded-full bg-purple-500 hover:bg-purple-600 text-white"
+        >
+          {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => skipTime(10)}
+          className="text-gray-300 hover:text-white hover:bg-white/20 h-8 w-8 p-0"
+        >
+          <SkipForward className="w-4 h-4" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsRepeat(!isRepeat)}
+          className={cn(
+            "text-gray-300 hover:text-white hover:bg-white/20 h-8 w-8 p-0",
+            isRepeat && "text-purple-400"
+          )}
+        >
+          <Repeat className="w-4 h-4" />
+        </Button>
+      </div>
+      
+      {/* Bottom Controls */}
+      <div className="flex items-center justify-between">
+        {/* Volume Control */}
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleMute}
+            className="text-gray-300 hover:text-white hover:bg-white/20 h-8 w-8 p-0"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </Button>
+          {!isMobile && (
+            <Slider
+              value={[isMuted ? 0 : volume]}
+              max={1}
+              step={0.1}
+              onValueChange={handleVolumeChange}
+              className="w-20"
+            />
+          )}
+        </div>
+        
+        {/* Playlist Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setShowPlaylist(!showPlaylist)}
+          className="text-gray-300 hover:text-white hover:bg-white/20 h-8 w-8 p-0"
+        >
+          <List className="w-4 h-4" />
+        </Button>
+      </div>
+      
+      {/* Playlist Panel */}
+      <AnimatePresence>
+        {showPlaylist && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mt-4 p-3 bg-black/20 rounded-lg border border-purple-500/20"
+          >
+            <div className="text-center text-sm text-gray-400">
+              Playlist feature coming soon...
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

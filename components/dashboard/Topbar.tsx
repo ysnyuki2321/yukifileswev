@@ -2,388 +2,182 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { 
-  Bell, LogOut, Menu, User, Settings, CreditCard,
-  X, CheckCircle, AlertCircle, Info, Wallet, Search
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu"
+import { 
+  Menu, 
+  Search, 
+  Bell, 
+  Settings, 
+  LogOut, 
+  User, 
+  Crown, 
+  Zap,
+  ChevronDown
 } from "lucide-react"
-import { signOut } from "@/lib/actions/auth"
-import { motion, AnimatePresence } from "framer-motion"
-import { EnhancedSearch } from "@/components/ui/enhanced-search"
-import { DetailedProfileScreen } from "@/components/profile/DetailedProfileScreen"
+import { cn } from "@/components/ui/utils"
 
 interface TopbarProps {
-  userEmail: string
-  isPremium: boolean
-  brandName?: string
+  user: any
+  userData: any
   isDemoMode?: boolean
-  onMenuToggle?: () => void
+  onMenuToggle: () => void
 }
 
-const mockNotifications = [
-  {
-    id: '1',
-    title: 'File uploaded successfully',
-    message: 'document.pdf has been uploaded to your storage',
-    type: 'success' as const,
-    time: '5 minutes ago',
-    read: false
-  },
-  {
-    id: '2', 
-    title: 'Storage limit warning',
-    message: 'You are approaching your storage limit (85% used)',
-    type: 'warning' as const,
-    time: '1 hour ago',
-    read: false
-  },
-  {
-    id: '3',
-    title: 'New share link created',
-    message: 'presentation.pptx share link has been generated',
-    type: 'info' as const,
-    time: '3 hours ago',
-    read: true
+export function Topbar({ user, userData, isDemoMode = false, onMenuToggle }: TopbarProps) {
+  const [isSearchOpen, setIsSearchOpen] = useState(false)
+
+  const getUserInitials = (email: string) => {
+    return email.split('@')[0].substring(0, 2).toUpperCase()
   }
-]
 
-export default function Topbar({ userEmail, isPremium, brandName = "YukiFiles", isDemoMode = false, onMenuToggle }: TopbarProps) {
-  const [showNotifications, setShowNotifications] = useState(false)
-  const [showProfile, setShowProfile] = useState(false)
-  const [selectedNotification, setSelectedNotification] = useState<typeof mockNotifications[0] | null>(null)
-  const [notifications, setNotifications] = useState(mockNotifications)
-  const [showSearchResults, setShowSearchResults] = useState(false)
-
-  const unreadCount = notifications.filter(n => !n.read).length
-
-  const handleNotificationClick = (notification: typeof mockNotifications[0]) => {
-    setSelectedNotification(notification)
-    setShowNotifications(false)
+  const getSubscriptionBadge = () => {
+    if (!userData) return null
     
-    // Mark as read
-    setNotifications(prevNotifications => 
-      prevNotifications.map(n => 
-        n.id === notification.id ? { ...n, read: true } : n
+    if (userData.subscription_type === 'paid') {
+      return (
+        <div className="hidden sm:flex items-center space-x-1 px-2 py-1 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-full">
+          <Crown className="w-3 h-3 text-yellow-400" />
+          <span className="text-xs text-purple-300 font-medium">Pro</span>
+        </div>
       )
+    }
+    
+    return (
+      <div className="hidden sm:flex items-center space-x-1 px-2 py-1 bg-gray-500/20 border border-gray-500/30 rounded-full">
+        <span className="text-xs text-gray-300 font-medium">Free</span>
+      </div>
     )
   }
 
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'success': return <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
-      case 'warning': return <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400" />
-      case 'error': return <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-red-400" />
-      case 'info': return <Info className="w-4 h-4 sm:w-5 sm:h-5 text-blue-400" />
-      default: return <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-    }
-  }
-
   return (
-    <header className="h-16 w-full border-b border-purple-500/20 bg-black/20 backdrop-blur-lg">
-      <div className="h-full container mx-auto px-3 sm:px-4 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Left Section */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <button 
+    <header className="glass-effect border-b border-purple-500/20 px-4 py-3">
+      <div className="flex items-center justify-between">
+        {/* Left side - Menu button and search */}
+        <div className="flex items-center space-x-3">
+          {/* Mobile menu button */}
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={onMenuToggle}
-            className="md:hidden mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
+            className="md:hidden p-2 hover:bg-purple-500/10 touch-target"
           >
-            <Menu className="h-5 w-5" />
-          </button>
-          
-          {/* Mobile Search Button */}
-          <button 
-            onClick={() => setShowSearchResults(!showSearchResults)}
-            className="md:hidden mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 active:bg-white/10"
-          >
-            <Search className="h-5 w-5" />
-          </button>
-        </div>
+            <Menu className="w-5 h-5 text-gray-300" />
+          </Button>
 
-        {/* Enhanced Search Bar - Desktop */}
-        <div className="flex-1 max-w-xl hidden md:block">
-          <EnhancedSearch 
-            placeholder="Search files, folders, features..."
-            onResultClick={(result) => {
-              console.log('Search result clicked:', result)
-              if (result.type === 'feature') {
-                window.location.href = `/dashboard?demo=true&tab=${result.name.toLowerCase().replace(' ', '')}`
-              } else {
-                window.location.href = `/files?path=${result.path.join('/')}&highlight=${result.name}`
-              }
-            }}
-          />
-        </div>
-
-        {/* Mobile Search Overlay */}
-        {showSearchResults && (
-          <div className="md:hidden fixed inset-0 z-[9999] bg-black/80 backdrop-blur-md">
-            <div className="p-4">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="flex-1">
-                  <EnhancedSearch 
-                    placeholder="Search files, folders, features..."
-                    onResultClick={(result) => {
-                      setShowSearchResults(false)
-                      console.log('Mobile search result clicked:', result)
-                      if (result.type === 'feature') {
-                        window.location.href = `/dashboard?demo=true&tab=${result.name.toLowerCase().replace(' ', '')}`
-                      } else {
-                        window.location.href = `/files?path=${result.path.join('/')}&highlight=${result.name}`
-                      }
-                    }}
-                  />
-                </div>
-                <button 
-                  onClick={() => setShowSearchResults(false)}
-                  className="mobile-menu-button text-gray-300 hover:text-white"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+          {/* Search bar */}
+          <div className="relative">
+            <div className="flex items-center space-x-2">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search files..."
+                  className="w-64 pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200 hidden md:block"
+                />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-32 pl-10 pr-4 py-2 bg-gray-800/50 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-transparent transition-all duration-200 md:hidden"
+                />
               </div>
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-1 sm:gap-3">
+        {/* Right side - Notifications and user menu */}
+        <div className="flex items-center space-x-3">
+          {/* Demo mode indicator */}
           {isDemoMode && (
-            <span className="hidden sm:inline-block bg-gradient-to-r from-green-500 to-blue-500 text-white text-xs px-2 py-1 rounded animate-pulse">
-              DEMO
-            </span>
-          )}
-          {isPremium && !isDemoMode && (
-            <span className="hidden sm:inline-block bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-1 rounded premium-glow">
-              PRO
-            </span>
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-1 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-full">
+              <Zap className="w-3 h-3 text-blue-400" />
+              <span className="text-xs text-blue-300 font-medium">DEMO</span>
+            </div>
           )}
 
           {/* Notifications */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowNotifications(!showNotifications)}
-              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative touch-manipulation"
-            >
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
-                <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">{unreadCount > 9 ? '9+' : unreadCount}</span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="p-2 hover:bg-purple-500/10 relative touch-target"
+          >
+            <Bell className="w-5 h-5 text-gray-300" />
+            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+          </Button>
+
+          {/* User menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex items-center space-x-2 p-2 hover:bg-purple-500/10 touch-target"
+              >
+                <Avatar className="w-8 h-8 border-2 border-purple-500/30">
+                  <AvatarImage src={user?.avatar} alt={user?.email} />
+                  <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold">
+                    {getUserInitials(user?.email || 'U')}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden sm:flex items-center space-x-1">
+                  <span className="text-sm text-white font-medium">
+                    {user?.email?.split('@')[0] || 'User'}
+                  </span>
+                  <ChevronDown className="w-3 h-3 text-gray-400" />
                 </div>
-              )}
-            </button>
-
-            {/* Notifications Dropdown */}
-            <AnimatePresence>
-              {showNotifications && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-2rem)] bg-gradient-to-br from-slate-900 via-blue-950/60 to-slate-900 backdrop-blur-lg border border-blue-500/30 rounded-lg shadow-2xl z-[9999] mobile-stable"
-                >
-                  <div className="p-3 sm:p-4 border-b border-purple-500/10">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-white font-semibold text-sm sm:text-base">Notifications</h3>
-                      <Button
-                        onClick={() => setShowNotifications(false)}
-                        size="sm"
-                        variant="ghost"
-                        className="h-8 w-8 p-0 text-gray-400 hover:text-white touch-manipulation"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div className="max-h-64 sm:max-h-80 overflow-y-auto mobile-scroll">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        onClick={() => handleNotificationClick(notification)}
-                        className={`p-3 sm:p-4 border-b border-gray-700/50 hover:bg-purple-500/10 cursor-pointer transition-colors touch-manipulation ${
-                          !notification.read ? 'bg-purple-500/5' : ''
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className="flex-shrink-0 mt-1">
-                            {getNotificationIcon(notification.type)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="text-white text-sm font-medium leading-tight">{notification.title}</p>
-                              {!notification.read && (
-                                <div className="w-2 h-2 bg-purple-400 rounded-full flex-shrink-0"></div>
-                              )}
-                            </div>
-                            <p className="text-gray-400 text-xs leading-relaxed line-clamp-2">{notification.message}</p>
-                            <p className="text-gray-500 text-xs mt-2">{notification.time}</p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Profile Dropdown */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowProfile(!showProfile)}
-              className="mobile-menu-button text-gray-300 hover:text-white hover:bg-white/5 relative touch-manipulation"
+              </Button>
+            </DropdownMenuTrigger>
+            
+            <DropdownMenuContent 
+              align="end" 
+              className="w-56 bg-gray-900/95 backdrop-blur-xl border border-purple-500/20"
             >
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                <User className="w-4 h-4 text-white" />
-              </div>
-            </button>
-
-            {/* Profile Dropdown */}
-            <AnimatePresence>
-              {showProfile && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                                     className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-1rem)] bg-gradient-to-br from-slate-900 via-purple-950/60 to-slate-900 backdrop-blur-lg border border-purple-500/30 rounded-lg shadow-2xl z-[9999] mobile-stable"
-                >
-                  {/* Balance */}
-                  <div className="p-4 border-b border-purple-500/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                        <Wallet className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-gray-400">Balance</p>
-                        <p className="text-lg font-bold text-white">$24.50</p>
-                      </div>
-                    </div>
+              <DropdownMenuLabel className="text-white">
+                <div className="flex items-center space-x-2">
+                  <Avatar className="w-8 h-8">
+                    <AvatarImage src={user?.avatar} alt={user?.email} />
+                    <AvatarFallback className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-semibold">
+                      {getUserInitials(user?.email || 'U')}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm font-medium">{user?.email?.split('@')[0] || 'User'}</p>
+                    <p className="text-xs text-gray-400">{user?.email || 'user@example.com'}</p>
                   </div>
+                </div>
+              </DropdownMenuLabel>
+              
+              <DropdownMenuSeparator className="bg-gray-700" />
+              
+              <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-purple-500/10 cursor-pointer">
+                <User className="w-4 h-4 mr-2" />
+                Profile
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem className="text-gray-300 hover:text-white hover:bg-purple-500/10 cursor-pointer">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator className="bg-gray-700" />
+              
+              <DropdownMenuItem className="text-red-400 hover:text-red-300 hover:bg-red-500/10 cursor-pointer">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-                  {/* User Info */}
-                  <div className="p-4 border-b border-gray-700/30">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                        <User className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium truncate">{userEmail}</p>
-                        <p className="text-xs text-gray-400">
-                          {isPremium ? 'Premium Account' : 'Free Account'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Menu Items */}
-                  <div className="p-2">
-                    <button
-                      onClick={() => {
-                        setShowProfile(false)
-                        // Open profile screen with animation
-                        const profileScreen = document.createElement('div')
-                        profileScreen.id = 'profile-screen-mount'
-                        document.body.appendChild(profileScreen)
-                        
-                        import('@/components/profile/DetailedProfileScreen').then(({ DetailedProfileScreen }) => {
-                          const { createRoot } = require('react-dom/client')
-                          const root = createRoot(profileScreen)
-                          root.render(
-                            <DetailedProfileScreen 
-                              isOpen={true}
-                              onClose={() => {
-                                root.unmount()
-                                document.body.removeChild(profileScreen)
-                              }}
-                              userEmail={userEmail}
-                              isPremium={isPremium}
-                            />
-                          )
-                        })
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-500/10 transition-colors text-left"
-                    >
-                      <User className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-300">Profile</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => {
-                        setShowProfile(false)
-                        window.location.href = isDemoMode ? '/dashboard?demo=true&tab=settings' : '/settings'
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-purple-500/10 transition-colors text-left"
-                    >
-                      <Settings className="w-4 h-4 text-gray-400" />
-                      <span className="text-sm text-gray-300">Settings</span>
-                    </button>
-                  </div>
-
-                  {/* Logout */}
-                  <div className="p-2 border-t border-gray-700/30">
-                    <form action={signOut}>
-                      <Button 
-                        type="submit" 
-                        variant="ghost" 
-                        className="w-full justify-start text-gray-300 hover:text-white hover:bg-red-500/10"
-                      >
-                        <LogOut className="h-4 w-4 mr-3" />
-                        Sign Out
-                      </Button>
-                    </form>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          {/* Subscription badge */}
+          {getSubscriptionBadge()}
         </div>
       </div>
-
-      {/* Notification Detail Modal */}
-      <AnimatePresence>
-        {selectedNotification && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-md mobile-stable"
-            onClick={() => setSelectedNotification(null)}
-          >
-            {/* Mobile/Desktop responsive container */}
-            <div className="min-h-screen flex items-center justify-center p-4 md:p-6">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ type: "spring", damping: 25, stiffness: 300 }}
-                className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-xl shadow-2xl w-full max-w-md mx-auto p-6"
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  maxHeight: 'calc(100vh - 2rem)',
-                  overflowY: 'auto'
-                }}
-              >
-                <div className="flex items-start gap-4 mb-4">
-                  {getNotificationIcon(selectedNotification.type)}
-                  <div className="flex-1">
-                    <h3 className="text-white font-semibold mb-2">{selectedNotification.title}</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed mb-3">{selectedNotification.message}</p>
-                    <p className="text-gray-500 text-xs">{selectedNotification.time}</p>
-                  </div>
-                </div>
-                
-                <div className="flex justify-end">
-                  <Button
-                    onClick={() => setSelectedNotification(null)}
-                    className="bg-purple-600 hover:bg-purple-700 min-h-[44px] px-6"
-                  >
-                    Got it
-                  </Button>
-                </div>
-              </motion.div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </header>
   )
 }

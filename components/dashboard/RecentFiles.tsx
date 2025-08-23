@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { formatBytes } from "@/lib/utils"
 import { Copy, Link as LinkIcon, ExternalLink, FileText, Eye, Edit3, FileCode, FileImage, Music, Video, FileArchive, Database, MoreVertical, Share2 } from "lucide-react"
 import Link from "next/link"
-import { FileEditor } from "@/components/file-editor/file-editor"
+import { FileEditor } from "@/components/file-editor/FileEditor"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { AdvancedShareModal } from "@/components/ui/advanced-share-modal"
@@ -127,7 +127,7 @@ export default function RecentFiles({ files }: { files: RecentFileItem[] }) {
             {(files || []).map((fileItem) => {
               if (!fileItem) return null
               
-              const FileIcon = getFileIcon(fileItem?.original_name || '')
+              const FileIcon = getFileIcon(fileItem?.original_name || '') || FileText
               const canEdit = isTextFile(fileItem?.original_name || '') && fileItem?.content
               
               return (
