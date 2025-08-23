@@ -95,11 +95,18 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
   const editorRef = useRef<HTMLTextAreaElement>(null)
   const searchRef = useRef<HTMLInputElement>(null)
 
+  // Mobile detection và responsive behavior
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768
       setIsMobile(mobile)
       setShowSidebar(!mobile)
+      // Giảm font size trên mobile
+      if (mobile) {
+        setFontSize(14)
+      } else {
+        setFontSize(16)
+      }
     }
     
     checkMobile()
@@ -287,26 +294,40 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
           }}></div>
         </div>
 
-        <div className="relative p-4">
+        <div className={cn("relative", isMobile ? "p-3" : "p-4")}>
           {/* Main Header */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              {getFileIcon()}
+          <div className={cn("flex items-center justify-between", isMobile ? "mb-3" : "mb-4")}>
+            <div className="flex items-center gap-3">
+              <div className={cn(
+                "flex items-center justify-center border-2 shadow-lg",
+                isMobile ? "w-10 h-10 rounded-xl" : "w-12 h-12 rounded-2xl"
+              )}>
+                {getFileIcon()}
+              </div>
               <div>
-                <h2 className="text-white font-bold text-xl mb-1">{fileName}</h2>
-                <div className="flex items-center gap-3">
+                <h2 className={cn(
+                  "text-white font-bold mb-1",
+                  isMobile ? "text-lg" : "text-xl"
+                )}>{fileName}</h2>
+                <div className="flex items-center gap-2">
                   <Badge className={cn(
-                    "bg-gradient-to-r border-0 text-white text-xs px-3 py-1",
+                    "bg-gradient-to-r border-0 text-white px-2 py-0.5",
+                    isMobile ? "text-xs" : "text-xs px-3 py-1",
                     `from-${FILE_TYPES[fileType as keyof typeof FILE_TYPES]?.color.split('-')[1]}-500 to-${FILE_TYPES[fileType as keyof typeof FILE_TYPES]?.color.split('-')[3]}-500`
                   )}>
                     {FILE_TYPES[fileType as keyof typeof FILE_TYPES]?.name}
                   </Badge>
-                  <span className="text-white/60 text-sm">
+                  <span className={cn(
+                    "text-white/60",
+                    isMobile ? "text-xs" : "text-sm"
+                  )}>
                     {formatBytes(file.size)}
                   </span>
-                  <span className="text-white/60 text-sm">
-                    {file.lastModified.toLocaleDateString()}
-                  </span>
+                  {!isMobile && (
+                    <span className="text-white/60 text-sm">
+                      {file.lastModified.toLocaleDateString()}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -338,35 +359,76 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
               <Button
                 onClick={handleSave}
                 disabled={!isValid || readOnly}
+                size={isMobile ? "sm" : "default"}
                 className={cn(
-                  "bg-gradient-to-r text-white px-6 py-2 shadow-lg",
+                  "bg-gradient-to-r text-white shadow-lg",
+                  isMobile ? "px-3 py-1.5 text-sm" : "px-6 py-2",
                   `from-${currentTheme.accent.split('-')[1]}-500 to-${currentTheme.accent.split('-')[3]}-500`
                 )}
               >
-                <Save className="w-4 h-4 mr-2" />
-                Save
+                <Save className={cn("mr-2", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                {!isMobile && "Save"}
               </Button>
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-4 gap-4 text-center">
-            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-              <span className="text-white/60 block text-xs">Lines</span>
-              <span className="text-white font-bold text-lg">{content.split('\n').length}</span>
+          {/* Quick Stats - Mobile: 2x2 grid, Desktop: 4x1 grid */}
+          <div className={cn(
+            "text-center",
+            isMobile 
+              ? "grid grid-cols-2 gap-2" 
+              : "grid grid-cols-4 gap-4"
+          )}>
+            <div className={cn(
+              "bg-white/5 rounded-lg border border-white/10",
+              isMobile ? "p-2" : "p-3"
+            )}>
+              <span className={cn(
+                "text-white/60 block",
+                isMobile ? "text-xs" : "text-xs"
+              )}>Lines</span>
+              <span className={cn(
+                "text-white font-bold",
+                isMobile ? "text-base" : "text-lg"
+              )}>{content.split('\n').length}</span>
             </div>
-            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-              <span className="text-white/60 block text-xs">Characters</span>
-              <span className="text-white font-bold text-lg">{content.length}</span>
+            <div className={cn(
+              "bg-white/5 rounded-lg border border-white/10",
+              isMobile ? "p-2" : "p-3"
+            )}>
+              <span className={cn(
+                "text-white/60 block",
+                isMobile ? "text-xs" : "text-xs"
+              )}>Chars</span>
+              <span className={cn(
+                "text-white font-bold",
+                isMobile ? "text-base" : "text-lg"
+              )}>{content.length}</span>
             </div>
-            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-              <span className="text-white/60 block text-xs">Words</span>
-              <span className="text-white font-bold text-lg">{content.split(/\s+/).filter(word => word.length > 0).length}</span>
-            </div>
-            <div className="bg-white/5 rounded-lg p-3 border border-white/10">
-              <span className="text-white/60 block text-xs">Type</span>
-              <span className="text-white font-bold text-lg">{fileType.toUpperCase()}</span>
-            </div>
+            {!isMobile && (
+              <>
+                <div className="bg-white/5 rounded-lg border border-white/10 p-3">
+                  <span className="text-white/60 block text-xs">Words</span>
+                  <span className="text-white font-bold text-lg">{content.split(/\s+/).filter(word => word.length > 0).length}</span>
+                </div>
+                <div className="bg-white/5 rounded-lg border border-white/10 p-3">
+                  <span className="text-white/60 block text-xs">Type</span>
+                  <span className="text-white font-bold text-lg">{fileType.toUpperCase()}</span>
+                </div>
+              </>
+            )}
+            {isMobile && (
+              <>
+                <div className="bg-white/5 rounded-lg border border-white/10 p-2">
+                  <span className="text-white/60 block text-xs">Words</span>
+                  <span className="text-white font-bold text-base">{content.split(/\s+/).filter(word => word.length > 0).length}</span>
+                </div>
+                <div className="bg-white/5 rounded-lg border border-white/10 p-2">
+                  <span className="text-white/60 block text-xs">Type</span>
+                  <span className="text-white font-bold text-base">{fileType.toUpperCase()}</span>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -475,51 +537,70 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
         <div className="flex-1 flex flex-col">
           {/* Toolbar */}
           {showToolbar && (
-            <div className="bg-black/30 border-b border-white/10 p-3">
-              <div className="flex items-center gap-2 flex-wrap">
+            <div className={cn(
+              "bg-black/30 border-b border-white/10",
+              isMobile ? "p-2" : "p-3"
+            )}>
+              <div className={cn(
+                "flex items-center gap-2 flex-wrap",
+                isMobile ? "gap-1" : "gap-2"
+              )}>
                 <Button
-                  size="sm"
+                  size={isMobile ? "sm" : "sm"}
                   variant="ghost"
                   onClick={() => setShowPreview(!showPreview)}
-                  className="text-white hover:bg-white/20"
+                  className={cn(
+                    "text-white hover:bg-white/20",
+                    isMobile ? "px-2 py-1 text-xs" : ""
+                  )}
                 >
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
+                  <Eye className={cn("mr-2", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                  {!isMobile && "Preview"}
                 </Button>
                 <Button
-                  size="sm"
+                  size={isMobile ? "sm" : "sm"}
                   variant="ghost"
                   onClick={() => setShowSearch(true)}
-                  className="text-white hover:bg-white/20"
+                  className={cn(
+                    "text-white hover:bg-white/20",
+                    isMobile ? "px-2 py-1 text-xs" : ""
+                  )}
                 >
-                  <Search className="w-4 h-4 mr-2" />
-                  Find
+                  <Search className={cn("mr-2", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                  {!isMobile && "Find"}
                 </Button>
                 <Button
-                  size="sm"
+                  size={isMobile ? "sm" : "sm"}
                   variant="ghost"
                   onClick={() => setShowSettings(true)}
-                  className="text-white hover:bg-white/20"
+                  className={cn(
+                    "text-white hover:bg-white/20",
+                    isMobile ? "px-2 py-1 text-xs" : ""
+                  )}
                 >
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
+                  <Settings className={cn("mr-2", isMobile ? "w-3 h-3" : "w-4 h-4")} />
+                  {!isMobile && "Settings"}
                 </Button>
                 
-                <div className="w-px h-6 bg-white/20 mx-2"></div>
-                
-                <span className="text-white/60 text-sm">Theme:</span>
-                <Select value={theme} onValueChange={setTheme}>
-                  <SelectTrigger className="w-32 bg-white/10 border-white/20 text-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-slate-800 border-white/20">
-                    {THEMES.map((themeOption) => (
-                      <SelectItem key={themeOption.id} value={themeOption.id} className="text-white hover:bg-white/20">
-                        {themeOption.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {!isMobile && (
+                  <>
+                    <div className="w-px h-6 bg-white/20 mx-2"></div>
+                    
+                    <span className="text-white/60 text-sm">Theme:</span>
+                    <Select value={theme} onValueChange={setTheme}>
+                      <SelectTrigger className="w-32 bg-white/10 border-white/20 text-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-slate-800 border-white/20">
+                        {THEMES.map((themeOption) => (
+                          <SelectItem key={themeOption.id} value={themeOption.id} className="text-white hover:bg-white/20">
+                            {themeOption.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -536,32 +617,58 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                   className="h-full flex flex-col"
                 >
                   {/* File Name Input */}
-                  <div className="p-4 border-b border-white/10 bg-black/20">
-                    <label className="block text-white/80 text-sm font-medium mb-2">File Name</label>
+                  <div className={cn(
+                    "border-b border-white/10 bg-black/20",
+                    isMobile ? "p-3" : "p-4"
+                  )}>
+                    <label className={cn(
+                      "block text-white/80 font-medium mb-2",
+                      isMobile ? "text-xs" : "text-sm"
+                    )}>File Name</label>
                     <Input
                       value={fileName}
                       onChange={(e) => handleFileNameChange(e.target.value)}
                       disabled={readOnly}
-                      className="bg-white/10 border-white/20 text-white text-base"
+                      className={cn(
+                        "bg-white/10 border-white/20 text-white",
+                        isMobile ? "text-sm h-8" : "text-base"
+                      )}
                     />
                   </div>
 
                   {/* Editor Area */}
-                  <div className="flex-1 p-4 relative">
+                  <div className={cn(
+                    "flex-1 relative",
+                    isMobile ? "p-3" : "p-4"
+                  )}>
                     {showPreview ? (
                       <div className="h-full">
-                        <div className="bg-white/10 rounded-xl p-4 border border-white/20 h-full overflow-auto">
-                          <h3 className="text-white font-semibold mb-2">Preview</h3>
-                          <pre className="text-white text-sm whitespace-pre-wrap">{content}</pre>
+                        <div className={cn(
+                          "bg-white/10 rounded-xl border border-white/20 h-full overflow-auto",
+                          isMobile ? "p-3" : "p-4"
+                        )}>
+                          <h3 className={cn(
+                            "text-white font-semibold mb-2",
+                            isMobile ? "text-sm" : "text-base"
+                          )}>Preview</h3>
+                          <pre className={cn(
+                            "text-white whitespace-pre-wrap",
+                            isMobile ? "text-xs" : "text-sm"
+                          )}>{content}</pre>
                         </div>
                       </div>
                     ) : (
                       <div className="h-full relative">
                         {/* Line Numbers */}
                         {lineNumbers && (
-                          <div className="absolute left-0 top-0 bottom-0 w-12 bg-black/20 border-r border-white/10 text-right text-xs text-white/40 p-3 select-none">
+                          <div className={cn(
+                            "absolute left-0 top-0 bottom-0 bg-black/20 border-r border-white/10 text-right text-white/40 select-none",
+                            isMobile ? "w-8 p-2 text-xs" : "w-12 p-3 text-xs"
+                          )}>
                             {content.split('\n').map((_, index) => (
-                              <div key={index} className="leading-6">
+                              <div key={index} className={cn(
+                                isMobile ? "leading-5" : "leading-6"
+                              )}>
                                 {index + 1}
                               </div>
                             ))}
@@ -576,8 +683,9 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                           onKeyDown={handleKeyDown}
                           disabled={readOnly}
                           className={cn(
-                            "w-full h-full resize-none border-0 bg-transparent text-white font-mono p-4 text-base",
-                            lineNumbers && "pl-16"
+                            "w-full h-full resize-none border-0 bg-transparent text-white font-mono",
+                            isMobile ? "p-2 text-sm" : "p-4 text-base",
+                            lineNumbers && (isMobile ? "pl-10" : "pl-16")
                           )}
                           style={getEditorStyles()}
                           placeholder={`✨ Start writing your ${FILE_TYPES[fileType as keyof typeof FILE_TYPES]?.name.toLowerCase()}...`}
@@ -594,72 +702,123 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="h-full p-6"
+                  className={cn("h-full", isMobile ? "p-3" : "p-6")}
                 >
-                  <div className="max-w-2xl mx-auto">
-                    <div className="text-center mb-8">
-                      <div className="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Search className="w-8 h-8 text-white" />
+                  <div className={cn("mx-auto", isMobile ? "w-full" : "max-w-2xl")}>
+                    <div className={cn("text-center", isMobile ? "mb-4" : "mb-8")}>
+                      <div className={cn(
+                        "bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4",
+                        isMobile ? "w-12 h-12" : "w-16 h-16"
+                      )}>
+                        <Search className={cn("text-white", isMobile ? "w-6 h-6" : "w-8 h-8")} />
                       </div>
-                      <h3 className="text-white font-bold text-2xl mb-2">Search & Replace</h3>
-                      <p className="text-white/60">Find and replace text in your file</p>
+                      <h3 className={cn(
+                        "text-white font-bold mb-2",
+                        isMobile ? "text-lg" : "text-2xl"
+                      )}>Search & Replace</h3>
+                      <p className={cn(
+                        "text-white/60",
+                        isMobile ? "text-xs" : "text-sm"
+                      )}>Find and replace text in your file</p>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className={cn("space-y-4", isMobile ? "space-y-3" : "space-y-6")}>
                       <div>
-                        <label className="text-white text-sm font-medium block mb-2">Find</label>
+                        <label className={cn(
+                          "text-white font-medium block mb-2",
+                          isMobile ? "text-xs" : "text-sm"
+                        )}>Find</label>
                         <Input
                           ref={searchRef}
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
-                          className="bg-white/10 border-white/20 text-white text-lg h-12"
+                          className={cn(
+                            "bg-white/10 border-white/20 text-white",
+                            isMobile ? "text-sm h-10" : "text-lg h-12"
+                          )}
                           placeholder="Search text..."
                         />
                       </div>
                       
                       <div>
-                        <label className="text-white text-sm font-medium block mb-2">Replace</label>
+                        <label className={cn(
+                          "text-white font-medium block mb-2",
+                          isMobile ? "text-xs" : "text-sm"
+                        )}>Replace</label>
                         <Input
                           value={replaceQuery}
                           onChange={(e) => setReplaceQuery(e.target.value)}
-                          className="bg-white/10 border-white/20 text-white text-lg h-12"
+                          className={cn(
+                            "bg-white/10 border-white/20 text-white",
+                            isMobile ? "text-sm h-10" : "text-lg h-12"
+                          )}
                           placeholder="Replace with..."
                         />
                       </div>
 
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                      <div className={cn(
+                        "grid gap-3",
+                        isMobile ? "grid-cols-1" : "grid-cols-3"
+                      )}>
+                        <div className={cn(
+                          "flex items-center gap-3 bg-white/5 rounded-lg border border-white/10",
+                          isMobile ? "p-3" : "p-4"
+                        )}>
                           <Switch
                             checked={searchOptions.caseSensitive}
                             onCheckedChange={(checked) => setSearchOptions(prev => ({ ...prev, caseSensitive: checked }))}
                           />
-                          <label className="text-white text-sm">Case sensitive</label>
+                          <label className={cn(
+                            "text-white",
+                            isMobile ? "text-xs" : "text-sm"
+                          )}>Case sensitive</label>
                         </div>
 
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className={cn(
+                          "flex items-center gap-3 bg-white/5 rounded-lg border border-white/10",
+                          isMobile ? "p-3" : "p-4"
+                        )}>
                           <Switch
                             checked={searchOptions.wholeWord}
                             onCheckedChange={(checked) => setSearchOptions(prev => ({ ...prev, wholeWord: checked }))}
                           />
-                          <label className="text-white text-sm">Whole word</label>
+                          <label className={cn(
+                            "text-white",
+                            isMobile ? "text-xs" : "text-sm"
+                          )}>Whole word</label>
                         </div>
 
-                        <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className={cn(
+                          "flex items-center gap-3 bg-white/5 rounded-lg border border-white/10",
+                          isMobile ? "p-3" : "p-4"
+                        )}>
                           <Switch
                             checked={searchOptions.regex}
                             onCheckedChange={(checked) => setSearchOptions(prev => ({ ...prev, regex: checked }))}
                           />
-                          <label className="text-white text-sm">Regex</label>
+                          <label className={cn(
+                            "text-white",
+                            isMobile ? "text-xs" : "text-sm"
+                          )}>Regex</label>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4 pt-6">
-                        <Button onClick={handleSearch} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white h-12 text-lg">
-                          <Search className="w-5 h-5 mr-2" />
+                      <div className={cn(
+                        "grid gap-3 pt-4",
+                        isMobile ? "grid-cols-1" : "grid-cols-2"
+                      )}>
+                        <Button onClick={handleSearch} className={cn(
+                          "bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white",
+                          isMobile ? "h-10 text-sm" : "h-12 text-lg"
+                        )}>
+                          <Search className={cn("mr-2", isMobile ? "w-4 h-4" : "w-5 h-5")} />
                           Find
                         </Button>
-                        <Button onClick={handleReplace} variant="outline" className="border-white/20 text-white hover:bg-white/10 h-12 text-lg">
-                          <Replace className="w-5 h-5 mr-2" />
+                        <Button onClick={handleReplace} variant="outline" className={cn(
+                          "border-white/20 text-white hover:bg-white/10",
+                          isMobile ? "h-10 text-sm" : "h-12 text-lg"
+                        )}>
+                          <Replace className={cn("mr-2", isMobile ? "w-4 h-4" : "w-5 h-5")} />
                           Replace
                         </Button>
                       </div>
