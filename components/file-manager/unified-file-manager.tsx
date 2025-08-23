@@ -25,6 +25,16 @@ import { FilePreviewContent } from "@/components/file-preview/FilePreview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { ShareSystem } from "@/components/ui/share-system"
 import { formatBytes } from "@/lib/utils"
+import { 
+  GlassContainer, 
+  AnimatedCard, 
+  ResponsiveText, 
+  InteractiveButton,
+  StatusBadge,
+  LoadingSpinner,
+  ResponsiveGrid,
+  ResponsiveContainer
+} from "@/components/ui/design-system"
 
 // Types
 interface FileItem {
