@@ -4,22 +4,17 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
-  FileText, FileCode, Save, Search, Settings, Download, Share2, Star,
-  Eye, EyeOff, Copy, Scissors, Paste, Type, Hash, Database,
-  Music, Image, Video, Folder, Archive, File, FileX, FileCheck,
-  Smartphone, Monitor, ZoomIn, ZoomOut, RotateCcw, Replace,
-  Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
-  Indent, Outdent, Link, Table, Code2, Palette, ChevronDown, ChevronUp,
-  Undo2, Redo2, History, Clock, Calendar, Tag, Bookmark, Pin,
-  MessageSquare, Phone, Mail, MapPin, Navigation, Compass, Globe2,
-  Menu, MoreVertical
+  AlignCenter, AlignLeft, AlignRight, Archive, Bold, Database, Edit3, Eye, FileCode, FileText, Folder, Image, Italic, Music, Redo2, Replace, Save, Search, Underline, Undo2, Video, X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Slider } from '@/components/ui/slider'
 
 interface AdvancedFileEditorProps {
   file: {
@@ -238,384 +233,323 @@ export function AdvancedFileEditor({ file, onSave, onClose, readOnly = false }: 
   }
 
   return (
-    <div className={cn(
-      "h-full flex flex-col",
-      getCurrentTheme().bg
-    )}>
+    <div className="h-full flex flex-col bg-slate-900 text-white">
       {/* Header */}
-      <div className={cn(
-        "border-b border-white/10 bg-black/20",
-        isMobile ? "p-2" : "p-4"
-      )}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              "bg-gradient-to-r rounded-lg p-2",
-              FILE_TYPES[fileType as keyof typeof FILE_TYPES]?.color || 'from-blue-500 to-cyan-500'
-            )}>
-              {getFileIcon()}
-            </div>
-            <div className="flex-1">
-              <Input
-                value={fileName}
-                onChange={(e) => handleFileNameChange(e.target.value)}
-                disabled={readOnly}
-                className={cn(
-                  "bg-white/10 border-white/20 text-white font-medium",
-                  isMobile ? "text-sm h-8" : "text-base h-10"
-                )}
-              />
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="secondary" className="text-xs">
-                  {FILE_TYPES[fileType as keyof typeof FILE_TYPES]?.name}
-                </Badge>
-                <span className="text-white/60 text-xs">
-                  {formatBytes(file.size)}
-                </span>
-                {!isMobile && (
-                  <span className="text-white/60 text-xs">
-                    {file.lastModified.toLocaleDateString()}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Button
-              size={isMobile ? "sm" : "default"}
-              onClick={handleSave}
-              className="bg-gradient-to-r from-purple-500 to-pink-500"
-            >
-              <Save className={cn("mr-2", isMobile ? "w-3 h-3" : "w-4 h-4")} />
-              {!isMobile && "Save"}
-            </Button>
-          </div>
+      <div className="flex items-center justify-between p-4 border-b border-slate-700 bg-slate-800/50">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <Input
+            value={fileName}
+            onChange={handleFileNameChange}
+            className="bg-slate-700 border-slate-600 text-white placeholder-gray-400 flex-1 min-w-0 max-w-xs sm:max-w-md"
+            placeholder="Enter file name..."
+          />
+          <Badge variant="secondary" className="bg-slate-600 text-gray-300 border-0">
+            {fileType}
+          </Badge>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleSave}
+            className="bg-green-600 hover:bg-green-700 text-white"
+            size={isMobile ? "sm" : "default"}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {isMobile ? "Save" : "Save File"}
+          </Button>
+          <Button
+            onClick={onClose}
+            variant="outline"
+            size={isMobile ? "sm" : "default"}
+            className="border-slate-600 text-gray-300 hover:bg-slate-700"
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex relative">
+      <div className="flex-1 flex min-h-0">
         {/* Left Sidebar - Desktop Only */}
-        {!isMobile && showSidebar && (
-          <div className="w-80 bg-black/20 border-r border-white/10 p-4 space-y-6">
-            {/* File Info */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <h4 className="text-white font-semibold text-lg mb-3">File Information</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-white/60">Created:</span>
-                  <span className="text-white">{file.lastModified.toLocaleDateString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Modified:</span>
-                  <span className="text-white">{file.lastModified.toLocaleDateString()}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Size:</span>
-                  <span className="text-white">{formatBytes(file.size)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Type:</span>
-                  <span className="text-white">{fileType.toUpperCase()}</span>
-                </div>
+        {!isMobile && (
+          <div className="w-64 bg-slate-800/50 border-r border-slate-700 p-4">
+            <div className="space-y-4">
+              {/* Theme Selector */}
+              <div>
+                <Label className="text-sm font-medium text-gray-300">Theme</Label>
+                <Select value={theme} onValueChange={setTheme}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="monokai">Monokai</SelectItem>
+                    <SelectItem value="dracula">Dracula</SelectItem>
+                    <SelectItem value="nord">Nord</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <h4 className="text-white font-semibold text-lg mb-3">Quick Actions</h4>
-              <div className="space-y-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setShowPreview(!showPreview)}
-                  className="w-full text-white hover:bg-white/10 justify-start"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  {showPreview ? 'Hide Preview' : 'Show Preview'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setShowToolbar(!showToolbar)}
-                  className="w-full text-white hover:bg-white/10 justify-start"
-                >
-                  <Menu className="w-4 h-4 mr-2" />
-                  {showToolbar ? 'Hide Toolbar' : 'Show Toolbar'}
-                </Button>
+              {/* Font Family */}
+              <div>
+                <Label className="text-sm font-medium text-gray-300">Font</Label>
+                <Select value={fontFamily} onValueChange={setFontFamily}>
+                  <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-slate-600">
+                    <SelectItem value="monospace">Monospace</SelectItem>
+                    <SelectItem value="consolas">Consolas</SelectItem>
+                    <SelectItem value="fira-code">Fira Code</SelectItem>
+                    <SelectItem value="jetbrains-mono">JetBrains Mono</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            </div>
 
-            {/* Editor Settings */}
-            <div className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <h4 className="text-white font-semibold text-lg mb-3">Editor Settings</h4>
+              {/* Font Size */}
+              <div>
+                <Label className="text-sm font-medium text-gray-300">
+                  Font Size: {fontSize}px
+                </Label>
+                <Slider
+                  value={[fontSize]}
+                  onValueChange={([value]) => setFontSize(value)}
+                  min={12}
+                  max={24}
+                  step={1}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Toggles */}
               <div className="space-y-3">
-                <div>
-                  <label className="text-white/60 text-sm block mb-1">Theme</label>
-                  <Select value={theme} onValueChange={setTheme}>
-                    <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {THEMES.map((theme) => (
-                        <SelectItem key={theme.id} value={theme.id}>
-                          {theme.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm text-gray-300">Line Numbers</Label>
+                  <Switch
+                    checked={lineNumbers}
+                    onCheckedChange={setLineNumbers}
+                    className="data-[state=checked]:bg-blue-600"
+                  />
                 </div>
-                
-                <div>
-                  <label className="text-white/60 text-sm block mb-1">Font Family</label>
-                  <Select value={fontFamily} onValueChange={setFontFamily}>
-                    <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {FONT_FAMILIES.map((font) => (
-                        <SelectItem key={font.id} value={font.id}>
-                          {font.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm text-gray-300">Word Wrap</Label>
+                  <Switch
+                    checked={wordWrap}
+                    onCheckedChange={setWordWrap}
+                    className="data-[state=checked]:bg-blue-600"
+                  />
                 </div>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm text-gray-300">Toolbar</Label>
+                  <Switch
+                    checked={showToolbar}
+                    onCheckedChange={setShowToolbar}
+                    className="data-[state=checked]:bg-blue-600"
+                  />
+                </div>
+              </div>
+
+              {/* Undo/Redo */}
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleUndo}
+                  disabled={undoStack.length === 0}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-slate-600 text-gray-300 hover:bg-slate-700"
+                >
+                  <Undo2 className="w-4 h-4 mr-1" />
+                  Undo
+                </Button>
+                <Button
+                  onClick={handleRedo}
+                  disabled={redoStack.length === 0}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 border-slate-600 text-gray-300 hover:bg-slate-700"
+                >
+                  <Redo2 className="w-4 h-4 mr-1" />
+                  Redo
+                </Button>
               </div>
             </div>
           </div>
         )}
 
-        {/* Editor Content */}
-        <div className="flex-1 relative">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full">
-            <TabsList className={cn(
-              "bg-black/20 border-b border-white/10",
-              isMobile ? "p-1" : "p-2"
-            )}>
-              <TabsTrigger value="editor" className="text-white">Editor</TabsTrigger>
-              <TabsTrigger value="preview" className="text-white">Preview</TabsTrigger>
-              <TabsTrigger value="search" className="text-white">Search</TabsTrigger>
+        {/* Main Editor Area */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Toolbar - Conditional */}
+          {showToolbar && (
+            <div className="bg-slate-800/50 border-b border-slate-700 p-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.execCommand('bold')}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <Bold className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.execCommand('italic')}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <Italic className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.execCommand('underline')}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <Underline className="w-4 h-4" />
+                </Button>
+                <Separator orientation="vertical" className="h-6 bg-slate-600" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.execCommand('justifyLeft')}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <AlignLeft className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.execCommand('justifyCenter')}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <AlignCenter className="w-4 h-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => document.execCommand('justifyRight')}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <AlignRight className="w-4 h-4" />
+                </Button>
+                <Separator orientation="vertical" className="h-6 bg-slate-600" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSearch(true)}
+                  className="text-gray-300 hover:text-white hover:bg-slate-700"
+                >
+                  <Search className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+            <TabsList className="bg-slate-800/50 border-b border-slate-700 rounded-none">
+              <TabsTrigger value="editor" className="data-[state=active]:bg-slate-700">
+                <Edit3 className="w-4 h-4 mr-2" />
+                Editor
+              </TabsTrigger>
+              <TabsTrigger value="preview" className="data-[state=active]:bg-slate-700">
+                <Eye className="w-4 h-4 mr-2" />
+                Preview
+              </TabsTrigger>
+              <TabsTrigger value="search" className="data-[state=active]:bg-slate-700">
+                <Search className="w-4 h-4 mr-2" />
+                Search
+              </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="editor" className="h-full mt-0">
-              {/* Toolbar */}
-              {showToolbar && (
-                <div className={cn(
-                  "border-b border-white/10 bg-black/10",
-                  isMobile ? "p-2" : "p-3"
-                )}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={handleUndo}
-                        disabled={undoStack.length <= 1}
-                        className="text-white hover:bg-white/10"
-                      >
-                        <Undo2 className="w-4 h-4" />
-                        {!isMobile && <span className="ml-2">Undo</span>}
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={handleRedo}
-                        disabled={redoStack.length === 0}
-                        className="text-white hover:bg-white/10"
-                      >
-                        <Redo2 className="w-4 h-4" />
-                        {!isMobile && <span className="ml-2">Redo</span>}
-                      </Button>
-                      
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => setShowSearch(!showSearch)}
-                        className="text-white hover:bg-white/10"
-                      >
-                        <Search className="w-4 h-4" />
-                        {!isMobile && <span className="ml-2">Search</span>}
-                      </Button>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      {!isMobile && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <span className="text-white/60 text-xs">Font:</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setFontSize(Math.max(12, fontSize - 1))}
-                              className="text-white hover:bg-white/10"
-                            >
-                              <ZoomOut className="w-3 h-3" />
-                            </Button>
-                            <span className="text-white text-sm w-8 text-center">{fontSize}px</span>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => setFontSize(Math.min(24, fontSize + 1))}
-                              className="text-white hover:bg-white/10"
-                            >
-                              <ZoomIn className="w-3 h-3" />
-                            </Button>
-                          </div>
-                        </>
-                      )}
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="text-white/60 text-xs">Lines</span>
-                        <Switch
-                          checked={lineNumbers}
-                          onCheckedChange={setLineNumbers}
-                          className="data-[state=checked]:bg-purple-500"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="text-white/60 text-xs">Wrap</span>
-                        <Switch
-                          checked={wordWrap}
-                          onCheckedChange={setWordWrap}
-                          className="data-[state=checked]:bg-purple-500"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Search Panel */}
-              {showSearch && (
-                <div className={cn(
-                  "border-b border-white/10 bg-black/20",
-                  isMobile ? "p-2" : "p-4"
-                )}>
-                  <div className="flex items-center gap-3">
-                    <div className="flex-1">
-                      <Input
-                        ref={searchRef}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search..."
-                        className="bg-white/10 border-white/20 text-white"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Input
-                        value={replaceQuery}
-                        onChange={(e) => setReplaceQuery(e.target.value)}
-                        placeholder="Replace with..."
-                        className="bg-white/10 border-white/20 text-white"
-                      />
-                    </div>
-                    <Button size="sm" onClick={handleSearch} variant="outline">
-                      <Search className="w-4 h-4 mr-1" />
-                      Find
-                    </Button>
-                    <Button size="sm" onClick={handleReplace} variant="outline">
-                      <Replace className="w-4 h-4 mr-1" />
-                      Replace
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => setShowSearch(false)}>
-                      ✕
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              {/* Editor */}
-              <div className="h-full relative">
+            <TabsContent value="editor" className="flex-1 p-4 min-h-0">
+              <div className="relative h-full">
+                <Textarea
+                  value={content}
+                  onChange={handleContentChange}
+                  onKeyDown={handleKeyDown}
+                  className={`w-full h-full resize-none bg-slate-800 border-slate-600 text-white placeholder-gray-400 p-4 font-mono ${
+                    lineNumbers ? 'pl-12' : ''
+                  } ${wordWrap ? 'whitespace-pre-wrap' : 'whitespace-pre'}`}
+                  style={{
+                    fontSize: `${fontSize}px`,
+                    fontFamily: fontFamily === 'monospace' ? 'monospace' : 
+                               fontFamily === 'consolas' ? 'Consolas' : 
+                               fontFamily === 'fira-code' ? 'Fira Code' : 'JetBrains Mono'
+                  }}
+                  placeholder="Start typing your content here..."
+                />
+                
                 {/* Line Numbers */}
                 {lineNumbers && (
-                  <div className={cn(
-                    "absolute left-0 top-0 bottom-0 bg-black/20 border-r border-white/10 text-right text-white/40 select-none",
-                    isMobile ? "w-6 p-1 text-xs" : "w-12 p-2 text-xs"
-                  )}>
+                  <div className="absolute left-0 top-0 bottom-0 w-12 bg-slate-700/50 border-r border-slate-600 text-gray-400 text-xs font-mono p-4 pt-4 leading-6 select-none">
                     {content.split('\n').map((_, index) => (
-                      <div key={index} className="leading-6">
+                      <div key={index} className="text-right">
                         {index + 1}
                       </div>
                     ))}
                   </div>
                 )}
+              </div>
+            </TabsContent>
 
-                {/* Text Editor */}
-                <Textarea
-                  ref={editorRef}
-                  value={content}
-                  onChange={(e) => handleContentChange(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  disabled={readOnly}
-                  className={cn(
-                    "w-full h-full resize-none border-0 bg-transparent text-white font-mono",
-                    isMobile ? "p-3 text-sm" : "p-4 text-base",
-                    lineNumbers && (isMobile ? "pl-8" : "pl-16")
-                  )}
-                  style={{
-                    fontSize: `${fontSize}px`,
-                    fontFamily: FONT_FAMILIES.find(f => f.id === fontFamily)?.class || 'ui-monospace',
-                    lineHeight: '1.6',
-                    whiteSpace: wordWrap ? 'pre-wrap' : 'pre'
-                  }}
-                  placeholder="Start writing your content..."
+            <TabsContent value="preview" className="flex-1 p-4 min-h-0">
+              <div className="bg-slate-800 border border-slate-600 rounded-lg p-4 h-full overflow-auto">
+                <div 
+                  className="prose prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br>') }}
                 />
               </div>
             </TabsContent>
 
-            <TabsContent value="preview" className="h-full mt-0">
-              <div className={cn(
-                "h-full overflow-auto",
-                isMobile ? "p-3" : "p-4"
-              )}>
-                <div className="bg-white/10 rounded-lg border border-white/20 p-4 h-full">
-                  <h3 className="text-white font-semibold mb-3">Preview</h3>
-                  <pre className="text-white whitespace-pre-wrap text-sm">{content}</pre>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="search" className="h-full mt-0">
-              <div className={cn(
-                "h-full overflow-auto",
-                isMobile ? "p-3" : "p-4"
-              )}>
-                <div className="bg-white/10 rounded-lg border border-white/20 p-4 h-full">
-                  <h3 className="text-white font-semibold mb-3">Search & Replace</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-white text-sm block mb-2">Find</label>
-                      <Input
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search query..."
-                        className="bg-white/10 border-white/20 text-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-white text-sm block mb-2">Replace with</label>
-                      <Input
-                        value={replaceQuery}
-                        onChange={(e) => setReplaceQuery(e.target.value)}
-                        placeholder="Replacement text..."
-                        className="bg-white/10 border-white/20 text-white"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={handleSearch} variant="outline">
-                        <Search className="w-4 h-4 mr-2" />
-                        Find
-                      </Button>
-                      <Button onClick={handleReplace} variant="outline">
-                        <Replace className="w-4 h-4 mr-2" />
-                        Replace
-                      </Button>
-                    </div>
+            <TabsContent value="search" className="flex-1 p-4 min-h-0">
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300">Search</Label>
+                    <Input
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Enter search term..."
+                      className="bg-slate-700 border-slate-600 text-white placeholder-gray-400"
+                    />
                   </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-300">Replace</Label>
+                    <Input
+                      value={replaceQuery}
+                      onChange={(e) => setReplaceQuery(e.target.value)}
+                      placeholder="Enter replacement text..."
+                      className="bg-slate-700 border-slate-600 text-white placeholder-gray-400"
+                    />
+                  </div>
+                </div>
+                
+                <div className="flex gap-2 flex-wrap">
+                  <Button
+                    onClick={handleSearch}
+                    className="bg-blue-600 hover:bg-blue-700"
+                    size={isMobile ? "sm" : "default"}
+                  >
+                    <Search className="w-4 h-4 mr-2" />
+                    Search
+                  </Button>
+                  <Button
+                    onClick={handleReplace}
+                    className="bg-green-600 hover:bg-green-700"
+                    size={isMobile ? "sm" : "default"}
+                  >
+                    <Replace className="w-4 h-4 mr-2" />
+                    Replace
+                  </Button>
+                  <Button
+                    onClick={handleReplace}
+                    className="bg-purple-600 hover:bg-purple-700"
+                    size={isMobile ? "sm" : "default"}
+                  >
+                    <Replace className="w-4 h-4 mr-2" />
+                    Replace All
+                  </Button>
                 </div>
               </div>
             </TabsContent>
@@ -624,22 +558,16 @@ export function AdvancedFileEditor({ file, onSave, onClose, readOnly = false }: 
       </div>
 
       {/* Status Bar */}
-      <div className={cn(
-        "border-t border-white/10 bg-black/20 text-white/60 text-xs",
-        isMobile ? "p-2" : "p-3"
-      )}>
-        <div className="flex items-center justify-between">
+      <div className="bg-slate-800/50 border-t border-slate-700 p-2">
+        <div className="flex items-center justify-between text-sm text-gray-400">
           <div className="flex items-center gap-4">
             <span>Lines: {content.split('\n').length}</span>
             <span>Chars: {content.length}</span>
-            <span>Words: {content.split(/\s+/).filter(word => word.length > 0).length}</span>
+            <span>Size: {formatBytes(content.length)}</span>
           </div>
           <div className="flex items-center gap-2">
-            <span>{isMobile ? 'Mobile' : 'Desktop'}</span>
-            <span>•</span>
-            <span>{fileType.toUpperCase()}</span>
-            <span>•</span>
-            <span>{fontSize}px</span>
+            <span>Theme: {theme}</span>
+            <span>Font: {fontSize}px</span>
           </div>
         </div>
       </div>

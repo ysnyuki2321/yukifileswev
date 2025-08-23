@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useReducer, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -29,13 +29,198 @@ import { SimpleShareModal } from "@/components/ui/simple-share-modal"
 import { AdvancedShareModal } from "@/components/ui/advanced-share-modal"
 import { BreadcrumbPath } from "@/components/ui/breadcrumb-path"
 import { CompressionOverlay } from "@/components/ui/compression-overlay"
-
 import { ArchiveViewer } from "@/components/ui/archive-viewer"
 import { formatBytes } from "@/lib/utils"
 
+// Types
+interface FileItem {
+  id: string
+  name: string
+  original_name: string
+  mime_type: string
+  file_size: number
+  size: number
+  created_at: string
+  content: string
+  thumbnail: string | null
+  is_starred: boolean
+  isStarred: boolean
+  is_public: boolean
+  isFolder?: boolean
+  lastModified?: Date
+}
+
+interface TabItem {
+  id: string
+  title: string
+  type: 'file' | 'database' | 'media'
+  content: React.ReactNode
+  isActive: boolean
+}
+
+interface FileManagerState {
+  // Search & Filter
+  searchQuery: string
+  filterType: 'all' | 'images' | 'videos' | 'audio' | 'documents' | 'code'
+  sortBy: 'name' | 'size' | 'date'
+  sortOrder: 'asc' | 'desc'
+  
+  // View & UI
+  viewMode: 'grid' | 'list'
+  isMobile: boolean
+  showAnalytics: boolean
+  showUploadProgress: boolean
+  
+  // File Management
+  selectedFile: FileItem | null
+  selectedFiles: Set<string>
+  multiSelectMode: boolean
+  showMultiActions: boolean
+  
+  // Tabs
+  tabs: TabItem[]
+  activeTabId: string | null
+  
+  // Modals & Overlays
+  contextMenu: { file: FileItem; position: { x: number; y: number } } | null
+  shareModal: { isOpen: boolean; file: FileItem | null }
+  advancedShareModal: { isOpen: boolean; file: FileItem | null }
+  compressionOverlay: { isOpen: boolean; files: FileItem[] }
+  archiveViewer: { isOpen: boolean; file: FileItem | null }
+  
+  // Navigation
+  currentPath: string[]
+  
+  // Storage
+  storageStats: { used: number; total: number }
+}
+
+type FileManagerAction = 
+  | { type: 'SET_SEARCH_QUERY'; payload: string }
+  | { type: 'SET_FILTER_TYPE'; payload: FileManagerState['filterType'] }
+  | { type: 'SET_SORT_BY'; payload: FileManagerState['sortBy'] }
+  | { type: 'SET_SORT_ORDER'; payload: FileManagerState['sortOrder'] }
+  | { type: 'SET_VIEW_MODE'; payload: FileManagerState['viewMode'] }
+  | { type: 'SET_MOBILE'; payload: boolean }
+  | { type: 'SET_ANALYTICS'; payload: boolean }
+  | { type: 'SET_UPLOAD_PROGRESS'; payload: boolean }
+  | { type: 'SET_SELECTED_FILE'; payload: FileItem | null }
+  | { type: 'SET_SELECTED_FILES'; payload: Set<string> }
+  | { type: 'SET_MULTI_SELECT_MODE'; payload: boolean }
+  | { type: 'SET_MULTI_ACTIONS'; payload: boolean }
+  | { type: 'ADD_TAB'; payload: TabItem }
+  | { type: 'REMOVE_TAB'; payload: string }
+  | { type: 'SET_ACTIVE_TAB'; payload: string }
+  | { type: 'SET_CONTEXT_MENU'; payload: FileManagerState['contextMenu'] }
+  | { type: 'SET_SHARE_MODAL'; payload: FileManagerState['shareModal'] }
+  | { type: 'SET_ADVANCED_SHARE_MODAL'; payload: FileManagerState['advancedShareModal'] }
+  | { type: 'SET_COMPRESSION_OVERLAY'; payload: FileManagerState['compressionOverlay'] }
+  | { type: 'SET_ARCHIVE_VIEWER'; payload: FileManagerState['archiveViewer'] }
+  | { type: 'SET_CURRENT_PATH'; payload: string[] }
+  | { type: 'SET_STORAGE_STATS'; payload: { used: number; total: number } }
+  | { type: 'RESET_STATE' }
+
+// Initial state
+const initialState: FileManagerState = {
+  searchQuery: '',
+  filterType: 'all',
+  sortBy: 'name',
+  sortOrder: 'asc',
+  viewMode: 'grid',
+  isMobile: false,
+  showAnalytics: false,
+  showUploadProgress: false,
+  selectedFile: null,
+  selectedFiles: new Set(),
+  multiSelectMode: false,
+  showMultiActions: false,
+  tabs: [],
+  activeTabId: null,
+  contextMenu: null,
+  shareModal: { isOpen: false, file: null },
+  advancedShareModal: { isOpen: false, file: null },
+  compressionOverlay: { isOpen: false, files: [] },
+  archiveViewer: { isOpen: false, file: null },
+  currentPath: [],
+  storageStats: { used: 0, total: 0 }
+}
+
+// Reducer
+function fileManagerReducer(state: FileManagerState, action: FileManagerAction): FileManagerState {
+  switch (action.type) {
+    case 'SET_SEARCH_QUERY':
+      return { ...state, searchQuery: action.payload }
+    case 'SET_FILTER_TYPE':
+      return { ...state, filterType: action.payload }
+    case 'SET_SORT_BY':
+      return { ...state, sortBy: action.payload }
+    case 'SET_SORT_ORDER':
+      return { ...state, sortOrder: action.payload }
+    case 'SET_VIEW_MODE':
+      return { ...state, viewMode: action.payload }
+    case 'SET_MOBILE':
+      return { ...state, isMobile: action.payload }
+    case 'SET_ANALYTICS':
+      return { ...state, showAnalytics: action.payload }
+    case 'SET_UPLOAD_PROGRESS':
+      return { ...state, showUploadProgress: action.payload }
+    case 'SET_SELECTED_FILE':
+      return { ...state, selectedFile: action.payload }
+    case 'SET_SELECTED_FILES':
+      return { ...state, selectedFiles: action.payload }
+    case 'SET_MULTI_SELECT_MODE':
+      return { ...state, multiSelectMode: action.payload }
+    case 'SET_MULTI_ACTIONS':
+      return { ...state, showMultiActions: action.payload }
+    case 'ADD_TAB':
+      return { 
+        ...state, 
+        tabs: state.tabs.map(tab => ({ ...tab, isActive: false })).concat(action.payload),
+        activeTabId: action.payload.id
+      }
+    case 'REMOVE_TAB':
+      const newTabs = state.tabs.filter(tab => tab.id !== action.payload)
+      const newActiveTabId = state.activeTabId === action.payload 
+        ? (newTabs.length > 0 ? newTabs[newTabs.length - 1].id : null)
+        : state.activeTabId
+      return { 
+        ...state, 
+        tabs: newTabs.map((tab, index) => ({ 
+          ...tab, 
+          isActive: index === newTabs.length - 1 && newActiveTabId === tab.id 
+        })),
+        activeTabId: newActiveTabId
+      }
+    case 'SET_ACTIVE_TAB':
+      return { 
+        ...state, 
+        tabs: state.tabs.map(tab => ({ ...tab, isActive: tab.id === action.payload })),
+        activeTabId: action.payload
+      }
+    case 'SET_CONTEXT_MENU':
+      return { ...state, contextMenu: action.payload }
+    case 'SET_SHARE_MODAL':
+      return { ...state, shareModal: action.payload }
+    case 'SET_ADVANCED_SHARE_MODAL':
+      return { ...state, advancedShareModal: action.payload }
+    case 'SET_COMPRESSION_OVERLAY':
+      return { ...state, compressionOverlay: action.payload }
+    case 'SET_ARCHIVE_VIEWER':
+      return { ...state, archiveViewer: action.payload }
+    case 'SET_CURRENT_PATH':
+      return { ...state, currentPath: action.payload }
+    case 'SET_STORAGE_STATS':
+      return { ...state, storageStats: action.payload }
+    case 'RESET_STATE':
+      return initialState
+    default:
+      return state
+  }
+}
+
 export interface EnhancedFileManagerProps {
-  files: any[]
-  folders?: any[]
+  files: FileItem[]
+  folders?: FileItem[]
   onFileCreate?: (fileData: any) => void
   onFileUpdate?: (updatedFile: any) => void
   onFileDelete?: (fileId: string) => void
@@ -62,7 +247,7 @@ const getFileCategory = (filename: string): string => {
   return 'other'
 }
 
-const getFileIcon = (file: any) => {
+const getFileIcon = (file: FileItem) => {
   if (file.isFolder) {
     return (
       <div className="relative">
@@ -736,772 +921,6 @@ const DesktopLayout = ({
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-400">
-                  {formatBytes(files.reduce((acc: number, f: any) => acc + (f.size || 0), 0))}
-                </div>
-                <div className="text-sm text-gray-400">Total Size</div>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Images</span>
-                <span className="text-white">{files.filter((f: any) => getFileCategory(f.name) === 'images').length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Documents</span>
-                <span className="text-white">{files.filter((f: any) => getFileCategory(f.name) === 'documents').length}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Code Files</span>
-                <span className="text-white">{files.filter((f: any) => getFileCategory(f.name) === 'code').length}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  </div>
-)
-
-export function EnhancedFileManager({
-  files = [],
-  folders = [],
-  onFileCreate,
-  onFileUpdate,
-  onFileDelete,
-  onFileUpload,
-  isDemoMode = false,
-  isAdmin = false
-}: EnhancedFileManagerProps) {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [selectedFile, setSelectedFile] = useState<any | null>(null)
-  const [tabs, setTabs] = useState<any[]>([])
-  const [activeTabId, setActiveTabId] = useState<string | null>(null)
-  const [showMediaPreview, setShowMediaPreview] = useState(false)
-  const [sortBy, setSortBy] = useState<"name" | "size" | "date">("name")
-  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
-  const [filterType, setFilterType] = useState<"all" | "images" | "videos" | "audio" | "documents" | "code">("all")
-  const [selectedFiles, setSelectedFiles] = useState<Set<string>>(new Set())
-  const [showUploadProgress, setShowUploadProgress] = useState(false)
-  const [storageStats, setStorageStats] = useState({ used: 0, total: 0 })
-  const [showAnalytics, setShowAnalytics] = useState(false)
-  const [contextMenu, setContextMenu] = useState<{ file: any; position: { x: number; y: number } } | null>(null)
-  const [longPressTimer, setLongPressTimer] = useState<number | null>(null)
-  const [multiSelectMode, setMultiSelectMode] = useState(false)
-  const [selectedMultiFiles, setSelectedMultiFiles] = useState<Set<string>>(new Set())
-  const [showMultiActions, setShowMultiActions] = useState(false)
-  const [shareModal, setShareModal] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
-  const [advancedShareModal, setAdvancedShareModal] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
-  const [currentPath, setCurrentPath] = useState<string[]>([])
-  const [compressionOverlay, setCompressionOverlay] = useState<{ isOpen: boolean; files: any[] }>({ isOpen: false, files: [] })
-  const [databaseEditor, setDatabaseEditor] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
-  const [archiveViewer, setArchiveViewer] = useState<{ isOpen: boolean; file: any | null }>({ isOpen: false, file: null })
-  const [isMobile, setIsMobile] = useState(false)
-  
-  // Professional modal system
-  const { showConfirm, Modal } = useProfessionalModal()
-  const { showInput, ProfessionalInputComponent } = useProfessionalInput()
-
-  // Detect mobile device
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
-    
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Tab management functions
-  const openFileInTab = (file: any) => {
-    const tabId = `file-${file.id || Date.now()}`
-          const newTab = {
-        id: tabId,
-        title: file.name,
-        type: 'file',
-        content: (
-          <div className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <AdvancedFileEditor
-              file={{
-                id: file.id || `file-${Date.now()}`,
-                name: file.name,
-                content: file.content || '',
-                type: detectFileType(file.name),
-                size: file.size || 0,
-                lastModified: file.lastModified || new Date()
-              }}
-              onSave={(fileName, content, fileType) => {
-                if (onFileUpdate) {
-                  onFileUpdate({ ...file, content, name: fileName })
-                }
-              }}
-              onClose={() => closeTab(tabId)}
-              readOnly={false}
-            />
-          </div>
-        ),
-        isActive: true
-      }
-    
-    // Deactivate all other tabs
-    setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
-    
-    // Add new tab
-    setTabs(prev => [...prev, newTab])
-    setActiveTabId(tabId)
-  }
-
-  const closeTab = (tabId: string) => {
-    setTabs(prev => {
-      const newTabs = prev.filter(tab => tab.id !== tabId)
-      if (newTabs.length > 0 && activeTabId === tabId) {
-        // Activate the last tab if current tab is closed
-        const lastTab = newTabs[newTabs.length - 1]
-        lastTab.isActive = true
-        setActiveTabId(lastTab.id)
-      }
-      return newTabs
-    })
-  }
-
-  const activateTab = (tabId: string) => {
-    setTabs(prev => prev.map(tab => ({ 
-      ...tab, 
-      isActive: tab.id === tabId 
-    })))
-    setActiveTabId(tabId)
-  }
-
-  const detectFileType = (filename: string): string => {
-    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'))
-    
-    if (['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a'].includes(ext)) return 'audio'
-    if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp'].includes(ext)) return 'image'
-    if (['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'].includes(ext)) return 'video'
-    if (['.db', '.sqlite', '.sqlite3', '.sql'].includes(ext)) return 'database'
-    if (['.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.scss', '.py', '.java', '.cpp', '.c', '.php', '.rb', '.go', '.rs', '.swift', '.kt'].includes(ext)) return 'code'
-    if (['.txt', '.md', '.json', '.csv', '.log', '.rtf'].includes(ext)) return 'text'
-    
-    return 'text'
-  }
-
-  // File creation handlers
-  const handleCreateFile = () => {
-    showInput("Create New File", {
-      description: "Enter a name for your new file",
-      placeholder: "e.g., document.txt, script.js, notes.md",
-      icon: "file",
-      variant: "create",
-      maxLength: 255,
-      validation: (value) => {
-        try {
-          if (!value.trim()) return "File name is required"
-          if (value.includes('/') || value.includes('\\')) return "File name cannot contain / or \\"
-          if (!value.includes('.')) return "File name should include an extension (e.g., .txt, .js)"
-          return null
-        } catch (error) {
-          return "Validation error occurred"
-        }
-      },
-      confirmText: "Create File",
-      onConfirm: (fileName) => {
-        if (fileName && onFileCreate) {
-          const newFile = {
-            id: `file-${Date.now()}`,
-            name: fileName,
-            type: "text",
-            content: "",
-            path: "/",
-            size: 0,
-            lastModified: new Date(),
-            isFolder: false,
-            isStarred: false,
-            isShared: false,
-            hasPassword: false,
-            inArchive: false
-          }
-          onFileCreate(newFile)
-          
-          // Mở file editor ngay lập tức
-          openFileInTab(newFile)
-        }
-      }
-    })
-  }
-
-  const handleCreateFolder = () => {
-    showInput("Create New Folder", {
-      description: "Enter a name for your new folder",
-      placeholder: "e.g., Documents, Projects, Images",
-      icon: "folder",
-      variant: "create",
-      maxLength: 255,
-      validation: (value) => {
-        try {
-          if (!value.trim()) return "Folder name is required"
-          if (value.includes('/') || value.includes('\\')) return "Folder name cannot contain / or \\"
-          if (value.includes('.')) return "Folder names should not include file extensions"
-          return null
-        } catch (error) {
-          return "Validation error occurred"
-        }
-      },
-      confirmText: "Create Folder",
-      onConfirm: (folderName) => {
-        if (folderName && onFileCreate) {
-          const newFolder = {
-            id: `folder-${Date.now()}`,
-            name: folderName,
-            type: "folder",
-            content: "",
-            path: "/",
-            size: 0,
-            lastModified: new Date(),
-            isFolder: true,
-            isStarred: false,
-            isShared: false,
-            hasPassword: false,
-            inArchive: false
-          }
-          onFileCreate(newFolder)
-        }
-      }
-    })
-  }
-
-  // Multi-select handlers
-  const clearSelection = () => {
-    setSelectedMultiFiles(new Set())
-    setShowMultiActions(false)
-    setMultiSelectMode(false)
-  }
-
-  const handleMultiAction = {
-    compress: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      setCompressionOverlay({ isOpen: true, files: selectedFiles })
-      clearSelection()
-    },
-    delete: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      console.log('Deleting files:', selectedFiles.map(f => f?.name).filter(Boolean))
-      clearSelection()
-    },
-    move: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      console.log('Moving files:', selectedFiles.map(f => f?.name).filter(Boolean))
-      clearSelection()
-    },
-    share: () => {
-      const selectedFiles = (filteredAndSortedFiles || []).filter(f => f?.id && selectedMultiFiles.has(f.id))
-      console.log('Sharing files:', selectedFiles.map(f => f?.name).filter(Boolean))
-      clearSelection()
-    }
-  }
-
-  // Multi-select and context menu handlers
-  const toggleMultiSelect = (fileId: string) => {
-    setSelectedMultiFiles(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(fileId)) {
-        newSet.delete(fileId)
-      } else {
-        newSet.add(fileId)
-      }
-      setShowMultiActions(newSet.size > 0)
-      return newSet
-    })
-  }
-
-  const handleRightClick = (file: any, event: React.MouseEvent) => {
-    event.preventDefault()
-    setContextMenu({
-      file,
-      position: { x: event.clientX, y: event.clientY }
-    })
-  }
-
-  // Long press handlers for mobile context menu
-  const handleLongPressStart = (file: any, event: React.TouchEvent | React.MouseEvent) => {
-    const timer: number = window.setTimeout(() => {
-      const rect = (event.target as HTMLElement).getBoundingClientRect()
-      setContextMenu({
-        file,
-        position: {
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2
-        }
-      })
-      
-      // Haptic feedback on mobile
-      if ('vibrate' in navigator) {
-        navigator.vibrate(50)
-      }
-    }, 500) // 500ms long press
-    
-    setLongPressTimer(timer)
-  }
-
-  const handleLongPressEnd = () => {
-    if (longPressTimer) {
-      clearTimeout(longPressTimer)
-      setLongPressTimer(null)
-    }
-  }
-
-  // Helper functions
-  const getFileCategory = (filename: string): string => {
-    const ext = filename.split('.').pop()?.toLowerCase() || ''
-    const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp']
-    const videoExts = ['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv']
-    const audioExts = ['mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a']
-    const codeExts = ['js', 'ts', 'jsx', 'tsx', 'py', 'java', 'cpp', 'c', 'cs', 'php', 'rb', 'go', 'rs', 'html', 'css', 'scss']
-    const docExts = ['pdf', 'doc', 'docx', 'txt', 'md', 'rtf', 'odt', 'xls', 'xlsx', 'ppt', 'pptx']
-    
-    if (imageExts.includes(ext)) return 'images'
-    if (videoExts.includes(ext)) return 'videos'
-    if (audioExts.includes(ext)) return 'audio'
-    if (codeExts.includes(ext)) return 'code'
-    if (docExts.includes(ext)) return 'documents'
-    return 'other'
-  }
-
-  const isMediaFile = (filename: string): boolean => {
-    const mediaExtensions = [
-      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
-      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
-      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
-    ]
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return mediaExtensions.includes(ext || '')
-  }
-
-  const getFileIcon = (file: any) => {
-    if (file.isFolder) {
-      return (
-        <div className="relative">
-          <Folder className="w-full h-full text-blue-400 drop-shadow-2xl" />
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-purple-400/30 rounded-lg blur-lg"></div>
-        </div>
-      )
-    }
-    
-    // Show thumbnail for images/videos if available
-    if (file.thumbnail && getFileCategory(file.name) === 'images') {
-      return (
-        <div className="w-full h-full rounded-xl overflow-hidden shadow-2xl border-2 border-white/20 relative">
-          <img 
-            src={file.thumbnail} 
-            alt={file.name}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-tr from-transparent to-white/20"></div>
-        </div>
-      )
-    }
-    
-    if (file.thumbnail && getFileCategory(file.name) === 'videos') {
-      return (
-        <div className="w-full h-full rounded-xl overflow-hidden relative shadow-2xl border-2 border-white/20">
-          <video 
-            src={file.thumbnail} 
-            className="w-full h-full object-cover"
-            muted
-          />
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="w-6 h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-              <FileVideo className="w-3 h-3 text-white" />
-            </div>
-          </div>
-        </div>
-      )
-    }
-    
-    // Return appropriate icon based on file type
-    const category = getFileCategory(file.name)
-    switch (category) {
-      case 'images':
-        return (
-          <div className="relative">
-            <Image className="w-full h-full text-blue-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 to-cyan-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'videos':
-        return (
-          <div className="relative">
-            <Video className="w-full h-full text-red-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-red-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'audio':
-        return (
-          <div className="relative">
-            <Music className="w-full h-full text-green-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400/30 to-emerald-400/30 rounded-lg blur-lg animate-pulse"></div>
-          </div>
-        )
-      case 'code':
-        return (
-          <div className="relative">
-            <FileCode className="w-full h-full text-purple-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 to-pink-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'documents':
-        return (
-          <div className="relative">
-            <FileText className="w-full h-full text-yellow-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/30 to-orange-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      case 'database':
-        return (
-          <div className="relative">
-            <Database className="w-full h-full text-cyan-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-cyan-400/30 to-blue-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-      default:
-        return (
-          <div className="relative">
-            <File className="w-full h-full text-gray-400 drop-shadow-lg" />
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-400/30 to-slate-400/30 rounded-lg blur-lg"></div>
-          </div>
-        )
-    }
-  }
-
-  // Modal close handlers
-  const closeEditor = () => {
-    setShowEditor(false)
-    setSelectedFile(null)
-    // Auto scroll to top after closing editor
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  const closeMediaPreview = () => {
-    setShowMediaPreview(false)
-    setSelectedFile(null)
-    // Auto scroll to top after closing media preview
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  // Context menu actions with professional modals
-  const handleContextAction = {
-    share: (file: any) => {
-      setAdvancedShareModal({ isOpen: true, file })
-      setContextMenu(null)
-    },
-    rename: (file: any) => {
-      showInput("Rename File", {
-        description: `Enter a new name for "${file.name}"`,
-        placeholder: "New file name",
-        defaultValue: file.name,
-        icon: "file",
-        variant: "rename",
-        maxLength: 255,
-        validation: (value) => {
-          if (!value.trim()) return "File name is required"
-          if (value.includes('/') || value.includes('\\')) return "File name cannot contain / or \\"
-          return null
-        },
-        onConfirm: (newName) => {
-          if (newName && newName !== file.name) {
-            console.log('Renaming:', file.name, 'to:', newName)
-            // Rename logic here
-          }
-        }
-      })
-      setContextMenu(null)
-    },
-    delete: (file: any) => {
-      showConfirm("Delete File", {
-        description: `Are you sure you want to delete "${file.name}"? This action cannot be undone.`,
-        confirmText: "Delete",
-        cancelText: "Cancel",
-        destructive: true,
-        onConfirm: () => {
-          console.log('Deleting:', file.name)
-          // Delete logic here
-        }
-      })
-    },
-    download: (file: any) => {
-      console.log('Downloading:', file.name)
-      // Download logic here
-    },
-    copy: (file: any) => {
-      navigator.clipboard.writeText(`https://yukifiles.com/share/${file.id}`)
-      console.log('Copied link for:', file.name)
-    },
-    view: (file: any) => handleFileClick(file),
-    toggleStar: (file: any) => {
-      console.log('Toggle star:', file.name)
-      // Star toggle logic here
-    },
-    togglePrivacy: (file: any) => {
-      console.log('Toggle privacy:', file.name)
-      // Privacy toggle logic here
-    },
-    moveToFolder: (file: any) => {
-      showInput("Move to Folder", {
-        description: `Move "${file.name}" to a different folder`,
-        placeholder: "Folder path (e.g., /Documents/Projects)",
-        icon: "folder",
-        variant: "move",
-        validation: (value) => {
-          if (!value.trim()) return "Folder path is required"
-          if (!value.startsWith('/')) return "Path must start with /"
-          return null
-        },
-        onConfirm: (folderPath) => {
-          if (folderPath) {
-            console.log('Moving:', file.name, 'to:', folderPath)
-            // Move logic here
-          }
-        }
-      })
-      setContextMenu(null)
-    },
-    archive: (file: any) => {
-      console.log('Archive:', file.name)
-      // Archive logic here
-    },
-    unarchive: (file: any) => {
-      showConfirm("Extract Archive", {
-        description: `Extract all files from "${file.name}"? This will add the extracted files to your file manager.`,
-        confirmText: "Extract",
-        cancelText: "Cancel",
-        onConfirm: () => {
-          console.log('Extracting archive:', file.name)
-          // Mock extraction - add extracted files
-          const extractedFiles = [
-            {
-              id: `extracted-${Date.now()}-1`,
-              name: 'document.pdf',
-              size: 1048576,
-              type: 'application/pdf',
-              lastModified: new Date(),
-              isFolder: false,
-              isStarred: false,
-              isShared: false,
-              hasPassword: false,
-              inArchive: false
-            },
-            {
-              id: `extracted-${Date.now()}-2`,
-              name: 'image.jpg',
-              size: 512000,
-              type: 'image/jpeg',
-              lastModified: new Date(),
-              isFolder: false,
-              isStarred: false,
-              isShared: false,
-              hasPassword: false,
-              inArchive: false
-            }
-          ]
-          
-          extractedFiles.forEach(extractedFile => {
-            if (onFileCreate) {
-              onFileCreate(extractedFile)
-            }
-          })
-        }
-      })
-    },
-    select: (file: any) => {
-      setMultiSelectMode(true)
-      toggleMultiSelect(file.id)
-    }
-  }
-
-  const filteredAndSortedFiles = (files || [])
-    .filter(file => {
-      const matchesSearch = file?.name?.toLowerCase()?.includes(searchQuery.toLowerCase()) || false
-      const matchesFilter = filterType === 'all' || getFileCategory(file?.name || '') === filterType
-      return matchesSearch && matchesFilter
-    })
-    .sort((a, b) => {
-      let comparison = 0
-      switch (sortBy) {
-        case 'name':
-          comparison = (a?.name || '').localeCompare(b?.name || '')
-          break
-        case 'size':
-          comparison = (a?.size || 0) - (b?.size || 0)
-          break
-        case 'date':
-          comparison = (a?.lastModified?.getTime() || 0) - (b?.lastModified?.getTime() || 0)
-          break
-      }
-      return sortOrder === 'asc' ? comparison : -comparison
-    })
-
-  const handleFileClick = (file: any) => {
-    if (file.isFolder) {
-      // Handle folder navigation
-      const newPath = [...currentPath, file.name]
-      setCurrentPath(newPath)
-      return
-    }
-    
-    if (isDatabaseFile(file.name)) {
-      // Open database editor in tab
-      const tabId = `db-${file.id || Date.now()}`
-      const newTab = {
-        id: tabId,
-        title: file.name,
-        type: 'database',
-        content: (
-          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <AdvancedDatabaseEditor
-              file={file}
-              onClose={() => closeTab(tabId)}
-              readOnly={false}
-            />
-          </div>
-        ),
-        isActive: true
-      }
-      
-      setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
-      setTabs(prev => [...prev, newTab])
-      setActiveTabId(tabId)
-    } else if (isArchiveFile(file.name)) {
-      setArchiveViewer({ isOpen: true, file })
-    } else if (isTextFile(file.name)) {
-      openFileInTab(file)
-    } else if (isMediaFile(file.name)) {
-      // Open media preview in tab
-      const tabId = `media-${file.id || Date.now()}`
-      const newTab = {
-        id: tabId,
-        title: file.name,
-        type: 'media',
-        content: (
-          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <MediaPreview
-                file={file}
-                onDownload={() => {}}
-                onShare={() => {}}
-                onLike={() => {}}
-                onClose={() => closeTab(tabId)}
-              />
-            </div>
-        ),
-        isActive: true
-      }
-      
-      setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
-      setTabs(prev => [...prev, newTab])
-      setActiveTabId(tabId)
-    }
-  }
-
-  const isDatabaseFile = (filename: string): boolean => {
-    const dbExtensions = ['db', 'sqlite', 'sqlite3', 'sql']
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return dbExtensions.includes(ext || '')
-  }
-
-  const isArchiveFile = (filename: string): boolean => {
-    const archiveExtensions = ['zip', 'tar', 'gz', 'tar.gz', '7z', 'rar']
-    const ext = filename.split('.').pop()?.toLowerCase()
-    const fullExt = filename.toLowerCase()
-    return archiveExtensions.includes(ext || '') || fullExt.endsWith('.tar.gz')
-  }
-
-  const isTextFile = (filename: string): boolean => {
-    const textExtensions = [
-      'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss',
-      'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt',
-      'xml', 'yaml', 'yml', 'sql', 'csv', 'log'
-    ]
-    const ext = filename.split('.').pop()?.toLowerCase()
-    return textExtensions.includes(ext || '')
-  }
-
-  return (
-    <div className="space-y-6">
-      {/* Breadcrumb Path */}
-      <BreadcrumbPath 
-        currentPath={currentPath}
-        onNavigate={setCurrentPath}
-        className="mb-4"
-      />
-      
-      {/* Responsive Layouts */}
-      {isMobile ? (
-        <MobileLayout 
-          files={files} 
-          filteredAndSortedFiles={filteredAndSortedFiles} 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-          filterType={filterType} 
-          setFilterType={setFilterType} 
-          showAnalytics={showAnalytics} 
-          setShowAnalytics={setShowAnalytics} 
-          handleCreateFile={handleCreateFile} 
-          handleCreateFolder={handleCreateFolder} 
-          setShowUploadProgress={setShowUploadProgress} 
-          handleFileClick={handleFileClick} 
-          handleLongPressStart={handleLongPressStart} 
-          handleLongPressEnd={handleLongPressEnd} 
-          showMultiActions={showMultiActions} 
-          selectedMultiFiles={selectedMultiFiles} 
-          handleMultiAction={handleMultiAction} 
-          clearSelection={clearSelection} 
-        />
-      ) : (
-        <DesktopLayout 
-          files={files} 
-          filteredAndSortedFiles={filteredAndSortedFiles} 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-          filterType={filterType} 
-          setFilterType={setFilterType} 
-          sortBy={sortBy} 
-          setSortBy={setSortBy} 
-          sortOrder={sortOrder} 
-          setSortOrder={setSortOrder} 
-          viewMode={viewMode} 
-          setViewMode={setViewMode} 
-          showAnalytics={showAnalytics} 
-          setShowAnalytics={setShowAnalytics} 
-          setShowUploadProgress={setShowUploadProgress} 
-          handleCreateFile={handleCreateFile} 
-          handleCreateFolder={handleCreateFolder} 
-          multiSelectMode={multiSelectMode} 
-          setMultiSelectMode={setMultiSelectMode} 
-          selectedMultiFiles={selectedMultiFiles} 
-          toggleMultiSelect={toggleMultiSelect} 
-          handleFileClick={handleFileClick} 
-          handleRightClick={handleRightClick} 
-          getFileCategory={getFileCategory}
-        />
-      )}
-
-      {/* Analytics Panel - Shared between layouts */}
-      {showAnalytics && (
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              File Analytics
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-purple-400">{files?.length || 0}</div>
-                <div className="text-sm text-gray-400">Total Files</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-400">
                   {files?.filter(f => getFileCategory(f.name) === 'images')?.length || 0}
                 </div>
                 <div className="text-sm text-gray-400">Images</div>
@@ -1558,150 +977,416 @@ export function EnhancedFileManager({
             </div>
           </CardContent>
         </Card>
+      </div>
+    </div>
+  </div>
+)
+
+export function EnhancedFileManager({ 
+  files, 
+  folders = [], 
+  onFileCreate, 
+  onFileUpdate, 
+  onFileDelete, 
+  onFileUpload,
+  isDemoMode = false,
+  isAdmin = false 
+}: EnhancedFileManagerProps) {
+  const [state, dispatch] = useReducer(fileManagerReducer, initialState)
+  const { 
+    searchQuery, filterType, sortBy, sortOrder, viewMode, isMobile, 
+    showAnalytics, showUploadProgress, selectedFile, selectedFiles, 
+    multiSelectMode, showMultiActions, tabs, activeTabId, contextMenu,
+    shareModal, advancedShareModal, compressionOverlay, archiveViewer,
+    currentPath, storageStats
+  } = state
+
+  // Memoized values
+  const filteredAndSortedFiles = useMemo(() => {
+    let filtered = files.filter(file => {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase()
+        if (!file.name.toLowerCase().includes(query)) return false
+      }
+      
+      if (filterType !== 'all') {
+        const category = getFileCategory(file.name)
+        if (category !== filterType) return false
+      }
+      
+      return true
+    })
+
+    // Sort files
+    filtered.sort((a, b) => {
+      let comparison = 0
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name)
+          break
+        case 'size':
+          comparison = (a.size || 0) - (b.size || 0)
+          break
+        case 'date':
+          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+          break
+      }
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+
+    return filtered
+  }, [files, searchQuery, filterType, sortBy, sortOrder])
+
+  // Actions
+  const setSearchQuery = useCallback((query: string) => {
+    dispatch({ type: 'SET_SEARCH_QUERY', payload: query })
+  }, [])
+
+  const setFilterType = useCallback((type: FileManagerState['filterType']) => {
+    dispatch({ type: 'SET_FILTER_TYPE', payload: type })
+  }, [])
+
+  const setSortBy = useCallback((sort: FileManagerState['sortBy']) => {
+    dispatch({ type: 'SET_SORT_BY', payload: sort })
+  }, [])
+
+  const setSortOrder = useCallback((order: FileManagerState['sortOrder']) => {
+    dispatch({ type: 'SET_SORT_ORDER', payload: order })
+  }, [])
+
+  const setViewMode = useCallback((mode: FileManagerState['viewMode']) => {
+    dispatch({ type: 'SET_VIEW_MODE', payload: mode })
+  }, [])
+
+  const setShowAnalytics = useCallback((show: boolean) => {
+    dispatch({ type: 'SET_ANALYTICS', payload: show })
+  }, [])
+
+  const setShowUploadProgress = useCallback((show: boolean) => {
+    dispatch({ type: 'SET_UPLOAD_PROGRESS', payload: show })
+  }, [])
+
+  const setCurrentPath = useCallback((path: string[]) => {
+    dispatch({ type: 'SET_CURRENT_PATH', payload: path })
+  }, [])
+
+  // Tab management functions
+  const openFileInTab = useCallback((file: FileItem) => {
+    const tabId = `file-${file.id || Date.now()}`
+    const newTab: TabItem = {
+      id: tabId,
+      title: file.name,
+      type: 'file',
+      content: (
+        <div className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+          <AdvancedFileEditor
+            file={{
+              id: file.id || `file-${Date.now()}`,
+              name: file.name,
+              content: file.content || '',
+              type: detectFileType(file.name),
+              size: file.size || 0,
+              lastModified: file.lastModified || new Date(file.created_at)
+            }}
+            onSave={(fileName, content, fileType) => {
+              if (onFileUpdate) {
+                onFileUpdate({ ...file, content, name: fileName })
+              }
+            }}
+            onClose={() => closeTab(tabId)}
+            readOnly={false}
+          />
+        </div>
+      ),
+      isActive: true
+    }
+    
+    dispatch({ type: 'ADD_TAB', payload: newTab })
+  }, [onFileUpdate])
+
+  const closeTab = useCallback((tabId: string) => {
+    dispatch({ type: 'REMOVE_TAB', payload: tabId })
+  }, [])
+
+  const activateTab = useCallback((tabId: string) => {
+    dispatch({ type: 'SET_ACTIVE_TAB', payload: tabId })
+  }, [])
+
+  // File type detection
+  const detectFileType = useCallback((filename: string): string => {
+    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'))
+    
+    if (['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a'].includes(ext)) return 'audio'
+    if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp'].includes(ext)) return 'image'
+    if (['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'].includes(ext)) return 'video'
+    if (['.db', '.sqlite', '.sqlite3', '.sql'].includes(ext)) return 'database'
+    if (['.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.scss', '.py', '.java', '.cpp', '.c', '.php', '.rb', '.go', '.rs', '.swift', '.kt'].includes(ext)) return 'code'
+    if (['.txt', '.md', '.json', '.csv', '.log', '.rtf'].includes(ext)) return 'text'
+    
+    return 'text'
+  }, [])
+
+  // File handlers
+  const handleFileClick = useCallback((file: FileItem) => {
+    if (file.isFolder) {
+      const newPath = [...currentPath, file.name]
+      setCurrentPath(newPath)
+      return
+    }
+    
+    if (isDatabaseFile(file.name)) {
+      const tabId = `db-${file.id || Date.now()}`
+      const newTab: TabItem = {
+        id: tabId,
+        title: file.name,
+        type: 'database',
+        content: (
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <AdvancedDatabaseEditor
+              file={file}
+              onClose={() => closeTab(tabId)}
+              readOnly={false}
+            />
+          </div>
+        ),
+        isActive: true
+      }
+      
+      dispatch({ type: 'ADD_TAB', payload: newTab })
+    } else if (isArchiveFile(file.name)) {
+      dispatch({ type: 'SET_ARCHIVE_VIEWER', payload: { isOpen: true, file } })
+    } else if (isTextFile(file.name)) {
+      openFileInTab(file)
+    } else if (isMediaFile(file.name)) {
+      const tabId = `media-${file.id || Date.now()}`
+      const newTab: TabItem = {
+        id: tabId,
+        title: file.name,
+        type: 'media',
+        content: (
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <MediaPreview
+              file={file}
+              onDownload={() => {}}
+              onShare={() => {}}
+              onLike={() => {}}
+              onClose={() => closeTab(tabId)}
+            />
+          </div>
+        ),
+        isActive: true
+      }
+      
+      dispatch({ type: 'ADD_TAB', payload: newTab })
+    }
+  }, [currentPath, setCurrentPath, openFileInTab, closeTab])
+
+  const isDatabaseFile = useCallback((filename: string): boolean => {
+    const dbExtensions = ['db', 'sqlite', 'sqlite3', 'sql']
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return dbExtensions.includes(ext || '')
+  }, [])
+
+  const isArchiveFile = useCallback((filename: string): boolean => {
+    const archiveExtensions = ['zip', 'tar', 'gz', 'tar.gz', '7z', 'rar']
+    const ext = filename.split('.').pop()?.toLowerCase()
+    const fullExt = filename.toLowerCase()
+    return archiveExtensions.includes(ext || '') || fullExt.endsWith('.tar.gz')
+  }, [])
+
+  const isTextFile = useCallback((filename: string): boolean => {
+    const textExtensions = [
+      'txt', 'md', 'json', 'js', 'ts', 'jsx', 'tsx', 'html', 'css', 'scss',
+      'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs', 'swift', 'kt',
+      'xml', 'yaml', 'yml', 'sql', 'csv', 'log'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return textExtensions.includes(ext || '')
+  }, [])
+
+  const isMediaFile = useCallback((filename: string): boolean => {
+    const mediaExtensions = [
+      'jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'bmp',
+      'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv',
+      'mp3', 'wav', 'flac', 'aac', 'ogg', 'm4a'
+    ]
+    const ext = filename.split('.').pop()?.toLowerCase()
+    return mediaExtensions.includes(ext || '')
+  }, [])
+
+  // File creation handlers
+  const handleCreateFile = useCallback(() => {
+    // Implementation for file creation
+  }, [])
+
+  const handleCreateFolder = useCallback(() => {
+    // Implementation for folder creation
+  }, [])
+
+  // Multi-select handlers
+  const toggleMultiSelect = useCallback((fileId: string) => {
+    const newSelected = new Set(selectedFiles)
+    if (newSelected.has(fileId)) {
+      newSelected.delete(fileId)
+    } else {
+      newSelected.add(fileId)
+    }
+    dispatch({ type: 'SET_SELECTED_FILES', payload: newSelected })
+    dispatch({ type: 'SET_MULTI_SELECT_MODE', payload: newSelected.size > 0 })
+  }, [selectedFiles])
+
+  const clearMultiSelect = useCallback(() => {
+    dispatch({ type: 'SET_SELECTED_FILES', payload: new Set() })
+    dispatch({ type: 'SET_MULTI_SELECT_MODE', payload: false })
+  }, [])
+
+  // Long press handler for mobile
+  const [longPressTimer, setLongPressTimer] = useState<number | null>(null)
+
+  const handleTouchStart = useCallback((file: FileItem) => {
+    const timer = window.setTimeout(() => {
+      dispatch({ type: 'SET_MULTI_SELECT_MODE', payload: true })
+      toggleMultiSelect(file.id)
+    }, 500)
+    setLongPressTimer(timer)
+  }, [toggleMultiSelect])
+
+  const handleTouchEnd = useCallback(() => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer)
+      setLongPressTimer(null)
+    }
+  }, [longPressTimer])
+
+  // Professional modal hooks
+  const { showInput, showConfirm, showAlert } = useProfessionalModal()
+  const { showInput: showInputModal } = useProfessionalInput()
+
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb Path */}
+      <BreadcrumbPath 
+        currentPath={currentPath}
+        onNavigate={setCurrentPath}
+        className="mb-4"
+      />
+      
+      {/* Responsive Layouts */}
+      {isMobile ? (
+        <MobileLayout 
+          files={files} 
+          filteredAndSortedFiles={filteredAndSortedFiles} 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          filterType={filterType} 
+          setFilterType={setFilterType} 
+          showAnalytics={showAnalytics} 
+          setShowAnalytics={setShowAnalytics} 
+          handleCreateFile={handleCreateFile} 
+          handleCreateFolder={handleCreateFolder} 
+          setShowUploadProgress={setShowUploadProgress} 
+          handleFileClick={handleFileClick} 
+          handleRightClick={handleRightClick} 
+          handleShare={handleShare} 
+          handleAdvancedShare={handleAdvancedShare} 
+          selectedFiles={selectedFiles} 
+          toggleMultiSelect={toggleMultiSelect} 
+          clearMultiSelect={clearMultiSelect} 
+          multiSelectMode={multiSelectMode} 
+          showMultiActions={showMultiActions} 
+          setShowMultiActions={setShowMultiActions} 
+          handleTouchStart={handleTouchStart} 
+          handleTouchEnd={handleTouchEnd} 
+          getFileCategory={getFileCategory} 
+          getFileIcon={getFileIcon} 
+        />
+      ) : (
+        <DesktopLayout 
+          files={files} 
+          filteredAndSortedFiles={filteredAndSortedFiles} 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          filterType={filterType} 
+          setFilterType={setFilterType} 
+          sortBy={sortBy} 
+          setSortBy={setSortBy} 
+          sortOrder={sortOrder} 
+          setSortOrder={setSortOrder} 
+          viewMode={viewMode} 
+          setViewMode={setViewMode} 
+          showAnalytics={showAnalytics} 
+          setShowAnalytics={setShowAnalytics} 
+          handleCreateFile={handleCreateFile} 
+          handleCreateFolder={handleCreateFolder} 
+          setShowUploadProgress={setShowUploadProgress} 
+          handleFileClick={handleFileClick} 
+          handleRightClick={handleRightClick} 
+          handleShare={handleShare} 
+          handleAdvancedShare={handleAdvancedShare} 
+          selectedFiles={selectedFiles} 
+          toggleMultiSelect={toggleMultiSelect} 
+          clearMultiSelect={clearMultiSelect} 
+          multiSelectMode={multiSelectMode} 
+          showMultiActions={showMultiActions} 
+          setShowMultiActions={setShowMultiActions} 
+          getFileCategory={getFileCategory} 
+          getFileIcon={getFileIcon} 
+        />
       )}
 
       {/* Tab System */}
       {tabs.length > 0 && (
-        <div className="mt-6">
-          <TabSystem
-            tabs={tabs}
-            onTabClose={closeTab}
-            onTabActivate={activateTab}
-            onTabUpdate={(tabId, content) => {
-              // Handle tab content updates if needed
-            }}
-          />
-        </div>
-      )}
-
-      {/* Media Preview Modal */}
-      {showMediaPreview && selectedFile && (
-        <MediaPreview
-          file={{
-            id: selectedFile.id,
-            name: selectedFile.name,
-            type: selectedFile.type,
-            content: selectedFile.content || selectedFile.thumbnail || '',
-            thumbnail: selectedFile.thumbnail,
-            size: selectedFile.size,
-            artist: selectedFile.artist,
-            album: selectedFile.album,
-            albumArt: selectedFile.albumArt
-          }}
-          onDownload={() => {
-            console.log('Downloading:', selectedFile.name)
-            closeMediaPreview()
-          }}
-          onShare={() => {
-            setAdvancedShareModal({ isOpen: true, file: selectedFile })
-            closeMediaPreview()
-          }}
-          onLike={() => {
-            console.log('Liked:', selectedFile.name)
-          }}
+        <TabSystem
+          tabs={tabs}
+          activeTabId={activeTabId}
+          onTabChange={activateTab}
+          onTabClose={closeTab}
+          className="mt-6"
         />
       )}
 
-      {/* File Context Menu */}
-      <FileContextMenu
-        file={contextMenu?.file}
-        position={contextMenu?.position || null}
-        onClose={() => setContextMenu(null)}
-        onShare={handleContextAction.share}
-        onRename={handleContextAction.rename}
-        onDelete={handleContextAction.delete}
-        onDownload={handleContextAction.download}
-        onCopy={handleContextAction.copy}
-        onView={handleContextAction.view}
-        onToggleStar={handleContextAction.toggleStar}
-        onTogglePrivacy={handleContextAction.togglePrivacy}
-        onMoveToFolder={handleContextAction.moveToFolder}
-        onArchive={handleContextAction.archive}
-        onUnarchive={handleContextAction.unarchive}
-        onSelect={handleContextAction.select}
-      />
+      {/* Context Menu */}
+      {contextMenu && (
+        <FileContextMenu
+          file={contextMenu.file}
+          position={contextMenu.position}
+          onClose={closeContextMenu}
+          onShare={handleShare}
+          onAdvancedShare={handleAdvancedShare}
+          onDelete={onFileDelete}
+          isAdmin={isAdmin}
+        />
+      )}
 
-      {/* Professional Modal */}
-      <Modal />
-      
-      {/* Professional Input Modal */}
-      {ProfessionalInputComponent}
-
-      {/* Simple Share Modal */}
-      {shareModal.file && (
+      {/* Modals */}
+      {shareModal.isOpen && (
         <SimpleShareModal
-          isOpen={shareModal.isOpen}
-          onClose={() => setShareModal({ isOpen: false, file: null })}
-          file={{
-            id: shareModal.file.id,
-            name: shareModal.file.name,
-            size: shareModal.file.size
-          }}
+          file={shareModal.file}
+          onClose={() => dispatch({ type: 'SET_SHARE_MODAL', payload: { isOpen: false, file: null } })}
         />
       )}
 
-      {/* Advanced Share Modal */}
-      {advancedShareModal.file && (
+      {advancedShareModal.isOpen && (
         <AdvancedShareModal
-          isOpen={advancedShareModal.isOpen}
-          onClose={() => setAdvancedShareModal({ isOpen: false, file: null })}
-          file={{
-            id: advancedShareModal.file.id,
-            name: advancedShareModal.file.name,
-            size: advancedShareModal.file.size
-          }}
+          file={advancedShareModal.file}
+          onClose={() => dispatch({ type: 'SET_ADVANCED_SHARE_MODAL', payload: { isOpen: false, file: null } })}
         />
       )}
 
+      {/* Overlays */}
+      {compressionOverlay.isOpen && (
+        <CompressionOverlay
+          files={compressionOverlay.files}
+          onClose={() => dispatch({ type: 'SET_COMPRESSION_OVERLAY', payload: { isOpen: false, files: [] } })}
+        />
+      )}
 
-
-      {/* Archive Viewer */}
-      {archiveViewer.file && (
+      {archiveViewer.isOpen && (
         <ArchiveViewer
-          isOpen={archiveViewer.isOpen}
-          onClose={() => setArchiveViewer({ isOpen: false, file: null })}
-          archiveFile={{
-            id: archiveViewer.file.id,
-            name: archiveViewer.file.name,
-            size: archiveViewer.file.size || 0,
-            type: archiveViewer.file.type || 'archive'
-          }}
+          file={archiveViewer.file}
+          onClose={() => dispatch({ type: 'SET_ARCHIVE_VIEWER', payload: { isOpen: false, file: null } })}
         />
       )}
-
-      {/* Compression Overlay */}
-      <CompressionOverlay
-        isOpen={compressionOverlay.isOpen}
-        onClose={() => setCompressionOverlay({ isOpen: false, files: [] })}
-        files={compressionOverlay.files}
-        onComplete={(archiveName, compressionType) => {
-          console.log('Archive created:', archiveName, compressionType)
-          
-          // Add new archive file to the list
-          const newArchiveFile = {
-            id: `archive-${Date.now()}`,
-            name: `${archiveName}.${compressionType}`,
-            size: compressionOverlay.files.reduce((acc, f) => acc + (f.size || 0), 0) * 0.4, // 40% compression
-            type: compressionType === 'zip' ? 'application/zip' : 
-                  compressionType === '7z' ? 'application/x-7z-compressed' :
-                  'application/gzip',
-            lastModified: new Date(),
-            isFolder: false,
-            isStarred: false,
-            isShared: false,
-            hasPassword: false,
-            inArchive: true,
-            thumbnail: undefined
-          }
-          
-          // Add to files list
-          if (onFileCreate) {
-            onFileCreate(newArchiveFile)
-          }
-          
-          setCompressionOverlay({ isOpen: false, files: [] })
-        }}
-      />
     </div>
   )
 }
