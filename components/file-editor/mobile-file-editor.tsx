@@ -7,17 +7,31 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
   FileText, FileCode, Save, X, ArrowLeft, Settings,
   Code, File, Folder, Music, Image, Video, Database,
-  Eye, EyeOff, Search, Download, Share2, Star
+  Eye, EyeOff, Search, Download, Share2, Star,
+  Bold, Italic, Underline, List, ListOrdered, AlignLeft, AlignCenter, AlignRight,
+  Indent, Outdent, Link, Table, Code2, Palette, ChevronDown, ChevronUp,
+  Undo2, Redo2, History, Clock, Calendar, Tag, Bookmark, Pin,
+  MessageSquare, Phone, Mail, MapPin, Navigation, Compass, Globe2,
+  Menu, MoreVertical, ZoomIn, ZoomOut, RotateCcw, FlipHorizontal, FlipVertical
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface MobileFileEditorProps {
-  file: any
-  onClose: () => void
+  file: {
+    id: string
+    name: string
+    content: string
+    type: string
+    size: number
+    lastModified: Date
+  }
   onSave: (fileName: string, content: string, fileType: string) => void
+  onClose: () => void
+  readOnly?: boolean
 }
 
 const ALLOWED_EXTENSIONS = {
@@ -50,54 +64,114 @@ const FILE_TYPE_ICONS = {
   folder: Folder
 }
 
-export function MobileFileEditor({ file, onClose, onSave }: MobileFileEditorProps) {
-  const [fileName, setFileName] = useState(file?.name || '')
-  const [content, setContent] = useState(file?.content || '')
-  const [selectedType, setSelectedType] = useState('text')
-  const [fontSize, setFontSize] = useState(16)
+const THEMES = [
+  { value: 'dark', label: 'Dark', preview: 'bg-slate-900' },
+  { value: 'light', label: 'Light', preview: 'bg-white' },
+  { value: 'blue', label: 'Blue', preview: 'bg-blue-900' },
+  { value: 'green', label: 'Green', preview: 'bg-green-900' },
+  { value: 'purple', label: 'Purple', preview: 'bg-purple-900' },
+  { value: 'red', label: 'Red', preview: 'bg-red-900' }
+]
+
+const FONT_FAMILIES = [
+  { value: 'mono', label: 'Monospace', preview: 'font-mono' },
+  { value: 'sans', label: 'Sans Serif', preview: 'font-sans' },
+  { value: 'serif', label: 'Serif', preview: 'font-serif' }
+]
+
+export function MobileFileEditor({ file, onSave, onClose, readOnly = false }: MobileFileEditorProps) {
+  const [fileName, setFileName] = useState(file.name)
+  const [content, setContent] = useState(file.content)
+  const [fileType, setFileType] = useState(file.type || 'text')
+  const [errors, setErrors] = useState<string[]>([])
+  const [isValid, setIsValid] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
-  const [showSettings, setShowSettings] = useState(false)
+  const [fontSize, setFontSize] = useState(16)
+  const [theme, setTheme] = useState('dark')
+  const [fontFamily, setFontFamily] = useState('mono')
   const [wordWrap, setWordWrap] = useState(true)
-  const [lineNumbers, setLineNumbers] = useState(false) // Disabled on mobile for space
+  const [lineNumbers, setLineNumbers] = useState(true)
   const [autoSave, setAutoSave] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
+  const [showSettings, setShowSettings] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [replaceQuery, setReplaceQuery] = useState('')
+  const [searchOptions, setSearchOptions] = useState({
+    caseSensitive: false,
+    wholeWord: false,
+    regex: false
+  })
+  const [activePanel, setActivePanel] = useState<'editor' | 'settings' | 'search'>('editor')
 
   const editorRef = useRef<HTMLTextAreaElement>(null)
+  const searchRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    if (file) {
-      setFileName(file.name || '')
-      setContent(file.content || '')
-      const detectedType = detectFileType(file.name)
-      setSelectedType(detectedType)
-    }
+    setFileName(file.name)
+    setContent(file.content)
+    setFileType(file.type || 'text')
+    validateFileName()
   }, [file])
 
   useEffect(() => {
-    if (autoSave && content) {
-      const timeout = setTimeout(() => {
+    if (autoSave && content !== file.content) {
+      const timer = setTimeout(() => {
         handleSave()
-      }, 3000) // Longer delay on mobile
-      return () => clearTimeout(timeout)
+      }, 2000)
+      return () => clearTimeout(timer)
     }
   }, [content, autoSave])
 
   const detectFileType = (filename: string): string => {
-    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'))
+    const ext = filename.split('.').pop()?.toLowerCase() || ''
     
-    for (const [type, extensions] of Object.entries(ALLOWED_EXTENSIONS)) {
-      if (extensions.includes(ext)) {
-        return type
-      }
-    }
+    if (ALLOWED_EXTENSIONS.audio.includes(`.${ext}`)) return 'audio'
+    if (ALLOWED_EXTENSIONS.image.includes(`.${ext}`)) return 'image'
+    if (ALLOWED_EXTENSIONS.video.includes(`.${ext}`)) return 'video'
+    if (ALLOWED_EXTENSIONS.database.includes(`.${ext}`)) return 'database'
+    if (ALLOWED_EXTENSIONS.code.includes(`.${ext}`)) return 'code'
+    if (ALLOWED_EXTENSIONS.text.includes(`.${ext}`)) return 'text'
+    
     return 'text'
   }
 
-  const handleSave = () => {
-    if (onSave) {
-      onSave(fileName, content, selectedType)
+  const handleFileNameChange = (newName: string) => {
+    setFileName(newName)
+    const detectedType = detectFileType(newName)
+    if (detectedType !== fileType) {
+      setFileType(detectedType)
     }
+    validateFileName()
+  }
+
+  const validateFileName = () => {
+    const newErrors: string[] = []
+    
+    if (!fileName.trim()) {
+      newErrors.push('File name is required')
+    }
+    
+    const invalidChars = /[<>:"/\\|?*]/
+    if (invalidChars.test(fileName)) {
+      newErrors.push('File name contains invalid characters')
+    }
+    
+    if (fileName.includes('.')) {
+      const extension = fileName.substring(fileName.lastIndexOf('.'))
+      const allowedExtensions = ALLOWED_EXTENSIONS[fileType as keyof typeof ALLOWED_EXTENSIONS]
+      
+      if (allowedExtensions && allowedExtensions.length > 0 && !allowedExtensions.includes(extension.toLowerCase())) {
+        newErrors.push(`Invalid extension for ${FILE_TYPE_NAMES[fileType as keyof typeof FILE_TYPE_NAMES]}. Allowed: ${allowedExtensions.join(', ')}`)
+      }
+    }
+    
+    setErrors(newErrors)
+    setIsValid(newErrors.length === 0 && fileName.trim().length > 0)
+  }
+
+  const handleSave = () => {
+    if (!isValid) return
+    onSave(fileName, content, fileType)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -107,381 +181,503 @@ export function MobileFileEditor({ file, onClose, onSave }: MobileFileEditorProp
           e.preventDefault()
           handleSave()
           break
+        case 'f':
+          e.preventDefault()
+          setShowSearch(true)
+          setActivePanel('search')
+          setTimeout(() => searchRef.current?.focus(), 100)
+          break
       }
     }
   }
 
+  const handleSearch = () => {
+    if (!searchQuery) return
+    
+    const text = content
+    let matches: number[] = []
+    
+    if (searchOptions.regex) {
+      try {
+        const regex = new RegExp(searchQuery, searchOptions.caseSensitive ? 'g' : 'gi')
+        let match
+        while ((match = regex.exec(text)) !== null) {
+          matches.push(match.index)
+        }
+      } catch (e) {
+        return
+      }
+    } else {
+      if (searchOptions.caseSensitive) {
+        let index = text.indexOf(searchQuery)
+        while (index !== -1) {
+          matches.push(index)
+          index = text.indexOf(searchQuery, index + 1)
+        }
+      } else {
+        const lowerText = text.toLowerCase()
+        const lowerQuery = searchQuery.toLowerCase()
+        let index = lowerText.indexOf(lowerQuery)
+        while (index !== -1) {
+          matches.push(index)
+          index = lowerText.indexOf(lowerQuery, index + 1)
+        }
+      }
+    }
+    
+    if (matches.length > 0) {
+      const firstMatch = matches[0]
+      editorRef.current?.setSelectionRange(firstMatch, firstMatch + searchQuery.length)
+    }
+  }
+
+  const handleReplace = () => {
+    if (!searchQuery || !replaceQuery) return
+    
+    const newContent = content.replace(new RegExp(searchQuery, 'g'), replaceQuery)
+    setContent(newContent)
+    setSearchQuery('')
+    setReplaceQuery('')
+    setActivePanel('editor')
+  }
+
   const getFileIcon = () => {
-    const IconComponent = FILE_TYPE_ICONS[selectedType as keyof typeof FILE_TYPE_ICONS]
-    return IconComponent ? <IconComponent className="w-5 h-5" /> : <FileText className="w-5 h-5" />
+    const IconComponent = FILE_TYPE_ICONS[fileType as keyof typeof FILE_TYPE_ICONS]
+    return IconComponent ? <IconComponent className="w-6 h-6" /> : <FileText className="w-6 h-6" />
+  }
+
+  const getThemeClasses = () => {
+    switch (theme) {
+      case 'light': return 'bg-white text-black'
+      case 'blue': return 'bg-blue-900 text-white'
+      case 'green': return 'bg-green-900 text-white'
+      case 'purple': return 'bg-purple-900 text-white'
+      case 'red': return 'bg-red-900 text-white'
+      default: return 'bg-slate-900 text-white'
+    }
+  }
+
+  const getEditorStyles = () => {
+    return {
+      fontSize: `${fontSize}px`,
+      fontFamily: fontFamily === 'mono' ? 'monospace' : fontFamily === 'sans' ? 'sans-serif' : 'serif',
+      lineHeight: '1.6',
+      whiteSpace: wordWrap ? 'pre-wrap' : 'pre'
+    }
+  }
+
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
   }
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[9999] flex flex-col">
-      {/* Mobile Header - Enhanced */}
-      <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-purple-700 px-4 py-4 shadow-lg">
-        <div className="flex items-center justify-between">
+    <div className={cn("w-full h-full flex flex-col", getThemeClasses())}>
+      {/* Mobile Header */}
+      <div className="bg-gradient-to-r from-slate-800 via-purple-900 to-slate-800 border-b border-purple-500/30 p-4">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <Button
               size="sm"
               variant="ghost"
-              onClick={onClose}
-              className="text-white hover:bg-white/20 p-2 rounded-xl backdrop-blur-sm"
+              onClick={() => setActivePanel('editor')}
+              className="text-white hover:bg-white/20 p-2"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 shadow-lg">
-                {getFileIcon()}
-              </div>
-              <div>
-                <h3 className="text-white font-bold text-lg leading-tight">{fileName}</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="bg-white/20 text-white/90 border-white/30 text-xs px-2 py-1 rounded-full">
-                    {FILE_TYPE_NAMES[selectedType as keyof typeof FILE_TYPE_NAMES]}
-                  </Badge>
-                  <span className="text-white/70 text-xs">
-                    {content.split('\n').length} lines
-                  </span>
-                </div>
+            <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center border border-purple-500/30">
+              {getFileIcon()}
+            </div>
+            <div>
+              <h2 className="text-white font-bold text-lg">{fileName}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">
+                  {FILE_TYPE_NAMES[fileType as keyof typeof FILE_TYPE_NAMES]}
+                </Badge>
+                <span className="text-white/60 text-xs">
+                  {formatBytes(file.size)}
+                </span>
               </div>
             </div>
           </div>
-
+          
           <div className="flex items-center gap-2">
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setShowSearch(true)}
-              className="text-white hover:bg-white/20 p-2 rounded-xl backdrop-blur-sm"
+              onClick={() => setActivePanel('search')}
+              className="text-white hover:bg-white/20"
+              title="Search"
             >
-              <Search className="w-4 h-4" />
+              <Search className="w-5 h-5" />
             </Button>
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => setShowSettings(!showSettings)}
-              className="text-white hover:bg-white/20 p-2 rounded-xl backdrop-blur-sm"
+              onClick={() => setActivePanel('settings')}
+              className="text-white hover:bg-white/20"
+              title="Settings"
             >
-              <Settings className="w-4 h-4" />
+              <Settings className="w-5 h-5" />
             </Button>
             <Button
-              size="sm"
               onClick={handleSave}
-              className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-4 py-2 rounded-xl shadow-lg font-medium"
+              disabled={!isValid || readOnly}
+              className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2"
             >
-              <Save className="w-4 h-4 mr-1" />
+              <Save className="w-4 h-4 mr-2" />
               Save
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* File Type Selector - Enhanced Mobile */}
-        <div className="bg-gradient-to-r from-white/5 to-white/10 border-b border-white/10 px-4 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <h4 className="text-white/90 font-medium text-sm">File Type</h4>
-            <span className="text-white/60 text-xs">Auto-detected</span>
+        {/* File Info Bar */}
+        <div className="grid grid-cols-3 gap-4 text-sm">
+          <div className="text-center">
+            <span className="text-white/60 block">Type</span>
+            <span className="text-white font-medium">{FILE_TYPE_NAMES[fileType as keyof typeof FILE_TYPE_NAMES]}</span>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            {Object.entries(FILE_TYPE_NAMES).map(([key, name]) => {
-              const IconComponent = FILE_TYPE_ICONS[key as keyof typeof FILE_TYPE_ICONS]
-              const isSelected = selectedType === key
-              return (
-                <button
-                  key={key}
-                  onClick={() => setSelectedType(key)}
-                  className={cn(
-                    "flex items-center gap-2 p-3 rounded-xl border transition-all duration-200",
-                    isSelected
-                      ? "bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-400/40 text-white shadow-lg"
-                      : "bg-white/5 border-white/20 text-white/70 hover:bg-white/10 hover:border-white/30"
-                  )}
-                >
-                  {IconComponent && <IconComponent className="w-4 h-4" />}
-                  <span className="text-sm font-medium">{name}</span>
-                  {isSelected && (
-                    <div className="ml-auto w-2 h-2 bg-purple-400 rounded-full"></div>
-                  )}
-                </button>
-              )
-            })}
+          <div className="text-center">
+            <span className="text-white/60 block">Lines</span>
+            <span className="text-white font-medium">{content.split('\n').length}</span>
+          </div>
+          <div className="text-center">
+            <span className="text-white/60 block">Chars</span>
+            <span className="text-white font-medium">{content.length}</span>
           </div>
         </div>
+      </div>
 
-        {/* Editor Area - Enhanced */}
-        <div className="flex-1 relative bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 overflow-hidden">
-          {/* Editor Background Pattern */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute inset-0" style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0)`,
-              backgroundSize: '20px 20px'
-            }}></div>
-          </div>
-          
-          {/* Line Numbers - Mobile Optimized */}
-          {lineNumbers && (
-            <div className="absolute left-0 top-0 bottom-0 w-12 bg-white/5 backdrop-blur-sm border-r border-white/10 text-right text-white/30 text-xs font-mono py-4">
-              {content.split('\n').map((_, index) => (
-                <div key={index} className="px-2 py-0.5">
-                  {index + 1}
+      {/* Mobile Content */}
+      <div className="flex-1 relative">
+        <AnimatePresence mode="wait">
+          {activePanel === 'editor' && (
+            <motion.div
+              key="editor"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="h-full flex flex-col"
+            >
+              {/* File Name Input */}
+              <div className="p-4 border-b border-purple-500/20 bg-slate-800/50">
+                <label className="block text-white/80 text-sm font-medium mb-2">File Name</label>
+                <Input
+                  value={fileName}
+                  onChange={(e) => handleFileNameChange(e.target.value)}
+                  disabled={readOnly}
+                  className="bg-black/30 border-purple-500/30 text-white text-base"
+                />
+              </div>
+
+              {/* Editor Area */}
+              <div className="flex-1 p-4 relative">
+                {showPreview ? (
+                  <div className="h-full">
+                    <div className="bg-white/10 rounded-lg p-4 border border-purple-500/20 h-full overflow-auto">
+                      <h3 className="text-white font-semibold mb-2">Preview</h3>
+                      <pre className="text-white text-sm whitespace-pre-wrap">{content}</pre>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-full relative">
+                    {/* Line Numbers */}
+                    {lineNumbers && (
+                      <div className="absolute left-0 top-0 bottom-0 w-8 bg-black/20 border-r border-purple-500/20 text-right text-xs text-gray-400 p-2 select-none">
+                        {content.split('\n').map((_, index) => (
+                          <div key={index} className="leading-6">
+                            {index + 1}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Editor */}
+                    <Textarea
+                      ref={editorRef}
+                      value={content}
+                      onChange={(e) => setContent(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      disabled={readOnly}
+                      className={cn(
+                        "w-full h-full resize-none border-0 bg-transparent text-white font-mono p-4 text-base",
+                        lineNumbers && "pl-12"
+                      )}
+                      style={getEditorStyles()}
+                      placeholder={`Enter ${FILE_TYPE_NAMES[fileType as keyof typeof FILE_TYPE_NAMES]} content...`}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile Bottom Bar */}
+              <div className="p-4 border-t border-purple-500/20 bg-slate-800/50">
+                <div className="flex items-center justify-between text-xs text-gray-400 mb-3">
+                  <span>Ln 1, Col 1</span>
+                  <span>{fileType.toUpperCase()}</span>
+                  <span>UTF-8</span>
                 </div>
-              ))}
-            </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={showPreview}
+                        onCheckedChange={setShowPreview}
+                        className="scale-75"
+                      />
+                      <span className="text-white text-xs">Preview</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={lineNumbers}
+                        onCheckedChange={setLineNumbers}
+                        className="scale-75"
+                      />
+                      <span className="text-white text-xs">Lines</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-xs">{fontSize}px</span>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setFontSize(Math.max(12, fontSize - 1))}
+                      className="text-white hover:bg-white/20 p-1"
+                    >
+                      <ZoomOut className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => setFontSize(Math.min(24, fontSize + 1))}
+                      className="text-white hover:bg-white/20 p-1"
+                    >
+                      <ZoomIn className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
           )}
-          
-          {/* Editor */}
-          <Textarea
-            ref={editorRef}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className={cn(
-              "w-full h-full bg-transparent border-0 resize-none outline-none text-white font-mono text-base p-4 transition-all duration-200",
-              lineNumbers && "pl-16"
-            )}
-            style={{
-              fontFamily: 'Inter',
-              fontSize: `${fontSize}px`,
-              lineHeight: '1.6',
-              letterSpacing: '0.3px'
-            }}
-            placeholder="✨ Start typing your content here..."
-            wrap="soft"
-          />
-          
-          {/* Floating Save Indicator */}
-          {autoSave && (
-            <div className="absolute top-4 right-4">
-              <div className="bg-green-500/20 backdrop-blur-sm border border-green-400/30 rounded-full px-3 py-1">
-                <span className="text-green-400 text-xs font-medium">Auto-save</span>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Mobile Bottom Bar - Enhanced */}
-        <div className="bg-gradient-to-r from-white/5 to-white/10 border-t border-white/10 px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* File Statistics */}
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-                <span className="text-white/80 text-sm font-medium">
-                  {content.split('\n').length} lines
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-white/80 text-sm font-medium">
-                  {content.length} chars
-                </span>
-              </div>
-            </div>
-            
-            {/* Quick Actions */}
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => setLineNumbers(!lineNumbers)}
-                className={cn(
-                  "p-2 rounded-lg transition-all duration-200",
-                  lineNumbers 
-                    ? "bg-purple-500/20 text-purple-300 border border-purple-400/30" 
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
-                )}
-              >
-                <span className="text-xs font-medium">Lines</span>
-              </button>
-              <button
-                onClick={() => setWordWrap(!wordWrap)}
-                className={cn(
-                  "p-2 rounded-lg transition-all duration-200",
-                  wordWrap 
-                    ? "bg-purple-500/20 text-purple-300 border border-purple-400/30" 
-                    : "bg-white/10 text-white/60 hover:bg-white/20"
-                )}
-              >
-                <span className="text-xs font-medium">Wrap</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Settings Panel - Enhanced Mobile */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            className="fixed bottom-0 left-0 right-0 bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-xl border-t border-white/20 rounded-t-3xl z-[10001]"
-          >
-            {/* Handle Bar */}
-            <div className="flex justify-center pt-3 pb-2">
-              <div className="w-12 h-1 bg-white/30 rounded-full"></div>
-            </div>
-            
-            <div className="px-6 pb-6">
-              <div className="flex items-center justify-between mb-6">
+          {activePanel === 'settings' && (
+            <motion.div
+              key="settings"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full p-4 space-y-6 overflow-y-auto"
+            >
+              <div className="text-center mb-6">
                 <h3 className="text-white font-bold text-xl">Editor Settings</h3>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => setShowSettings(false)}
-                  className="text-white hover:bg-white/20 p-2 rounded-xl"
-                >
-                  <X className="w-5 h-5" />
-                </Button>
+                <p className="text-white/60 text-sm">Customize your editing experience</p>
               </div>
 
-              <div className="space-y-6">
-                {/* Font Size Control */}
-                <div className="bg-white/5 rounded-2xl p-4 border border-white/10">
-                  <div className="flex items-center justify-between mb-3">
-                    <label className="text-white font-medium text-sm">Font Size</label>
-                    <span className="text-purple-300 font-bold text-lg">{fontSize}px</span>
+              {/* Theme Selection */}
+              <div>
+                <label className="text-white text-sm font-medium block mb-3">Theme</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {THEMES.map((themeOption) => (
+                    <div
+                      key={themeOption.value}
+                      onClick={() => setTheme(themeOption.value)}
+                      className={cn(
+                        "p-4 rounded-xl border-2 cursor-pointer transition-all",
+                        theme === themeOption.value
+                          ? "border-purple-500 bg-purple-500/20"
+                          : "border-gray-600 hover:border-purple-500/50"
+                      )}
+                    >
+                      <div className={cn("w-full h-12 rounded-lg mb-2", themeOption.preview)}></div>
+                      <span className="text-white text-sm font-medium">{themeOption.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Font Family */}
+              <div>
+                <label className="text-white text-sm font-medium block mb-2">Font Family</label>
+                <Select value={fontFamily} onValueChange={setFontFamily}>
+                  <SelectTrigger className="bg-black/30 border-purple-500/30 text-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-800 border-purple-500/30">
+                    {FONT_FAMILIES.map((font) => (
+                      <SelectItem key={font.value} value={font.value} className="text-white hover:bg-purple-500/20">
+                        <span className={font.preview}>{font.label}</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Font Size */}
+              <div>
+                <label className="text-white text-sm font-medium block mb-2">Font Size: {fontSize}px</label>
+                <div className="flex items-center gap-3">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setFontSize(Math.max(12, fontSize - 1))}
+                    className="border-purple-500/30 text-purple-300"
+                  >
+                    <ZoomOut className="w-4 h-4" />
+                  </Button>
+                  <div className="flex-1">
+                    <div className="w-full bg-gray-600 rounded-full h-2">
+                      <div 
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all"
+                        style={{ width: `${((fontSize - 12) / (24 - 12)) * 100}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <input
-                    type="range"
-                    min="12"
-                    max="20"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(Number(e.target.value))}
-                    className="w-full h-3 bg-white/20 rounded-lg appearance-none cursor-pointer slider-thumb"
-                    style={{
-                      background: `linear-gradient(to right, #a855f7 0%, #a855f7 ${(fontSize - 12) / 8 * 100}%, rgba(255,255,255,0.2) ${(fontSize - 12) / 8 * 100}%, rgba(255,255,255,0.2) 100%)`
-                    }}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setFontSize(Math.min(24, fontSize + 1))}
+                    className="border-purple-500/30 text-purple-300"
+                  >
+                    <ZoomIn className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Editor Options */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+                  <div>
+                    <label className="text-white text-sm font-medium">Word Wrap</label>
+                    <p className="text-white/60 text-xs">Wrap long lines</p>
+                  </div>
+                  <Switch
+                    checked={wordWrap}
+                    onCheckedChange={setWordWrap}
                   />
-                  <div className="flex justify-between text-xs text-white/50 mt-2">
-                    <span>Small</span>
-                    <span>Large</span>
-                  </div>
                 </div>
-
-                {/* Toggle Controls */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-purple-500/20 rounded-lg flex items-center justify-center">
-                        <span className="text-purple-300 text-sm">Aa</span>
-                      </div>
-                      <div>
-                        <span className="text-white font-medium text-sm">Word Wrap</span>
-                        <p className="text-white/60 text-xs">Wrap long lines</p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={wordWrap}
-                      onCheckedChange={setWordWrap}
-                      className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-white/20"
-                    />
+                
+                <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+                  <div>
+                    <label className="text-white text-sm font-medium">Line Numbers</label>
+                    <p className="text-white/60 text-xs">Show line numbers</p>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-500/20 rounded-lg flex items-center justify-center">
-                        <span className="text-green-300 text-sm">💾</span>
-                      </div>
-                      <div>
-                        <span className="text-white font-medium text-sm">Auto Save</span>
-                        <p className="text-white/60 text-xs">Save automatically</p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={autoSave}
-                      onCheckedChange={setAutoSave}
-                      className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-white/20"
-                    />
+                  <Switch
+                    checked={lineNumbers}
+                    onCheckedChange={setLineNumbers}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between p-3 bg-black/20 rounded-lg">
+                  <div>
+                    <label className="text-white text-sm font-medium">Auto Save</label>
+                    <p className="text-white/60 text-xs">Save automatically</p>
                   </div>
-
-                  <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center">
-                        <span className="text-blue-300 text-sm">123</span>
-                      </div>
-                      <div>
-                        <span className="text-white font-medium text-sm">Line Numbers</span>
-                        <p className="text-white/60 text-xs">Show line numbers</p>
-                      </div>
-                    </div>
-                    <Switch
-                      checked={lineNumbers}
-                      onCheckedChange={setLineNumbers}
-                      className="data-[state=checked]:bg-purple-500 data-[state=unchecked]:bg-white/20"
-                    />
-                  </div>
+                  <Switch
+                    checked={autoSave}
+                    onCheckedChange={setAutoSave}
+                  />
                 </div>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
 
-      {/* Search Modal - Enhanced Mobile */}
-      <AnimatePresence>
-        {showSearch && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xl z-[10001] flex items-center justify-center p-4"
-          >
-            <div className="bg-gradient-to-b from-white/15 to-white/5 backdrop-blur-xl border border-white/20 rounded-3xl p-6 w-full max-w-sm shadow-2xl">
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-purple-500/20 rounded-2xl flex items-center justify-center">
-                  <Search className="w-5 h-5 text-purple-300" />
-                </div>
-                <div>
-                  <h3 className="text-white font-bold text-xl">Find Text</h3>
-                  <p className="text-white/60 text-sm">Search in your file</p>
-                </div>
+          {activePanel === 'search' && (
+            <motion.div
+              key="search"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="h-full p-4 space-y-4"
+            >
+              <div className="text-center mb-6">
+                <h3 className="text-white font-bold text-xl">Search & Replace</h3>
+                <p className="text-white/60 text-sm">Find and replace text in your file</p>
               </div>
-              
-              {/* Search Input */}
+
               <div className="space-y-4">
                 <div>
-                  <label className="text-white/80 text-sm font-medium block mb-3">Search for</label>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/50" />
-                    <Input
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="bg-white/10 border-white/20 text-white placeholder-white/50 pl-10 py-3 rounded-xl"
-                      placeholder="Enter search text..."
-                      autoFocus
+                  <label className="text-white text-sm font-medium block mb-2">Find</label>
+                  <Input
+                    ref={searchRef}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="bg-black/30 border-purple-500/30 text-white text-base"
+                    placeholder="Search text..."
+                  />
+                </div>
+                
+                <div>
+                  <label className="text-white text-sm font-medium block mb-2">Replace</label>
+                  <Input
+                    value={replaceQuery}
+                    onChange={(e) => setReplaceQuery(e.target.value)}
+                    className="bg-black/30 border-purple-500/30 text-white text-base"
+                    placeholder="Replace with..."
+                  />
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 p-3 bg-black/20 rounded-lg">
+                    <Switch
+                      checked={searchOptions.caseSensitive}
+                      onCheckedChange={(checked) => setSearchOptions(prev => ({ ...prev, caseSensitive: checked }))}
+                      className="scale-75"
                     />
+                    <label className="text-white text-sm">Case sensitive</label>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 bg-black/20 rounded-lg">
+                    <Switch
+                      checked={searchOptions.wholeWord}
+                      onCheckedChange={(checked) => setSearchOptions(prev => ({ ...prev, wholeWord: checked }))}
+                      className="scale-75"
+                    />
+                    <label className="text-white text-sm">Whole word</label>
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 bg-black/20 rounded-lg">
+                    <Switch
+                      checked={searchOptions.regex}
+                      onCheckedChange={(checked) => setSearchOptions(prev => ({ ...prev, regex: checked }))}
+                      className="scale-75"
+                    />
+                    <label className="text-white text-sm">Regex</label>
                   </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-4">
+                  <Button onClick={handleSearch} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white">
+                    Find
+                  </Button>
+                  <Button onClick={handleReplace} variant="outline" className="border-purple-500/30 text-purple-300">
+                    Replace
+                  </Button>
+                </div>
               </div>
-              
-              {/* Action Buttons */}
-              <div className="flex gap-3 mt-8">
-                <Button
-                  variant="outline"
-                  onClick={() => setShowSearch(false)}
-                  className="border-white/20 text-white hover:bg-white/10 flex-1 py-3 rounded-xl font-medium"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  onClick={() => {
-                    // Search logic here
-                    setShowSearch(false)
-                  }}
-                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white flex-1 py-3 rounded-xl font-medium shadow-lg"
-                >
-                  <Search className="w-4 h-4 mr-2" />
-                  Find
-                </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Errors Display */}
+      {errors.length > 0 && (
+        <div className="p-4 bg-red-500/20 border-t border-red-500/30">
+          <div className="text-red-400 text-sm font-medium mb-2">Validation Errors:</div>
+          <div className="space-y-1">
+            {errors.map((error, index) => (
+              <div key={index} className="text-red-300 text-xs flex items-center gap-2">
+                <div className="w-1 h-1 bg-red-400 rounded-full"></div>
+                {error}
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -448,6 +448,34 @@ export function BeautifulVideoPlayer({
                     </>
                   )}
 
+                  {/* Mobile Action Buttons */}
+                  {isMobile && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={handleLike}
+                        className={cn(
+                          "text-white hover:bg-white/20 p-2",
+                          isLiked && "text-red-400"
+                        )}
+                      >
+                        <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
+                      </Button>
+
+                      {onShare && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={onShare}
+                          className="text-white hover:bg-white/20 p-2"
+                        >
+                          <Share2 className="w-5 h-5" />
+                        </Button>
+                      )}
+                    </>
+                  )}
+
                   {/* Settings - Mobile Optimized */}
                   <div className="relative">
                     <Button
