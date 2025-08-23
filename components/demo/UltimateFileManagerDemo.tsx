@@ -11,7 +11,7 @@ import {
   Archive, Database, Eye, Settings, RefreshCw,
   BarChart3, Users, HardDrive, Zap, Globe
 } from "lucide-react"
-import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
+import { UnifiedFileManager } from "@/components/file-manager/unified-file-manager"
 import { comprehensiveDemoFiles, getFileStats, FileItem, demoFolders } from "./ComprehensiveDemoFiles"
 
 export function UltimateFileManagerDemo() {
@@ -161,7 +161,7 @@ export function UltimateFileManagerDemo() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <EnhancedFileManager
+          <UnifiedFileManager
             files={demoFiles}
             folders={demoFolders}
             onFileCreate={handleFileCreate}

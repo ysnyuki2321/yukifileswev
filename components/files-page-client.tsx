@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { EnhancedFileManager } from "@/components/file-manager/enhanced-file-manager"
+import { UnifiedFileManager } from "@/components/file-manager/unified-file-manager"
 import Sidebar from "@/components/dashboard/Sidebar"
 import { Topbar } from "@/components/dashboard/Topbar"
 import { MobileSidebar } from "@/components/dashboard/MobileSidebar"
@@ -106,7 +106,7 @@ export default function FilesPageClient() {
     loadData()
   }, [])
 
-  // Transform files to match EnhancedFileManager interface
+          // Transform files to match UnifiedFileManager interface
   const transformedFiles = files.map((file: any) => ({
     id: file.id,
     name: file.name || 'untitled.txt',
@@ -871,7 +871,7 @@ Thank you for trying YukiFiles! 🚀`,
               </div>
 
               {/* Enhanced File Manager */}
-              <EnhancedFileManager
+              <UnifiedFileManager
                 files={files}
                 onFileCreate={handleFileCreate}
                 onFileUpdate={handleFileEdit}
