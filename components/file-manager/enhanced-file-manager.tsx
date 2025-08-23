@@ -19,7 +19,7 @@ import {
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
 import { TabSystem } from "@/components/ui/tab-system"
-import { UltimateWebEditor } from "@/components/file-editor/ultimate-web-editor"
+import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -821,8 +821,8 @@ export function EnhancedFileManager({
         title: file.name,
         type: 'file',
         content: (
-          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <UltimateWebEditor
+          <div className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <SimpleFileEditor
               file={{
                 id: file.id || `file-${Date.now()}`,
                 name: file.name,
@@ -1356,26 +1356,25 @@ export function EnhancedFileManager({
         title: file.name,
         type: 'database',
         content: (
-                      <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-
-              <UltimateWebEditor
-                file={{
-                  id: file.id || `file-${Date.now()}`,
-                  name: file.name,
-                  content: file.content || '',
-                  type: detectFileType(file.name),
-                  size: file.size || 0,
-                  lastModified: file.lastModified || new Date()
-                }}
-                onSave={(fileName, content, fileType) => {
-                  if (onFileUpdate) {
-                    onFileUpdate({ ...file, content, name: fileName })
-                  }
-                }}
-                onClose={() => closeTab(tabId)}
-                readOnly={false}
-              />
-            </div>
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <SimpleFileEditor
+              file={{
+                id: file.id || `file-${Date.now()}`,
+                name: file.name,
+                content: file.content || '',
+                type: detectFileType(file.name),
+                size: file.size || 0,
+                lastModified: file.lastModified || new Date()
+              }}
+              onSave={(fileName, content, fileType) => {
+                if (onFileUpdate) {
+                  onFileUpdate({ ...file, content, name: fileName })
+                }
+              }}
+              onClose={() => closeTab(tabId)}
+              readOnly={false}
+            />
+          </div>
         ),
         isActive: true
       }
@@ -1395,11 +1394,8 @@ export function EnhancedFileManager({
         title: file.name,
         type: 'media',
         content: (
-                      <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-              <div className="mb-6">
-                <h3 className="text-white font-bold text-xl">Media Preview</h3>
-              </div>
-              <MediaPreview
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <MediaPreview
                 file={file}
                 onDownload={() => {}}
                 onShare={() => {}}

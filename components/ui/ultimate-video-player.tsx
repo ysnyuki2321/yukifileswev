@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { 
   Play, Pause, Volume2, VolumeX, Maximize2, Minimize2,
   SkipBack, SkipForward, RotateCcw, Settings, Download,
@@ -248,14 +247,8 @@ export function UltimateVideoPlayer({
       )}
 
       {/* Controls Overlay */}
-      <AnimatePresence>
-        {showControls && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"
-          >
+      {showControls && (
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none">
             {/* Top Controls */}
             <div className="absolute top-0 left-0 right-0 p-4 flex items-center justify-between pointer-events-auto">
               <div className="flex items-center gap-3">
@@ -415,19 +408,13 @@ export function UltimateVideoPlayer({
                 </div>
               </div>
             </div>
-          </motion.div>
+          
         )}
-      </AnimatePresence>
+      
 
       {/* Settings Panel */}
-      <AnimatePresence>
-        {showSettings && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="absolute bottom-20 right-4 bg-black/90 backdrop-blur-md border border-white/20 rounded-xl p-4 min-w-[200px]"
-          >
+      {showSettings && (
+        <div className="absolute bottom-20 right-4 bg-black/90 backdrop-blur-md border border-white/20 rounded-xl p-4 min-w-[200px]">
             <div className="space-y-4">
               <div>
                 <label className="text-white text-sm font-medium block mb-2">Playback Speed</label>
@@ -463,9 +450,9 @@ export function UltimateVideoPlayer({
                 </div>
               </div>
             </div>
-          </motion.div>
+          
         )}
-      </AnimatePresence>
+      
     </div>
   )
 }
