@@ -4,22 +4,79 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
-import { 
-  Share2, Copy, Link, Lock, Unlock, Users, Calendar, Clock, Download, Eye, EyeOff, X,
-  CheckCircle, AlertCircle, Settings, Globe, Shield, BarChart3, Zap, QrCode,
-  ExternalLink, MessageSquare, Bell, UserPlus, Mail, Smartphone, Monitor, Tablet,
-  MapPin, TrendingUp, Activity, Palette, Edit3, Archive
-} from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { DemoFile, DemoShareSettings } from '@/lib/demo/demo-architecture'
+import { 
+  Copy, 
+  ExternalLink, 
+  QrCode, 
+  Download, 
+  Eye, 
+  MessageSquare, 
+  Lock, 
+  Unlock, 
+  Calendar, 
+  Users, 
+  BarChart3, 
+  Globe, 
+  Smartphone, 
+  Monitor, 
+  Tablet, 
+  MapPin, 
+  Clock, 
+  Trash2, 
+  Edit3, 
+  Bell, 
+  Mail, 
+  Shield, 
+  Zap, 
+  CheckCircle, 
+  AlertTriangle,
+  Info,
+  X,
+  Share2
+} from 'lucide-react'
 
 // ====================================================================
 // COMPREHENSIVE SHARE SYSTEM COMPONENT
 // ====================================================================
+
+interface ShareLink {
+  id: string
+  name: string
+  url: string
+  token: string
+  isActive: boolean
+  createdAt: Date
+  expiresAt?: Date
+  maxDownloads?: number
+  currentDownloads: number
+  password?: string
+  customMessage?: string
+  permissions: {
+    download: boolean
+    view: boolean
+    comment: boolean
+  }
+  analytics: {
+    views: number
+    downloads: number
+    uniqueVisitors: number
+    recentActivity: Array<{
+      id: string
+      action: 'view' | 'download' | 'comment'
+      userAgent: string
+      ip: string
+      timestamp: Date
+      device: string
+      location: string
+    }>
+  }
+}
 
 interface ComprehensiveShareSystemProps {
   file: DemoFile
@@ -28,37 +85,10 @@ interface ComprehensiveShareSystemProps {
   isDemo?: boolean
 }
 
-interface ShareLink {
-  id: string
-  token: string
-  url: string
-  name: string
-  isActive: boolean
-  expiresAt?: Date
-  maxDownloads?: number
-  currentDownloads: number
-  password?: string
-  allowDownload: boolean
-  allowView: boolean
-  allowComment: boolean
-  createdAt: Date
-  accessCount: number
-  analytics: {
-    totalViews: number
-    totalDownloads: number
-    uniqueVisitors: number
-    countries: string[]
-    devices: string[]
-    referrers: string[]
-    dailyStats: { date: string; views: number; downloads: number }[]
-    recentActivity: { time: Date; action: string; user: string; location: string; device: string }[]
-  }
-}
-
 export function ComprehensiveShareSystem({ 
   file, 
   onClose, 
-  onShareCreated,
+  onShareCreated, 
   isDemo = true 
 }: ComprehensiveShareSystemProps) {
   const [activeTab, setActiveTab] = useState('create')
@@ -66,48 +96,44 @@ export function ComprehensiveShareSystem({
   const [isCreatingLink, setIsCreatingLink] = useState(false)
   const [copiedToken, setCopiedToken] = useState<string | null>(null)
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null)
-  
-  // New share link form state
   const [newLinkSettings, setNewLinkSettings] = useState({
-    name: `Share: ${file.name}`,
+    name: '',
     expiresIn: '7',
-    maxDownloads: '100',
+    maxDownloads: '',
     password: '',
-    allowDownload: true,
-    allowView: true,
-    allowComment: false,
     customMessage: '',
-    requireEmail: false,
-    notifyOnAccess: true,
-    brandingEnabled: true
+    download: true,
+    view: true,
+    comment: false,
+    emailRequired: false,
+    notifications: true,
+    branding: true
   })
 
   useEffect(() => {
-    // Initialize with existing share if available
-    if (file.isShared && file.shareSettings) {
+    // Initialize with existing share if file is already shared
+    if (file.isShared && file.shareToken) {
       const existingLink: ShareLink = {
-        id: '1',
-        token: file.shareSettings.token,
-        url: file.shareSettings.url,
-        name: `Share: ${file.name}`,
-        isActive: file.shareSettings.isEnabled,
-        expiresAt: file.shareSettings.expiresAt,
-        maxDownloads: file.shareSettings.maxDownloads,
-        currentDownloads: file.shareSettings.currentDownloads,
-        password: file.shareSettings.password,
-        allowDownload: file.shareSettings.allowDownload,
-        allowView: file.shareSettings.allowView,
-        allowComment: file.shareSettings.allowComment,
-        createdAt: new Date(),
-        accessCount: file.shareSettings.analytics?.totalViews || 0,
+        id: 'existing_share',
+        name: `Share for ${file.name}`,
+        url: `${window.location.origin}/share/${file.shareToken}`,
+        token: file.shareToken,
+        isActive: true,
+        createdAt: file.createdAt,
+        expiresAt: file.shareSettings?.expiresAt,
+        maxDownloads: file.shareSettings?.maxDownloads,
+        currentDownloads: file.downloadCount,
+        password: file.shareSettings?.password,
+        customMessage: file.shareSettings?.customMessage,
+        permissions: {
+          download: file.shareSettings?.allowDownload ?? true,
+          view: file.shareSettings?.allowView ?? true,
+          comment: file.shareSettings?.allowComment ?? false
+        },
         analytics: {
-          totalViews: file.shareSettings.analytics?.totalViews || 0,
-          totalDownloads: file.shareSettings.analytics?.totalDownloads || 0,
-          uniqueVisitors: file.shareSettings.analytics?.uniqueVisitors || 0,
-          countries: file.shareSettings.analytics?.countries || [],
-          devices: file.shareSettings.analytics?.devices || [],
-          referrers: file.shareSettings.analytics?.referrers || [],
-          dailyStats: file.shareSettings.analytics?.dailyStats || [],
+          views: file.viewCount,
+          downloads: file.downloadCount,
+          uniqueVisitors: Math.floor(file.viewCount * 0.7),
           recentActivity: generateRecentActivity()
         }
       }
@@ -116,14 +142,23 @@ export function ComprehensiveShareSystem({
   }, [file])
 
   const generateRecentActivity = () => {
-    const activities = [
-      { time: new Date(Date.now() - 30 * 60 * 1000), action: 'Viewed', user: 'Anonymous', location: 'United States', device: 'Desktop' },
-      { time: new Date(Date.now() - 45 * 60 * 1000), action: 'Downloaded', user: 'john@company.com', location: 'Canada', device: 'Mobile' },
-      { time: new Date(Date.now() - 2 * 60 * 60 * 1000), action: 'Viewed', user: 'Anonymous', location: 'United Kingdom', device: 'Tablet' },
-      { time: new Date(Date.now() - 3 * 60 * 60 * 1000), action: 'Shared', user: 'sarah@team.com', location: 'Australia', device: 'Desktop' },
-      { time: new Date(Date.now() - 5 * 60 * 60 * 1000), action: 'Commented', user: 'mike@client.com', location: 'Germany', device: 'Mobile' },
-    ]
-    return activities
+    const activities = []
+    const devices = ['Desktop', 'Mobile', 'Tablet']
+    const locations = ['United States', 'United Kingdom', 'Germany', 'France', 'Japan', 'Australia']
+    
+    for (let i = 0; i < 5; i++) {
+      activities.push({
+        id: `activity_${i}`,
+        action: Math.random() > 0.5 ? 'view' : 'download' as 'view' | 'download',
+        userAgent: 'Mozilla/5.0 (Demo Browser)',
+        ip: `192.168.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+        timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
+        device: devices[Math.floor(Math.random() * devices.length)],
+        location: locations[Math.floor(Math.random() * locations.length)]
+      })
+    }
+    
+    return activities.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
   }
 
   const generateShareLink = async () => {
@@ -132,81 +167,68 @@ export function ComprehensiveShareSystem({
     // Simulate API call
     await new Promise(resolve => setTimeout(resolve, 1500))
     
-    const token = Math.random().toString(36).substr(2, 12) + 
-                  Math.random().toString(36).substr(2, 12)
-    
+    const token = `demo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const newLink: ShareLink = {
-      id: Date.now().toString(),
-      token,
+      id: `link_${Date.now()}`,
+      name: newLinkSettings.name || `Share for ${file.name}`,
       url: `${window.location.origin}/share/${token}`,
-      name: newLinkSettings.name,
+      token,
       isActive: true,
-      expiresAt: newLinkSettings.expiresIn ? 
-        new Date(Date.now() + parseInt(newLinkSettings.expiresIn) * 24 * 60 * 60 * 1000) : 
-        undefined,
+      createdAt: new Date(),
+      expiresAt: newLinkSettings.expiresIn !== 'never' 
+        ? new Date(Date.now() + parseInt(newLinkSettings.expiresIn) * 24 * 60 * 60 * 1000)
+        : undefined,
       maxDownloads: newLinkSettings.maxDownloads ? parseInt(newLinkSettings.maxDownloads) : undefined,
       currentDownloads: 0,
       password: newLinkSettings.password || undefined,
-      allowDownload: newLinkSettings.allowDownload,
-      allowView: newLinkSettings.allowView,
-      allowComment: newLinkSettings.allowComment,
-      createdAt: new Date(),
-      accessCount: 0,
+      customMessage: newLinkSettings.customMessage || undefined,
+      permissions: {
+        download: newLinkSettings.download,
+        view: newLinkSettings.view,
+        comment: newLinkSettings.comment
+      },
       analytics: {
-        totalViews: 0,
-        totalDownloads: 0,
+        views: 0,
+        downloads: 0,
         uniqueVisitors: 0,
-        countries: [],
-        devices: [],
-        referrers: [],
-        dailyStats: [],
         recentActivity: []
       }
     }
     
     setShareLinks(prev => [newLink, ...prev])
     setIsCreatingLink(false)
-    setActiveTab('manage')
     
     // Reset form
     setNewLinkSettings({
-      name: `Share: ${file.name}`,
+      name: '',
       expiresIn: '7',
-      maxDownloads: '100',
+      maxDownloads: '',
       password: '',
-      allowDownload: true,
-      allowView: true,
-      allowComment: false,
       customMessage: '',
-      requireEmail: false,
-      notifyOnAccess: true,
-      brandingEnabled: true
+      download: true,
+      view: true,
+      comment: false,
+      emailRequired: false,
+      notifications: true,
+      branding: true
     })
-
-    // Notify parent if provided
+    
+    // Notify parent component
     if (onShareCreated) {
-      const shareSettings: DemoShareSettings = {
-        isEnabled: true,
-        token: newLink.token,
+      onShareCreated({
+        token,
         url: newLink.url,
         expiresAt: newLink.expiresAt,
         maxDownloads: newLink.maxDownloads,
-        currentDownloads: 0,
         password: newLink.password,
-        allowDownload: newLink.allowDownload,
-        allowView: newLink.allowView,
-        allowComment: newLink.allowComment,
-        analytics: {
-          totalViews: 0,
-          totalDownloads: 0,
-          uniqueVisitors: 0,
-          countries: [],
-          devices: [],
-          referrers: [],
-          dailyStats: []
-        }
-      }
-      onShareCreated(shareSettings)
+        customMessage: newLink.customMessage,
+        allowDownload: newLink.permissions.download,
+        allowView: newLink.permissions.view,
+        allowComment: newLink.permissions.comment,
+        emailRequired: newLinkSettings.emailRequired,
+        notifications: newLinkSettings.notifications,
+        branding: newLinkSettings.branding
+      })
     }
   }
 
@@ -216,103 +238,89 @@ export function ComprehensiveShareSystem({
       setCopiedToken(token)
       setTimeout(() => setCopiedToken(null), 2000)
     } catch (err) {
-      console.error('Failed to copy: ', err)
+      console.error('Failed to copy to clipboard:', err)
     }
   }
 
   const generateQRCode = (url: string) => {
-    // In a real app, this would generate an actual QR code
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(url)}`
-    setQrCodeUrl(qrUrl)
+    // In a real app, this would generate a QR code
+    // For demo purposes, we'll just show the URL
+    setQrCodeUrl(url)
   }
 
   const toggleLinkStatus = (linkId: string) => {
-    setShareLinks(links => 
-      links.map(link => 
-        link.id === linkId 
-          ? { ...link, isActive: !link.isActive }
-          : link
+    setShareLinks(prev => 
+      prev.map(link => 
+        link.id === linkId ? { ...link, isActive: !link.isActive } : link
       )
     )
   }
 
   const deleteLink = (linkId: string) => {
-    setShareLinks(links => links.filter(link => link.id !== linkId))
+    setShareLinks(prev => prev.filter(link => link.id !== linkId))
   }
 
-  const getFileIcon = () => {
-    const mimeType = file.mimeType.toLowerCase()
-    if (mimeType.includes('image')) return '🖼️'
-    if (mimeType.includes('video')) return '🎥'
-    if (mimeType.includes('audio')) return '🎵'
-    if (mimeType.includes('text') || mimeType.includes('code')) return '📝'
-    if (mimeType.includes('pdf')) return '📄'
-    if (mimeType.includes('zip') || mimeType.includes('archive')) return '📦'
-    return '📄'
-  }
-
-  const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes'
-    const k = 1024
-    const sizes = ['Bytes', 'KB', 'MB', 'GB']
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  const getDeviceIcon = (device: string) => {
+    switch (device) {
+      case 'Mobile': return <Smartphone className="w-4 h-4" />
+      case 'Tablet': return <Tablet className="w-4 h-4" />
+      default: return <Monitor className="w-4 h-4" />
+    }
   }
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
 
-  const getDeviceIcon = (device: string) => {
-    switch (device.toLowerCase()) {
-      case 'mobile': return <Smartphone className="w-4 h-4" />
-      case 'tablet': return <Tablet className="w-4 h-4" />
-      case 'desktop': return <Monitor className="w-4 h-4" />
-      default: return <Monitor className="w-4 h-4" />
-    }
+  const formatTimeAgo = (date: Date) => {
+    const now = new Date()
+    const diff = now.getTime() - date.getTime()
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    
+    if (days > 0) return `${days} day${days > 1 ? 's' : ''} ago`
+    if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`
+    if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+    return 'Just now'
   }
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-slate-800 border border-purple-500/30 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
+      <motion.div 
+        className="bg-slate-800 border rounded-2xl shadow-2xl w-full max-w-6xl max-h-[90vh] overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
       >
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/20 p-6">
+        <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/30 p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center text-3xl">
-                {getFileIcon()}
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                <Share2 className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-white font-bold text-xl">{file.name}</h2>
-                <div className="flex items-center gap-4 mt-1">
-                  <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                    {formatFileSize(file.size)}
-                  </Badge>
-                  <Badge variant="outline" className="text-gray-300 border-gray-600">
-                    {file.mimeType}
-                  </Badge>
-                  {isDemo && (
-                    <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
-                      Demo Mode
-                    </Badge>
-                  )}
-                </div>
+                <h2 className="text-2xl font-bold text-white">Share File</h2>
+                <p className="text-gray-300">{file.name}</p>
               </div>
             </div>
             
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              size="sm"
-              className="text-white hover:bg-white/20"
-            >
-              <X className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-3">
+              {isDemo && (
+                <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+                  Demo Mode
+                </Badge>
+              )}
+              <Button
+                onClick={onClose}
+                variant="ghost"
+                size="sm"
+                className="text-gray-400 hover:text-white"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -320,18 +328,10 @@ export function ComprehensiveShareSystem({
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-160px)]">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-4 bg-black/20">
-              <TabsTrigger value="create" className="data-[state=active]:bg-purple-500/20">
-                Create Link
-              </TabsTrigger>
-              <TabsTrigger value="manage" className="data-[state=active]:bg-purple-500/20">
-                Manage ({shareLinks.length})
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="data-[state=active]:bg-purple-500/20">
-                Analytics
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="data-[state=active]:bg-purple-500/20">
-                Settings
-              </TabsTrigger>
+              <TabsTrigger value="create">Create Link</TabsTrigger>
+              <TabsTrigger value="manage">Manage ({shareLinks.length})</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
             </TabsList>
 
             {/* Create Link Tab */}
@@ -339,132 +339,139 @@ export function ComprehensiveShareSystem({
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Left Column - Link Configuration */}
                 <div className="space-y-6">
-                  <Card className="bg-slate-700/50 border-purple-500/20">
+                  <Card className="bg-black/40 border-purple-500/20">
                     <CardHeader>
-                      <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Link className="w-5 h-5" />
-                        Link Configuration
-                      </CardTitle>
+                      <CardTitle className="text-white">Link Configuration</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
-                        <label className="text-gray-300 text-sm block mb-2">Link Name</label>
+                        <label className="text-sm font-medium text-gray-300 mb-2 block">Link Name</label>
                         <Input
                           value={newLinkSettings.name}
                           onChange={(e) => setNewLinkSettings(prev => ({ ...prev, name: e.target.value }))}
+                          placeholder="Enter a name for this share link"
                           className="bg-slate-600/50 border-purple-500/30 text-white"
-                          placeholder="Enter a descriptive name"
                         />
                       </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-gray-300 text-sm block mb-2">Expires in (days)</label>
-                          <Input
-                            type="number"
-                            value={newLinkSettings.expiresIn}
-                            onChange={(e) => setNewLinkSettings(prev => ({ ...prev, expiresIn: e.target.value }))}
-                            className="bg-slate-600/50 border-purple-500/30 text-white"
-                            min="1"
-                            max="365"
-                          />
-                        </div>
-                        <div>
-                          <label className="text-gray-300 text-sm block mb-2">Max Downloads</label>
-                          <Input
-                            type="number"
-                            value={newLinkSettings.maxDownloads}
-                            onChange={(e) => setNewLinkSettings(prev => ({ ...prev, maxDownloads: e.target.value }))}
-                            className="bg-slate-600/50 border-purple-500/30 text-white"
-                            min="1"
-                          />
-                        </div>
-                      </div>
-
+                      
                       <div>
-                        <label className="text-gray-300 text-sm block mb-2">Password (optional)</label>
+                        <label className="text-sm font-medium text-gray-300 mb-2 block">Expires In</label>
+                        <select
+                          value={newLinkSettings.expiresIn}
+                          onChange={(e) => setNewLinkSettings(prev => ({ ...prev, expiresIn: e.target.value }))}
+                          className="w-full bg-slate-600/50 border border-purple-500/30 rounded-md px-3 py-2 text-white"
+                        >
+                          <option value="1">1 day</option>
+                          <option value="7">7 days</option>
+                          <option value="30">30 days</option>
+                          <option value="90">90 days</option>
+                          <option value="never">Never</option>
+                        </select>
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium text-gray-300 mb-2 block">Max Downloads</label>
+                        <Input
+                          type="number"
+                          value={newLinkSettings.maxDownloads}
+                          onChange={(e) => setNewLinkSettings(prev => ({ ...prev, maxDownloads: e.target.value }))}
+                          placeholder="Unlimited (leave empty)"
+                          className="bg-slate-600/50 border-purple-500/30 text-white"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="text-sm font-medium text-gray-300 mb-2 block">Password Protection</label>
                         <Input
                           type="password"
                           value={newLinkSettings.password}
                           onChange={(e) => setNewLinkSettings(prev => ({ ...prev, password: e.target.value }))}
-                          className="bg-slate-600/50 border-purple-500/30 text-white"
                           placeholder="Leave empty for no password"
+                          className="bg-slate-600/50 border-purple-500/30 text-white"
                         />
                       </div>
-
+                      
                       <div>
-                        <label className="text-gray-300 text-sm block mb-2">Custom Message</label>
+                        <label className="text-sm font-medium text-gray-300 mb-2 block">Custom Message</label>
                         <Textarea
                           value={newLinkSettings.customMessage}
                           onChange={(e) => setNewLinkSettings(prev => ({ ...prev, customMessage: e.target.value }))}
+                          placeholder="Add a custom message for recipients"
                           className="bg-slate-600/50 border-purple-500/30 text-white"
-                          placeholder="Add a message for recipients"
                           rows={3}
                         />
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="bg-slate-700/50 border-purple-500/20">
+                  <Card className="bg-black/40 border-purple-500/20">
                     <CardHeader>
-                      <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Shield className="w-5 h-5" />
-                        Permissions & Security
-                      </CardTitle>
+                      <CardTitle className="text-white">Permissions</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-white font-medium">Allow Downloads</div>
-                          <div className="text-gray-400 text-sm">Recipients can download the file</div>
+                        <div className="flex items-center gap-3">
+                          <Download className="w-5 h-5 text-purple-400" />
+                          <span className="text-gray-300">Allow Download</span>
                         </div>
                         <Switch
-                          checked={newLinkSettings.allowDownload}
-                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, allowDownload: checked }))}
+                          checked={newLinkSettings.download}
+                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, download: checked }))}
                         />
                       </div>
-
+                      
                       <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-white font-medium">Allow Viewing</div>
-                          <div className="text-gray-400 text-sm">Recipients can preview the file</div>
+                        <div className="flex items-center gap-3">
+                          <Eye className="w-5 h-5 text-blue-400" />
+                          <span className="text-gray-300">Allow View</span>
                         </div>
                         <Switch
-                          checked={newLinkSettings.allowView}
-                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, allowView: checked }))}
+                          checked={newLinkSettings.view}
+                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, view: checked }))}
                         />
                       </div>
-
+                      
                       <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-white font-medium">Allow Comments</div>
-                          <div className="text-gray-400 text-sm">Recipients can leave comments</div>
+                        <div className="flex items-center gap-3">
+                          <MessageSquare className="w-5 h-5 text-green-400" />
+                          <span className="text-gray-300">Allow Comments</span>
                         </div>
                         <Switch
-                          checked={newLinkSettings.allowComment}
-                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, allowComment: checked }))}
+                          checked={newLinkSettings.comment}
+                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, comment: checked }))}
                         />
                       </div>
-
+                      
                       <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-white font-medium">Require Email</div>
-                          <div className="text-gray-400 text-sm">Collect email before access</div>
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-5 h-5 text-yellow-400" />
+                          <span className="text-gray-300">Require Email</span>
                         </div>
                         <Switch
-                          checked={newLinkSettings.requireEmail}
-                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, requireEmail: checked }))}
+                          checked={newLinkSettings.emailRequired}
+                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, emailRequired: checked }))}
                         />
                       </div>
-
+                      
                       <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-white font-medium">Notify on Access</div>
-                          <div className="text-gray-400 text-sm">Get notified when someone accesses</div>
+                        <div className="flex items-center gap-3">
+                          <Bell className="w-5 h-5 text-pink-400" />
+                          <span className="text-gray-300">Notifications</span>
                         </div>
                         <Switch
-                          checked={newLinkSettings.notifyOnAccess}
-                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, notifyOnAccess: checked }))}
+                          checked={newLinkSettings.notifications}
+                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, notifications: checked }))}
+                        />
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Shield className="w-5 h-5 text-indigo-400" />
+                          <span className="text-gray-300">Branding</span>
+                        </div>
+                        <Switch
+                          checked={newLinkSettings.branding}
+                          onCheckedChange={(checked) => setNewLinkSettings(prev => ({ ...prev, branding: checked }))}
                         />
                       </div>
                     </CardContent>
@@ -473,69 +480,68 @@ export function ComprehensiveShareSystem({
 
                 {/* Right Column - Preview & Actions */}
                 <div className="space-y-6">
-                  <Card className="bg-slate-700/50 border-purple-500/20">
+                  <Card className="bg-black/40 border-purple-500/20">
                     <CardHeader>
-                      <CardTitle className="text-white text-lg flex items-center gap-2">
-                        <Eye className="w-5 h-5" />
-                        Link Preview
-                      </CardTitle>
+                      <CardTitle className="text-white">Link Preview</CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="bg-black/20 rounded-lg p-4 border border-purple-500/20">
-                        <div className="flex items-center gap-3 mb-4">
-                          <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center text-lg">
-                            {getFileIcon()}
-                          </div>
-                          <div>
-                            <div className="text-white font-medium">{newLinkSettings.name}</div>
-                            <div className="text-gray-400 text-sm">{formatFileSize(file.size)}</div>
-                          </div>
-                        </div>
-
-                        {newLinkSettings.customMessage && (
-                          <div className="mb-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
-                            <div className="text-blue-300 text-sm">{newLinkSettings.customMessage}</div>
-                          </div>
-                        )}
-
-                        <div className="space-y-2 text-sm">
-                          <div className="flex justify-between text-gray-400">
-                            <span>Expires:</span>
-                            <span>{newLinkSettings.expiresIn ? `${newLinkSettings.expiresIn} days` : 'Never'}</span>
-                          </div>
-                          <div className="flex justify-between text-gray-400">
-                            <span>Max Downloads:</span>
-                            <span>{newLinkSettings.maxDownloads || 'Unlimited'}</span>
-                          </div>
-                          <div className="flex justify-between text-gray-400">
-                            <span>Password:</span>
-                            <span>{newLinkSettings.password ? 'Protected' : 'None'}</span>
-                          </div>
+                    <CardContent className="space-y-4">
+                      <div className="p-4 bg-slate-700/50 rounded-lg border border-purple-500/20">
+                        <div className="text-sm text-gray-400 mb-2">Share Link</div>
+                        <div className="text-white font-mono text-sm break-all">
+                          {shareLinks.length > 0 ? shareLinks[0].url : 'Link will be generated here...'}
                         </div>
                       </div>
+                      
+                      {newLinkSettings.password && (
+                        <div className="flex items-center gap-2 text-yellow-400">
+                          <Lock className="w-4 h-4" />
+                          <span className="text-sm">Password protected</span>
+                        </div>
+                      )}
+                      
+                      {newLinkSettings.expiresIn !== 'never' && (
+                        <div className="flex items-center gap-2 text-orange-400">
+                          <Calendar className="w-4 h-4" />
+                          <span className="text-sm">
+                            Expires in {newLinkSettings.expiresIn} day{parseInt(newLinkSettings.expiresIn) > 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {newLinkSettings.maxDownloads && (
+                        <div className="flex items-center gap-2 text-blue-400">
+                          <Download className="w-4 h-4" />
+                          <span className="text-sm">Max {newLinkSettings.maxDownloads} download{parseInt(newLinkSettings.maxDownloads) > 1 ? 's' : ''}</span>
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
 
-                  <div className="flex gap-4">
-                    <Button
-                      onClick={generateShareLink}
-                      disabled={isCreatingLink}
-                      className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                    >
-                      {isCreatingLink ? (
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          className="w-4 h-4 mr-2"
-                        >
-                          <Activity className="w-4 h-4" />
-                        </motion.div>
-                      ) : (
-                        <Share2 className="w-4 h-4 mr-2" />
-                      )}
-                      {isCreatingLink ? 'Creating Link...' : 'Create Share Link'}
-                    </Button>
-                  </div>
+                  <Card className="bg-black/40 border-purple-500/20">
+                    <CardHeader>
+                      <CardTitle className="text-white">Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        onClick={generateShareLink}
+                        disabled={isCreatingLink}
+                        className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                        size="lg"
+                      >
+                        {isCreatingLink ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Creating Share Link...
+                          </>
+                        ) : (
+                          <>
+                            <Share2 className="w-5 h-5 mr-2" />
+                            Create Share Link
+                          </>
+                        )}
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </TabsContent>
@@ -545,35 +551,24 @@ export function ComprehensiveShareSystem({
               {shareLinks.length === 0 ? (
                 <div className="text-center py-12">
                   <Share2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-white text-xl font-semibold mb-2">No Share Links Yet</h3>
-                  <p className="text-gray-400 mb-6">Create your first share link to get started</p>
-                  <Button
-                    onClick={() => setActiveTab('create')}
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                  >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Create Share Link
-                  </Button>
+                  <h3 className="text-white text-xl font-semibold mb-2">No share links yet</h3>
+                  <p className="text-gray-400">Create your first share link to get started</p>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {shareLinks.map((link) => (
-                    <Card key={link.id} className="bg-slate-700/50 border-purple-500/20">
+                  {shareLinks.map(link => (
+                    <Card key={link.id} className="bg-black/40 border-purple-500/20">
                       <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-2">
-                              <h3 className="text-white font-semibold">{link.name}</h3>
-                              <Badge 
-                                variant={link.isActive ? "default" : "secondary"}
-                                className={link.isActive ? "bg-green-500" : "bg-gray-500"}
-                              >
-                                {link.isActive ? "Active" : "Inactive"}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-3 h-3 rounded-full ${link.isActive ? 'bg-green-500' : 'bg-gray-500'}`}></div>
+                            <h3 className="text-white font-semibold">{link.name}</h3>
+                            {link.password && (
+                              <Badge className="bg-yellow-500/20 text-yellow-300 border-yellow-500/30">
+                                <Lock className="w-3 h-3 mr-1" />
+                                Password
                               </Badge>
-                            </div>
-                            <div className="text-gray-400 text-sm">
-                              Created {formatDate(link.createdAt)}
-                            </div>
+                            )}
                           </div>
                           
                           <div className="flex items-center gap-2">
@@ -583,8 +578,9 @@ export function ComprehensiveShareSystem({
                               size="sm"
                               className="text-gray-400 hover:text-white"
                             >
-                              {link.isActive ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                              {link.isActive ? 'Deactivate' : 'Activate'}
                             </Button>
+                            
                             <Button
                               onClick={() => generateQRCode(link.url)}
                               variant="ghost"
@@ -593,91 +589,75 @@ export function ComprehensiveShareSystem({
                             >
                               <QrCode className="w-4 h-4" />
                             </Button>
+                            
                             <Button
                               onClick={() => deleteLink(link.id)}
                               variant="ghost"
                               size="sm"
                               className="text-red-400 hover:text-red-300"
                             >
-                              <X className="w-4 h-4" />
+                              <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
-
-                        {/* Share URL */}
-                        <div className="space-y-3">
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div className="text-center p-3 bg-black/20 rounded-lg">
+                            <div className="text-2xl font-bold text-purple-400">{link.analytics.views}</div>
+                            <div className="text-sm text-gray-400">Views</div>
+                          </div>
+                          
+                          <div className="text-center p-3 bg-black/20 rounded-lg">
+                            <div className="text-2xl font-bold text-blue-400">{link.analytics.downloads}</div>
+                            <div className="text-sm text-gray-400">Downloads</div>
+                          </div>
+                          
+                          <div className="text-center p-3 bg-black/20 rounded-lg">
+                            <div className="text-2xl font-bold text-green-400">{link.analytics.uniqueVisitors}</div>
+                            <div className="text-sm text-gray-400">Unique Visitors</div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-4 text-sm text-gray-400">
+                            <span>Created: {formatDate(link.createdAt)}</span>
+                            {link.expiresAt && (
+                              <span>Expires: {formatDate(link.expiresAt)}</span>
+                            )}
+                            {link.maxDownloads && (
+                              <span>Downloads: {link.currentDownloads}/{link.maxDownloads}</span>
+                            )}
+                          </div>
+                          
                           <div className="flex items-center gap-2">
-                            <Input
-                              value={link.url}
-                              readOnly
-                              className="bg-slate-600/50 border-purple-500/30 text-white text-sm flex-1"
-                            />
                             <Button
-                              onClick={() => copyToClipboard(link.url, link.token)}
+                              onClick={() => copyToClipboard(link.url, link.id)}
                               variant="outline"
                               size="sm"
                               className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
                             >
-                              {copiedToken === link.token ? (
-                                <CheckCircle className="w-4 h-4" />
+                              {copiedToken === link.id ? (
+                                <>
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Copied!
+                                </>
                               ) : (
-                                <Copy className="w-4 h-4" />
+                                <>
+                                  <Copy className="w-4 h-4 mr-1" />
+                                  Copy Link
+                                </>
                               )}
                             </Button>
+                            
                             <Button
                               onClick={() => window.open(link.url, '_blank')}
                               variant="outline"
                               size="sm"
-                              className="border-purple-500/30 text-purple-300 hover:bg-purple-500/20"
+                              className="border-blue-500/30 text-blue-300 hover:bg-blue-500/20"
                             >
-                              <ExternalLink className="w-4 h-4" />
+                              <ExternalLink className="w-4 h-4 mr-1" />
+                              Test Link
                             </Button>
-                          </div>
-
-                          {/* Link Stats */}
-                          <div className="grid grid-cols-4 gap-4 text-center">
-                            <div className="bg-black/20 rounded-lg p-3">
-                              <div className="text-2xl font-bold text-blue-400">{link.analytics.totalViews}</div>
-                              <div className="text-xs text-gray-400">Views</div>
-                            </div>
-                            <div className="bg-black/20 rounded-lg p-3">
-                              <div className="text-2xl font-bold text-green-400">{link.analytics.totalDownloads}</div>
-                              <div className="text-xs text-gray-400">Downloads</div>
-                            </div>
-                            <div className="bg-black/20 rounded-lg p-3">
-                              <div className="text-2xl font-bold text-purple-400">{link.analytics.uniqueVisitors}</div>
-                              <div className="text-xs text-gray-400">Visitors</div>
-                            </div>
-                            <div className="bg-black/20 rounded-lg p-3">
-                              <div className="text-2xl font-bold text-orange-400">
-                                {link.maxDownloads ? `${link.currentDownloads}/${link.maxDownloads}` : link.currentDownloads}
-                              </div>
-                              <div className="text-xs text-gray-400">Used/Limit</div>
-                            </div>
-                          </div>
-
-                          {/* Link Details */}
-                          <div className="grid grid-cols-2 gap-4 text-sm text-gray-400">
-                            {link.expiresAt && (
-                              <div className="flex items-center gap-2">
-                                <Calendar className="w-4 h-4" />
-                                <span>Expires {formatDate(link.expiresAt)}</span>
-                              </div>
-                            )}
-                            {link.password && (
-                              <div className="flex items-center gap-2">
-                                <Lock className="w-4 h-4" />
-                                <span>Password Protected</span>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <Download className="w-4 h-4" />
-                              <span>Downloads {link.allowDownload ? 'Allowed' : 'Disabled'}</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <MessageSquare className="w-4 h-4" />
-                              <span>Comments {link.allowComment ? 'Enabled' : 'Disabled'}</span>
-                            </div>
                           </div>
                         </div>
                       </CardContent>
@@ -692,92 +672,85 @@ export function ComprehensiveShareSystem({
               {shareLinks.length === 0 ? (
                 <div className="text-center py-12">
                   <BarChart3 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-white text-xl font-semibold mb-2">No Analytics Data</h3>
-                  <p className="text-gray-400">Create a share link to start collecting analytics</p>
+                  <h3 className="text-white text-xl font-semibold mb-2">No analytics available</h3>
+                  <p className="text-gray-400">Create share links to see detailed analytics</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {shareLinks.map((link) => (
-                    <Card key={link.id} className="bg-slate-700/50 border-purple-500/20">
-                      <CardHeader>
-                        <CardTitle className="text-white text-lg flex items-center gap-2">
-                          <TrendingUp className="w-5 h-5" />
-                          {link.name} - Analytics
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-6">
-                        {/* Overall Stats */}
-                        <div className="grid grid-cols-3 gap-4 text-center">
-                          <div>
-                            <div className="text-2xl font-bold text-blue-400">{link.analytics.totalViews}</div>
-                            <div className="text-xs text-gray-400">Total Views</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-green-400">{link.analytics.totalDownloads}</div>
-                            <div className="text-xs text-gray-400">Downloads</div>
-                          </div>
-                          <div>
-                            <div className="text-2xl font-bold text-purple-400">{link.analytics.uniqueVisitors}</div>
-                            <div className="text-xs text-gray-400">Unique Visitors</div>
-                          </div>
+                <div className="space-y-6">
+                  {/* Overview Stats */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <Card className="bg-black/40 border-purple-500/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-purple-400">
+                          {shareLinks.reduce((sum, link) => sum + link.analytics.views, 0)}
                         </div>
-
-                        {/* Recent Activity */}
-                        <div>
-                          <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                            <Activity className="w-4 h-4" />
-                            Recent Activity
-                          </h4>
-                          <div className="space-y-2 max-h-48 overflow-y-auto">
-                            {link.analytics.recentActivity.map((activity, index) => (
-                              <div key={index} className="flex items-center justify-between py-2 px-3 bg-black/20 rounded-lg">
-                                <div className="flex items-center gap-3">
-                                  {getDeviceIcon(activity.device)}
-                                  <div>
-                                    <div className="text-white text-sm font-medium">
-                                      {activity.action} by {activity.user}
-                                    </div>
-                                    <div className="text-gray-400 text-xs flex items-center gap-2">
-                                      <MapPin className="w-3 h-3" />
-                                      {activity.location}
-                                      <Clock className="w-3 h-3" />
-                                      {activity.time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Device & Location Breakdown */}
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <h4 className="text-white font-medium mb-2">Top Devices</h4>
-                            <div className="space-y-1">
-                              {['Desktop', 'Mobile', 'Tablet'].map((device, index) => (
-                                <div key={device} className="flex justify-between text-sm">
-                                  <span className="text-gray-400">{device}</span>
-                                  <span className="text-white">{Math.max(0, 5 - index * 2)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          <div>
-                            <h4 className="text-white font-medium mb-2">Top Countries</h4>
-                            <div className="space-y-1">
-                              {['United States', 'United Kingdom', 'Canada'].map((country, index) => (
-                                <div key={country} className="flex justify-between text-sm">
-                                  <span className="text-gray-400">{country}</span>
-                                  <span className="text-white">{Math.max(0, 4 - index)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
+                        <div className="text-sm text-gray-400">Total Views</div>
                       </CardContent>
                     </Card>
-                  ))}
+                    
+                    <Card className="bg-black/40 border-purple-500/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-blue-400">
+                          {shareLinks.reduce((sum, link) => sum + link.analytics.downloads, 0)}
+                        </div>
+                        <div className="text-sm text-gray-400">Total Downloads</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-black/40 border-purple-500/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-green-400">
+                          {shareLinks.reduce((sum, link) => sum + link.analytics.uniqueVisitors, 0)}
+                        </div>
+                        <div className="text-sm text-gray-400">Unique Visitors</div>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="bg-black/40 border-purple-500/20">
+                      <CardContent className="p-4 text-center">
+                        <div className="text-2xl font-bold text-pink-400">{shareLinks.length}</div>
+                        <div className="text-sm text-gray-400">Active Links</div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Recent Activity */}
+                  <Card className="bg-black/40 border-purple-500/20">
+                    <CardHeader>
+                      <CardTitle className="text-white">Recent Activity</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        {shareLinks
+                          .flatMap(link => link.analytics.recentActivity)
+                          .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+                          .slice(0, 10)
+                          .map((activity, index) => (
+                            <div key={index} className="flex items-center gap-3 p-3 bg-black/20 rounded-lg">
+                              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                                {activity.action === 'view' && <Eye className="w-3 h-3 text-white" />}
+                                {activity.action === 'download' && <Download className="w-3 h-3 text-white" />}
+                                {activity.action === 'comment' && <MessageSquare className="w-3 h-3 text-white" />}
+                              </div>
+                              
+                              <div className="flex-1 min-w-0">
+                                <div className="text-white text-sm font-medium">
+                                  {activity.action.charAt(0).toUpperCase() + activity.action.slice(1)} from {activity.location}
+                                </div>
+                                <div className="text-gray-400 text-xs">
+                                  {formatTimeAgo(activity.timestamp)} • {activity.device}
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-2 text-xs text-gray-400">
+                                {getDeviceIcon(activity.device)}
+                                <span>{activity.ip}</span>
+                              </div>
+                            </div>
+                          ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
               )}
             </TabsContent>
@@ -785,74 +758,74 @@ export function ComprehensiveShareSystem({
             {/* Settings Tab */}
             <TabsContent value="settings" className="space-y-6 mt-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-slate-700/50 border-purple-500/20">
+                {/* Default Settings */}
+                <Card className="bg-black/40 border-purple-500/20">
                   <CardHeader>
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                      <Settings className="w-5 h-5" />
-                      Default Settings
-                    </CardTitle>
+                    <CardTitle className="text-white">Default Share Settings</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-white font-medium">Auto-generate QR codes</div>
-                        <div className="text-gray-400 text-sm">Automatically create QR codes for new links</div>
-                      </div>
-                      <Switch defaultChecked />
+                      <span className="text-gray-300">Default Expiration</span>
+                      <select className="bg-slate-600/50 border border-purple-500/30 rounded px-3 py-1 text-white text-sm">
+                        <option value="7">7 days</option>
+                        <option value="30">30 days</option>
+                        <option value="90">90 days</option>
+                        <option value="never">Never</option>
+                      </select>
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-white font-medium">Email notifications</div>
-                        <div className="text-gray-400 text-sm">Get notified when links are accessed</div>
-                      </div>
-                      <Switch defaultChecked />
+                      <span className="text-gray-300">Default Max Downloads</span>
+                      <Input
+                        type="number"
+                        placeholder="Unlimited"
+                        className="w-24 bg-slate-600/50 border-purple-500/30 text-white text-sm"
+                      />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-white font-medium">Analytics tracking</div>
-                        <div className="text-gray-400 text-sm">Collect detailed analytics data</div>
-                      </div>
+                      <span className="text-gray-300">Require Password by Default</span>
+                      <Switch />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Enable Notifications</span>
                       <Switch defaultChecked />
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-slate-700/50 border-purple-500/20">
+                {/* Branding Options */}
+                <Card className="bg-black/40 border-purple-500/20">
                   <CardHeader>
-                    <CardTitle className="text-white text-lg flex items-center gap-2">
-                      <Globe className="w-5 h-5" />
-                      Branding & Customization
-                    </CardTitle>
+                    <CardTitle className="text-white">Branding Options</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div>
-                      <label className="text-gray-300 text-sm block mb-2">Custom Domain</label>
-                      <Input
-                        placeholder="share.yourcompany.com"
-                        className="bg-slate-600/50 border-purple-500/30 text-white"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="text-gray-300 text-sm block mb-2">Brand Color</label>
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-purple-500 rounded border border-purple-500/30"></div>
-                        <Input
-                          value="#8B5CF6"
-                          className="bg-slate-600/50 border-purple-500/30 text-white"
-                          readOnly
-                        />
-                      </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Show YukiFiles Branding</span>
+                      <Switch defaultChecked />
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <div>
-                        <div className="text-white font-medium">Show YukiFiles branding</div>
-                        <div className="text-gray-400 text-sm">Display "Powered by YukiFiles"</div>
-                      </div>
-                      <Switch defaultChecked />
+                      <span className="text-gray-300">Custom Logo</span>
+                      <Button variant="outline" size="sm" className="border-purple-500/30 text-purple-300">
+                        Upload
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Custom Colors</span>
+                      <Button variant="outline" size="sm" className="border-purple-500/30 text-purple-300">
+                        Configure
+                      </Button>
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-300">Custom Domain</span>
+                      <Input
+                        placeholder="share.yourdomain.com"
+                        className="bg-slate-600/50 border-purple-500/30 text-white text-sm"
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -868,32 +841,28 @@ export function ComprehensiveShareSystem({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4"
               onClick={() => setQrCodeUrl(null)}
             >
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-slate-800 border border-purple-500/30 rounded-2xl p-6 max-w-sm w-full mx-4"
+                className="bg-slate-800 border border-purple-500/30 rounded-2xl p-8 max-w-md w-full text-center"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="text-center">
-                  <h3 className="text-white font-bold text-lg mb-4">QR Code</h3>
-                  <div className="bg-white p-4 rounded-lg mb-4">
-                    <img src={qrCodeUrl} alt="QR Code" className="w-full h-auto" />
-                  </div>
-                  <p className="text-gray-400 text-sm mb-4">
-                    Scan this QR code to access the shared file
-                  </p>
-                  <Button
-                    onClick={() => setQrCodeUrl(null)}
-                    variant="outline"
-                    className="border-purple-500/30 text-purple-300"
-                  >
-                    Close
-                  </Button>
+                <QrCode className="w-32 h-32 text-purple-400 mx-auto mb-4" />
+                <h3 className="text-xl font-bold text-white mb-2">QR Code</h3>
+                <p className="text-gray-400 mb-4">Scan this QR code to access the shared file</p>
+                <div className="p-3 bg-slate-700/50 rounded-lg border border-purple-500/20 mb-6">
+                  <div className="text-white font-mono text-sm break-all">{qrCodeUrl}</div>
                 </div>
+                <Button
+                  onClick={() => setQrCodeUrl(null)}
+                  className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
+                >
+                  Close
+                </Button>
               </motion.div>
             </motion.div>
           )}
