@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -437,11 +437,7 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
       <div className="flex-1 flex relative">
         {/* Left Sidebar - Desktop Only */}
         {!isMobile && showSidebar && (
-          <motion.div
-            initial={{ x: -300 }}
-            animate={{ x: 0 }}
-            className="w-80 bg-black/20 border-r border-white/10 p-4 space-y-6"
-          >
+          <div className="w-80 bg-black/20 border-r border-white/10 p-4 space-y-6">
             {/* File Info */}
             <div className="bg-white/5 rounded-xl p-4 border border-white/10">
               <h4 className="text-white font-semibold text-lg mb-3">File Information</h4>
@@ -530,7 +526,7 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                 </div>
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* Main Editor Area */}
@@ -607,15 +603,8 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
 
           {/* Editor Content */}
           <div className="flex-1 relative">
-            <AnimatePresence mode="wait">
-              {activePanel === 'editor' && (
-                <motion.div
-                  key="editor"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="h-full flex flex-col"
-                >
+            {activePanel === 'editor' && (
+              <div className="h-full flex flex-col">
                   {/* File Name Input */}
                   <div className={cn(
                     "border-b border-white/10 bg-black/20",
@@ -693,17 +682,11 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                       </div>
                     )}
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {activePanel === 'search' && (
-                <motion.div
-                  key="search"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className={cn("h-full", isMobile ? "p-3" : "p-6")}
-                >
+                <div className={cn("h-full", isMobile ? "p-3" : "p-6")}>
                   <div className={cn("mx-auto", isMobile ? "w-full" : "max-w-2xl")}>
                     <div className={cn("text-center", isMobile ? "mb-4" : "mb-8")}>
                       <div className={cn(
@@ -824,17 +807,11 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {activePanel === 'settings' && (
-                <motion.div
-                  key="settings"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                  className="h-full p-6 overflow-y-auto"
-                >
+                <div className="h-full p-6 overflow-y-auto">
                   <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-8">
                       <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -954,9 +931,9 @@ export function UltimateWebEditor({ file, onSave, onClose, readOnly = false }: U
                       </div>
                     </div>
                   </div>
-                </motion.div>
+                </div>
               )}
-            </AnimatePresence>
+
           </div>
         </div>
       </div>

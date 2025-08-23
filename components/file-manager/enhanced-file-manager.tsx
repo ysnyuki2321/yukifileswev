@@ -527,7 +527,7 @@ const DesktopLayout = ({
             ) : (
               <div className={
                 viewMode === "grid" 
-                  ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+                  ? "grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6"
                   : "space-y-3"
               }>
                 {/* Desktop File Items */}
@@ -908,12 +908,23 @@ export function EnhancedFileManager({
       onConfirm: (fileName) => {
         if (fileName && onFileCreate) {
           const newFile = {
+            id: `file-${Date.now()}`,
             name: fileName,
             type: "text",
             content: "",
-            path: "/"
+            path: "/",
+            size: 0,
+            lastModified: new Date(),
+            isFolder: false,
+            isStarred: false,
+            isShared: false,
+            hasPassword: false,
+            inArchive: false
           }
           onFileCreate(newFile)
+          
+          // Mở file editor ngay lập tức
+          openFileInTab(newFile)
         }
       }
     })
@@ -940,10 +951,18 @@ export function EnhancedFileManager({
       onConfirm: (folderName) => {
         if (folderName && onFileCreate) {
           const newFolder = {
+            id: `folder-${Date.now()}`,
             name: folderName,
             type: "folder",
             content: "",
-            path: "/"
+            path: "/",
+            size: 0,
+            lastModified: new Date(),
+            isFolder: true,
+            isStarred: false,
+            isShared: false,
+            hasPassword: false,
+            inArchive: false
           }
           onFileCreate(newFolder)
         }
@@ -1338,9 +1357,7 @@ export function EnhancedFileManager({
         type: 'database',
         content: (
                       <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-              <div className="mb-6">
-                <h3 className="text-white font-bold text-xl">Database Editor</h3>
-              </div>
+
               <UltimateWebEditor
                 file={{
                   id: file.id || `file-${Date.now()}`,
