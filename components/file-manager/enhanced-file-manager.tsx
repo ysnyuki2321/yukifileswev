@@ -18,7 +18,8 @@ import {
   WifiOff, CheckCircle, XCircle, AlertCircle, Info, X,
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
-import { UltimateFileEditor } from "@/components/file-editor/ultimate-file-editor"
+import { DesktopFileEditor } from "@/components/file-editor/desktop-file-editor"
+import { MobileFileEditor } from "@/components/file-editor/mobile-file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -1442,16 +1443,33 @@ export function EnhancedFileManager({
               </Button>
             </div>
             <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-              <UltimateFileEditor
-                file={selectedFile}
-                onClose={closeEditor}
-                onSave={(fileName, content, fileType) => {
-                  if (onFileUpdate) {
-                    onFileUpdate({ ...selectedFile, content, name: fileName })
-                  }
-                  closeEditor()
-                }}
-              />
+              {/* Desktop Editor */}
+              <div className="hidden lg:block">
+                <DesktopFileEditor
+                  file={selectedFile}
+                  onClose={closeEditor}
+                  onSave={(fileName, content, fileType) => {
+                    if (onFileUpdate) {
+                      onFileUpdate({ ...selectedFile, content, name: fileName })
+                    }
+                    closeEditor()
+                  }}
+                />
+              </div>
+
+              {/* Mobile Editor */}
+              <div className="block lg:hidden">
+                <MobileFileEditor
+                  file={selectedFile}
+                  onClose={closeEditor}
+                  onSave={(fileName, content, fileType) => {
+                    if (onFileUpdate) {
+                      onFileUpdate({ ...selectedFile, content, name: fileName })
+                    }
+                    closeEditor()
+                  }}
+                />
+              </div>
             </div>
           </div>
         </div>
