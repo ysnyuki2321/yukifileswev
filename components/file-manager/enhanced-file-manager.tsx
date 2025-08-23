@@ -823,7 +823,7 @@ export function EnhancedFileManager({
         type: 'file',
         content: (
           <div className="bg-gradient-to-br from-slate-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <SimpleFileEditor
+            <AdvancedFileEditor
               file={{
                 id: file.id || `file-${Date.now()}`,
                 name: file.name,
@@ -1358,7 +1358,7 @@ export function EnhancedFileManager({
         type: 'database',
         content: (
           <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <DatabaseEditor
+            <AdvancedDatabaseEditor
               file={file}
               onClose={() => closeTab(tabId)}
               readOnly={false}

@@ -17,7 +17,7 @@ import {
   Indent, Outdent, Link, Table, Code2, Palette, ChevronDown, ChevronUp,
   Undo2, Redo2, History, Clock, Calendar, Tag, Bookmark, Pin,
   MessageSquare, Phone, Mail, MapPin, Navigation, Compass, Globe2,
-  Menu, MoreVertical, Eye, EyeOff, Copy, Scissors, Paste, Type, Hash
+  Menu, MoreVertical
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
