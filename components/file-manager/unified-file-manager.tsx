@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
 import { SimpleDatabaseEditor } from "@/components/file-editor/simple-database-editor"
-import { FilePreview } from "@/components/file-preview/FilePreview"
+import { FilePreviewContent } from "@/components/file-preview/FilePreview"
 import { formatBytes } from "@/lib/utils"
 
 // Types
@@ -984,7 +984,7 @@ export function UnifiedFileManager() {
         title: file.name,
         type: 'media',
         content: (
-          <FilePreview
+          <FilePreviewContent
             file={{
               id: file.id,
               name: file.name,
@@ -993,7 +993,6 @@ export function UnifiedFileManager() {
               content: file.content || '',
               url: file.content || file.thumbnail
             }}
-            isOpen={true}
             onClose={() => dispatch({ type: 'REMOVE_TAB', payload: tabId })}
           />
         ),
@@ -1077,39 +1076,39 @@ export function UnifiedFileManager() {
     <div className="h-full flex flex-col bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 text-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-b border-purple-500/20 p-4">
-        <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
               <HardDrive className="w-6 h-6 text-white" />
             </div>
-                          <div>
-                <h1 className="text-2xl font-bold text-white">File Manager</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                    {state.isMobile ? 'Mobile' : 'Desktop'} Mode
-                  </Badge>
-                  {/* Breadcrumb Navigation */}
-                  <div className="flex items-center gap-1 text-sm text-gray-400">
-                    <span 
-                      className="cursor-pointer hover:text-white transition-colors"
-                      onClick={() => setCurrentPath([])}
-                    >
-                      Root
-                    </span>
-                    {currentPath.map((folder, index) => (
-                      <span key={index} className="flex items-center gap-1">
-                        <span className="text-gray-500">/</span>
-                        <span 
-                          className="cursor-pointer hover:text-white transition-colors"
-                          onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
-                        >
-                          {folder}
-                        </span>
+            <div>
+              <h1 className={`font-bold text-white ${state.isMobile ? 'text-lg' : 'text-2xl'}`}>File Manager</h1>
+              <div className={`flex items-center gap-2 mt-1 ${state.isMobile ? 'flex-col items-start gap-1' : ''}`}>
+                <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                  {state.isMobile ? 'Mobile' : 'Desktop'} Mode
+                </Badge>
+                {/* Breadcrumb Navigation */}
+                <div className="flex items-center gap-1 text-sm text-gray-400 flex-wrap">
+                  <span 
+                    className="cursor-pointer hover:text-white transition-colors"
+                    onClick={() => setCurrentPath([])}
+                  >
+                    Root
+                  </span>
+                  {currentPath.map((folder, index) => (
+                    <span key={index} className="flex items-center gap-1">
+                      <span className="text-gray-500">/</span>
+                      <span 
+                        className="cursor-pointer hover:text-white transition-colors"
+                        onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
+                      >
+                        {folder}
                       </span>
-                    ))}
-                  </div>
+                    </span>
+                  ))}
                 </div>
               </div>
+            </div>
           </div>
           
           <div className="flex items-center gap-2">
@@ -1139,21 +1138,23 @@ export function UnifiedFileManager() {
                 placeholder="Search files..."
                 value={state.searchQuery}
                 onChange={(e) => dispatch({ type: 'SET_SEARCH_QUERY', payload: e.target.value })}
-                className="pl-10 bg-slate-800/50 border-purple-500/30 text-white placeholder-gray-400 h-12 text-base"
+                className={`pl-10 bg-slate-800/50 border-purple-500/30 text-white placeholder-gray-400 ${
+                  state.isMobile ? 'h-12 text-base' : 'h-10 text-sm'
+                }`}
               />
             </div>
 
             {/* Filter and Sort */}
-            <div className="flex flex-wrap gap-2">
+            <div className={`flex gap-2 ${state.isMobile ? 'flex-col' : 'flex-wrap'}`}>
               {/* Filter Pills */}
               <div className="flex gap-1 overflow-x-auto pb-2">
                 {['all', 'images', 'videos', 'audio', 'documents', 'code'].map((type) => (
                   <Button
                     key={type}
                     variant={state.filterType === type ? "default" : "outline"}
-                    size="sm"
+                    size={state.isMobile ? "default" : "sm"}
                     onClick={() => dispatch({ type: 'SET_FILTER_TYPE', payload: type as any })}
-                    className={`whitespace-nowrap ${
+                    className={`whitespace-nowrap ${state.isMobile ? 'min-w-[80px] h-10' : ''} ${
                       state.filterType === type 
                         ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0" 
                         : "bg-slate-800/50 border-purple-500/30 text-gray-300 hover:bg-slate-700/50"
@@ -1165,45 +1166,47 @@ export function UnifiedFileManager() {
               </div>
 
               {/* Sort Controls */}
-              <div className="flex gap-1 ml-auto">
+              <div className={`flex gap-1 ${state.isMobile ? 'justify-center' : 'ml-auto'}`}>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size={state.isMobile ? "default" : "sm"}
                   onClick={() => dispatch({ type: 'SET_SORT_ORDER', payload: state.sortOrder === 'asc' ? 'desc' : 'asc' })}
-                  className="border-purple-500/30 text-purple-300 hover:bg-purple-500/10"
+                  className={`border-purple-500/30 text-purple-300 hover:bg-purple-500/10 ${state.isMobile ? 'h-10 px-4' : ''}`}
                 >
                   <ArrowUpDown className="w-4 h-4" />
+                  {state.isMobile && <span className="ml-2">Sort</span>}
                 </Button>
                 <Button
                   variant="outline"
-                  size="sm"
+                  size={state.isMobile ? "default" : "sm"}
                   onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: state.viewMode === 'grid' ? 'list' : 'grid' })}
-                  className="border-purple-500/30 text-purple-300 hover:bg-slate-700/50"
+                  className={`border-purple-500/30 text-purple-300 hover:bg-slate-700/50 ${state.isMobile ? 'h-10 px-4' : ''}`}
                 >
                   {state.viewMode === 'grid' ? <List className="w-4 h-4" /> : <Grid className="w-4 h-4" />}
+                  {state.isMobile && <span className="ml-2">{state.viewMode === 'grid' ? 'List' : 'Grid'}</span>}
                 </Button>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-2">
+            <div className={`flex gap-2 ${state.isMobile ? 'flex-col' : ''}`}>
               <Button
                 onClick={handleCreateFile}
-                className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white h-12"
+                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white ${state.isMobile ? 'h-12' : 'h-10'}`}
               >
                 <FilePlus className="w-4 h-4 mr-2" />
                 New File
               </Button>
               <Button
                 onClick={handleCreateFolder}
-                className="flex-1 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white h-12"
+                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white ${state.isMobile ? 'h-12' : 'h-10'}`}
               >
                 <FolderPlus className="w-4 h-4 mr-2" />
                 New Folder
               </Button>
               <Button
                 onClick={() => setShowUploadProgress(true)}
-                className="flex-1 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white h-12"
+                className={`${state.isMobile ? 'w-full' : 'flex-1'} bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white ${state.isMobile ? 'h-12' : 'h-10'}`}
               >
                 <Upload className="w-4 h-4 mr-2" />
                 Upload
@@ -1261,7 +1264,11 @@ export function UnifiedFileManager() {
           {/* Files Grid/List */}
           <div className="flex-1 overflow-y-auto p-4">
             {state.viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className={`grid gap-4 ${
+                state.isMobile 
+                  ? 'grid-cols-2' 
+                  : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
+              }`}>
                 {filteredAndSortedFiles.map((file) => {
                   const isSelected = state.selectedMultiFiles.has(file.id)
                   const isFolder = file.isFolder
@@ -1435,26 +1442,26 @@ export function UnifiedFileManager() {
                   {state.tabs.map((tab) => (
                     <div
                       key={tab.id}
-                      className={`flex items-center gap-2 px-4 py-3 border-b-2 cursor-pointer transition-colors ${
+                      className={`flex items-center gap-2 ${state.isMobile ? 'px-3 py-2' : 'px-4 py-3'} border-b-2 cursor-pointer transition-colors ${
                         tab.isActive 
                           ? "border-purple-500 text-purple-300 bg-purple-500/10" 
                           : "border-transparent text-gray-400 hover:text-white hover:bg-slate-700/50"
                       }`}
                       onClick={() => activateTab(tab.id)}
                     >
-                      <span className="text-sm font-medium truncate max-w-[120px]">
+                      <span className={`${state.isMobile ? 'text-xs' : 'text-sm'} font-medium truncate ${state.isMobile ? 'max-w-[80px]' : 'max-w-[120px]'}`}>
                         {tab.title}
                       </span>
                       <Button
                         variant="ghost"
-                        size="sm"
+                        size={state.isMobile ? "sm" : "sm"}
                         onClick={(e) => {
                           e.stopPropagation()
                           closeTab(tab.id)
                         }}
-                        className="h-6 w-6 p-0 text-gray-400 hover:text-white hover:bg-white/10"
+                        className={`${state.isMobile ? 'h-5 w-5' : 'h-6 w-6'} p-0 text-gray-400 hover:text-white hover:bg-white/10`}
                       >
-                        <X className="w-3 h-3" />
+                        <X className={`${state.isMobile ? 'w-2 h-2' : 'w-3 h-3'}`} />
                       </Button>
                     </div>
                   ))}
@@ -1463,7 +1470,7 @@ export function UnifiedFileManager() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-hidden min-h-[400px]">
+            <div className={`flex-1 overflow-hidden ${state.isMobile ? 'min-h-[300px]' : 'min-h-[400px]'}`}>
               {state.tabs.map((tab) => (
                 <div
                   key={tab.id}
