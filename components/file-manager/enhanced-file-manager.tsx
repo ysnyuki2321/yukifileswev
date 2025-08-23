@@ -19,7 +19,7 @@ import {
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
 import { TabSystem } from "@/components/ui/tab-system"
-import { LegacyFileEditor } from "@/components/file-editor/legacy-file-editor"
+import { ProfessionalFileEditor } from "@/components/file-editor/professional-file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -822,7 +822,7 @@ export function EnhancedFileManager({
         type: 'file',
         content: (
           <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <LegacyFileEditor
+            <ProfessionalFileEditor
               file={{
                 id: file.id || `file-${Date.now()}`,
                 name: file.name,
@@ -1337,29 +1337,21 @@ export function EnhancedFileManager({
         title: file.name,
         type: 'database',
         content: (
-          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white font-bold text-xl">Database Editor</h3>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => closeTab(tabId)}
-                className="text-white hover:bg-white/20"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+                      <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+              <div className="mb-6">
+                <h3 className="text-white font-bold text-xl">Database Editor</h3>
+              </div>
+              {/* Use the actual DatabaseEditor component */}
+              <DatabaseEditor
+                file={file}
+                onClose={() => closeTab(tabId)}
+                onSave={(fileName, content, fileType) => {
+                  if (onFileUpdate) {
+                    onFileUpdate({ ...file, content, name: fileName })
+                  }
+                }}
+              />
             </div>
-            {/* Use the actual DatabaseEditor component */}
-            <DatabaseEditor
-              file={file}
-              onClose={() => closeTab(tabId)}
-              onSave={(fileName, content, fileType) => {
-                if (onFileUpdate) {
-                  onFileUpdate({ ...file, content, name: fileName })
-                }
-              }}
-            />
-          </div>
         ),
         isActive: true
       }
@@ -1379,26 +1371,18 @@ export function EnhancedFileManager({
         title: file.name,
         type: 'media',
         content: (
-          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-white font-bold text-xl">Media Preview</h3>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => closeTab(tabId)}
-                className="text-white hover:bg-white/20"
-              >
-                <X className="w-4 h-4" />
-              </Button>
+                      <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+              <div className="mb-6">
+                <h3 className="text-white font-bold text-xl">Media Preview</h3>
+              </div>
+              <MediaPreview
+                file={file}
+                onDownload={() => {}}
+                onShare={() => {}}
+                onLike={() => {}}
+                onClose={() => closeTab(tabId)}
+              />
             </div>
-            <MediaPreview
-              file={file}
-              onDownload={() => {}}
-              onShare={() => {}}
-              onLike={() => {}}
-              onClose={() => closeTab(tabId)}
-            />
-          </div>
         ),
         isActive: true
       }

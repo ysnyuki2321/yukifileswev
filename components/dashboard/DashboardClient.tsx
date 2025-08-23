@@ -210,6 +210,31 @@ export default function DashboardClient() {
               album: null,
               albumArt: null
             },
+            {
+              id: 'folder-5',
+              original_name: 'Compressed Files',
+              name: 'Compressed Files',
+              mime_type: 'folder',
+              file_size: 0,
+              size: 0,
+              created_at: new Date('2024-01-20T14:00:00Z').toISOString(),
+              content: '',
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'folder',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
 
             // Code Files in Code Examples folder
             {
@@ -475,9 +500,101 @@ export default App;`,
 - Security features
 
 ## Getting Started
-1. Upload files
-2. Organize in folders
+1. Upload your files
+2. Organize them in folders
 3. Share with others
+4. Secure your content`,
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'text',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Compressed Files in Compressed Files folder
+            {
+              id: 'compressed-1',
+              original_name: 'project-backup.zip',
+              name: 'project-backup.zip',
+              mime_type: 'application/zip',
+              file_size: 10485760,
+              size: 10485760,
+              created_at: new Date('202401-20T14:30:00Z').toISOString(),
+              content: 'This is a compressed ZIP file containing project backup data.',
+              thumbnail: null,
+              is_starred: false,
+              isStarred: false,
+              is_public: true,
+              isShared: false,
+              owner: 'demo@yukifiles.com',
+              hasPassword: false,
+              inArchive: false,
+              category: 'archive',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+            {
+              id: 'compressed-2',
+              original_name: 'documents.tar.gz',
+              name: 'documents.tar.gz',
+              mime_type: 'application/gzip',
+              file_size: 5242880,
+              size: 5242880,
+              created_at: new Date('2024-01-20T15:00:00Z').toISOString(),
+              content: 'This is a compressed TAR.GZ file containing document archives.',
+              thumbnail: null,
+              is_starred: true,
+              isStarred: true,
+              is_public: false,
+              isShared: true,
+              owner: 'demo@yukifiles.com',
+              hasPassword: true,
+              inArchive: false,
+              category: 'archive',
+              encryptedName: null,
+              accessLimits: null,
+              expiresAt: null,
+              artist: null,
+              album: null,
+              albumArt: null
+            },
+
+            // Text Files
+            {
+              id: 'text-1',
+              original_name: 'README.md',
+              name: 'README.md',
+              mime_type: 'text/markdown',
+              file_size: 2048,
+              size: 2048,
+              created_at: new Date('2024-01-15T17:00:00Z').toISOString(),
+              content: `# YukiFiles Demo
+
+## Features
+- File management
+- Media preview
+- Sharing capabilities
+- Security features
+
+## Getting Started
+1. Upload your files
+2. Organize them in folders
+3. Share with others
+4. Secure your content
 
 Created: ${new Date().toLocaleDateString()}`,
               thumbnail: null,

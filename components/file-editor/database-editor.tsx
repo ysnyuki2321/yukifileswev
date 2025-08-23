@@ -247,15 +247,15 @@ export function DatabaseEditor({ file, onClose, readOnly = false }: DatabaseEdit
           <div className="flex items-center gap-2">
             {/* Database Type Selector */}
             <Select value={selectedDatabaseType} onValueChange={setSelectedDatabaseType}>
-              <SelectTrigger className="w-40 bg-black/30 border-purple-500/30 text-white">
+              <SelectTrigger className="w-32 sm:w-40 bg-black/30 border-purple-500/30 text-white">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-purple-500/30">
+              <SelectContent className="bg-slate-800 border-purple-500/30 max-h-60 overflow-y-auto">
                 {DATABASE_TYPES.map((dbType) => (
                   <SelectItem key={dbType.value} value={dbType.value} className="text-white hover:bg-purple-500/20">
                     <div className="flex items-center gap-2">
                       <dbType.icon className="w-4 h-4" />
-                      <span>{dbType.label}</span>
+                      <span className="truncate">{dbType.label}</span>
                     </div>
                   </SelectItem>
                 ))}
