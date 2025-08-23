@@ -87,6 +87,20 @@ function DemoSharePageContent() {
       // Check if password is required
       if (!data.password) {
         setIsUnlocked(true)
+        
+        // Auto-show preview for media files
+        if (data.file.type && (
+          data.file.type.startsWith('video/') || 
+          data.file.type.startsWith('audio/') || 
+          data.file.type.startsWith('image/') ||
+          data.file.type.startsWith('text/') ||
+          data.file.type.includes('code') ||
+          data.file.name.endsWith('.md') ||
+          data.file.name.endsWith('.json') ||
+          data.file.name.endsWith('.txt')
+        )) {
+          setShowPreview(true)
+        }
       }
       
       // Load view/download stats
@@ -430,7 +444,7 @@ function DemoSharePageContent() {
                   disabled={shareData.maxViews ? views >= shareData.maxViews : false}
                 >
                   <Eye className="w-4 h-4 mr-2" />
-                  Preview
+                  {showPreview ? 'Hide Preview' : 'Show Preview'}
                 </Button>
               )}
               
@@ -488,6 +502,98 @@ function DemoSharePageContent() {
             onLike={() => {}}
             onClose={() => setShowPreview(false)}
           />
+        </div>
+      )}
+
+      {/* Inline Media Player for Video/Audio */}
+      {shareData && !showPreview && (
+        <div className="max-w-4xl mx-auto mt-6">
+          {/* Video Player */}
+          {shareData.file.type && shareData.file.type.startsWith('video/') && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <Video className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Video Preview</h3>
+              </div>
+              <div className="aspect-video bg-black rounded-xl overflow-hidden">
+                <video
+                  src={shareData.file.content}
+                  controls
+                  className="w-full h-full object-contain"
+                  poster={shareData.file.thumbnail}
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Size: {(shareData.file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            </div>
+          )}
+
+          {/* Audio Player */}
+          {shareData.file.type && shareData.file.type.startsWith('audio/') && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <Music className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Audio Player</h3>
+              </div>
+              <div className="bg-black/30 rounded-xl p-6">
+                <audio
+                  src={shareData.file.content}
+                  controls
+                  className="w-full"
+                >
+                  Your browser does not support the audio tag.
+                </audio>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Size: {(shareData.file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            </div>
+          )}
+
+          {/* Image Preview */}
+          {shareData.file.type && shareData.file.type.startsWith('image/') && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <Image className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Image Preview</h3>
+              </div>
+              <div className="bg-black/30 rounded-xl p-4">
+                <img
+                  src={shareData.file.content}
+                  alt={shareData.file.name}
+                  className="w-full h-auto max-h-96 object-contain rounded-lg"
+                />
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Size: {(shareData.file.size / 1024 / 1024).toFixed(2)} MB</span>
+              </div>
+            </div>
+          )}
+
+          {/* Text/Code Preview */}
+          {shareData.file.type && (shareData.file.type.startsWith('text/') || shareData.file.type.includes('code') || shareData.file.name.endsWith('.md') || shareData.file.name.endsWith('.json') || shareData.file.name.endsWith('.txt')) && (
+            <div className="bg-gradient-to-br from-slate-900/95 via-purple-950/60 to-slate-900/95 border border-purple-500/20 rounded-2xl p-6 overflow-hidden">
+              <div className="flex items-center gap-3 mb-4">
+                <FileText className="w-6 h-6 text-purple-400" />
+                <h3 className="text-white font-semibold text-lg">Content Preview</h3>
+              </div>
+              <div className="bg-black/30 rounded-xl p-4 max-h-96 overflow-auto">
+                <pre className="text-white text-sm font-mono whitespace-pre-wrap">
+                  {shareData.file.content}
+                </pre>
+              </div>
+              <div className="mt-4 flex items-center justify-between text-sm text-gray-400">
+                <span>File: {shareData.file.name}</span>
+                <span>Lines: {shareData.file.content?.split('\n').length || 0}</span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

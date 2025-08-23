@@ -307,12 +307,45 @@ export function ProfessionalDatePicker({
                   <Clock className="w-4 h-4 text-purple-400" />
                   <label className="text-sm font-medium text-white">Time</label>
                 </div>
-                <Input
-                  type="time"
-                  value={timeValue}
-                  onChange={(e) => handleTimeChange(e.target.value)}
-                  className="bg-black/30 border-purple-500/30 text-white"
-                />
+                <div className="grid grid-cols-2 gap-2">
+                  {/* Hours */}
+                  <div>
+                    <label className="text-gray-300 text-xs block mb-1">Hour</label>
+                    <select
+                      value={timeValue.split(':')[0] || '00'}
+                      onChange={(e) => {
+                        const minutes = timeValue.split(':')[1] || '00'
+                        setTimeValue(`${e.target.value}:${minutes}`)
+                      }}
+                      className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
+                    >
+                      {Array.from({ length: 24 }, (_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>
+                          {i.toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* Minutes */}
+                  <div>
+                    <label className="text-gray-300 text-xs block mb-1">Minute</label>
+                    <select
+                      value={timeValue.split(':')[1] || '00'}
+                      onChange={(e) => {
+                        const hours = timeValue.split(':')[0] || '00'
+                        setTimeValue(`${hours}:${e.target.value}`)
+                      }}
+                      className="w-full bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
+                    >
+                      {Array.from({ length: 60 }, (_, i) => (
+                        <option key={i} value={i.toString().padStart(2, '0')}>
+                          {i.toString().padStart(2, '0')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
               </div>
             )}
 
