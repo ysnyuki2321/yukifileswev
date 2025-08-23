@@ -5,7 +5,7 @@ import { ResponsiveVideoPlayer } from './responsive-video-player'
 import { MusicPlayer } from './music-player'
 import { PopoutMusicPlayer } from './popout-music-player'
 import { BeautifulVideoPlayer } from './beautiful-video-player'
-import { Download, Share2, RotateCcw, ZoomIn, ZoomOut, Star, X, Maximize2 } from 'lucide-react'
+import { Download, Share2, RotateCcw, ZoomIn, ZoomOut, Star, Maximize2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 interface MediaPreviewProps {
@@ -92,13 +92,6 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
               >
                 <Star className="w-4 h-4" />
               </button>
-              <button
-                onClick={onClose}
-                className="p-2 bg-gray-500/20 hover:bg-gray-500/30 rounded-lg text-gray-400 hover:text-gray-300 transition-colors border border-gray-500/30"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
@@ -112,7 +105,6 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
             onDownload={onDownload}
             onShare={onShare}
             onLike={onLike}
-            onClose={onClose}
             className="w-full"
           />
         </div>
@@ -158,13 +150,6 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
                 title="Like"
               >
                 <Star className="w-4 h-4" />
-              </button>
-              <button
-                onClick={onClose}
-                className="p-2 bg-gray-500/20 hover:bg-gray-500/30 rounded-lg text-gray-400 hover:text-gray-300 transition-colors border border-gray-500/30"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -247,13 +232,6 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
               >
                 <Star className="w-4 h-4" />
               </button>
-              <button
-                onClick={onClose}
-                className="p-2 bg-gray-500/20 hover:bg-gray-500/30 rounded-lg text-gray-400 hover:text-gray-300 transition-colors border border-gray-500/30"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
           </div>
         </div>
@@ -321,13 +299,6 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
               title="Share"
             >
               <Share2 className="w-4 h-4" />
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 bg-gray-500/20 hover:bg-gray-500/30 rounded-lg text-gray-400 hover:text-gray-300 transition-colors border border-gray-500/30"
-              title="Close"
-            >
-              <X className="w-4 h-4" />
             </button>
           </div>
         </div>

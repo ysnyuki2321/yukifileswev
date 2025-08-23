@@ -243,14 +243,7 @@ export function DesktopFileEditor({ file, onClose, onSave }: DesktopFileEditorPr
             >
               {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <X className="w-4 h-4" />
-            </Button>
+
           </div>
         </div>
       </div>

@@ -95,14 +95,7 @@ export function LegacyFileEditor({ file, onSave, onClose, readOnly = false }: Le
             </div>
           </div>
         </div>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={onClose}
-          className="text-white hover:bg-white/20"
-        >
-          <X className="w-5 h-5" />
-        </Button>
+
       </div>
 
       {/* File Info */}
@@ -158,13 +151,7 @@ export function LegacyFileEditor({ file, onSave, onClose, readOnly = false }: Le
       {/* Actions */}
       {!readOnly && (
         <div className="p-4 border-t border-white/10 bg-slate-800 flex justify-end gap-3">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="border-white/20 text-white hover:bg-white/10"
-          >
-            Cancel
-          </Button>
+
           <Button
             onClick={handleSave}
             className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white"
