@@ -21,7 +21,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
 import { SimpleDatabaseEditor } from "@/components/file-editor/simple-database-editor"
-import { MediaPreview } from "@/components/ui/media-preview"
+import { FilePreview } from "@/components/file-preview/FilePreview"
 import { formatBytes } from "@/lib/utils"
 
 // Types
@@ -176,7 +176,7 @@ function fileManagerReducer(state: FileManagerState, action: FileManagerAction):
   }
 }
 
-// Mock data
+// Mock data - Rich demo files for testing
 const mockFiles: FileItem[] = [
   {
     id: '1',
@@ -186,7 +186,7 @@ const mockFiles: FileItem[] = [
     file_size: 1024,
     size: 1024,
     created_at: '2024-01-15T10:30:00Z',
-    content: 'This is a sample text document.',
+    content: 'This is a sample text document with some content to demonstrate the text editor functionality.',
     thumbnail: null,
     is_starred: false,
     isStarred: false,
@@ -195,14 +195,14 @@ const mockFiles: FileItem[] = [
   },
   {
     id: '2',
-    name: 'image.jpg',
-    original_name: 'image.jpg',
+    name: 'sample-image.jpg',
+    original_name: 'sample-image.jpg',
     mime_type: 'image/jpeg',
     file_size: 2048576,
     size: 2048576,
     created_at: '2024-01-16T14:20:00Z',
-    content: '',
-    thumbnail: '/api/placeholder/300/200',
+    content: 'https://picsum.photos/800/600?random=1',
+    thumbnail: 'https://picsum.photos/300/200?random=1',
     is_starred: true,
     isStarred: true,
     is_public: true,
@@ -210,34 +210,187 @@ const mockFiles: FileItem[] = [
   },
   {
     id: '3',
+    name: 'sample-video.mp4',
+    original_name: 'sample-video.mp4',
+    mime_type: 'video/mp4',
+    file_size: 15728640,
+    size: 15728640,
+    created_at: '2024-01-17T09:15:00Z',
+    content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+    thumbnail: 'https://picsum.photos/300/200?random=2',
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    lastModified: new Date('2024-01-17T09:15:00Z')
+  },
+  {
+    id: '4',
+    name: 'sample-music.mp3',
+    original_name: 'sample-music.mp3',
+    mime_type: 'audio/mpeg',
+    file_size: 5242880,
+    size: 5242880,
+    created_at: '2024-01-18T11:00:00Z',
+    content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+    thumbnail: 'https://picsum.photos/300/200?random=3',
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    lastModified: new Date('2024-01-18T11:00:00Z')
+  },
+  {
+    id: '5',
     name: 'database.db',
     original_name: 'database.db',
     mime_type: 'application/x-sqlite3',
     file_size: 1048576,
     size: 1048576,
-    created_at: '2024-01-17T09:15:00Z',
+    created_at: '2024-01-19T09:15:00Z',
     content: '',
     thumbnail: null,
     is_starred: false,
     isStarred: false,
     is_public: false,
-    lastModified: new Date('2024-01-17T09:15:00Z')
+    lastModified: new Date('2024-01-19T09:15:00Z')
   },
   {
-    id: '4',
+    id: '6',
+    name: 'code.js',
+    original_name: 'code.js',
+    mime_type: 'application/javascript',
+    file_size: 2048,
+    size: 2048,
+    created_at: '2024-01-20T12:00:00Z',
+    content: 'function hello() {\n  console.log("Hello, World!");\n  return "Hello from YukiFiles!";\n}\n\n// Sample JavaScript code\nexport default hello;',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    lastModified: new Date('2024-01-20T12:00:00Z')
+  },
+  {
+    id: '11',
+    name: 'README.md',
+    original_name: 'README.md',
+    mime_type: 'text/markdown',
+    file_size: 1536,
+    size: 1536,
+    created_at: '2024-01-31T08:00:00Z',
+    content: '# Welcome to YukiFiles!\n\nThis is a **secure file sharing platform** with:\n\n- 🔐 **Enterprise Security** - Bank-level encryption\n- 📱 **Responsive Design** - Works on all devices\n- 🎨 **Beautiful UI** - Modern gradient design\n- 🚀 **Fast Performance** - Global CDN delivery\n\n## Features\n\n- File preview (images, videos, music)\n- Text and code editing\n- Database management\n- Secure sharing\n- Mobile optimized\n\n*Start exploring by clicking on files and folders!*',
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    lastModified: new Date('2024-01-31T08:00:00Z')
+  },
+  {
+    id: '12',
+    name: 'config.json',
+    original_name: 'config.json',
+    mime_type: 'application/json',
+    file_size: 512,
+    size: 512,
+    created_at: '2024-02-01T10:00:00Z',
+    content: '{\n  "app": "YukiFiles",\n  "version": "1.0.0",\n  "features": {\n    "filePreview": true,\n    "videoPlayer": true,\n    "musicPlayer": true,\n    "textEditor": true,\n    "databaseEditor": true\n  },\n  "theme": "dark",\n  "responsive": true\n}',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: false,
+    lastModified: new Date('2024-02-01T10:00:00Z')
+  },
+  {
+    id: '13',
+    name: 'sample.csv',
+    original_name: 'sample.csv',
+    mime_type: 'text/csv',
+    file_size: 256,
+    size: 256,
+    created_at: '2024-02-02T11:00:00Z',
+    content: 'Name,Age,City\nJohn,25,New York\nJane,30,Los Angeles\nBob,35,Chicago\nAlice,28,Boston',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    lastModified: new Date('2024-02-02T11:00:00Z')
+  },
+  {
+    id: '14',
+    name: 'logo.svg',
+    original_name: 'logo.svg',
+    mime_type: 'image/svg+xml',
+    file_size: 1024,
+    size: 1024,
+    created_at: '2024-02-03T12:00:00Z',
+    content: '<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" stroke="purple" stroke-width="3" fill="pink"/><text x="50" y="55" text-anchor="middle" fill="white" font-size="12">YF</text></svg>',
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    lastModified: new Date('2024-02-03T12:00:00Z')
+  },
+  {
+    id: '7',
     name: 'Documents',
     original_name: 'Documents',
     mime_type: 'inode/directory',
     file_size: 0,
     size: 0,
-    created_at: '2024-01-18T11:00:00Z',
+    created_at: '2024-01-21T11:00:00Z',
     content: '',
     thumbnail: null,
     is_starred: false,
     isStarred: false,
     is_public: true,
     isFolder: true,
-    lastModified: new Date('2024-01-18T11:00:00Z')
+    lastModified: new Date('2024-01-21T11:00:00Z')
+  },
+  {
+    id: '8',
+    name: 'Pictures',
+    original_name: 'Pictures',
+    mime_type: 'inode/directory',
+    file_size: 0,
+    size: 0,
+    created_at: '2024-01-22T14:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    isFolder: true,
+    lastModified: new Date('2024-01-22T14:00:00Z')
+  },
+  {
+    id: '9',
+    name: 'Music',
+    original_name: 'Music',
+    mime_type: 'inode/directory',
+    file_size: 0,
+    size: 0,
+    created_at: '2024-01-23T10:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: false,
+    isStarred: false,
+    is_public: true,
+    isFolder: true,
+    lastModified: new Date('2024-01-23T10:00:00Z')
+  },
+  {
+    id: '10',
+    name: 'Videos',
+    original_name: 'Videos',
+    mime_type: 'inode/directory',
+    file_size: 0,
+    size: 0,
+    created_at: '2024-01-24T15:00:00Z',
+    content: '',
+    thumbnail: null,
+    is_starred: true,
+    isStarred: true,
+    is_public: true,
+    isFolder: true,
+    lastModified: new Date('2024-01-24T15:00:00Z')
   }
 ]
 
@@ -259,7 +412,16 @@ export function UnifiedFileManager() {
 
   // Filter and sort files
   const filteredAndSortedFiles = useMemo(() => {
-    let filtered = mockFiles.filter(file => {
+    // Get current files based on path
+    let currentFiles = [...mockFiles]
+    
+    // If we're in a folder, show folder contents
+    if (currentPath.length > 0) {
+      const currentFolder = currentPath[currentPath.length - 1]
+      currentFiles = getFolderFiles(currentFolder)
+    }
+    
+    let filtered = currentFiles.filter(file => {
       if (state.searchQuery) {
         return file.name.toLowerCase().includes(state.searchQuery.toLowerCase())
       }
@@ -340,6 +502,431 @@ export function UnifiedFileManager() {
     }
   }
 
+  // Demo files for folders
+  const getFolderFiles = (folderName: string): FileItem[] => {
+    switch (folderName) {
+      case 'Documents':
+        return [
+          {
+            id: 'doc1',
+            name: 'report.pdf',
+            original_name: 'report.pdf',
+            mime_type: 'application/pdf',
+            file_size: 512000,
+            size: 512000,
+            created_at: '2024-01-25T09:00:00Z',
+            content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+            thumbnail: null,
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-01-25T09:00:00Z')
+          },
+          {
+            id: 'doc2',
+            name: 'presentation.pptx',
+            original_name: 'presentation.pptx',
+            mime_type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            file_size: 2048000,
+            size: 2048000,
+            created_at: '2024-01-26T14:00:00Z',
+            content: '',
+            thumbnail: null,
+            is_starred: true,
+            isStarred: true,
+            is_public: false,
+            lastModified: new Date('2024-01-26T14:00:00Z')
+          },
+          {
+            id: 'doc3',
+            name: 'meeting-notes.txt',
+            original_name: 'meeting-notes.txt',
+            mime_type: 'text/plain',
+            file_size: 768,
+            size: 768,
+            created_at: '2024-01-27T15:00:00Z',
+            content: 'Meeting Notes - Project Kickoff\n\nDate: January 27, 2024\nAttendees: John, Jane, Bob\n\nAgenda:\n1. Project overview\n2. Timeline discussion\n3. Resource allocation\n\nAction Items:\n- John: Prepare technical specs\n- Jane: Create project plan\n- Bob: Set up development environment\n\nNext meeting: February 3, 2024',
+            thumbnail: null,
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-01-27T15:00:00Z')
+          },
+          {
+            id: 'doc4',
+            name: 'budget.xlsx',
+            original_name: 'budget.xlsx',
+            mime_type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            file_size: 1536000,
+            size: 1536000,
+            created_at: '2024-01-28T09:00:00Z',
+            content: '',
+            thumbnail: null,
+            is_starred: true,
+            isStarred: true,
+            is_public: false,
+            lastModified: new Date('2024-01-28T09:00:00Z')
+          },
+          {
+            id: 'doc5',
+            name: 'contract.pdf',
+            original_name: 'contract.pdf',
+            mime_type: 'application/pdf',
+            file_size: 1024000,
+            size: 1024000,
+            created_at: '2024-01-29T13:00:00Z',
+            content: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+            thumbnail: null,
+            is_starred: false,
+            isStarred: false,
+            is_public: false,
+            lastModified: new Date('2024-01-29T13:00:00Z')
+          },
+          {
+            id: 'doc6',
+            name: 'manual.docx',
+            original_name: 'manual.docx',
+            mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            file_size: 3072000,
+            size: 3072000,
+            created_at: '2024-01-30T14:00:00Z',
+            content: '',
+            thumbnail: null,
+            is_starred: true,
+            isStarred: true,
+            is_public: false,
+            lastModified: new Date('2024-01-30T14:00:00Z')
+          },
+          {
+            id: 'doc7',
+            name: 'data.csv',
+            original_name: 'data.csv',
+            mime_type: 'text/csv',
+            file_size: 1024,
+            size: 1024,
+            created_at: '2024-01-31T15:00:00Z',
+            content: 'Product,Price,Stock\nLaptop,999,50\nMouse,25,200\nKeyboard,75,100\nMonitor,299,30\nHeadphones,150,80',
+            thumbnail: null,
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-01-31T15:00:00Z')
+          }
+        ]
+      case 'Pictures':
+        return [
+          {
+            id: 'pic1',
+            name: 'nature.jpg',
+            original_name: 'nature.jpg',
+            mime_type: 'image/jpeg',
+            file_size: 3072000,
+            size: 3072000,
+            created_at: '2024-01-27T11:00:00Z',
+            content: 'https://picsum.photos/1200/800?random=4',
+            thumbnail: 'https://picsum.photos/300/200?random=4',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-01-27T11:00:00Z')
+          },
+          {
+            id: 'pic2',
+            name: 'city.jpg',
+            original_name: 'city.jpg',
+            mime_type: 'image/jpeg',
+            file_size: 2560000,
+            size: 2560000,
+            created_at: '2024-01-28T16:00:00Z',
+            content: 'https://picsum.photos/1200/800?random=5',
+            thumbnail: 'https://picsum.photos/300/200?random=5',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-01-28T16:00:00Z')
+          },
+          {
+            id: 'pic3',
+            name: 'sunset.png',
+            original_name: 'sunset.png',
+            mime_type: 'image/png',
+            file_size: 4096000,
+            size: 4096000,
+            created_at: '2024-01-29T18:00:00Z',
+            content: 'https://picsum.photos/1600/900?random=8',
+            thumbnail: 'https://picsum.photos/300/200?random=8',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-01-29T18:00:00Z')
+          },
+          {
+            id: 'pic4',
+            name: 'abstract.gif',
+            original_name: 'abstract.gif',
+            mime_type: 'image/gif',
+            file_size: 2048000,
+            size: 2048000,
+            created_at: '2024-02-01T10:00:00Z',
+            content: 'https://picsum.photos/800/600?random=11',
+            thumbnail: 'https://picsum.photos/300/200?random=11',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-01T10:00:00Z')
+          },
+          {
+            id: 'pic5',
+            name: 'portrait.jpg',
+            original_name: 'portrait.jpg',
+            mime_type: 'image/jpeg',
+            file_size: 3584000,
+            size: 3584000,
+            created_at: '2024-02-04T11:00:00Z',
+            content: 'https://picsum.photos/800/1200?random=14',
+            thumbnail: 'https://picsum.photos/300/200?random=14',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-04T11:00:00Z')
+          },
+          {
+            id: 'pic6',
+            name: 'landscape.webp',
+            original_name: 'landscape.webp',
+            mime_type: 'image/webp',
+            file_size: 2816000,
+            size: 2816000,
+            created_at: '2024-02-07T12:00:00Z',
+            content: 'https://picsum.photos/1600/900?random=17',
+            thumbnail: 'https://picsum.photos/300/200?random=17',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-02-07T12:00:00Z')
+          },
+          {
+            id: 'pic7',
+            name: 'icon.png',
+            original_name: 'icon.png',
+            mime_type: 'image/png',
+            file_size: 512000,
+            size: 512000,
+            created_at: '2024-02-10T13:00:00Z',
+            content: 'https://picsum.photos/256/256?random=20',
+            thumbnail: 'https://picsum.photos/300/200?random=20',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-10T13:00:00Z')
+          },
+          {
+            id: 'pic8',
+            name: 'banner.jpg',
+            original_name: 'banner.jpg',
+            mime_type: 'image/jpeg',
+            file_size: 1536000,
+            size: 1536000,
+            created_at: '2024-02-13T14:00:00Z',
+            content: 'https://picsum.photos/1920/400?random=23',
+            thumbnail: 'https://picsum.photos/300/200?random=23',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-02-13T14:00:00Z')
+          }
+        ]
+      case 'Music':
+        return [
+          {
+            id: 'music1',
+            name: 'song1.mp3',
+            original_name: 'song1.mp3',
+            mime_type: 'audio/mpeg',
+            file_size: 8192000,
+            size: 8192000,
+            created_at: '2024-01-29T12:00:00Z',
+            content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+            thumbnail: 'https://picsum.photos/300/200?random=6',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-01-29T12:00:00Z')
+          },
+          {
+            id: 'music2',
+            name: 'instrumental.wav',
+            original_name: 'instrumental.wav',
+            mime_type: 'audio/wav',
+            file_size: 12288000,
+            size: 12288000,
+            created_at: '2024-01-30T13:00:00Z',
+            content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+            thumbnail: 'https://picsum.photos/300/200?random=9',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-01-30T13:00:00Z')
+          },
+          {
+            id: 'music3',
+            name: 'podcast.mp3',
+            original_name: 'podcast.mp3',
+            mime_type: 'audio/mpeg',
+            file_size: 25600000,
+            size: 25600000,
+            created_at: '2024-02-02T16:00:00Z',
+            content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+            thumbnail: 'https://picsum.photos/300/200?random=12',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-02-02T16:00:00Z')
+          },
+          {
+            id: 'music4',
+            name: 'ambient.ogg',
+            original_name: 'ambient.ogg',
+            mime_type: 'audio/ogg',
+            file_size: 18432000,
+            size: 18432000,
+            created_at: '2024-02-05T14:00:00Z',
+            content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+            thumbnail: 'https://picsum.photos/300/200?random=15',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-05T14:00:00Z')
+          },
+          {
+            id: 'music5',
+            name: 'jingle.m4a',
+            original_name: 'jingle.m4a',
+            mime_type: 'audio/mp4',
+            file_size: 5120000,
+            size: 5120000,
+            created_at: '2024-02-08T10:00:00Z',
+            content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+            thumbnail: 'https://picsum.photos/300/200?random=18',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-08T10:00:00Z')
+          },
+          {
+            id: 'music6',
+            name: 'soundtrack.flac',
+            original_name: 'soundtrack.flac',
+            mime_type: 'audio/flac',
+            file_size: 45000000,
+            size: 45000000,
+            created_at: '2024-02-11T17:00:00Z',
+            content: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+            thumbnail: 'https://picsum.photos/300/200?random=21',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-02-11T17:00:00Z')
+          }
+        ]
+      case 'Videos':
+        return [
+          {
+            id: 'video1',
+            name: 'tutorial.mp4',
+            original_name: 'tutorial.mp4',
+            mime_type: 'video/mp4',
+            file_size: 20971520,
+            size: 20971520,
+            created_at: '2024-01-30T13:00:00Z',
+            content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            thumbnail: 'https://picsum.photos/300/200?random=7',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-01-30T13:00:00Z')
+          },
+          {
+            id: 'video2',
+            name: 'demo.webm',
+            original_name: 'demo.webm',
+            mime_type: 'video/webm',
+            file_size: 15728640,
+            size: 15728640,
+            created_at: '2024-01-31T14:00:00Z',
+            content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            thumbnail: 'https://picsum.photos/300/200?random=10',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-01-31T14:00:00Z')
+          },
+          {
+            id: 'video3',
+            name: 'screencast.mp4',
+            original_name: 'screencast.mp4',
+            mime_type: 'video/mp4',
+            file_size: 31457280,
+            size: 31457280,
+            created_at: '2024-02-03T17:00:00Z',
+            content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            thumbnail: 'https://picsum.photos/300/200?random=13',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-03T17:00:00Z')
+          },
+          {
+            id: 'video4',
+            name: 'interview.avi',
+            original_name: 'interview.avi',
+            mime_type: 'video/x-msvideo',
+            file_size: 52428800,
+            size: 52428800,
+            created_at: '2024-02-06T15:00:00Z',
+            content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            thumbnail: 'https://picsum.photos/300/200?random=16',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-02-06T15:00:00Z')
+          },
+          {
+            id: 'video5',
+            name: 'presentation.mov',
+            original_name: 'presentation.mov',
+            mime_type: 'video/quicktime',
+            file_size: 41943040,
+            size: 41943040,
+            created_at: '2024-02-09T16:00:00Z',
+            content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            thumbnail: 'https://picsum.photos/300/200?random=19',
+            is_starred: false,
+            isStarred: false,
+            is_public: true,
+            lastModified: new Date('2024-02-09T16:00:00Z')
+          },
+          {
+            id: 'video6',
+            name: 'trailer.mkv',
+            original_name: 'trailer.mkv',
+            mime_type: 'video/x-matroska',
+            file_size: 62914560,
+            size: 62914560,
+            created_at: '2024-02-12T18:00:00Z',
+            content: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+            thumbnail: 'https://picsum.photos/300/200?random=22',
+            is_starred: true,
+            isStarred: true,
+            is_public: true,
+            lastModified: new Date('2024-02-12T18:00:00Z')
+          }
+        ]
+      default:
+        return []
+    }
+  }
+
   // File handlers
   const handleFileClick = useCallback((file: FileItem) => {
     if (file.isFolder) {
@@ -397,11 +984,16 @@ export function UnifiedFileManager() {
         title: file.name,
         type: 'media',
         content: (
-          <MediaPreview
-            file={file}
-            onDownload={() => {}}
-            onShare={() => {}}
-            onLike={() => {}}
+          <FilePreview
+            file={{
+              id: file.id,
+              name: file.name,
+              size: file.size || 0,
+              mimeType: file.mime_type,
+              content: file.content || '',
+              url: file.content || file.thumbnail
+            }}
+            isOpen={true}
             onClose={() => dispatch({ type: 'REMOVE_TAB', payload: tabId })}
           />
         ),
@@ -490,17 +1082,34 @@ export function UnifiedFileManager() {
             <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
               <HardDrive className="w-6 h-6 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">File Manager</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                  {state.isMobile ? 'Mobile' : 'Desktop'} Mode
-                </Badge>
-                <span className="text-sm text-gray-400">
-                  {currentPath.length > 0 ? currentPath.join(' / ') : 'Root'}
-                </span>
+                          <div>
+                <h1 className="text-2xl font-bold text-white">File Manager</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                    {state.isMobile ? 'Mobile' : 'Desktop'} Mode
+                  </Badge>
+                  {/* Breadcrumb Navigation */}
+                  <div className="flex items-center gap-1 text-sm text-gray-400">
+                    <span 
+                      className="cursor-pointer hover:text-white transition-colors"
+                      onClick={() => setCurrentPath([])}
+                    >
+                      Root
+                    </span>
+                    {currentPath.map((folder, index) => (
+                      <span key={index} className="flex items-center gap-1">
+                        <span className="text-gray-500">/</span>
+                        <span 
+                          className="cursor-pointer hover:text-white transition-colors"
+                          onClick={() => setCurrentPath(currentPath.slice(0, index + 1))}
+                        >
+                          {folder}
+                        </span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
           </div>
           
           <div className="flex items-center gap-2">
@@ -518,9 +1127,9 @@ export function UnifiedFileManager() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex flex-col min-h-0">
         {/* File Manager Panel */}
-        <div className={`${state.tabs.length > 0 ? 'w-1/2' : 'w-full'} border-r border-purple-500/20 flex flex-col`}>
+        <div className="w-full flex flex-col">
           {/* Search and Controls */}
           <div className="p-4 space-y-4">
             {/* Search Bar */}
@@ -816,9 +1425,9 @@ export function UnifiedFileManager() {
           </div>
         </div>
 
-        {/* Tabs Panel */}
+        {/* Tabs Panel - Now at bottom */}
         {state.tabs.length > 0 && (
-          <div className="w-1/2 flex flex-col">
+          <div className="w-full flex flex-col border-t border-purple-500/20">
             {/* Tabs Header */}
             <div className="bg-slate-800/50 border-b border-purple-500/20">
               <div className="overflow-x-auto">
@@ -854,7 +1463,7 @@ export function UnifiedFileManager() {
             </div>
 
             {/* Tab Content */}
-            <div className="flex-1 overflow-hidden">
+            <div className="flex-1 overflow-hidden min-h-[400px]">
               {state.tabs.map((tab) => (
                 <div
                   key={tab.id}
