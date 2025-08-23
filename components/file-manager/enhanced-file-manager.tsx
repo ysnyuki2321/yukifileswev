@@ -19,8 +19,8 @@ import {
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
 import { TabSystem } from "@/components/ui/tab-system"
-import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
-import { DatabaseEditor } from "@/components/file-editor/database-editor"
+import { AdvancedFileEditor } from "@/components/file-editor/advanced-file-editor"
+import { AdvancedDatabaseEditor } from "@/components/file-editor/advanced-database-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -619,7 +619,7 @@ const DesktopLayout = ({
                             {file.name}
                           </p>
                           <p className="text-gray-400 text-sm">
-                            {formatBytes(file.size)}
+                            {formatBytes(file.size, 2, file.isFolder)}
                           </p>
                           <div className="flex justify-center items-center gap-2 mt-4">
                             <div className="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
@@ -649,7 +649,7 @@ const DesktopLayout = ({
                               </p>
                               <div className="flex items-center space-x-6 mt-2">
                                 <p className="text-gray-400 text-sm">
-                                  {formatBytes(file.size)}
+                                  {formatBytes(file.size, 2, file.isFolder)}
                                 </p>
                                 <p className="text-gray-500 text-sm">
                                   {new Date(file.lastModified).toLocaleDateString()}
