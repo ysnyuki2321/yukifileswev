@@ -19,8 +19,8 @@ import {
   ArrowUpDown, FileX, FileCheck
 } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { SimpleFileEditor } from "@/components/file-editor/simple-file-editor"
-import { SimpleDatabaseEditor } from "@/components/file-editor/simple-database-editor"
+import { ProfessionalFileEditor } from "@/components/file-editor/professional-file-editor"
+import { SQLiteGUIEditor } from "@/components/file-editor/sqlite-gui-editor"
 import { FilePreviewContent } from "@/components/file-preview/FilePreview"
 import { formatBytes } from "@/lib/utils"
 
@@ -987,7 +987,7 @@ export function UnifiedFileManager() {
         title: file.name,
         type: 'database',
         content: (
-          <SimpleDatabaseEditor
+          <SQLiteGUIEditor
             file={file}
             onClose={() => dispatch({ type: 'REMOVE_TAB', payload: tabId })}
             readOnly={false}
@@ -1003,7 +1003,7 @@ export function UnifiedFileManager() {
         title: file.name,
         type: 'file',
         content: (
-          <SimpleFileEditor
+          <ProfessionalFileEditor
             file={{
               id: file.id,
               name: file.name,
