@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useToast } from '@/components/ui/professional-toast'
+import { ToastProvider } from '@/components/ui/professional-toast'
 
 interface ShareData {
   token: string
@@ -39,7 +40,7 @@ interface ShareData {
   createdAt: string
 }
 
-export default function DemoSharePage() {
+function DemoSharePageContent() {
   const params = useParams()
   const router = useRouter()
   const { addToast } = useToast()
@@ -502,5 +503,13 @@ export default function DemoSharePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function DemoSharePage() {
+  return (
+    <ToastProvider>
+      <DemoSharePageContent />
+    </ToastProvider>
   )
 }

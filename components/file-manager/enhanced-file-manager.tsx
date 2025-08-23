@@ -18,7 +18,7 @@ import {
   WifiOff, CheckCircle, XCircle, AlertCircle, Info, X,
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
-import { FileEditor } from "@/components/file-editor/FileEditor"
+import { UltimateFileEditor } from "@/components/file-editor/ultimate-file-editor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -1442,18 +1442,15 @@ export function EnhancedFileManager({
               </Button>
             </div>
             <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-              <FileEditor
-                isOpen={true}
+              <UltimateFileEditor
+                file={selectedFile}
                 onClose={closeEditor}
-                onSave={(file, content, name) => {
+                onSave={(fileName, content, fileType) => {
                   if (onFileUpdate) {
-                    onFileUpdate({ ...selectedFile, content, name: name || selectedFile.name })
+                    onFileUpdate({ ...selectedFile, content, name: fileName })
                   }
                   closeEditor()
                 }}
-                initialFileName={selectedFile.name}
-                initialContent={selectedFile.content || ''}
-                fileType={isTextFile(selectedFile.name) ? 'text' : 'code'}
               />
             </div>
           </div>
