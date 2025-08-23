@@ -18,8 +18,8 @@ import {
   WifiOff, CheckCircle, XCircle, AlertCircle, Info, X,
   Smartphone, Monitor, Tablet, ChevronDown, Menu, Plus
 } from "lucide-react"
-import { DesktopFileEditor } from "@/components/file-editor/desktop-file-editor"
-import { MobileFileEditor } from "@/components/file-editor/mobile-file-editor"
+import { TabSystem } from "@/components/ui/tab-system"
+import { FileEditor } from "@/components/file-editor/FileEditor"
 import { MediaPreview } from "@/components/ui/media-preview"
 import { FileContextMenu } from "@/components/ui/file-context-menu"
 import { useProfessionalModal } from "@/components/ui/professional-modal"
@@ -775,7 +775,8 @@ export function EnhancedFileManager({
   const [searchQuery, setSearchQuery] = useState("")
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
   const [selectedFile, setSelectedFile] = useState<any | null>(null)
-  const [showEditor, setShowEditor] = useState(false)
+  const [tabs, setTabs] = useState<any[]>([])
+  const [activeTabId, setActiveTabId] = useState<string | null>(null)
   const [showMediaPreview, setShowMediaPreview] = useState(false)
   const [sortBy, setSortBy] = useState<"name" | "size" | "date">("name")
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc")
@@ -811,6 +812,72 @@ export function EnhancedFileManager({
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // Tab management functions
+  const openFileInTab = (file: any) => {
+    const tabId = `file-${file.id || Date.now()}`
+    const newTab = {
+      id: tabId,
+      title: file.name,
+      type: 'file',
+      content: (
+        <FileEditor
+          isOpen={true}
+          onClose={() => closeTab(tabId)}
+          onSave={(fileName, content, fileType) => {
+            if (onFileUpdate) {
+              onFileUpdate({ ...file, content, name: fileName })
+            }
+          }}
+          initialFileName={file.name}
+          initialContent={file.content || ''}
+          fileType={detectFileType(file.name)}
+        />
+      ),
+      isActive: true
+    }
+    
+    // Deactivate all other tabs
+    setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
+    
+    // Add new tab
+    setTabs(prev => [...prev, newTab])
+    setActiveTabId(tabId)
+  }
+
+  const closeTab = (tabId: string) => {
+    setTabs(prev => {
+      const newTabs = prev.filter(tab => tab.id !== tabId)
+      if (newTabs.length > 0 && activeTabId === tabId) {
+        // Activate the last tab if current tab is closed
+        const lastTab = newTabs[newTabs.length - 1]
+        lastTab.isActive = true
+        setActiveTabId(lastTab.id)
+      }
+      return newTabs
+    })
+  }
+
+  const activateTab = (tabId: string) => {
+    setTabs(prev => prev.map(tab => ({ 
+      ...tab, 
+      isActive: tab.id === tabId 
+    })))
+    setActiveTabId(tabId)
+  }
+
+  const detectFileType = (filename: string): string => {
+    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'))
+    
+    if (['.mp3', '.wav', '.flac', '.aac', '.ogg', '.m4a'].includes(ext)) return 'audio'
+    if (['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.bmp'].includes(ext)) return 'image'
+    if (['.mp4', '.avi', '.mov', '.wmv', '.flv', '.webm', '.mkv'].includes(ext)) return 'video'
+    if (['.db', '.sqlite', '.sqlite3', '.sql'].includes(ext)) return 'database'
+    if (['.js', '.ts', '.jsx', '.tsx', '.html', '.css', '.scss', '.py', '.java', '.cpp', '.c', '.php', '.rb', '.go', '.rs', '.swift', '.kt'].includes(ext)) return 'code'
+    if (['.txt', '.md', '.json', '.csv', '.log', '.rtf'].includes(ext)) return 'text'
+    
+    return 'text'
+  }
 
   // File creation handlers
   const handleCreateFile = () => {
@@ -1254,17 +1321,74 @@ export function EnhancedFileManager({
     }
     
     if (isDatabaseFile(file.name)) {
-      setDatabaseEditor({ isOpen: true, file })
+      // Open database editor in tab
+      const tabId = `db-${file.id || Date.now()}`
+      const newTab = {
+        id: tabId,
+        title: file.name,
+        type: 'database',
+        content: (
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white font-bold text-xl">Database Editor</h3>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => closeTab(tabId)}
+                className="text-white hover:bg-white/20"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            {/* Database editor content will go here */}
+            <div className="text-white/70">Database editor for {file.name}</div>
+          </div>
+        ),
+        isActive: true
+      }
+      
+      setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
+      setTabs(prev => [...prev, newTab])
+      setActiveTabId(tabId)
     } else if (isArchiveFile(file.name)) {
       setArchiveViewer({ isOpen: true, file })
     } else if (isTextFile(file.name)) {
-      setSelectedFile(file)
-      setShowEditor(true)
-      onFileUpdate?.(file)
+      openFileInTab(file)
     } else if (isMediaFile(file.name)) {
-      setSelectedFile(file)
-      setShowMediaPreview(true)
-      onFileUpdate?.(file)
+      // Open media preview in tab
+      const tabId = `media-${file.id || Date.now()}`
+      const newTab = {
+        id: tabId,
+        title: file.name,
+        type: 'media',
+        content: (
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-white font-bold text-xl">Media Preview</h3>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => closeTab(tabId)}
+                className="text-white hover:bg-white/20"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            <MediaPreview
+              file={file}
+              onDownload={() => {}}
+              onShare={() => {}}
+              onLike={() => {}}
+              onClose={() => closeTab(tabId)}
+            />
+          </div>
+        ),
+        isActive: true
+      }
+      
+      setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
+      setTabs(prev => [...prev, newTab])
+      setActiveTabId(tabId)
     }
   }
 
@@ -1426,52 +1550,17 @@ export function EnhancedFileManager({
         </Card>
       )}
 
-      {/* File Editor Modal */}
-      {showEditor && selectedFile && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={closeEditor}></div>
-          <div className="relative w-full max-w-4xl max-h-[90vh] bg-gray-900 rounded-xl border border-purple-500/30 shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between p-4 border-b border-purple-500/20 bg-gradient-to-r from-purple-500/10 to-pink-500/10">
-              <h3 className="text-lg font-semibold text-white">Editing: {selectedFile.name}</h3>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={closeEditor}
-                className="text-gray-400 hover:text-white"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-            <div className="p-4 overflow-auto max-h-[calc(90vh-80px)]">
-              {/* Desktop Editor */}
-              <div className="hidden lg:block">
-                <DesktopFileEditor
-                  file={selectedFile}
-                  onClose={closeEditor}
-                  onSave={(fileName, content, fileType) => {
-                    if (onFileUpdate) {
-                      onFileUpdate({ ...selectedFile, content, name: fileName })
-                    }
-                    closeEditor()
-                  }}
-                />
-              </div>
-
-              {/* Mobile Editor */}
-              <div className="block lg:hidden">
-                <MobileFileEditor
-                  file={selectedFile}
-                  onClose={closeEditor}
-                  onSave={(fileName, content, fileType) => {
-                    if (onFileUpdate) {
-                      onFileUpdate({ ...selectedFile, content, name: fileName })
-                    }
-                    closeEditor()
-                  }}
-                />
-              </div>
-            </div>
-          </div>
+      {/* Tab System */}
+      {tabs.length > 0 && (
+        <div className="mt-6">
+          <TabSystem
+            tabs={tabs}
+            onTabClose={closeTab}
+            onTabActivate={activateTab}
+            onTabUpdate={(tabId, content) => {
+              // Handle tab content updates if needed
+            }}
+          />
         </div>
       )}
 
