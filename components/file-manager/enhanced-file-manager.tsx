@@ -816,26 +816,28 @@ export function EnhancedFileManager({
   // Tab management functions
   const openFileInTab = (file: any) => {
     const tabId = `file-${file.id || Date.now()}`
-    const newTab = {
-      id: tabId,
-      title: file.name,
-      type: 'file',
-      content: (
-        <FileEditor
-          isOpen={true}
-          onClose={() => closeTab(tabId)}
-          onSave={(fileName, content, fileType) => {
-            if (onFileUpdate) {
-              onFileUpdate({ ...file, content, name: fileName })
-            }
-          }}
-          initialFileName={file.name}
-          initialContent={file.content || ''}
-          fileType={detectFileType(file.name)}
-        />
-      ),
-      isActive: true
-    }
+          const newTab = {
+        id: tabId,
+        title: file.name,
+        type: 'file',
+        content: (
+          <div className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 rounded-2xl p-6 border border-white/10">
+            <FileEditor
+              isOpen={true}
+              onClose={() => closeTab(tabId)}
+              onSave={(fileName, content, fileType) => {
+                if (onFileUpdate) {
+                  onFileUpdate({ ...file, content, name: fileName })
+                }
+              }}
+              initialFileName={file.name}
+              initialContent={file.content || ''}
+              fileType={detectFileType(file.name)}
+            />
+          </div>
+        ),
+        isActive: true
+      }
     
     // Deactivate all other tabs
     setTabs(prev => prev.map(tab => ({ ...tab, isActive: false })))
@@ -1340,8 +1342,16 @@ export function EnhancedFileManager({
                 <X className="w-4 h-4" />
               </Button>
             </div>
-            {/* Database editor content will go here */}
-            <div className="text-white/70">Database editor for {file.name}</div>
+            {/* Use the actual DatabaseEditor component */}
+            <DatabaseEditor
+              file={file}
+              onClose={() => closeTab(tabId)}
+              onSave={(fileName, content, fileType) => {
+                if (onFileUpdate) {
+                  onFileUpdate({ ...file, content, name: fileName })
+                }
+              }}
+            />
           </div>
         ),
         isActive: true
