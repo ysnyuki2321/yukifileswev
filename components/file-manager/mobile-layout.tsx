@@ -104,7 +104,7 @@ export function MobileLayout({
   }
 
   return (
-    <div className="space-y-4 p-4">
+    <div className="space-y-4 p-4 max-w-full overflow-hidden">
       {/* Mobile Header */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold text-white">Files</h2>
@@ -221,7 +221,7 @@ export function MobileLayout({
       )}
 
       {/* Files Grid - Mobile Optimized */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-3 w-full">
         {filteredAndSortedFiles.map((file) => {
           const isSelected = selectedFiles.has(file.id)
           const isFolder = file.isFolder
@@ -252,11 +252,11 @@ export function MobileLayout({
                 </div>
                 
                 {/* File Name */}
-                <div className="text-center">
-                  <p className="text-sm text-white font-medium truncate" title={file.name}>
+                <div className="text-center w-full">
+                  <p className="text-sm text-white font-medium truncate max-w-full" title={file.name}>
                     {file.name}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="text-xs text-gray-400 mt-1 truncate">
                     {formatBytes(file.size || 0, 2, isFolder)}
                   </p>
                 </div>
