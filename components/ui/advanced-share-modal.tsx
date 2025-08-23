@@ -11,7 +11,7 @@ import {
   Copy, Check, Link, Lock, Unlock, Calendar, Users, 
   Download, Eye, Clock, Shield, QrCode, ExternalLink,
   Globe, Mail, MessageSquare, Twitter, Facebook, Linkedin, RefreshCw, X,
-  Zap, Star, Settings, AlertCircle
+  Zap, Star, Settings, AlertCircle, Timer
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

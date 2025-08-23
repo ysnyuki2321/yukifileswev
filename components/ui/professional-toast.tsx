@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, createContext, useContext } from 'react'
+import React, { useState, useEffect, createContext, useContext } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CheckCircle, AlertCircle, Info, X, AlertTriangle } from 'lucide-react'
 import { cn } from '@/lib/utils'
