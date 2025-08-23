@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { ResponsiveVideoPlayer } from './responsive-video-player'
 import { MusicPlayer } from './music-player'
 import { PopoutMusicPlayer } from './popout-music-player'
-import { BeautifulVideoPlayer } from './beautiful-video-player'
+import { UltimateVideoPlayer } from './ultimate-video-player'
 import { Download, Share2, RotateCcw, ZoomIn, ZoomOut, Star, Maximize2 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -98,7 +98,7 @@ export function MediaPreview({ file, onDownload, onShare, onLike, onClose, class
 
         {/* Video Content */}
         <div className="p-4">
-          <BeautifulVideoPlayer
+          <UltimateVideoPlayer
             src={file.content}
             poster={file.thumbnail || undefined}
             title={file.name}

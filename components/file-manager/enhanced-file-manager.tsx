@@ -28,7 +28,7 @@ import { SimpleShareModal } from "@/components/ui/simple-share-modal"
 import { AdvancedShareModal } from "@/components/ui/advanced-share-modal"
 import { BreadcrumbPath } from "@/components/ui/breadcrumb-path"
 import { CompressionOverlay } from "@/components/ui/compression-overlay"
-import { DatabaseEditor } from "@/components/file-editor/database-editor"
+
 import { ArchiveViewer } from "@/components/ui/archive-viewer"
 import { formatBytes } from "@/lib/utils"
 
@@ -1341,15 +1341,22 @@ export function EnhancedFileManager({
               <div className="mb-6">
                 <h3 className="text-white font-bold text-xl">Database Editor</h3>
               </div>
-              {/* Use the actual DatabaseEditor component */}
-              <DatabaseEditor
-                file={file}
-                onClose={() => closeTab(tabId)}
+              <UltimateWebEditor
+                file={{
+                  id: file.id || `file-${Date.now()}`,
+                  name: file.name,
+                  content: file.content || '',
+                  type: detectFileType(file.name),
+                  size: file.size || 0,
+                  lastModified: file.lastModified || new Date()
+                }}
                 onSave={(fileName, content, fileType) => {
                   if (onFileUpdate) {
                     onFileUpdate({ ...file, content, name: fileName })
                   }
                 }}
+                onClose={() => closeTab(tabId)}
+                readOnly={false}
               />
             </div>
         ),
@@ -1644,18 +1651,7 @@ export function EnhancedFileManager({
         />
       )}
 
-      {/* Database Editor */}
-      {databaseEditor.file && (
-        <DatabaseEditor
-          file={{
-            id: databaseEditor.file.id,
-            name: databaseEditor.file.name,
-            size: databaseEditor.file.size
-          }}
-          onClose={() => setDatabaseEditor({ isOpen: false, file: null })}
-          readOnly={false}
-        />
-      )}
+
 
       {/* Archive Viewer */}
       {archiveViewer.file && (
