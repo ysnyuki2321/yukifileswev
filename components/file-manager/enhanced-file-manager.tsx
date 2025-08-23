@@ -31,6 +31,8 @@ import { BreadcrumbPath } from "@/components/ui/breadcrumb-path"
 import { CompressionOverlay } from "@/components/ui/compression-overlay"
 import { ArchiveViewer } from "@/components/ui/archive-viewer"
 import { formatBytes } from "@/lib/utils"
+import { MobileLayout } from "./mobile-layout"
+import { DesktopLayout } from "./desktop-layout"
 
 // Types
 interface FileItem {
@@ -426,6 +428,10 @@ export function EnhancedFileManager({
 
   const setViewMode = useCallback((mode: FileManagerState['viewMode']) => {
     dispatch({ type: 'SET_VIEW_MODE', payload: mode })
+  }, [])
+
+  const setMultiSelectMode = useCallback((mode: boolean) => {
+    dispatch({ type: 'SET_MULTI_SELECT_MODE', payload: mode })
   }, [])
 
   const setShowAnalytics = useCallback((show: boolean) => {
