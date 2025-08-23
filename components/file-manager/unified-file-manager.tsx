@@ -22,6 +22,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProfessionalFileEditor } from "@/components/file-editor/professional-file-editor"
 import { SQLiteGUIEditor } from "@/components/file-editor/sqlite-gui-editor"
 import { FilePreviewContent } from "@/components/file-preview/FilePreview"
+import { FileContextMenu } from "@/components/ui/file-context-menu"
+import { ShareSystem } from "@/components/ui/share-system"
 import { formatBytes } from "@/lib/utils"
 
 // Types
@@ -79,6 +81,11 @@ interface FileManagerState {
   
   // Storage
   storageStats: { used: number; total: number }
+  
+  // Context Menu & Share
+  contextMenu: { file: FileItem | null; position: { x: number; y: number } | null }
+  showShareSystem: boolean
+  selectedFileForShare: FileItem | null
 }
 
 type FileManagerAction =
@@ -100,6 +107,10 @@ type FileManagerAction =
   | { type: 'SET_ACTIVE_TAB'; payload: string }
   | { type: 'SET_CURRENT_PATH'; payload: string[] }
   | { type: 'SET_STORAGE_STATS'; payload: { used: number; total: number } }
+  | { type: 'SHOW_CONTEXT_MENU'; payload: { file: FileItem; position: { x: number; y: number } } }
+  | { type: 'HIDE_CONTEXT_MENU' }
+  | { type: 'SHOW_SHARE_SYSTEM'; payload: FileItem }
+  | { type: 'HIDE_SHARE_SYSTEM' }
 
 const initialState: FileManagerState = {
   searchQuery: '',
@@ -118,7 +129,10 @@ const initialState: FileManagerState = {
   tabs: [],
   activeTabId: null,
   currentPath: [],
-  storageStats: { used: 0, total: 0 }
+  storageStats: { used: 0, total: 0 },
+  contextMenu: { file: null, position: null },
+  showShareSystem: false,
+  selectedFileForShare: null
 }
 
 function fileManagerReducer(state: FileManagerState, action: FileManagerAction): FileManagerState {
@@ -171,6 +185,14 @@ function fileManagerReducer(state: FileManagerState, action: FileManagerAction):
       return { ...state, currentPath: action.payload }
     case 'SET_STORAGE_STATS':
       return { ...state, storageStats: action.payload }
+    case 'SHOW_CONTEXT_MENU':
+      return { ...state, contextMenu: action.payload }
+    case 'HIDE_CONTEXT_MENU':
+      return { ...state, contextMenu: { file: null, position: null } }
+    case 'SHOW_SHARE_SYSTEM':
+      return { ...state, showShareSystem: true, selectedFileForShare: action.payload }
+    case 'HIDE_SHARE_SYSTEM':
+      return { ...state, showShareSystem: false, selectedFileForShare: null }
     default:
       return state
   }
@@ -1086,7 +1108,27 @@ export function UnifiedFileManager() {
 
   const handleRightClick = useCallback((file: FileItem, event: React.MouseEvent) => {
     event.preventDefault()
-    // Context menu logic
+    dispatch({
+      type: 'SHOW_CONTEXT_MENU',
+      payload: { file, position: { x: event.clientX, y: event.clientY } }
+    })
+  }, [dispatch])
+
+  const handleHideContextMenu = useCallback(() => {
+    dispatch({ type: 'HIDE_CONTEXT_MENU' })
+  }, [dispatch])
+
+  const handleShowShareSystem = useCallback((file: FileItem) => {
+    dispatch({ type: 'SHOW_SHARE_SYSTEM', payload: file })
+  }, [dispatch])
+
+  const handleHideShareSystem = useCallback(() => {
+    dispatch({ type: 'HIDE_SHARE_SYSTEM' })
+  }, [dispatch])
+
+  const handleToggleFileVisibility = useCallback((file: FileItem, isPublic: boolean) => {
+    // Mock implementation - in real app this would update the backend
+    console.log('Toggling visibility for file:', file.id, 'to:', isPublic)
   }, [])
 
   const handleShare = useCallback((file: FileItem) => {
@@ -1535,6 +1577,80 @@ export function UnifiedFileManager() {
           </div>
         )}
       </div>
+
+      {/* Context Menu */}
+      {state.contextMenu.file && state.contextMenu.position && (
+        <FileContextMenu
+          file={state.contextMenu.file}
+          position={state.contextMenu.position}
+          onClose={handleHideContextMenu}
+          onOpen={() => {
+            handleFileClick(state.contextMenu.file!)
+            handleHideContextMenu()
+          }}
+          onEdit={() => {
+            handleFileClick(state.contextMenu.file!)
+            handleHideContextMenu()
+          }}
+          onDownload={() => {
+            console.log('Downloading file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onShare={() => {
+            handleShowShareSystem(state.contextMenu.file!)
+            handleHideContextMenu()
+          }}
+          onStar={() => {
+            console.log('Toggling star for file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onCopy={() => {
+            console.log('Copying file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onDelete={() => {
+            console.log('Deleting file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onArchive={() => {
+            console.log('Archiving file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onToggleVisibility={() => {
+            handleToggleFileVisibility(state.contextMenu.file!, !state.contextMenu.file!.is_public)
+            handleHideContextMenu()
+          }}
+          onRename={() => {
+            console.log('Renaming file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onMove={() => {
+            console.log('Moving file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onCopyLink={() => {
+            console.log('Copying link for file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onRefresh={() => {
+            console.log('Refreshing file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+          onProperties={() => {
+            console.log('Showing properties for file:', state.contextMenu.file!.name)
+            handleHideContextMenu()
+          }}
+        />
+      )}
+
+      {/* Share System */}
+      {state.showShareSystem && state.selectedFileForShare && (
+        <ShareSystem
+          file={state.selectedFileForShare}
+          onClose={handleHideShareSystem}
+          onToggleVisibility={handleToggleFileVisibility}
+        />
+      )}
     </div>
   )
 }
