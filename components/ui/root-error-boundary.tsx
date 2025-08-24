@@ -1,39 +1,55 @@
-'use client'
+"use client"
 
-import React, { Component, ErrorInfo, ReactNode } from "react"
-import { SimpleErrorScreen } from "./simple-error-screen"
+import React from "react"
+import { AlertTriangle, RefreshCw, Home } from "lucide-react"
+import { Button } from "./button"
 
-// Root Error Boundary cho toàn bộ ứng dụng
-export class RootErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean; error: Error | null; errorInfo: ErrorInfo | null }
-> {
-  constructor(props: { children: ReactNode }) {
-    super(props)
-    this.state = { hasError: false, error: null, errorInfo: null }
-  }
+interface RootErrorBoundaryProps {
+  error: Error & { digest?: string }
+  reset: () => void
+}
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error, errorInfo: null }
-  }
-
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('🚨 Root Application Error:', error)
-    console.error('Error Info:', errorInfo)
-    this.setState({ error, errorInfo })
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <SimpleErrorScreen 
-          error={this.state.error || undefined}
-          errorInfo={this.state.errorInfo || undefined}
-          resetError={() => this.setState({ hasError: false, error: null, errorInfo: null })}
-        />
-      )
-    }
-
-    return this.props.children
-  }
+export function RootErrorBoundary({ error, reset }: RootErrorBoundaryProps) {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="max-w-md mx-auto text-center p-8">
+        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <AlertTriangle className="w-8 h-8 text-red-600" />
+        </div>
+        
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">
+          Something went wrong!
+        </h1>
+        
+        <p className="text-gray-600 mb-6">
+          An unexpected error occurred. Please try again or contact support if the problem persists.
+        </p>
+        
+        {process.env.NODE_ENV === "development" && (
+          <details className="mb-6 text-left">
+            <summary className="cursor-pointer text-sm font-medium text-gray-700 mb-2">
+              Error Details
+            </summary>
+            <pre className="text-xs text-red-600 bg-red-50 p-3 rounded overflow-auto">
+              {error.message}
+              {error.stack && `\n${error.stack}`}
+            </pre>
+          </details>
+        )}
+        
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button onClick={reset} variant="outline">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </Button>
+          <Button asChild>
+            <a href="/">
+              <Home className="w-4 h-4 mr-2" />
+              Go Home
+            </a>
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
 }
