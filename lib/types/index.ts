@@ -113,7 +113,7 @@ export interface ValidationResult {
   errors: string[]
 }
 
-export interface FormValidationRules<T> {
+export type FormValidationRules<T> = {
   [K in keyof T]: (value: T[K]) => ValidationResult;
 }
 
