@@ -1,12 +1,12 @@
 "use client"
 
-import { ComprehensiveDemoDashboard } from '@/components/demo/comprehensive-demo-dashboard'
+import { WorkingDemoDashboard } from '@/components/demo/working-demo-dashboard'
+import { DemoAuthProvider } from '@/contexts/demo-auth-context'
 
 export default function DemoDashboardPage() {
   return (
-    <ComprehensiveDemoDashboard 
-      isDemo={true}
-      mode="full"
-    />
+    <DemoAuthProvider>
+      <WorkingDemoDashboard />
+    </DemoAuthProvider>
   )
 }
